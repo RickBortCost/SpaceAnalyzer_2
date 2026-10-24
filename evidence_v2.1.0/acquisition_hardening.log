@@ -1,0 +1,39 @@
+...ERROR:root:Recording error: Formato esterno non disponibile; originale primario conservato
+ERROR:root:Recording error: Formato esterno non disponibile; originale primario conservato
+ERROR:root:Recording error: Formato esterno non disponibile; originale primario conservato
+ERROR:root:FDA DAS4 conversion failure
+Traceback (most recent call last):
+  File "/home/user/SpaceAnalyzer_2/source/converted_recording.py", line 98, in _run
+    if state['state']=='error':raise ValueError('Acquisizione originale incompleta: '+state['error']+'; file parziale conservato')
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Acquisizione originale incompleta: Formato esterno non disponibile; originale primario conservato; file parziale conservato
+ERROR:root:Recording error: Formato esterno non disponibile; originale primario conservato
+ERROR:root:RBF v3 conversion failure
+Traceback (most recent call last):
+  File "/home/user/SpaceAnalyzer_2/source/converted_recording.py", line 98, in _run
+    if state['state']=='error':raise ValueError('Acquisizione originale incompleta: '+state['error']+'; file parziale conservato')
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Acquisizione originale incompleta: Formato esterno non disponibile; originale primario conservato; file parziale conservato
+ERROR:root:Recording error: Formato esterno non disponibile; originale primario conservato
+..ERROR:root:Recording error: Formato esterno non disponibile; originale primario conservato
+...ERROR:root:Recording write failure
+Traceback (most recent call last):
+  File "/home/user/SpaceAnalyzer_2/source/recordings.py", line 475, in _run
+    self._flush(batch)
+    ~~~~~~~~~~~^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+OSError: injected finalization disk error
+ERROR:root:Recording error: Errore di scrittura: injected finalization disk error
+.......ERROR:root:Recording error: Formato esterno non disponibile; originale primario conservato
+...
+----------------------------------------------------------------------
+Ran 18 tests in 10.930s
+
+OK

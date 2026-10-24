@@ -52,6 +52,11 @@ class DurableRecorder(Recorder):
     def _primary_failed(self,message):
         self.stop_requested=True
         self._event('recording_integrity_failure',error=str(message))
+    def annotate(self,event):
+        """Copy an integrity event into the active primary capture (SAC EVENT block)."""
+        primary=self.primary
+        if primary is None or not primary.accepting:return False
+        return primary.annotate(event['kind'],{**event.get('details',{}),'connection_id':event.get('connection_id'),'at_ns':event.get('at_ns')})
     def enqueue_primary(self,t,rows,sample_ms):
         self.primary_only=True
         return self.primary.enqueue(t,rows,sample_ms,backpressure_timeout=.5) if self.primary and self.primary.accepting else False

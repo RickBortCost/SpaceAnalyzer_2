@@ -1,4 +1,18 @@
-# Stato della consegna V1.29.0
+# Stato della consegna 2.1.0
+
+Seconda iterazione della Fase 1, senza modifiche a UI, grafici o formati:
+
+- rilevamento delle perdite ADS a monte della callback;
+- notifiche ADS a blocco opzionali;
+- eventi di integrità nel file primario;
+- IPC del writer più leggera;
+- rate recenti nella diagnostica.
+
+Superati 241 test in 29 suite (un'intermittenza preesistente documentata), la pipeline multi-protocollo (2.000.000 di campioni senza perdite, anche con UI sotto carico) e uno smoke soak di 30 s con 3.000.000 di campioni.
+
+Il benchmark ADS di riferimento (1.000 variabili a 10 ms) **non è raggiunto**: in simulazione si sostengono circa 60.000 valori/s con notifiche a blocco e circa 16.000 per simbolo. Ogni overflow è esplicito e attribuito. PLC reali e soak di 24 ore restano da eseguire. Dettagli in `FASE1_HARDENING_V2.1.md`.
+
+## Consegna precedente V1.29.0
 
 Implementata la Fase 1 del backend: buffer per connessione, recorder prioritario, processo di scrittura SAC v1 con checksum/flush/recovery, limiti Start/Stop monotoni, timestamp UTC originali, valori tipizzati, eventi SQLite e API di diagnostica. Un formato sovraccarico viene ricostruito dal primario dopo Stop senza impedire un nuovo Record. Le funzionalità e i formati precedenti rimangono disponibili nei relativi limiti; JavaScript, CSS e template non sono stati modificati.
 

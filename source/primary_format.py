@@ -151,12 +151,15 @@ def iter_blocks(stream,*,validate_rows=True):
 
 
 def inspect(path):
-    path=Path(path);count=blocks=0;last=None;error=''
+    path=Path(path);count=blocks=0;last=None;error='';events=[];events_count=0
     with path.open('rb') as stream:
         meta=read_header(stream);valid=stream.tell();finished=False
         try:
             for block in iter_blocks(stream):
                 if finished:raise ValueError('Dati dopo finalizzazione')
+                if block['kind']==EVENT:
+                    events_count+=1
+                    if len(events)<1000:events.append(block['value'])
                 if block['kind']==DATA:
                     for values in block['value']:
                         channel=values[2]
@@ -165,7 +168,7 @@ def inspect(path):
                 blocks+=1;count+=block['samples'];valid=block['end'];last=block
         except (ValueError,zlib.error,UnicodeError,json.JSONDecodeError) as exc:error=str(exc)
     return dict(metadata=meta,samples=count,blocks=blocks,valid_bytes=valid,file_bytes=path.stat().st_size,
-                discarded_bytes=path.stat().st_size-valid,error=error,
+                discarded_bytes=path.stat().st_size-valid,error=error,events_count=events_count,events=events,
                 finalized=bool(last and last['kind']==FINISH),footer=last['value'] if last and last['kind']==FINISH else None,
                 footer_offset=last['offset'] if last and last['kind']==FINISH else None)
 
@@ -180,6 +183,14 @@ def iter_samples(path):
                 if type(index) is not int or not 0<=index<len(channels):raise ValueError('Canale primario non valido')
                 row['nodeid']=channels[index]['nodeid'];row['value']=untyped(row['value']);row['source_value']=untyped(row['source_value']);row['source_binary']=untyped(row['source_binary'])
                 yield row
+
+
+def iter_events(path):
+    """Integrity events stored in the capture, in sample order (after_sample)."""
+    with Path(path).open('rb') as stream:
+        read_header(stream)
+        for block in iter_blocks(stream):
+            if block['kind']==EVENT:yield block['value']
 
 
 def recover(path,output=None):
@@ -212,7 +223,7 @@ def recover(path,output=None):
                 target.flush();os.fsync(target.fileno())
             if [path.stat().st_size,path.stat().st_mtime_ns]!=fingerprint:raise ValueError('Sorgente modificata durante recovery')
             os.replace(temporary,output);sync_directory(output.parent)
-            result={k:v for k,v in report.items() if k not in ('metadata','footer')}
+            result={k:v for k,v in report.items() if k not in ('metadata','footer','events')}
             result.update(source=str(path),output=str(output),source_fingerprint=fingerprint,integrity=integrity,
                           unknown_uncommitted_loss=integrity!='complete',recovered=True)
             atomic_json(marker,result);return result

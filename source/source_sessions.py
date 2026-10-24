@@ -87,6 +87,12 @@ class SourceSession:
             self.notification_worker.start()
 
     def report(self, diag):
+        from ads_notifications import gap_report
+        missing, gaps = gap_report(self.diag, diag)
+        if gaps and getattr(self.owner, 'events', None):
+            self.owner.events.emit('ads_source_gap', connection_id=self.owner.connection_id(self.protocol) if hasattr(self.owner, 'connection_id') else None,
+                                   protocol=self.protocol, missing_samples=missing, gaps=gaps,
+                                   policy='notifications missing upstream of the callback; recording continues and the gap is documented')
         self.diag = dict(diag)
 
     async def close(self):

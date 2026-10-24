@@ -1,7 +1,7 @@
 """Run each regression suite in an independent interpreter with isolated fixtures."""
 import argparse,os,subprocess,json,re,sys,time
 from pathlib import Path
-names=['recordings','binary_recordings','fda','rbf','recording_reader','recording_compare','calculation_api','live_interval_calculations','recording_manager','recording_preview','source_sessions','s7','s7_extended','ads','ads_native','ads_types','ads_notifications','mqtt','mqtt_api','advanced','i18n','fft_api','iba_dat','pda3_api','pda3_lifecycle','acquisition_hardening','calculation_ads','integration']
+names=['recordings','binary_recordings','fda','rbf','recording_reader','recording_compare','calculation_api','live_interval_calculations','recording_manager','recording_preview','source_sessions','s7','s7_extended','ads','ads_native','ads_types','ads_notifications','mqtt','mqtt_api','advanced','i18n','fft_api','iba_dat','pda3_api','pda3_lifecycle','acquisition_hardening','phase1_integrity','calculation_ads','integration']
 parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=Path('hardening-evidence'));args=parser.parse_args()
 results={};root=Path(__file__).resolve().parents[1];out=args.output.resolve();out.mkdir(parents=True,exist_ok=True);start=time.monotonic()
 for name in names:

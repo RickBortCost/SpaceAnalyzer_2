@@ -20,14 +20,22 @@ from primary_worker import usage
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--channels',type=int,default=1000);p.add_argument('--duration',type=float,default=10);p.add_argument('--output',type=Path,required=True)
-    args=p.parse_args();dll=NotifyDLL();configure_library(dll);cycle_box=[0]
-    nids=['ads:MAIN.Channel'+str(i) for i in range(args.channels)]
-    dll.peer.symbols={n[4:]:(5,'LREAL',8) for n in nids};dll.peer.value=lambda name:struct.pack('<d',float(cycle_box[0]*1000000+int(name[12:])))
+    p.add_argument('--grouping',action='store_true',help='opt-in block notifications over contiguous simulated PLC memory')
+    args=p.parse_args();cycle_box=[0]
+    if args.grouping:
+        from test_phase1_integrity import BlockDLL
+        dll=BlockDLL(args.channels);nids=['ads:GVL.Channel'+str(i) for i in range(args.channels)]
+        dll.peer.value=lambda name:struct.pack('<d',float(cycle_box[0]*1000000+int(name[11:])))
+    else:
+        dll=NotifyDLL();nids=['ads:MAIN.Channel'+str(i) for i in range(args.channels)]
+        dll.peer.symbols={n[4:]:(5,'LREAL',8) for n in nids};dll.peer.value=lambda name:struct.pack('<d',float(cycle_box[0]*1000000+int(name[12:])))
+    configure_library(dll);expected_subs=1 if args.grouping else args.channels
     with tempfile.TemporaryDirectory() as tmp,patch('ads_native.load_library',return_value=(dll,'simulated.dll')):
         events=EventStore(Path(tmp)/'events.sqlite');rec=PrimaryRecorder(tmp,flush_ms=100,events=events);rec.start([dict(nodeid=n) for n in nids])
-        engine=AcquisitionEngine(lambda t,rows,ms,g:rec.enqueue(t,rows,ms),lambda *a:None,rec.fail,events)
-        worker=NotificationAcquisition({**app.DEFAULT_CONFIG,'source':'ads','ads_transport':'native','ads_mode':'notify'},lambda:(nids,10,(1,1)),lambda t,rows,ms,g:engine.submit('ads','ads',t,rows,ms,g),lambda d:None)
-        worker.start();until(lambda:len(dll.subs)==args.channels,20)
+        engine=AcquisitionEngine(lambda t,rows,ms,g:rec.enqueue(t,rows,ms,backpressure_timeout=.5),  # same bound as DurableRecorder.enqueue
+            lambda *a:None,rec.fail,events)
+        worker=NotificationAcquisition({**app.DEFAULT_CONFIG,'source':'ads','ads_transport':'native','ads_mode':'notify','ads_notify_grouping':args.grouping},lambda:(nids,10,(1,1)),lambda t,rows,ms,g:engine.submit('ads','ads',t,rows,ms,g),lambda d:None)
+        worker.start();until(lambda:len(dll.subs)==expected_subs,60)
         started=time.monotonic();cpu=time.process_time();cycles=round(args.duration*100);produced=0;late=[];memory=[];base=FILETIME_EPOCH+time.time_ns()//100
         try:
             for cycle in range(cycles):
@@ -44,6 +52,7 @@ def main():
                 nid=row['nodeid'];index=int(nid.split('Channel')[1]);mismatches+=row['source_value']!=float(seen[nid]*1000000+index);seen[nid]+=1
             saved=sum(seen.values());passed=produced==saved==cycles*args.channels and not mismatches and not worker.error and not state['error'] and producer_seconds<=args.duration*1.05
             result=dict(result='PASS' if passed else 'TARGET_NOT_MET',simulated_dll=True,hardware_tested=False,channels=args.channels,period_ms=10,
+                notify_grouping=args.grouping,notifications=len(dll.subs),callbacks_per_cycle=expected_subs,
                 requested_seconds=args.duration,produced=produced,saved=saved,missing=produced-saved,mismatches=mismatches,producer_seconds=producer_seconds,
                 producer_values_per_second=produced/producer_seconds,producer_lateness_ms={**quantiles(late),'max':max(late)},
                 parent_cpu_seconds=acquisition_cpu,parent_rss_peak_observed=max(memory),ads=worker.stats(),ads_error=worker.error,

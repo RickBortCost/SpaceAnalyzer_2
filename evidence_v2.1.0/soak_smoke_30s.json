@@ -1,0 +1,76 @@
+{
+  "result": "PASS",
+  "requested_seconds": 30.0,
+  "measured_wall_seconds": 33.72743517099997,
+  "channels": 1000,
+  "period_ms": 10,
+  "produced": 3000000,
+  "verified_samples": 3000000,
+  "verified_files": 3,
+  "missing": 0,
+  "errors": [],
+  "parent_cpu_seconds": 26.498590477,
+  "parent_rss_peak_observed": 31678464,
+  "producer_lateness_max_ms": 147.37661399999524,
+  "acquisition": {
+    "connections": {
+      "soak": {
+        "connection_id": "5ae474c25fcf4718beb535fd1c1d08a1",
+        "protocol": "ads",
+        "received": 3000000,
+        "dispatched": 3000000,
+        "lost": 0,
+        "receive_clock_backwards": 0,
+        "receive_reordered": 0,
+        "backpressure_waits": 0,
+        "backpressure_ms": 0,
+        "recording_rejected_samples": 0,
+        "rejected_after_failure": 0,
+        "display_skipped": 0,
+        "received_per_second": 88946.93263424796,
+        "clock_backwards": 0,
+        "duplicates": 0,
+        "sequence_gaps": 0,
+        "backlog": 0,
+        "backlog_bytes": 0,
+        "high_water": 0,
+        "error": "",
+        "queue_latency_ms": {
+          "p95": 3.989742,
+          "p99": 12.810055
+        },
+        "recent": {
+          "window_s": 9.67430695500002,
+          "received_per_second": 61399.74705816007,
+          "dispatched_per_second": 61399.74705816007,
+          "lost_per_second": 0.0,
+          "recording_rejected_per_second": 0.0,
+          "display_skipped_per_second": 0.0
+        },
+        "rate_semantics": "received_per_second: lifetime average; recent: sliding window",
+        "buffer": {
+          "samples": 0,
+          "bytes": 0,
+          "capacity_samples": 32768,
+          "capacity_bytes": 33554432,
+          "capacity_batches": 4096,
+          "accepted_batches": 3000,
+          "completed_batches": 3000,
+          "lost_samples": 0,
+          "failed": false,
+          "high_water": 15000
+        }
+      }
+    },
+    "live": {
+      "backlog_samples": 0,
+      "backlog_bytes": 0,
+      "skipped_samples": 0,
+      "error": "",
+      "policy": "skip display only; originals already submitted to recorder"
+    },
+    "policy": "bounded; stop recording on original overflow; recorder before calculations and display"
+  },
+  "hardware_tested": false,
+  "continuous_generator": true
+}

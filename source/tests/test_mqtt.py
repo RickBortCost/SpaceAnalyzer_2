@@ -154,14 +154,14 @@ class Wire(unittest.IsolatedAsyncioTestCase):
             root=Path(temp);now=datetime.now(timezone.utc)
             ca_key=rsa.generate_private_key(public_exponent=65537,key_size=2048)
             ca_name=x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,'Test CA')])
-            ca=(x509.CertificateBuilder().subject_name(ca_name).issuer_name(ca_name).public_key(ca_key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(now-timedelta(days=1)).not_valid_after(now+timedelta(days=1)).add_extension(x509.BasicConstraints(ca=True,path_length=None),True).sign(ca_key,hashes.SHA256()))
+            ca=(x509.CertificateBuilder().subject_name(ca_name).issuer_name(ca_name).public_key(ca_key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(now-timedelta(days=1)).not_valid_after(now+timedelta(days=1)).add_extension(x509.BasicConstraints(ca=True,path_length=None),True).add_extension(x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()),False).add_extension(x509.KeyUsage(digital_signature=False,content_commitment=False,key_encipherment=False,data_encipherment=False,key_agreement=False,key_cert_sign=True,crl_sign=True,encipher_only=False,decipher_only=False),True).sign(ca_key,hashes.SHA256()))
             (root/'ca.pem').write_bytes(ca.public_bytes(serialization.Encoding.PEM))
             for kind in ('server','client'):
                 key=rsa.generate_private_key(public_exponent=65537,key_size=2048)
                 name=x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,kind)])
                 builder=x509.CertificateBuilder().subject_name(name).issuer_name(ca_name).public_key(key.public_key()).serial_number(x509.random_serial_number()).not_valid_before(now-timedelta(days=1)).not_valid_after(now+timedelta(days=1))
                 if kind=='server':builder=builder.add_extension(x509.SubjectAlternativeName([x509.IPAddress(ipaddress.ip_address('127.0.0.1'))]),False)
-                cert=builder.add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH if kind=='server' else ExtendedKeyUsageOID.CLIENT_AUTH]),False).sign(ca_key,hashes.SHA256())
+                cert=builder.add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()),False).add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH if kind=='server' else ExtendedKeyUsageOID.CLIENT_AUTH]),False).sign(ca_key,hashes.SHA256())
                 (root/(kind+'.pem')).write_bytes(cert.public_bytes(serialization.Encoding.PEM));(root/(kind+'.key')).write_bytes(key.private_bytes(serialization.Encoding.PEM,serialization.PrivateFormat.PKCS8,serialization.NoEncryption()))
             tls=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER);tls.minimum_version=ssl.TLSVersion.TLSv1_2
             tls.load_cert_chain(root/'server.pem',root/'server.key');tls.load_verify_locations(root/'ca.pem');tls.verify_mode=ssl.CERT_REQUIRED

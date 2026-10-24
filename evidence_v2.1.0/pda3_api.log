@@ -1,0 +1,7 @@
+<string>:2: ResourceWarning: unclosed file <_io.FileIO name=8 mode='rb+' closefd=True>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...
+----------------------------------------------------------------------
+Ran 3 tests in 11.676s
+
+OK

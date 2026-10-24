@@ -1,0 +1,6 @@
+.Measured diagnostics: {"acquisition_mode": "OPC UA Subscription", "actual_period_ms": 10.543, "ads_notifications": {}, "analysis_history_error": "", "buffer_limit_per_signal": 285714, "buffer_mode": "time", "buffer_samples": {"ns=2;s=Array": 35, "ns=2;s=Bad": 35, "ns=2;s=NaN": 35, "ns=2;s=Running": 35, "ns=2;s=Temperature": 35, "ns=2;s=Text": 35, "ns=2;s=Unit": 35}, "display_range": {"xmax": 1792859807125.2708, "xmin": 1792859806798.6768}, "display_summary": true, "individual_nodes": [], "last_notification_at": 1792859807125.2708, "last_sample_at": 1792859807125.2708, "live_view": "all", "mean_period_ms": 9.988, "mqtt": {}, "notification_count": 252, "read_count": 35, "read_cycle_ms": 0.085, "read_fallback_count": 2, "requested_ms": 10, "s7_udp": {}, "session_samples": {"ns=2;s=Array": 35, "ns=2;s=Bad": 35, "ns=2;s=NaN": 35, "ns=2;s=Running": 35, "ns=2;s=Temperature": 35, "ns=2;s=Text": 35, "ns=2;s=Unit": 35}, "subscription_bad": {}, "window_seconds": 60}
+................
+----------------------------------------------------------------------
+Ran 17 tests in 12.072s
+
+OK

@@ -129,7 +129,8 @@ class Integrated(unittest.TestCase):
         for fmt in ('csv','parquet'):
             self.post('/api/record/start',{'format':fmt,'selected_nodes':nodes,'options':{'session_name':'ADS regression','machine':'Peer','max_duration_s':.08,'max_file_mb':1}})
             self.wait(lambda:self.get('/api/record/status')['recording']['cycles_received']>=25)
-            rec=self.post('/api/record/stop')['recording'];self.assertGreaterEqual(len(rec['files']),2)
+            self.post('/api/record/stop');self.wait(lambda:not app.recording.busy,30)
+            rec=self.get('/api/record/status')['recording'];self.assertGreaterEqual(len(rec['files']),2)
             rows=[]
             for part in rec['files']:
                 p=app.RECORDINGS_DIR/part['name'] if isinstance(part,dict) else app.RECORDINGS_DIR/part

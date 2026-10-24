@@ -1,11 +1,38 @@
 """Bounded diagnostics and persistent critical events; no UI dependency."""
 from collections import deque
+from datetime import datetime,timezone
 import json
 from pathlib import Path
 import queue
+import re
 import sqlite3
 import threading
 import time
+
+UNIX_EPOCH=datetime(1970,1,1,tzinfo=timezone.utc);FRACTION=re.compile(r'\.(\d+)')
+
+
+class RateWindow:
+    """Instantaneous rates of monotonically increasing counters over a sliding window.
+
+    Lifetime averages hide a stall that started a minute ago; this keeps one point
+    every `interval` seconds for `seconds` seconds (bounded memory, no thread).
+    """
+    def __init__(self,seconds=10.0,interval=.25):
+        self.seconds=seconds;self.interval=interval;self.points=deque();self.lock=threading.Lock()
+    def observe(self,**counters):
+        now=time.monotonic()
+        with self.lock:
+            if self.points and now-self.points[-1][0]<self.interval:self.points[-1]=(self.points[-1][0],counters,now)
+            else:self.points.append((now,counters,now))
+            while len(self.points)>2 and now-self.points[0][0]>self.seconds:self.points.popleft()
+    def snapshot(self):
+        with self.lock:
+            if len(self.points)<2:return dict(window_s=0.0)
+            (_,first,start),(_,last,end)=self.points[0],self.points[-1]
+        span=end-start
+        if span<=0:return dict(window_s=0.0)
+        return dict(window_s=span,**{k+'_per_second':(last[k]-first.get(k,0))/span for k in last})
 
 
 def quantiles(values):
@@ -16,8 +43,14 @@ class EventStore:
     def __init__(self,path,capacity=2048):
         self.path=Path(path);self.q=queue.Queue(capacity);self.lock=threading.RLock()
         self.recent=deque(maxlen=256);self.error='';self.overflow=0;self.thread=None;self.closed=False
+        # Optional tee of every event (e.g. into the active primary capture); must not block.
+        self.listener=None;self.listener_error=''
     def emit(self,kind,connection_id=None,**details):
         event=dict(at_ns=str(time.time_ns()),kind=kind,connection_id=connection_id,details=details)
+        listener=self.listener
+        if listener:
+            try:listener(event)
+            except Exception as exc:self.listener_error=str(exc)
         with self.lock:
             self.recent.append(event)
             if self.closed:return False
@@ -70,13 +103,11 @@ def source_clock_ns(row):
     if row.get('source_filetime') is not None:return (int(row['source_filetime'])-116444736000000000)*100
     value=row.get('source_ts')
     if not value:return None
-    from datetime import datetime,timezone
-    import re
     try:
         dt=datetime.fromisoformat(value.replace('Z','+00:00'))
         if dt.tzinfo is None:return None
-        delta=dt.astimezone(timezone.utc).replace(microsecond=0)-datetime(1970,1,1,tzinfo=timezone.utc)
-        fraction=re.search(r'\.(\d+)',value)
+        delta=dt.astimezone(timezone.utc).replace(microsecond=0)-UNIX_EPOCH
+        fraction=FRACTION.search(value)
         ns=int((fraction[1]+'000000000')[:9]) if fraction else 0
         return (delta.days*86400+delta.seconds)*1000000000+ns
     except (ValueError,TypeError,OverflowError):return None
@@ -88,11 +119,15 @@ class SourceMetrics:
         self.received=self.dispatched=self.lost=self.rejected_after_failure=self.display_skipped=0
         self.clock_backwards=self.duplicates=self.sequence_gaps=0;self.last_time={};self.last_source_sequence={};self.sequences={}
         self.queue_latency=deque(maxlen=4096);self.high_water=0;self.backlog=self.backlog_bytes=0;self.error='';self.connections=0
+        self.rates=RateWindow()
+    def observe(self):
+        self.rates.observe(received=self.received,dispatched=self.dispatched,lost=self.lost,recording_rejected=self.recording_rejected,display_skipped=self.display_skipped)
     def snapshot(self):
         with self.lock:
-            seconds=max(.001,time.monotonic()-self.start)
+            self.observe();seconds=max(.001,time.monotonic()-self.start)
             return dict(connection_id=self.connection_id,protocol=self.protocol,received=self.received,dispatched=self.dispatched,
                 lost=self.lost,receive_clock_backwards=self.receive_clock_backwards,receive_reordered=self.receive_reordered,backpressure_waits=self.backpressure_waits,backpressure_ms=self.backpressure_ms,recording_rejected_samples=self.recording_rejected,rejected_after_failure=self.rejected_after_failure,display_skipped=self.display_skipped,
                 received_per_second=self.received/seconds,clock_backwards=self.clock_backwards,duplicates=self.duplicates,
                 sequence_gaps=self.sequence_gaps,backlog=self.backlog,backlog_bytes=self.backlog_bytes,
-                high_water=self.high_water,error=self.error,queue_latency_ms=quantiles(self.queue_latency))
+                high_water=self.high_water,error=self.error,queue_latency_ms=quantiles(self.queue_latency),
+                recent=self.rates.snapshot(),rate_semantics='received_per_second: lifetime average; recent: sliding window')

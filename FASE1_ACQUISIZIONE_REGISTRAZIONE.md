@@ -1,5 +1,7 @@
 # Space Analyzer V1.29.0 — Fase 1: acquisizione e registrazione
 
+> Aggiornamento 2.1: vedi [FASE1_HARDENING_V2.1.md](FASE1_HARDENING_V2.1.md) per le modifiche successive, i nuovi benchmark e i limiti ancora aperti.
+
 L’analisi eseguita prima delle modifiche è in [ANALISI_FASE1_PRELIMINARE.md](ANALISI_FASE1_PRELIMINARE.md). Questa versione rafforza il backend; JavaScript, CSS, template, grafici e workspace mantengono le funzionalità precedenti.
 
 ## Pipeline implementata
