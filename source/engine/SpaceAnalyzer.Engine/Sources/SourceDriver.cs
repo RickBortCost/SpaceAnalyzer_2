@@ -21,7 +21,7 @@ public abstract class SourceDriver : IAsyncDisposable
     public JsonElement Cfg { get; }
     public abstract string Protocol { get; }
     /// <summary>Connection facts shown in the UI and stored as acquisition_info.</summary>
-    public Dictionary<string, object?> Info { get; } = new();
+    public System.Collections.Concurrent.ConcurrentDictionary<string, object?> Info { get; } = new();
     public virtual bool Streaming => false;
     /// <summary>A fatal acquisition error (lost data); the session reconnects and the recording fails.</summary>
     public virtual string Error => "";

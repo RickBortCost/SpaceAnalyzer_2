@@ -58,6 +58,8 @@ public sealed class SourceSession
         }
     }
 
+    public void Emit(string kind, Action<Utf8JsonWriter> details) => owner.EmitFor(Protocol, kind, details);
+
     public Selection Selection()
     {
         var all = owner.CurrentSelection;
