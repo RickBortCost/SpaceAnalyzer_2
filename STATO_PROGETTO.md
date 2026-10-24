@@ -8,7 +8,7 @@ Seconda iterazione della Fase 1, senza modifiche a UI, grafici o formati:
 - IPC del writer più leggera;
 - rate recenti nella diagnostica.
 
-Superati 241 test in 29 suite (un'intermittenza preesistente documentata), la pipeline multi-protocollo (2.000.000 di campioni senza perdite, anche con UI sotto carico) e uno smoke soak di 30 s con 3.000.000 di campioni.
+Superati 243 test in 29 suite (inclusa la correzione dell'errore sorgente perso durante la chiusura di una sessione), la pipeline multi-protocollo (2.000.000 di campioni senza perdite, anche con UI sotto carico) e uno smoke soak di 30 s con 3.000.000 di campioni.
 
 Il benchmark ADS di riferimento (1.000 variabili a 10 ms) **non è raggiunto**: in simulazione si sostengono circa 60.000 valori/s con notifiche a blocco e circa 16.000 per simbolo. Ogni overflow è esplicito e attribuito. PLC reali e soak di 24 ore restano da eseguire. Dettagli in `FASE1_HARDENING_V2.1.md`.
 

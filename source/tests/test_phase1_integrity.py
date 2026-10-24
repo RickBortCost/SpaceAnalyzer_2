@@ -1,7 +1,9 @@
 """Phase 1 integrity additions: ADS block notifications, upstream gap detection,
 integrity events inside the primary capture, sliding rates. Simulated DLL/PLC only."""
+import asyncio
 import ctypes as C
 import struct
+import threading
 import tempfile
 import time
 import unittest
@@ -18,6 +20,7 @@ from durable_recording import DurableRecorder
 from primary_format import inspect, iter_events, iter_samples, recover
 from primary_recording import PrimaryRecorder
 from recording_manager import RecordingManager
+from source_sessions import SourceSession, SourceSessions
 
 GROUP = 0x4040
 
@@ -216,6 +219,46 @@ class PrimaryAnnotations(unittest.TestCase):
                 self.assertEqual(store.listener_error, '')
             finally:
                 DurableRecorder.events = previous; store.close()
+
+
+class SourceCloseAttribution(unittest.TestCase):
+    """A source error seen while its session closes must reach the recording being stopped."""
+    class Client:
+        def __init__(self, error=''):
+            self.error = error; self.release = None
+        def flush(self, timeout): return True
+        async def disconnect(self): await self.release.wait()
+
+    def setUp(self):
+        self.loop = asyncio.new_event_loop(); self.thread = threading.Thread(target=self.loop.run_forever, daemon=True); self.thread.start()
+        self.addCleanup(lambda: (self.loop.call_soon_threadsafe(self.loop.stop), self.thread.join(5), self.loop.close()))
+        self.failures = []
+        self.owner = SourceSessions(None, None, None, self.failures.append, None, None)
+        self.session = SourceSession(self.owner, 'mqtt', {'sample_ms': 40, 'source_intervals': {'mqtt': 40}})
+        self.owner.sessions = {'mqtt': self.session}
+
+    def closing(self, client):
+        client.release = asyncio.Event(); self.session.client = client
+        future = asyncio.run_coroutine_threadsafe(self.session.close(), self.loop)
+        until(lambda: self.session.client is None)  # detached; disconnect still pending
+        return future
+
+    def test_error_is_attributed_before_the_client_is_detached_and_stop_waits_for_close(self):
+        client = self.Client('MQTT: coda piena (test)'); future = self.closing(client)
+        self.assertEqual(self.failures, ['MQTT: coda piena (test)'])
+        stopped = threading.Event()
+        threading.Thread(target=lambda: (self.owner.flush(5), stopped.set()), daemon=True).start()
+        self.assertFalse(stopped.wait(.2), 'Stop must wait for the closing session')
+        client.error = 'MQTT: coda non drenata (test)'  # loss found while draining on disconnect
+        self.loop.call_soon_threadsafe(client.release.set); future.result(5)
+        self.assertTrue(stopped.wait(5))
+        self.assertIn('MQTT: coda non drenata (test)', self.failures)
+
+    def test_close_not_finished_in_time_fails_the_recording_explicitly(self):
+        client = self.Client(); future = self.closing(client)
+        self.owner.flush(.2)
+        self.assertEqual(self.failures, ['MQTT: chiusura sorgente non completata alla chiusura della registrazione'])
+        self.loop.call_soon_threadsafe(client.release.set); future.result(5)
 
 
 class Rates(unittest.TestCase):

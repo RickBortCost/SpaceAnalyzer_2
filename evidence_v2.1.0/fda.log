@@ -26,6 +26,6 @@ Traceback (most recent call last):
 ValueError: Acquisizione originale incompleta: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.; file parziale conservato
 ....
 ----------------------------------------------------------------------
-Ran 12 tests in 1.471s
+Ran 12 tests in 1.437s
 
 OK

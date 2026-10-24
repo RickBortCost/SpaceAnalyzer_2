@@ -14,9 +14,9 @@ RuntimeError: Dimensione notifica ADS incoerente: ads:MAIN.Running
 INFO:root:ADS connected: device=Native fake PLC state=RUN
 INFO:root:Data source disconnected
 ...INFO:root:Recording started: format=csv signals=2
-INFO:root:Recording stopped: OPCUA_20261024_163539_592684_4737d45e rows=2000 parts=1
+INFO:root:Recording stopped: OPCUA_20261024_172814_982873_b7d2d7ed rows=2000 parts=1
 INFO:root:Recording started: format=parquet signals=2
-INFO:root:Recording stopped: OPCUA_20261024_163539_978683_c443657e rows=2000 parts=1
+INFO:root:Recording stopped: OPCUA_20261024_172815_313825_18d9a026 rows=2000 parts=1
 ....WARNING:root:ADS controllo in timeout; consumo notifiche attivo: TwinCAT locale: Timeout ADS (0x00000745)
 INFO:root:ADS controllo ripristinato
 ..INFO:root:Application start V2.0.0
@@ -27,6 +27,6 @@ ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. R
 INFO:root:Data source disconnected
 ..
 ----------------------------------------------------------------------
-Ran 14 tests in 18.683s
+Ran 14 tests in 18.702s
 
 OK

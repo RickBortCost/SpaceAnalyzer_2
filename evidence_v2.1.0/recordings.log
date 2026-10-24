@@ -16,6 +16,6 @@ OSError: disk full
 ERROR:root:Recording error: Errore di scrittura: disk full
 .
 ----------------------------------------------------------------------
-Ran 6 tests in 0.522s
+Ran 6 tests in 0.512s
 
 OK

@@ -48,7 +48,8 @@ Questi punti non richiedevano una riprogettazione.
 | `source/primary_format.py` | `inspect()` riporta gli eventi; nuovo `iter_events()`. |
 | `source/durable_recording.py`, `source/recording_manager.py` | `annotate()` verso la sola sessione in acquisizione. |
 | `source/app.py`, `source/source_sessions.py` | Tee degli eventi verso la registrazione attiva; evento persistente `ads_source_gap`. |
-| `source/tests/test_phase1_integrity.py` | Nuova suite di 12 test. |
+| `source/source_sessions.py` | Un errore rilevato durante la chiusura di una sessione viene attribuito alla registrazione in corso; Stop attende la chiusura in corso. |
+| `source/tests/test_phase1_integrity.py` | Nuova suite di 14 test. |
 | `source/tests/benchmark_ads_primary.py` | Opzione `--grouping`; backpressure allineata all'applicazione (0,5 s). |
 | `source/tests/test_ads.py`, `test_calculation_ads.py`, `test_calculation_api.py`, `test_s7.py`, `test_mqtt.py` | Attesa della finalizzazione asincrona dopo Stop; certificati di test conformi RFC 5280. Nessun test saltato o indebolito: le verifiche sui dati restano invariate. |
 | `tools/run_hardening_checks.py` | Include la nuova suite. |
@@ -135,8 +136,8 @@ Il **benchmark di riferimento (1.000 variabili a 10 ms) non è raggiunto** nel p
 
 ### Altre prove
 
-- **Regressione completa** (`tools/run_hardening_checks.py`): **241 test in 29 suite**, tutti superati in esecuzioni ripetute (salvo l'intermittenza preesistente descritta sotto), comprese le 5 suite che fallivano già sulla 2.0.0 e la nuova `phase1_integrity`. Log in `evidence_v2.1.0/*.log`.
-- **`test_phase1_integrity.py` (12 test):**
+- **Regressione completa** (`tools/run_hardening_checks.py`): **243 test in 29 suite superati**, comprese le 5 suite che fallivano già sulla 2.0.0 e la nuova `phase1_integrity`. Log in `evidence_v2.1.0/*.log`.
+- **`test_phase1_integrity.py` (14 test):**
   - pianificazione dei blocchi ed esclusioni;
   - 50 canali più un bit, con una callback per ciclo e valori esatti;
   - fallback se l'area non è leggibile;
@@ -147,13 +148,20 @@ Il **benchmark di riferimento (1.000 variabili a 10 ms) non è raggiunto** nel p
   - eventi nel SAC ordinati e conservati dopo un **crash forzato del writer** e il recovery;
   - annotazioni che non bloccano la sessione;
   - tee degli eventi verso la sola sessione attiva;
+  - errore sorgente attribuito anche durante la chiusura della sessione, con Stop che attende la chiusura;
   - finestra mobile dei rate;
   - formattazione UTC esatta.
 - **Equivalenza:** 4.168 righe casuali producono righe primarie identiche campo per campo tra la vecchia e la nuova `enqueue`. `size_hint` dà risultati identici. I blocchi JSON prodotti dal writer via `marshal` sono identici byte per byte.
 - **Soak breve** (`soak_acquisition.py`, 30 s, 1.000 canali, rotazione ogni 10 s): 3.000.000 prodotti e verificati in 3 file, zero mancanti.
 - **Già coperti dalle suite esistenti, rieseguite:** saturazione controllata, crash del recorder e recovery, `ENOSPC` iniettato, interruzione e ripristino delle connessioni, UI sotto carico, registrazione simultanea dei quattro protocolli.
 - **Test di 24 ore:** il runner è pronto (sezione 8) ma **non è stato eseguito** in questa consegna.
-- **Intermittenza preesistente.** `test_source_sessions.test_queue_overflow_and_late_originals_are_explicit` verifica che un errore MQTT impostato subito prima di Stop porti la registrazione allo stato `error`. È fallito 2 volte su 12 sul codice 2.0.0 invariato e 1 volta su circa 35 esecuzioni sul codice 2.1. In quei casi la registrazione chiude come `stopped`. Non si riproduce eseguendo il singolo test (40 esecuzioni) né con tracciamento sulla suite completa (14 esecuzioni). La causa non è ancora individuata: il caso riguarda l'attribuzione di un errore sorgente alla registrazione, quindi va chiarito. Il test non è stato modificato né disattivato. L'esecuzione di regressione finale lo riporta come fallito nel log `evidence_v2.1.0/source_sessions.log`; le 12 esecuzioni successive della suite sono passate.
+- **Errore sorgente perso durante la chiusura della sessione (corretto).** `test_source_sessions.test_queue_overflow_and_late_originals_are_explicit` falliva in modo intermittente già sulla 2.0.0 (2 volte su 12). Riprodotto con tracciamento, il caso è un difetto del prodotto, non del test:
+  1. un errore MQTT (per esempio coda piena) fa terminare il ciclo della sessione;
+  2. `SourceSession.close()` stacca subito il client e attende la disconnessione;
+  3. uno Stop che arriva in quella finestra trova la sessione senza client e chiude la registrazione come `stopped`;
+  4. il controllo delle perdite sul vecchio client avveniva dopo la disconnessione, quando nessuna registrazione era più attiva, e l'errore andava perso.
+
+  Correzione in `source_sessions.py`: `close()` attribuisce le perdite già visibili prima di staccare il client, e `flush()` (Stop) attende entro il proprio timeout la fine di una chiusura in corso. Se la chiusura non termina in tempo, la registrazione viene marcata in errore con un messaggio esplicito. Due test deterministici in `test_phase1_integrity.py` falliscono sul codice precedente e passano con la correzione. La suite `test_source_sessions` è passata 36 volte su 36 in processi separati.
 
 ## 6. Limiti prestazionali ancora presenti
 

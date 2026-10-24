@@ -10,6 +10,6 @@ OSError: test old disk error
 ERROR:root:Recording error: Errore di scrittura: test old disk error
 ...
 ----------------------------------------------------------------------
-Ran 4 tests in 0.743s
+Ran 4 tests in 0.851s
 
 OK

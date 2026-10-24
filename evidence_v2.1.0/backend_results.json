@@ -1,7 +1,7 @@
 {
-  "result": "FAIL",
-  "tests": 241,
-  "elapsed_seconds": 160.26742072699994,
+  "result": "PASS",
+  "tests": 243,
+  "elapsed_seconds": 161.26227980099986,
   "suites": {
     "recordings": {
       "result": "PASS",
@@ -44,7 +44,7 @@
       "tests": 4
     },
     "source_sessions": {
-      "result": "FAIL",
+      "result": "PASS",
       "tests": 9
     },
     "s7": {
@@ -109,7 +109,7 @@
     },
     "phase1_integrity": {
       "result": "PASS",
-      "tests": 12
+      "tests": 14
     },
     "calculation_ads": {
       "result": "PASS",

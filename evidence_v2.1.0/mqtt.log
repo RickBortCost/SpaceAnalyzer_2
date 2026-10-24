@@ -1,7 +1,7 @@
-....Executing <Task finished name='Task-8' coro=<Wire.asyncTearDown() done, defined at /home/user/SpaceAnalyzer_2/source/tests/test_mqtt.py:65> result=None created at /usr/lib/python3.13/asyncio/runners.py:101> took 0.102 seconds
-....Executing <Task pending name='Task-27' coro=<Wire.test_tls_verified_ca_hostname_and_client_cert() running at /home/user/SpaceAnalyzer_2/source/tests/test_mqtt.py:170> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at /usr/lib/python3.13/asyncio/futures.py:384, Task.task_wakeup()] created at /usr/lib/python3.13/asyncio/base_events.py:460> cb=[_run_until_complete_cb() at /usr/lib/python3.13/asyncio/base_events.py:181] created at /usr/lib/python3.13/asyncio/runners.py:101> took 0.127 seconds
+....Executing <Task finished name='Task-8' coro=<Wire.asyncTearDown() done, defined at /home/user/SpaceAnalyzer_2/source/tests/test_mqtt.py:65> result=None created at /usr/lib/python3.13/asyncio/runners.py:101> took 0.302 seconds
+....Executing <Task pending name='Task-27' coro=<Wire.test_tls_verified_ca_hostname_and_client_cert() running at /home/user/SpaceAnalyzer_2/source/tests/test_mqtt.py:170> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at /usr/lib/python3.13/asyncio/futures.py:384, Task.task_wakeup()] created at /usr/lib/python3.13/asyncio/base_events.py:460> cb=[_run_until_complete_cb() at /usr/lib/python3.13/asyncio/base_events.py:181] created at /usr/lib/python3.13/asyncio/runners.py:101> took 0.180 seconds
 ..
 ----------------------------------------------------------------------
-Ran 10 tests in 3.148s
+Ran 10 tests in 3.415s
 
 OK

@@ -20,6 +20,6 @@ Traceback (most recent call last):
 ValueError: RBF: valore oltre i limiti Float32; archivio originale conservato
 ...
 ----------------------------------------------------------------------
-Ran 11 tests in 1.290s
+Ran 11 tests in 1.173s
 
 OK

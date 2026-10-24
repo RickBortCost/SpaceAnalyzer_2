@@ -11,7 +11,8 @@ Seconda iterazione della Fase 1 (hardening acquisizione e registrazione). Report
 - ADS: callback e decode più leggeri. In simulazione, 1.000 simboli passano da 9.409 a 15.236 valori/s; con i blocchi, 60.000 valori/s sostenuti senza perdite. Il target di 100.000 valori/s **non** è raggiunto.
 - Recorder primario: gli eventi critici sono scritti nel file SAC (blocchi `EVENT`) e sopravvivono al recovery. L'IPC `marshal` sposta la codifica JSON nel processo writer, con file identici.
 - Diagnostica: rate su finestra mobile (`recent`) per connessioni e primario.
-- Test: nuova suite `test_phase1_integrity` (12). Rese robuste 4 suite dipendenti dai tempi dello Stop asincrono; certificati MQTT di test conformi a RFC 5280. 241 test superati (un test di `source_sessions` resta intermittente, già sulla 2.0.0: vedi report).
+- Sessioni sorgente: un errore rilevato mentre una sessione si chiudeva poteva andare perso se Stop arrivava in quella finestra, e la registrazione risultava completa. Ora l'errore viene attribuito prima di staccare il client e Stop attende la chiusura in corso (difetto già presente nella 2.0.0).
+- Test: nuova suite `test_phase1_integrity` (14). Rese robuste 4 suite dipendenti dai tempi dello Stop asincrono; certificati MQTT di test conformi a RFC 5280. 243 test superati.
 
 ## 2.0.0
 
