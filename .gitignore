@@ -25,3 +25,5 @@ source/live_analysis_cache/
 source/engine/**/bin/
 source/engine/**/obj/
 source/engine/**/TestResults/
+source/app/**/bin/
+source/app/**/obj/
