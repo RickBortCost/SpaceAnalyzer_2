@@ -84,7 +84,7 @@ class Sources(unittest.TestCase):
     def start(self,fmt):
         return self.post('/api/record/start',{'format':fmt,
             'selected_nodes':[{'nodeid':n,'display_name':p} for p,n in self.ids.items()],
-            'options':{'buffer_seconds':30,'pda3_accept_template_time':True}})
+            'options':{'buffer_seconds':30}})
 
     def stop(self):
         self.post('/api/record/stop')
@@ -106,33 +106,24 @@ class Sources(unittest.TestCase):
         self.assertFalse(app.source_sessions.enabled)
 
     def test_every_format_records_four_sources_and_replays(self):
-        import iba_dat, iba_recording
-        from test_iba_dat import FakeNative
         self.connect()
-        # Native DAT is explicitly simulated. FDA/RBF/PDA3 codecs are real.
-        with patch.object(iba_dat.bridge,'require'),patch.object(iba_dat.bridge,'require_prepared'), \
-             patch.object(iba_recording,'export_in_worker',lambda p,n,l:iba_dat.export_parquet(p,n,l,native_bridge=FakeNative())):
-            for fmt in ('csv','parquet','das','rbf','pda3','dat'):
-                with self.subTest(format=fmt):
-                    self.start(fmt)
-                    self.publish(12);time.sleep(.15)
-                    rec=self.stop()
-                    self.assertEqual(rec['state'],'stopped',rec)
-                    original=app.RECORDINGS_DIR/('Parquet' if fmt=='pda3' else '')
-                    rows=[]
-                    for file in rec.get('original_files') or rec['files']:
-                        rows.extend(RecordingLibrary(original)._iter_rows(original/file['name']))
-                    self.assertEqual({r['node_id'] for r in rows},set(self.ids.values()))
-                    self.assertEqual({r['source_protocol'] for r in rows},set(PROTOCOLS))
-                    self.assertTrue(all(r['local_timestamp'] and r['acquisition_timestamp_ms'] is not None for r in rows))
-                    self.assertTrue(any(r['source_timestamp'] for r in rows if r['source_protocol']=='opcua'))
-                    for file in rec['files']:
-                        if fmt=='dat':continue  # FakeNative bytes are deliberately not an iba file.
-                        view=app.recording_library.load(file['name'])
-                        self.assertEqual(set(view['series']),set(self.ids.values()))
-                    if fmt=='pda3':
-                        manifests=list(app.RECORDINGS_DIR.glob('DAT/*/*.json'))
-                        self.assertTrue(any(json.loads(p.read_text()).get('resampling') for p in manifests if p.name.endswith('.json') and not p.name.endswith('.progress.json')))
+        for fmt in ('csv','parquet','das','rbf'):
+            with self.subTest(format=fmt):
+                self.start(fmt)
+                self.publish(12);time.sleep(.15)
+                rec=self.stop()
+                self.assertEqual(rec['state'],'stopped',rec)
+                original=app.RECORDINGS_DIR
+                rows=[]
+                for file in rec.get('original_files') or rec['files']:
+                    rows.extend(RecordingLibrary(original)._iter_rows(original/file['name']))
+                self.assertEqual({r['node_id'] for r in rows},set(self.ids.values()))
+                self.assertEqual({r['source_protocol'] for r in rows},set(PROTOCOLS))
+                self.assertTrue(all(r['local_timestamp'] and r['acquisition_timestamp_ms'] is not None for r in rows))
+                self.assertTrue(any(r['source_timestamp'] for r in rows if r['source_protocol']=='opcua'))
+                for file in rec['files']:
+                    view=app.recording_library.load(file['name'])
+                    self.assertEqual(set(view['series']),set(self.ids.values()))
 
     def test_each_transport_reconnect_isolated_during_recording(self):
         self.connect();self.start('parquet')

@@ -1,4 +1,4 @@
-"""Reference-derived format tests; no claim of validation inside Danieli FDA."""
+"""Reference-derived format tests; no claim of validation inside the original FDA software."""
 import io,json,math,struct,tempfile,time,unittest
 from pathlib import Path
 from unittest.mock import patch

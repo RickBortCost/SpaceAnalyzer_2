@@ -25,21 +25,15 @@ def source_protocol(endpoint):
 def prepare_format(fmt, options=None):
     """Load optional native codecs before entering the acquisition event loop."""
     storage = storage_profile(fmt, options)
-    if storage["format"] in ("parquet",'das','rbf','dat','pda3'):
+    if storage["format"] in ("parquet",'das','rbf'):
         try:
             import pyarrow
             import pyarrow.parquet
         except (ImportError, OSError) as exc:
             raise ValueError("Supporto Parquet non disponibile. Avviare l'EXE completo oppure installare requirements.txt.") from exc
-        codec='zstd' if storage['format'] in ('das','rbf','dat','pda3') else storage['codec']
+        codec='zstd' if storage['format'] in ('das','rbf') else storage['codec']
         if not pyarrow.Codec.is_available(codec):
             raise ValueError("Codec binario " + storage["codec"].upper() + " non disponibile nel runtime")
-    if storage['format']=='dat':
-        from iba_dat import bridge
-        bridge.require()
-    if storage['format']=='pda3':
-        from pda3.template_loader import template
-        template()
 
 
 class Recorder:
@@ -100,15 +94,8 @@ class Recorder:
         storage = storage_profile(fmt, options)
         if not nodes:
             raise ValueError("Selezionare almeno una variabile prima di avviare Record")
-        if fmt in ('das','rbf','dat','pda3'):
-            if fmt=='pda3':
-                from pda3.recording import PDA3SegmentRecorder as Session
-            elif fmt=='dat':
-                if len(nodes)>64:raise ValueError('iba DAT: massimo 64 variabili selezionate, con 3 canali DAT per variabile')
-                from iba_dat import bridge
-                bridge.require_prepared()
-                from iba_recording import IBARecording as Session
-            elif fmt=='rbf':
+        if fmt in ('das','rbf'):
+            if fmt=='rbf':
                 if len(nodes)>64:raise ValueError('RBF: massimo 64 variabili selezionate')
                 from rbf_recording import RBFRecording as Session
             else:

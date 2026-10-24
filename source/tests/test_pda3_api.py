@@ -3,7 +3,7 @@ import io,json,shutil,tempfile,unittest
 from pathlib import Path
 from test_integration import client
 from test_pda3 import fixture,BASE,NODES
-from pda3.window_export import process_job
+from pda3_fixture.window_export import process_job
 from pda3.storage import atomic_json
 
 class API(unittest.TestCase):
@@ -43,9 +43,13 @@ class API(unittest.TestCase):
         bad=bytearray(self.data);bad[100]^=1
         result=self.http.post('/api/recordings/import',data={'files':(io.BytesIO(bad),'unknown.dat'),'pda3_timezone_offset_minutes':'120'},headers=self.headers)
         self.assertEqual(result.status_code,400)
-    def test_template_status_and_live_export_guard(self):
-        r=self.http.get('/api/pda3/status');self.assertEqual(r.status_code,200)
-        self.assertIn('64',json.dumps(r.json));r=self.http.post('/api/analysis/export',json={'source':'live','format':'pda3','x1':BASE,'x2':BASE+599990,'signal_ids':[NODES[0]['nodeid']]},headers=self.headers)
-        self.assertEqual(r.status_code,400);self.assertIn('Record',r.json['error'])
+    def test_dat_recording_and_export_are_removed(self):
+        for route in ('/api/pda3/status','/api/record/iba/status'):self.assertEqual(self.http.get(route).status_code,404)
+        for fmt in ('pda3','dat'):
+            r=self.http.post('/api/analysis/export',json={'source':'live','format':fmt,'x1':BASE,'x2':BASE+599990,'signal_ids':[NODES[0]['nodeid']]},headers=self.headers)
+            self.assertEqual(r.status_code,400);self.assertIn('CSV o Parquet',r.json['error'])
+        from recording_storage import storage_profile
+        for fmt in ('pda3','dat'):
+            with self.assertRaisesRegex(ValueError,'rimossa nella 3.0'):storage_profile(fmt)
 
 if __name__=='__main__':unittest.main(verbosity=2)

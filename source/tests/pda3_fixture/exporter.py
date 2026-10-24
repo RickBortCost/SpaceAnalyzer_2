@@ -3,12 +3,12 @@ import hashlib,json,os,struct
 from pathlib import Path
 import tempfile
 from functools import lru_cache
-from .reader import PDA3Reader
-from .template_loader import template,profile,validate_profile
-from .block_writer import replace_compatible_block
-from .rle_codec import encode_exact
-from .timestamp_handler import PDA3TimestampHandler
-from .errors import PDA3CapacityError
+from pda3.reader import PDA3Reader
+from pda3.template_loader import template,profile,validate_profile
+from pda3_fixture.block_writer import replace_compatible_block
+from pda3_fixture.rle_codec import encode_exact
+from pda3.timestamp_handler import PDA3TimestampHandler
+from pda3.errors import PDA3CapacityError
 
 @lru_cache(maxsize=2)
 def _constant_payloads(word):

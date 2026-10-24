@@ -1,7 +1,7 @@
 """Bit-exact Float32 RLE encoding into an unchanged, fixed-capacity PDA3 block."""
 from functools import lru_cache
 import struct
-from .errors import PDA3CapacityError
+from pda3.errors import PDA3CapacityError
 
 def _literal(data,n,k):
     out=bytearray();offset=0

@@ -64,7 +64,7 @@ def main():
     build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'2.0.0'}
     report={'version':build['version'],'tested_at':datetime.now(timezone.utc).isoformat(),
             'platform':sys.platform,'packaged_exe_executed':packaged,'formats':{},
-            'hardware_tested':False,'licensed_iba_writer_tested':False,'result':'FAIL'}
+            'hardware_tested':False,'result':'FAIL'}
     if packaged:
         actual=hashlib.sha256(executable.read_bytes()).hexdigest()
         if actual!=build['sha256']:raise RuntimeError('EXE differs from the build manifest')
@@ -129,9 +129,9 @@ def main():
                 sessions=api('/api/values')['sources']
                 if set(sessions)!={'opcua','ads','mqtt','s7'}:raise RuntimeError('Missing independent source sessions')
                 report['four_sessions_and_isolated_connection_errors_verified']=True
-                for fmt in ('csv','parquet','das','rbf','pda3'):
+                for fmt in ('csv','parquet','das','rbf'):
                     api('/api/record/start',{'format':fmt,'selected_nodes':[{'nodeid':node,'display_name':'Smoke value'}],
-                        'options':{'buffer_seconds':30,'pda3_accept_template_time':True}})
+                        'options':{'buffer_seconds':30}})
                     for i in range(30):peer.publish('smoke/value',float(i)+.25,qos=1);time.sleep(.01)
                     until(lambda:api('/api/record/status')['recording']['cycles_received']>=30)
                     api('/api/record/stop',{})
@@ -151,7 +151,12 @@ def main():
                     if health['events']['persistence_error']:raise RuntimeError('Critical events persistence failed')
                     report['primary_capture_and_original_sequence_verified']=True
                     report['formats'][fmt]={'result':'PASS','rows_recorded':recording['rows_written'],'numeric_rows_replayed':replay['numeric_rows']}
-                report['formats']['dat']={'result':'NOT_TESTED','reason':'Requires an actual iba write license; no license emulation'}
+                for fmt in ('pda3','dat'):
+                    rejected=False
+                    try:api('/api/record/start',{'format':fmt,'selected_nodes':[{'nodeid':node,'display_name':'Smoke value'}]})
+                    except Exception:rejected=True
+                    if not rejected:raise RuntimeError(fmt+': DAT recording must be rejected in 3.0')
+                report['dat_recording_removed_verified']=True
                 # Force the first interval beyond the configured raw FIFO. This
                 # executes SQLite and the shared formula engine inside the EXE.
                 def old_interval_evicted():

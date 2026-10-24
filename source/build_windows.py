@@ -75,19 +75,10 @@ def stage(args, work):
         shutil.copy2(ROOT/name, runtime/name)
     shutil.copy2(ROOT/'THIRD_PARTY_NOTICES.txt', runtime/'THIRD_PARTY_NOTICES.txt')
     shutil.copy2(ROOT/'mqtt_source.py',runtime/'mqtt_source.py')
-    for name in ('converted_recording.py','iba_dat.py','iba_recording.py','iba_export_worker.py','recording_compare.py','comparison_worker.py','rbf.py','rbf_recording.py'):
+    for name in ('converted_recording.py','iba_dat.py','recording_compare.py','comparison_worker.py','rbf.py','rbf_recording.py'):
         shutil.copy2(ROOT/name,runtime/name)
-    shutil.copy2(ROOT/'pda3_worker.py',runtime/'pda3_worker.py')
     if (runtime/'pda3').exists():shutil.rmtree(runtime/'pda3')
     shutil.copytree(ROOT/'pda3',runtime/'pda3',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
-    bridge=ROOT/'iba_bridge'
-    bridge_env={**os.environ,'GOOS':'windows','GOARCH':'386','CGO_ENABLED':'0','GOTOOLCHAIN':'local','GO111MODULE':'on'}
-    subprocess.run([args.go,'build','-buildvcs=false','-trimpath','-ldflags=-s -w -H windowsgui',
-        '-o',str(bridge/'SpaceAnalyzerIbaBridge.exe'),'.'],cwd=bridge,env=bridge_env,check=True)
-    from iba_dat import DLL_HASH
-    if digest(bridge/'ibaFiles.dll')!=DLL_HASH:raise RuntimeError('DLL iba non corrispondente alla versione analizzata')
-    target=runtime/'iba_bridge';target.mkdir(exist_ok=True)
-    for name in ('ibaFiles.dll','SpaceAnalyzerIbaBridge.exe'):shutil.copy2(bridge/name,target/name)
     for name in ('static','templates','seed_certificates'):
         if (runtime/name).exists():
             shutil.rmtree(runtime/name)
@@ -124,7 +115,7 @@ def main():
             if file.is_file() and '__pycache__' not in file.parts and file.suffix!='.pyc':
                 name=file.relative_to(runtime).as_posix()
                 source=ROOT/name
-                application_file=source.is_file() and (name.endswith('.py') or name.startswith(('static/','templates/','seed_certificates/','pda3/','iba_bridge/')))
+                application_file=source.is_file() and (name.endswith('.py') or name.startswith(('static/','templates/','seed_certificates/','pda3/')))
                 if application_file:
                     # Use the tested source bytes as the authority, even when
                     # reusing a runtime containing an older application.
@@ -134,7 +125,7 @@ def main():
     with zipfile.ZipFile(payload) as archive:
         for name in archive.namelist():
             source=ROOT/name
-            if source.is_file() and (name.endswith('.py') or name.startswith(('static/','templates/','seed_certificates/','pda3/','iba_bridge/'))):
+            if source.is_file() and (name.endswith('.py') or name.startswith(('static/','templates/','seed_certificates/','pda3/'))):
                 if archive.read(name)!=source.read_bytes():
                     raise RuntimeError('Payload diverso dai sorgenti: '+name)
     from windows_resources import build_icon_resource
@@ -149,7 +140,7 @@ def main():
         source_commit=commit.stdout.strip() if commit.returncode==0 else None
     except OSError:
         source_commit=None
-    manifest={'application_name':'Space Analyzer','icon':'Danieli company logo (RT_ICON / RT_GROUP_ICON)','version':VERSION,'platform':'Windows x64','exe':output.name,'size_bytes':output.stat().st_size,
+    manifest={'application_name':'Space Analyzer','icon':'Space Analyzer logo (RT_ICON / RT_GROUP_ICON)','version':VERSION,'platform':'Windows x64','exe':output.name,'size_bytes':output.stat().st_size,
               'source_commit':source_commit,
               'embedded_payload_verified':True,
               'source_hashes':{str(p.relative_to(ROOT)).replace('\\','/'):digest(p) for p in sorted(ROOT.rglob('*'))
@@ -173,7 +164,7 @@ def main():
               'recordings_directory':'directory of the running EXE / Recordings',
               'external_import_cache':'%LOCALAPPDATA%/OPCUA_Web_Client/recording_imports (persistent workspace originals)',
               'calculated_variables':True,'formula_engine':'controlled AST interpreter; no eval', 'live_calculation_process':'isolated worker with bounded queue', 'historical_calculation':'original samples, dynamic cache or new materialized dataset',
-              'formats':['CSV UTF-8 BOM','Apache Parquet / ZSTD 3, 9, 19 / Snappy','FDA DAS4 Int16 + Float32 reading','RBF v3 read/write + original archive','iba DAT PDA3 native template + originals','iba DAT 3.2.0 legacy + original archive'],
+              'formats':['CSV UTF-8 BOM','Apache Parquet / ZSTD 3, 9, 19 / Snappy','FDA DAS4 Int16 + Float32 reading','RBF v3 read/write + original archive','PDA3 DAT reading','iba DAT 2.x parts reading via companion Parquet'],
               'chart_action_toolbar':'per-chart dedicated buttons with measured-width overflow menu',
               'mqtt_autoscan_seconds':1,'simultaneous_protocols':['opcua','ads','mqtt','s7'],'simultaneous_clock':'PC UTC arrival','simultaneous_recording_formats':['csv','parquet','das','rbf','pda3','dat'],'live_markers':'viewport-relative in Play; fixed timestamps in Pause','fft_requires':'paused view and two markers; recorded views are static','quick_calculations':'original samples; scalar measurements without derived signals','ui_languages':['en','it','de','fr','es'],'ui_language_default':'it',
               'ui_language_change':'immediate without reload; persisted in settings/workspace; acquisition unaffected',
@@ -187,31 +178,15 @@ def main():
                   'credentials_persisted':False,'queue_default_messages':2048,'queue_max_bytes':33554432,
                   'on_overflow':'Record error and original partial archive preserved'},
               'rbf':{'profile':'v3 derived from supplied TEST_RBF.rbf','requires_proprietary_libraries':False,'maximum_selected_variables':64,'maximum_frames_per_file':57600,'timestamps':'UInt32 seconds + UInt32 nanoseconds','numeric_values':'Float32; original precision in Parquet','quality':'per-signal _Q; no interpolation or carry-forward','conversion':'after Stop','external_application_validation':False},
-              'pda3':{'requires_proprietary_libraries':False,'channels_available':64,'active_channels':[1,64],
-                  'sample_ms':10,'maximum_segment_seconds':600,'maximum_samples_per_channel':60000,
-                  'short_final_segments':True,'minimum_samples_per_channel':1,'short_tail':'quiet NaN outside shortened end; excluded from replay',
-                  'payload_overflow':'automatic lossless split into consecutive DATs of at most 1000 samples / 10 s',
-                  'auto_split_default':True,'split_replay':'verified single timeline via pda3seq',
-                  'split_file_bytes':13829608,'capacity_failures_auto_recovery':True,
-                  'export':'separate process; original Parquet acquisition continues; strict grid for single sources, causal previous-sample projection with NaN gaps for mixed sessions',
-                  'float32_encoding':'bit-exact fixed-capacity RLE; reject data that do not fit',
-                  'template_sha256':digest(ROOT/'pda3/assets/template_64_10ms.dat'),
-                  'profile_sha256':digest(ROOT/'pda3/assets/profile_64_10ms.json'),
-                  'channel_mapping_verified_from_user_probe_export':True,
-                  'new_writer_ibaAnalyzer_validated':False,'internal_timestamp_mode':'model start unchanged; end shortened to actual count; real UTC in hash-linked JSON',
-                  'reader':'known-profile native PDA3 including all eleven index pages; no DLL'},
-              'iba_dat':{'dll_sha256':digest(ROOT/'iba_bridge/ibaFiles.dll'),'helper_sha256':digest(ROOT/'iba_bridge/SpaceAnalyzerIbaBridge.exe'),
-                  'native_helper':'Windows x86 GUI / isolated COM process','license':'actual native Licensed result; no emulation',
-                  'conversion':'isolated Python process after Stop; compressed native Float32; verified read-back',
-                  'native_channels_per_variable':3,'maximum_selected_variables':64,'originals':'lossless companion Parquet / full timestamps',
-                  'viewer':'original companion archive restricted to DAT part; not a universal external DAT reader',
-                  'native_windows_execution_tested_here':False,'user_iba_compatibility_tested_here':False},
+              'pda3':{'recording':False,'reader':'known-profile native PDA3 including all eleven index pages; no DLL',
+                  'template_sha256':digest(ROOT/'pda3/assets/template_64_10ms.dat'),'profile_sha256':digest(ROOT/'pda3/assets/profile_64_10ms.json')},
+              'iba_dat':{'recording':False,'viewer':'DAT parts written by 2.x through their lossless companion Parquet; not a universal external DAT reader'},
               'lossless_binary_recording':True,'default_recording_format':'Parquet / ZSTD 9',
               'binary_profiles':['compact','maximum','fast','compatible'],
               'binary_encoding':['IEEE-754 float64 / byte-stream split','dictionary for repeated labels','data page CRC'],
               'fft_spectrum_view':['curve','spectral lines','expanded view','F1-H5 focus','PNG export'],'recording_viewer':True,
               'ssh_debug':True,'ssh_protocol':'SSH2 / Paramiko 4.0.0','ssh_modes':['command','script stdin','interactive shell PTY'],'ssh_host_key_verification':'explicit first-use trust; changed-key rejection','ssh_output':'bounded streaming stdout/stderr','ssh_credentials_persisted':False,'connection_dialog':True,'editable_ads_manual_profile':True,'effective_ads_client_identity':True,'data_sources':['opcua','ads','s7','mqtt'],'s7_transport':['classic S7comm / ISO-on-TCP','S7CommPlus symbolic / TCP','S7 UDP Direct Generic'],'s7_address_areas':['DB','M','I','Q'],'s7_catalog':'classic absolute catalog, symbolic CPU browse, UDP payload catalog','s7_timestamps':'TCP local read completion; UDP local receive plus optional payload PLC UTC microseconds','ads_transport':['ADS/TCP direct','TwinCAT local TcAdsDll x64, read-only'],
-              'ui_palette':'Danieli colour standard supplied by user','studio_ui':True,'themes':['Standard (Danieli palette)','Dark','System'],'navigator':True,'draggable_markers':True,
+              'ui_palette':'Space Analyzer colour standard','studio_ui':True,'themes':['Standard','Dark','System'],'navigator':True,'draggable_markers':True,
               'chart_presets':['single','vertical','horizontal','quad','stack','grid'],'signal_presentation':True,
               'manual_y_axes':True,'chart_fullscreen':True,'png_export':True,
               'responsive_layout':True,

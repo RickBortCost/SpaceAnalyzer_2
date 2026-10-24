@@ -120,7 +120,7 @@ V1.8.2 - 1 ottobre 2026 - Parametri ADS modificabili
 - Corretti i testi del popup sulle notifiche e sui timestamp originali.
 
 Space Analyzer V1.8.1
-- Palette Danieli su pagine, controlli, popup, grafici e FFT.
+- Palette aziendale su pagine, controlli, popup, grafici e FFT.
 - Stati selected/disabled/error e tema Standard chiaro predefinito.
 - Canvas e marcatori coordinati; colori personalizzati conservati.
 
@@ -141,8 +141,8 @@ Space Analyzer V1.7.0
 - Opzioni armoniche nel workspace; calcolo live e su file registrati.
 
 Space Analyzer V1.6.2
-- Rinomina applicativo, header e titolo pagina; logo e favicon Danieli.
-- Icona Danieli integrata nelle risorse Windows dell'EXE.
+- Rinomina applicativo, header e titolo pagina; logo e favicon aziendali.
+- Icona aziendale integrata nelle risorse Windows dell'EXE.
 - Nomi finali nel pannello segnali live con tooltip completo e alias preservati.
 
 V1.6.1

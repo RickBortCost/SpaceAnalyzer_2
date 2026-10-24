@@ -32,14 +32,8 @@ def storage_profile(fmt, options=None):
     if fmt == 'rbf':
         return {'format':'rbf','profile':'rbf-v3','codec':'none','level':None,'row_group_rows':32768,
                 'flush_seconds':5,'label':'RBF v3 + Parquet originali','lossless':False,'original_archive_lossless':True}
-    if fmt == 'pda3':
-        return {'format':'pda3','profile':'pda3-template','codec':'template-rle','level':None,'row_group_rows':32768,
-                'flush_seconds':1,'label':'iba DAT PDA3 · fino a 10 minuti + originali','lossless':False,'original_archive_lossless':True}
-    if fmt == 'dat':
-        return {'format':'dat','profile':'iba-dll','codec':'native','level':None,'row_group_rows':32768,
-                'flush_seconds':5,'label':'iba DAT + Parquet originali','lossless':False,'original_archive_lossless':True}
     if fmt != "parquet":
-        raise ValueError("Scegliere CSV, Binario Parquet, FDA DAS4, RBF v3 oppure iba DAT/PDA3")
+        raise ValueError("Scegliere CSV, Binario Parquet, FDA DAS4 o RBF v3. La registrazione .dat (iba/PDA3) è stata rimossa nella 3.0; i file .dat restano apribili")
     key = (options or {}).get("parquet_profile", "compact")
     if not isinstance(key, str) or key not in PROFILES:
         raise ValueError("Profilo binario non valido: scegliere Compatto, Massima compressione, Rapido o Compatibilità")

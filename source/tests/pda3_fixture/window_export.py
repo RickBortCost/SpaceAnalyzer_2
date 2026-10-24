@@ -2,11 +2,11 @@
 from datetime import datetime,timezone
 import json,math,struct,tempfile,time
 from pathlib import Path
-from .exporter import PDA3TemplateWriter
-from .template_loader import template,profile
-from .timestamp_handler import PDA3TimestampHandler
-from .storage import atomic_json,digest
-from .errors import PDA3CapacityError
+from pda3_fixture.exporter import PDA3TemplateWriter
+from pda3.template_loader import template,profile
+from pda3.timestamp_handler import PDA3TimestampHandler
+from pda3.storage import atomic_json,digest
+from pda3.errors import PDA3CapacityError
 
 def process_job(job_path):
     from recording_reader import RecordingLibrary
@@ -36,7 +36,7 @@ def process_job(job_path):
         if len(examples)<100:examples.append({'kind':kind,'nodeid':nid,'timestamp_ms':t})
     projection=None
     if job.get('resampling'):
-        from .resampling import project
+        from pda3_fixture.resampling import project
         projection=project(sources,ids,start,requested,job.get('allow_partial'),job['resampling'])
         data=projection['data'];counts=projection['counts'];rows=projection['rows'];max_error=projection['max_error']
         first=projection['first'];last=projection['last'];expected=projection['expected']

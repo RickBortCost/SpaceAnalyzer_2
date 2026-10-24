@@ -14,41 +14,6 @@ from werkzeug.serving import make_server as make_http
 import pyarrow.parquet as pq
 
 client.initialize()
-if os.environ.get('UI_SCRIPT')=='test_pda3_ui.cjs':
-    from test_pda3_capacity import noisy_fixture
-    from pda3.window_export import process_job
-    original,job,_,_=noisy_fixture(client.RECORDINGS_DIR,count=2100,channels=2)
-    # One noise channel forces the real capacity fallback; the second channel is
-    # a deterministic 1 Hz square wave for FFT on the resulting multipart timeline.
-    import pyarrow as pa
-    rows=pq.read_table(original).to_pylist()
-    for row in rows:
-        if row['node_id']=='ads:MAIN.Noise1':row['value_numeric']=float(((row['cycle']-1)//50)%2)
-    pq.write_table(pa.Table.from_pylist(rows),original)
-    result=process_job(job)
-    assert result['status']=='ready',result
-    assert result['segmented'],result
-    os.environ['UI_PDA3_DAT']=str(client.RECORDINGS_DIR/result['dat_files'][0]['name'])
-    os.environ['UI_PDA3_NAME']=result['sequence_name']
-    # Deterministic test-only acquisition grid: OPC UA values and HTTP are real,
-    # host scheduling is not a PLC 10 ms clock. No production timestamp changes.
-    from recordings import Recorder
-    actual_enqueue=Recorder.enqueue
-    def grid_enqueue(self,t,rows,period):
-        if self.fda_session is not None and self.fda_session.__class__.__name__=='PDA3SegmentRecorder':
-            session=self.fda_session;origin=getattr(session,'test_grid_origin',None)
-            if origin is None:session.test_grid_origin=t;origin=t
-            t=origin+session.original.status()['cycles_received']*10
-        return actual_enqueue(self,t,rows,period)
-    Recorder.enqueue=grid_enqueue
-if os.environ.get('UI_SCRIPT')=='test_iba_dat_ui.cjs':
-    # Explicit test-only mocks. Production requires actual native Licensed/roundtrip.
-    import iba_dat,iba_recording
-    from test_iba_dat import FakeNative
-    iba_dat.bridge.check=lambda **kw:{'ok':True,'version':'TEST MOCK','native':False,'simulated':True,'licensed':True}
-    iba_dat.bridge.require=lambda:None
-    iba_dat.bridge.require_prepared=lambda:None
-    iba_recording.export_in_worker=lambda p,n,l:iba_dat.export_parquet(p,n,l,native_bridge=FakeNative())
 if os.environ.get("UI_SCRIPT")=="test_advanced_ui.cjs":
     import logging
     logging.disable(logging.NOTSET)
@@ -87,7 +52,7 @@ async def add_signal():
 
 power = client.runtime.run(add_signal())
 
-if os.environ.get('UI_SCRIPT') in ('test_fda_ui.cjs','test_iba_dat_ui.cjs','test_rbf_ui.cjs'):
+if os.environ.get('UI_SCRIPT') in ('test_fda_ui.cjs','test_rbf_ui.cjs'):
     # Deterministic positive FFT fixture. Real OPC polling may repeat source times;
     # those duplicates must remain intact and the FFT correctly rejects them.
     from recordings import Recorder

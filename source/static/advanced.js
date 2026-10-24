@@ -3,7 +3,7 @@ let workspaceReady=false,workspaceTimer=null,workspaceSaving=false,workspaceDirt
 let analysisTarget=null,fftResult=null;
 const panelIds=['selected','scan-list','tree','history-file-list','history-signal-list'];
 const recordFields={session_name:'record-session',machine:'record-machine',operator:'record-operator',description:'record-description',max_duration_s:'record-duration',max_file_mb:'record-max-mb',buffer_seconds:'record-buffer',parquet_profile:'record-parquet-profile'};
-function recordOptions(){return {...Object.fromEntries(Object.entries(recordFields).map(([key,id])=>[key,['max_duration_s','max_file_mb','buffer_seconds'].includes(key)?Number($(id).value):$(id).value])),pda3_accept_template_time:$('record-pda3-accept').checked,pda3_tolerance_ms:Number($('record-pda3-tolerance').value),pda3_auto_split:$('record-pda3-auto-split').checked};}
+function recordOptions(){return {...Object.fromEntries(Object.entries(recordFields).map(([key,id])=>[key,['max_duration_s','max_file_mb','buffer_seconds'].includes(key)?Number($(id).value):$(id).value]))};}
 function chartSnapshot(workspace){
   return {...workspace.serialize(),syncZoom:workspace.syncZoom,syncHover:workspace.syncHover,liveZoom:workspace.liveZoom,timeRange:workspace.timeRange,markers:{...workspace.markers},colors:[...workspace.colors],charts:workspace.charts.map(g=>({name:g.name,ids:[...g.ids],height:g.element.querySelector('.chartwrap').style.height,expanded:g.element.classList.contains('expanded-chart'),cleared:g.cleared,cutoff:g.cutoff,
     markerFractions:{...g.trend.markerFractions},types:g.trend.types,zoom:g.trend.zoom,linkedRange:g.trend.linkedRange,paused:g.trend.frozen,manualPaused:g.trend.manualPaused,
@@ -69,9 +69,8 @@ async function restoreWorkspace(){
   for(const id of panelIds)if(/^\d+(\.\d+)?px$/.test(saved.panels?.[id]||''))$(id).style.height=saved.panels[id];
   if(typeof saved.addressOpen==='boolean')document.querySelector('.address-drawer').open=saved.addressOpen;
   for(const [key,id] of Object.entries(recordFields))if(saved.recordOptions?.[key]!==undefined){const el=$(id),v=String(saved.recordOptions[key]);if(el.tagName==='SELECT'&&![...el.options].some(o=>o.value===v)){if(key==='parquet_profile')continue;el.add(I18N.option(()=>(v+' s'),v,false,false,false));}el.value=v;}
-  $('record-pda3-accept').checked=!!saved.recordOptions?.pda3_accept_template_time;$('record-pda3-tolerance').value=saved.recordOptions?.pda3_tolerance_ms??1;
-  $('record-pda3-auto-split').checked=saved.recordOptions?.pda3_auto_split!==false;
-  if(['csv','parquet','das','rbf','dat','pda3'].includes(saved.record_format))$('record-form').querySelector('input[name="record-format"][value="'+saved.record_format+'"]').checked=true;
+  // Workspaces saved with the removed DAT formats keep the default Parquet.
+  if(['csv','parquet','das','rbf'].includes(saved.record_format))$('record-form').querySelector('input[name="record-format"][value="'+saved.record_format+'"]').checked=true;
   updateRecordFormatControls();
   if(saved.live){setLiveViewMode(saved.live.viewMode);restoreWorkspaceOptions(liveCharts,saved.live);liveCharts.charts.forEach((g,i)=>restoreView(g,saved.live.charts[i],liveCharts));}
   if(saved.history?.charts?.length){

@@ -17,7 +17,7 @@ const trend=liveCharts.charts[0].trend; // First-chart compatibility for existin
 
 async function request(url,body,method){
   const options={headers:{'X-OPCUA-Token':token}};
-  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:(url.startsWith('/api/record/iba/')||url==='/api/record/start')?45000:url.startsWith('/api/analysis/')?600000:(url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
+  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url.startsWith('/api/analysis/')?600000:(url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
   if(typeof AbortController!=='undefined'){
     controller=new AbortController();options.signal=controller.signal;
     timer=setTimeout(()=>controller.abort(),timeoutMs);
@@ -163,18 +163,10 @@ function renderRecording(info){
   box.className='record-status'+(info.busy?' active':'')+(info.error?' error':'');
   if(info.error)I18N.bind(box,"textContent",()=>(I18N.join([{text:"Errore registrazione: "},{value:(info.error)},{text:" · "},{value:(info.path||'')}])),true);
   else if(info.state==='recording')I18N.bind(box,"textContent",()=>(I18N.join([{text:"● REC "},{value:(info.format_label||String(info.format).toUpperCase())},{text:" · "},{value:(seconds)},{text:" s · "},{value:(rows)},{text:" righe scritte · "},{value:(info.pending_rows||0)},{text:" righe in memoria · Parte "},{value:(info.part||1)},{text:" · Coda "},{value:(info.queue_cycles||0)},{text:"/"},{value:(info.queue_capacity_cycles||0)},{text:" cicli · "},{value:(info.path)}])),true);
-  else if(info.state==='stopping')I18N.bind(box,"textContent",()=>(I18N.join([{value:(((info.conversion_phase||info.fda_phase)==='converting'?I18N.join([{text:"Generazione dei file "},{value:(info.format==='dat'?'iba DAT':info.format==='rbf'?'RBF':'FDA')},{text:" in corso… "}]):I18N.t("Chiusura del file in corso… "))+info.path)}])),true);
+  else if(info.state==='stopping')I18N.bind(box,"textContent",()=>(I18N.join([{value:(((info.conversion_phase||info.fda_phase)==='converting'?I18N.join([{text:"Generazione dei file "},{value:(info.format==='rbf'?'RBF':'FDA')},{text:" in corso… "}]):I18N.t("Chiusura del file in corso… "))+info.path)}])),true);
   else if(info.state==='stopped')I18N.bind(box,"textContent",()=>(I18N.join([{text:"Registrazione salvata · "},{value:(seconds)},{text:" s · "},{value:(rows)},{text:" righe · Parte "},{value:(info.part||1)},{text:" · Coda "},{value:(info.queue_cycles||0)},{text:"/"},{value:(info.queue_capacity_cycles||0)},{text:" cicli · "},{value:(info.path)}])),true);
   else I18N.bind(box,"textContent",()=>(I18N.join([{text:"Registrazione non avviata. Cartella: "},{value:(recordDirectory)}])),true);
-  if(['das','rbf','dat'].includes(info.format)&&info.status_note)box.textContent+=' · '+info.status_note;
-  if(info.format==='pda3'){
-    const p=info.pda3||{};box.textContent+=I18N.join([{text:" · Finestra "},{value:(p.window||1)},{text:" · "},{value:(p.progress_samples||0)},{text:"/60000 · "},{value:(p.progress_percent||0)},{text:"% · DAT completati "},{value:(p.completed_dat_files||0)},{text:" · "},{value:(p.timestamp_mode||'')}]);
-    if(info.status_note)box.textContent+=' · '+info.status_note;
-    I18N.bind($('record-pda3-progress'),"textContent",()=>(I18N.t("Esportazione: ")+(info.pda3_phase||'—')+' · '+(p.export_job||p.last_dat_path||info.path||'')),false);
-    if(p.last_dat_path)box.textContent+=I18N.join([{text:" · Ultimo DAT: "},{value:(p.last_dat_path)}]);
-    if(p.export_progress?.total)box.textContent+=' · Generazione lossless: '+p.export_progress.completed+'/'+p.export_progress.total+' DAT';
-    if(p.sequences?.length)box.textContent+=I18N.join([{text:" · Timeline: "},{value:(p.sequences.at(-1))}]);
-  }
+  if(['das','rbf'].includes(info.format)&&info.status_note)box.textContent+=' · '+info.status_note;
   window.renderRecordingJobs?.(info);applyRecordingControls();
 }
 async function openRecordDialog(){
@@ -193,7 +185,6 @@ async function beginRecording(event){
   try{
     await selectionQueue;
     const format=$('record-form').querySelector('input[name="record-format"]:checked').value;
-    if(format==='pda3'&&!$('record-pda3-accept').checked)throw new Error(I18N.t("Conferma gli orari reali nel manifest e il calendario interno del modello PDA3."));
     const result=await request('/api/record/start',{format,selected_nodes:[...(window.liveDataNodes?.(selected)||selected).values()],options:recordOptions()});renderRecording(result.recording);$('record-modal').hidden=true;$('record-stop').focus();notice(I18N.join([{text:"Registrazione "},{value:(result.recording.format_label||format.toUpperCase())},{text:" avviata. Pausa e zoom non interrompono Record."}]));
   }catch(e){I18N.bind($('record-dialog-error'),"textContent",()=>(e.message),true);$('record-dialog-error').hidden=false;}
   finally{recordStarting=false;$('record-start').disabled=false;$('record-cancel').disabled=false;applyRecordingControls();}
@@ -203,23 +194,11 @@ function updateRecordFormatControls(){
   const selectedFormat=$('record-form').querySelector('input[name="record-format"]:checked')?.value;
   const binary=selectedFormat==='parquet';$('record-fda-note').hidden=selectedFormat!=='das';
   $('record-rbf-note').hidden=selectedFormat!=='rbf';
-  $('record-iba-settings').hidden=selectedFormat!=='dat';
-  $('record-pda3-settings').hidden=selectedFormat!=='pda3';$('record-duration').disabled=selectedFormat==='pda3';
-  if(selectedFormat==='pda3'){
-    I18N.bind($('record-pda3-template'),"textContent",()=>(I18N.t("Verifica modello PDA3…")),true);
-    request('/api/pda3/status').then(r=>{I18N.bind($('record-pda3-template'),"textContent",()=>(I18N.join([{text:"Modello verificato · "},{value:(r.template.channels)},{text:" canali disponibili · "},{value:((window.liveDataNodes?.(selected)||selected).size)},{text:" selezionati · "},{value:(r.template.sample_ms)},{text:" ms · massimo 600 s / 60000 campioni; Stop consentito prima."}])),true);}).catch(e=>{I18N.bind($('record-pda3-template'),"textContent",()=>(e.message),true);});
-  }
   $('record-binary-settings').hidden=!binary;$('record-parquet-profile').disabled=!binary;
   const profile=$('record-parquet-profile').value;
   I18N.bind($('record-storage-hint'),"textContent",()=>(profile==='maximum'?I18N.t("ZSTD livello 19: cerca una compressione maggiore, con un costo CPU più alto. Nessuna riduzione di precisione o campioni."):profile==='fast'?I18N.t("ZSTD livello 3: minore costo CPU, utile con molti segnali. Nessuna riduzione di precisione o campioni."):profile==='compatible'?I18N.t("Snappy: stesso codec delle versioni precedenti, generalmente file più grandi. Nessuna riduzione di precisione o campioni."):I18N.t("ZSTD livello 9: profilo consigliato per ridurre lo spazio con un costo CPU contenuto. Nessuna riduzione di precisione o campioni.")),true);
 }
 document.querySelectorAll('input[name="record-format"]').forEach(input=>input.addEventListener('change',updateRecordFormatControls));
-$('record-iba-check').addEventListener('click',async()=>{
-  const button=$('record-iba-check');button.disabled=true;I18N.bind($('record-iba-status'),"textContent",()=>(I18N.t("Verifica nativa: scrittura e rilettura di 512 campioni sintetici…")),true);
-  try{const result=await request('/api/record/iba/check',{});const check=result.check;I18N.bind($('record-iba-status'),"textContent",()=>(check.ok?I18N.join([{text:"DLL "},{value:(check.version||'3.2.0')},{text:": licenza rilevata, verifica scrittura/rilettura superata."}]):check.error||I18N.t("Verifica non superata.")),true);}
-  catch(error){I18N.bind($('record-iba-status'),"textContent",()=>(error.message),true);}
-  finally{button.disabled=false;}
-});
 $('record-parquet-profile').addEventListener('change',updateRecordFormatControls);
 updateRecordFormatControls();
 $('record-form').addEventListener('submit',beginRecording);

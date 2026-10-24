@@ -2,7 +2,7 @@ import itertools,random,struct,sys,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from pda3.reader import PDA3Reader
-from pda3.rle_codec import encode_exact
+from pda3_fixture.rle_codec import encode_exact
 
 def decode(payload):
     header=bytearray(80);header[:4]=b'PDA3';struct.pack_into('<I',header,8,64)

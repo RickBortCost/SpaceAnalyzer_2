@@ -2350,13 +2350,8 @@ async def start_recording(data):
         options['acquisition_info']={'protocols':list(source_sessions.sessions),'time_basis':'PC UTC arrival',
             'source_intervals':periods,'original_clocks':'source_timestamp, server_timestamp, ads_filetime, acquisition_timestamp_ms',
             'signal_protocols':{n['nodeid']:'calculated' if n['nodeid'].startswith('calc:') else protocol_of(n['nodeid']) for n in nodes}}
-        if data.get('format')=='pda3':
-            options['pda3_resampling']={'method':'previous','grid_ms':10,
-                'max_age_ms':{n['nodeid']:max(10,3*periods.get(protocol_of(n['nodeid']),runtime.sample_ms)) for n in nodes},
-                'invalid':'NaN; original quality retained in companion Parquet'}
     period=runtime.sample_ms
     if source_sessions.enabled: period=min(s.period for s in source_sessions.sessions.values())
-    if source_sessions.enabled and data.get('format')=='pda3': period=10
     if not source_sessions.enabled and isinstance(runtime.client,MQTTClient):period=runtime.client.sample_period_ms(period)
     if not source_sessions.enabled and isinstance(runtime.client,S7UDPClient):
         period=runtime.client.sample_period_ms(period)
@@ -2417,27 +2412,6 @@ def api_record_start():
     async def command():
         async with runtime.command_lock: return await start_recording(data)
     return jsonify(ok=True, recording=runtime.run(command(), timeout=25))
-
-
-@app.post('/api/record/iba/check')
-def api_record_iba_check():
-    from iba_dat import bridge
-    bridge.report_path=DATA_DIR/'iba_last_check.json'
-    result=bridge.check(force=True)
-    return jsonify(ok=True,check=result)
-
-
-@app.get('/api/record/iba/status')
-def api_record_iba_status():
-    from iba_dat import bridge
-    return jsonify(ok=True,check=bridge.status())
-
-
-@app.get('/api/pda3/status')
-def api_pda3_status():
-    from pda3.template_loader import status
-    from pda3.recording import RECOVERIES
-    return jsonify(ok=True,template=status(),recovery=RECOVERIES.get(str(RECORDINGS_DIR.resolve()),{}))
 
 
 @app.post("/api/record/stop")
@@ -2829,12 +2803,7 @@ def api_fft():
 @app.post("/api/analysis/export")
 def api_export():
     data=request.get_json();start,end=interval(data);fmt=data.get("format")
-    if fmt=='pda3':
-        if data.get('source')=='live':raise ValueError('PDA3 Live: usare Record; per export manuale scegliere una registrazione storica')
-        from pda3.historical_export import export_interval
-        library,name,_=historical_reader(data)
-        return jsonify(ok=True,**export_interval(library,name,data.get('signal_ids',[]),start,end,RECORDINGS_DIR,EXPORT_DIR,data))
-    if fmt not in ("csv","parquet"):raise ValueError("Scegliere CSV, Parquet o DAT PDA3")
+    if fmt not in ("csv","parquet"):raise ValueError("Scegliere CSV o Parquet")
     EXPORT_DIR.mkdir(parents=True,exist_ok=True)
     name="Export_"+datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")+"_"+secrets.token_hex(5)+"."+fmt
     final=EXPORT_DIR/name;partial=EXPORT_DIR/(name+".part")
@@ -2911,8 +2880,6 @@ def initialize():
     nodes = validated_nodes(load_saved_settings().get("selected_nodes", []))
     runtime.run(apply_selection(nodes))
     with runtime.lock: reset_calculations(cfg['source'])
-    from pda3.recording import recover_pending
-    recover_pending(RECORDINGS_DIR)
     primary_recovery.start()
 
 

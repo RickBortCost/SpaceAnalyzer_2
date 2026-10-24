@@ -133,11 +133,11 @@ class Hardening(unittest.TestCase):
 
     def test_deferred_rebuild_preserves_each_available_format(self):
         from recording_manager import RecordingManager
-        for fmt in ('csv','parquet','das','rbf','pda3'):
+        for fmt in ('csv','parquet','das','rbf'):
             with self.subTest(format=fmt):
                 manager=RecordingManager(self.root/fmt,'test',factory=DurableRecorder)
                 from recordings import prepare_format
-                options={'pda3_accept_template_time':True} if fmt=='pda3' else {}
+                options={}
                 prepare_format(fmt,options)
                 manager.start(fmt,[dict(nodeid='ads:x',display_name='Signal')],sample_ms=10,options=options)
                 rec=manager.latest

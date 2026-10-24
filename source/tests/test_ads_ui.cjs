@@ -38,7 +38,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
  const manualFields=['ads_host','ads_tcp_port','ads_source_netid','ads_source_port','ads_bind_ip'];
  const savedManual={ads_host:'192.168.5.221',ads_tcp_port:48899,ads_source_netid:'192.168.92.36.1.1',ads_source_port:33011,ads_bind_ip:'192.168.92.36'};
  try{
-  assert(w.document.title.startsWith('Space Analyzer'));assert(w.document.querySelector('.brand .company-logo').src.endsWith('/static/danieli-logo.jpg'));assert(w.document.querySelector('link[rel="icon"]').href.endsWith('/static/space-analyzer.ico'));
+  assert(w.document.title.startsWith('Space Analyzer'));assert(w.document.querySelector('.brand .company-logo').src.endsWith('/static/space-analyzer-logo.png'));assert(w.document.querySelector('link[rel="icon"]').href.endsWith('/static/space-analyzer.ico'));
   assert($('nav-connection').closest('.page-tabs'));assert(!$('nav-connection').closest('details'));
   $('nav-connection').click();assert($('connection-dialog').open);assert(!$('opcua-connection-fields').hidden);assert($('ads-connection-fields').hidden);
   $('endpoint').value=endpoint;$('security').value='None';$('sample_ms').value='10';$('root_nodeid').value=rootNode;

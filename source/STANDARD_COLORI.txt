@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.8.2 - STANDARD COLORI DANIELI
+SPACE ANALYZER V1.8.2 - STANDARD COLORI
 Palette ricavata dai campioni RGB delle immagini fornite:
 Primario: #006EFF; primario chiaro: #CCE2FF.
 Secondario arancio: #F58C3A; arancio chiaro: #FFD6B7.

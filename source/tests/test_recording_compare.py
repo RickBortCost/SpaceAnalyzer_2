@@ -184,7 +184,7 @@ class ComparisonTests(unittest.TestCase):
 
     def test_known_pda3_and_parquet_use_manifest_real_clock_and_real_channels(self):
         from test_pda3 import fixture as pda_fixture, BASE, NODES
-        from pda3.window_export import process_job
+        from pda3_fixture.window_export import process_job
         _, job = pda_fixture(self.root, count=32)
         result = process_job(job)
         self.assertEqual(result['status'], 'ready', result)
