@@ -22,6 +22,9 @@
     <ProjectReference Include="../../engine/SpaceAnalyzer.Engine/SpaceAnalyzer.Engine.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets/profile_64_10ms.json" LogicalName="pda3_profile.json" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.32" />
     <PackageReference Include="SSH.NET" Version="2026.0.0" />
   </ItemGroup>

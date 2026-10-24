@@ -124,4 +124,57 @@ public static class Py
 
     public static string Iso(DateTime utc) => Engine.Core.Values.PythonIso(utc);
     public static string NowIso() => Engine.Core.Values.PythonIso(DateTime.UtcNow);
+
+    /// <summary>json.loads value of a node as plain .NET objects (int stays long, float double).</summary>
+    public static object? Plain(JsonNode? node)
+    {
+        switch (node)
+        {
+            case null: return null;
+            case JsonObject o: return o.ToDictionary(k => k.Key, k => Plain(k.Value));
+            case JsonArray a: return a.Select(Plain).ToList();
+            case JsonValue v:
+                switch (v.GetValueKind())
+                {
+                    case JsonValueKind.String: return v.GetValue<string>();
+                    case JsonValueKind.True: return true;
+                    case JsonValueKind.False: return false;
+                    case JsonValueKind.Null: return null;
+                    case JsonValueKind.Number:
+                        var text = v.ToJsonString();
+                        if (text.IndexOfAny(['.', 'e', 'E']) < 0 && long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l)) return l;
+                        return v.GetValue<double>();
+                }
+                return null;
+        }
+        return null;
+    }
+
+    /// <summary>JSON text of plain .NET values (dictionaries, lists, scalars, JsonNode).</summary>
+    public static string DumpsPlain(object? value, bool indent = false)
+    {
+        using var buffer = new MemoryStream();
+        using (var w = new Utf8JsonWriter(buffer, new JsonWriterOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping, Indented = indent, SkipValidation = true }))
+            WritePlain(w, value);
+        return Encoding.UTF8.GetString(buffer.ToArray());
+    }
+
+    public static void WritePlain(Utf8JsonWriter w, object? value)
+    {
+        if (value is JsonNode node) node.WriteTo(w);
+        else Engine.Core.JsonOut.Write(w, value);
+    }
+
+    /// <summary>Atomic write of plain values as JSON.</summary>
+    public static void AtomicPlain(string path, object? value, bool indent = true)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temporary, DumpsPlain(value, indent), new UTF8Encoding(false));
+            File.Move(temporary, path, true);
+        }
+        finally { if (File.Exists(temporary)) File.Delete(temporary); }
+    }
 }

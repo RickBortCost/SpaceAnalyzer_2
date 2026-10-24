@@ -12,6 +12,7 @@ public static class JsonOut
         {
             case null: w.WriteNullValue(); break;
             case JsonElement e: e.WriteTo(w); break;
+            case System.Text.Json.Nodes.JsonNode n: n.WriteTo(w); break;
             case Action<Utf8JsonWriter> writer: writer(w); break;
             case string s: w.WriteStringValue(s); break;
             case bool b: w.WriteBooleanValue(b); break;
