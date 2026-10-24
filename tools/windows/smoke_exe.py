@@ -61,7 +61,7 @@ def main():
         command=[str(executable)]
     else:
         command=[str(args.python.absolute()),str(ROOT/'source/app.py')]
-    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'1.29.0'}
+    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'2.0.0'}
     report={'version':build['version'],'tested_at':datetime.now(timezone.utc).isoformat(),
             'platform':sys.platform,'packaged_exe_executed':packaged,'formats':{},
             'hardware_tested':False,'licensed_iba_writer_tested':False,'result':'FAIL'}

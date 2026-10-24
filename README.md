@@ -1,4 +1,10 @@
-# Space Analyzer V1.29.0
+# Space Analyzer 2
+
+**Versione 2.0.** Prosecuzione di Space Analyzer V1.29.0 con le correzioni alla registrazione FDA/DAS4 e all’acquisizione ADS (dettagli in [CHANGELOG.md](CHANGELOG.md)). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+
+**Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_2/releases/latest).
+
+La storia delle versioni 1.x che segue è conservata come riferimento.
 
 **Fase 1: acquisizione e registrazione rafforzate.** Code limitate per connessione, priorità agli originali, archivio primario a blocchi con checksum e recovery dopo crash, backpressure e diagnostica persistente. Se il formato scelto si satura, viene ricostruito dal primario in un processo separato mentre può partire un nuovo Record. Nessuna nuova funzione grafica. [Rapporto completo, avvio, benchmark e Fase 2](FASE1_ACQUISIZIONE_REGISTRAZIONE.md) · [Verifiche V1.29.0](VERIFICHE_V1.29.0.md).
 
@@ -29,9 +35,9 @@ La registrazione mista supporta i sei formati esistenti: **CSV, Parquet, FDA/DAS
 
 ## Avvio su Windows
 
-Apri la [Release V1.29.0](https://github.com/RickBortCost/SpaceAnalizer/releases/tag/v1.29.0), scarica **Space_Analyzer_V1.29.0_WINDOWS.zip**, estrai tutto in una cartella scrivibile e avvia **Space_Analyzer_V1.29.0.exe**. Non serve installare Python. Chiudi prima la vecchia versione con **Chiudi applicazione**. Per conservare la stessa cartella Recordings puoi mettere il nuovo EXE accanto al precedente; workspace e impostazioni mantengono la directory dati esistente.
+Apri l’[ultima release](https://github.com/RickBortCost/SpaceAnalyzer_2/releases/latest), scarica **Space_Analyzer_V<versione>_WINDOWS.zip**, estrai tutto in una cartella scrivibile e avvia **Space_Analyzer_V<versione>.exe**.
 
-[Istruzioni complete](LEGGIMI_AVVIO_WINDOWS.md). **Build e prove Windows V1.29.0 superate**: [workflow](https://github.com/RickBortCost/SpaceAnalizer/actions/runs/40075096236), 46 test backend e quattro flussi DOM, payload, esecuzione del vero EXE, cinque formati, sequenze primarie, marker/formule, FDA da 128.000 campioni e nuovo CSV da 640 durante il salvataggio, istanza singola e arresto. [Rapporto EXE](releases/v1.29.0/WINDOWS_EXE_VERIFICATION.json) e [asset con SHA-256](releases/v1.29.0/WINDOWS_RELEASE.json).
+[Istruzioni complete](LEGGIMI_AVVIO_WINDOWS.md). Ogni release contiene anche `WINDOWS_EXE_VERIFICATION.json` con l’esito delle prove dell’EXE reale e `SHA256SUMS.txt` con gli hash.
 
 ## Avvio dai sorgenti
 

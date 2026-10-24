@@ -62,7 +62,7 @@ mimetypes.add_type('application/javascript', '.js')
 mimetypes.add_type('application/javascript', '.mjs')
 
 APP_NAME = "Space Analyzer"
-APP_VERSION = "1.29.0"
+APP_VERSION = "2.0.0"
 MAX_SELECTED = 64
 MAX_SAMPLES = 360000
 MAX_TOTAL_SAMPLES = 2000000
@@ -1468,10 +1468,25 @@ async def ads_notification_loop():
         if runtime.want_connected and not runtime.connected:await asyncio.sleep(3)
 
 
+def windows_timer_resolution(enable):
+    """Request 1 ms system timers on Windows (default granularity ~15.6 ms); True when applied."""
+    if os.name!='nt':return False
+    try:
+        import ctypes
+        winmm=ctypes.windll.winmm
+        if enable:return winmm.timeBeginPeriod(1)==0
+        winmm.timeEndPeriod(1);return False
+    except Exception:return False
+
+
 async def ads_sampler_loop():
-    if runtime.active_config.get('ads_mode')=='notify':
-        await ads_notification_loop();return
-    await ads_polling_loop()
+    highres=windows_timer_resolution(True)
+    try:
+        if runtime.active_config.get('ads_mode')=='notify':
+            await ads_notification_loop();return
+        await ads_polling_loop()
+    finally:
+        if highres:windows_timer_resolution(False)
 
 
 def mqtt_notification_sink(ts,rows,sample_ms,generation):
@@ -1561,6 +1576,7 @@ async def s7_sampler_loop():
 async def ads_polling_loop():
     """Shared asynchronous polling for ADS Read and S7 ReadVar."""
     last_start, deadline, heartbeat = None, time.perf_counter(), 0
+    runtime.polling_skipped_ticks = 0
     try:
         while runtime.want_connected:
             if not runtime.connected:
@@ -1617,8 +1633,13 @@ async def ads_polling_loop():
                 runtime.state = "reconnecting"
                 continue
             deadline += interval
-            if deadline < time.perf_counter() - interval:
-                deadline = time.perf_counter() + interval
+            now_pc = time.perf_counter()
+            if deadline < now_pc - interval:
+                # Overrun: whole periods are skipped. Count them instead of hiding the loss.
+                runtime.polling_skipped_ticks = getattr(runtime, 'polling_skipped_ticks', 0) + int((now_pc - deadline) / interval)
+                try: runtime.client.info['polling_skipped_ticks'] = runtime.polling_skipped_ticks
+                except Exception: pass
+                deadline = now_pc + interval
             await asyncio.sleep(max(0, deadline - time.perf_counter()))
     except asyncio.CancelledError:
         pass

@@ -48,6 +48,9 @@ class NotificationAcquisition:
         capacity=int(capacity or os.environ.get('SPACE_ADS_QUEUE_SAMPLES',32768));byte_limit=int(byte_limit or int(os.environ.get('SPACE_ADS_QUEUE_MB',16))*1024**2)
         if not 1<=capacity<=1000000 or not 1024<=byte_limit<=256*1024**2:raise ValueError('Limiti buffer ADS non validi')
         self.capacity=capacity;self.byte_limit=byte_limit;self.queue=deque();self.queued_bytes=0
+        # Configured values are a floor: the queue grows with channels/rate (see scale_queue).
+        self.base_capacity=capacity;self.base_byte_limit=byte_limit
+        self.headroom_s=max(0.1,float(os.environ.get('SPACE_ADS_QUEUE_SECONDS',2)));self.paused_not_run=False
         self.lock=threading.Lock();self.stop_event=threading.Event();self.thread=None;self.error=None
         self.accepting=False;self.members={};self.subscriptions=[];self.received=0;self.accepted=0;self.dropped=0;self.sample_sequences={};self.source_epoch=0;self.clock_backwards=0;self.timestamp_errors=0;self.decode_errors=0;self.lost_ranges=deque(maxlen=128)
         self.last_received={};self.last_source={};self.periods=deque(maxlen=2048);self.arrivals=deque(maxlen=2048)
@@ -76,6 +79,22 @@ class NotificationAcquisition:
                 self.queue_high_water=max(self.queue_high_water,len(self.queue))
         except Exception as exc:
             self.callback_fault='Callback ADS: '+str(exc)
+
+    def scale_queue(self,count,sample_ms):
+        """Size the callback queue for about `headroom_s` seconds of traffic.
+
+        A fixed 32,768 samples is only 0.33 s at 1,000 channels x 10 ms; any short stall
+        (antivirus, GC, disk) would abort acquisition. The configured limits stay a floor.
+        """
+        rate=count*1000.0/max(1.0,float(sample_ms))
+        capacity=min(1000000,max(self.base_capacity,int(rate*self.headroom_s)))
+        byte_limit=min(256*1024**2,max(self.base_byte_limit,capacity*64))
+        with self.lock:self.capacity=capacity;self.byte_limit=byte_limit
+        return capacity,byte_limit
+
+    @staticmethod
+    def watchdog_expired(times,now,sample_ms):
+        return any(now-t>max(5,sample_ms/1000*5) for t in times)
 
     def start(self):
         self.thread=threading.Thread(target=self._run,name='ADS-Cyclic-Acquisition',daemon=True);self.thread.start()
@@ -108,7 +127,7 @@ class NotificationAcquisition:
     async def subscribe(self,c,nids,sample_ms,generation):
         await self.remove_subscriptions(c)
         if self.started:self.restarts+=1
-        self.sample_ms=sample_ms
+        self.sample_ms=sample_ms;self.scale_queue(len(nids),sample_ms)
         self.source_epoch+=1;self.generation=generation;self.last_received={};self.last_source={};self.last_arrival={}
         self.periods.clear();self.arrivals.clear();self.latencies.clear();self.queue_delays.clear()
         self.reference=nids[0] if nids else None
@@ -161,7 +180,7 @@ class NotificationAcquisition:
         values=sorted(self.periods);arrivals=list(self.arrivals)
         with self.lock:pending=len(self.queue);size=self.queued_bytes
         return dict(mode='ADS notifiche cicliche',received=self.received,accepted=self.accepted,dropped=self.dropped,lost_ranges=list(self.lost_ranges),clock_backwards=self.clock_backwards,timestamp_errors=self.timestamp_errors,queue_samples=pending,
-                    queue_bytes=size,queue_capacity=self.capacity,reference_signal=self.reference,
+                    queue_bytes=size,queue_capacity=self.capacity,plc_not_run=self.paused_not_run,reference_signal=self.reference,
                     processed=self.processed,decode_errors=self.decode_errors,queue_high_water=self.queue_high_water,
                     control_error=self.control_error,control_timeouts=self.control_timeouts,control_last_ok=self.control_last_ok,
                     source_period_ms=sum(values)/len(values) if values else None,
@@ -222,9 +241,19 @@ class NotificationAcquisition:
                 if monitor is None and current and now-heartbeat>=(5 if self.control_error else 1):
                     monitor=asyncio.create_task(self.monitor(c))
                 if current and nids:
-                    with self.lock:times=[self.last_received.get(n,configured) for n in nids]
-                    if any(time.monotonic()-t>max(5,sample_ms/1000*5) for t in times):
-                        raise TimeoutError('Watchdog ADS: flusso notifiche assente per almeno un segnale')
+                    state=c.info.get('ads_state')
+                    if state is not None and state!=5:
+                        # PLC not in RUN (STOP/CONFIG...): silence is expected, do not abort the
+                        # acquisition; restart the watchdog baseline until RUN returns.
+                        now_m=time.monotonic()
+                        with self.lock:
+                            for n in nids:self.last_received[n]=now_m
+                        configured=now_m;self.paused_not_run=True
+                    else:
+                        self.paused_not_run=False
+                        with self.lock:times=[self.last_received.get(n,configured) for n in nids]
+                        if self.watchdog_expired(times,time.monotonic(),sample_ms):
+                            raise TimeoutError('Watchdog ADS: flusso notifiche assente per almeno un segnale')
                 if now-reported>=.25:
                     self.report(self.stats());reported=now
                 # Catch up without an obligatory 5 ms pause per full batch.

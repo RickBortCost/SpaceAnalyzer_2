@@ -18,7 +18,7 @@ import (
 //go:embed payload.zip
 var payload []byte
 
-const version = "1.29.0"
+const version = "2.0.0"
 
 func message(text string) {
 	title, _ := syscall.UTF16PtrFromString("Space Analyzer V" + version)

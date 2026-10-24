@@ -9,6 +9,7 @@ import itertools
 import json
 import math
 import os
+import shutil
 import sqlite3
 import struct
 import tempfile
@@ -19,6 +20,29 @@ from pathlib import Path
 FIXED=struct.Struct('<22s5sIddIdHIH')
 CHANNEL=struct.Struct('<HHBBHHddI')
 QUALITY={0:'Bad',1:'Bad',2:'Uncertain',3:'Good'}
+MAX_ABS_INT16=32767
+MAX_TICKS=0xffffffff
+
+
+def choose_gain(peak):
+    """Smallest 1-2-5 scale step so that peak/gain fits Int16 (>= ~40% of full scale used).
+
+    Powers of ten alone could waste up to 90% of the range (peak 32768 -> gain 10).
+    """
+    if not peak or not math.isfinite(peak):return 1.
+    exponent=math.floor(math.log10(peak/MAX_ABS_INT16))
+    for e in range(exponent-1,exponent+3):
+        for m in ('1','2','5'):
+            gain=float(m+'e'+str(e))
+            if gain>0 and peak/gain<=MAX_ABS_INT16:return gain
+    raise ValueError('Scala FDA fuori dai limiti numerici')
+
+
+def enough_space(directory,minimum_mb=None):
+    """True when the recording drive keeps a safety margin for the sort database/output."""
+    minimum=int(os.environ.get('SPACE_FDA_MIN_FREE_MB',256) if minimum_mb is None else minimum_mb)*1024**2
+    try:return shutil.disk_usage(directory).free>=minimum
+    except OSError:return True
 
 
 def text(value):
@@ -102,7 +126,7 @@ def channel_map(h):
     while i<len(h['channels']):
         c=h['channels'][i];q=h['channels'][i+1] if i+1<len(h['channels']) else None
         paired=q is not None and q['name']==c['name']+'_Q' and q['description']=='Quality: 0=missing, 1=Bad, 2=Uncertain, 3=Good' and q['gain']==1. and q['offset']==0.
-        nodeid=c['description'] if paired and 0<len(c['description'])<200 else 'das:'+c['name']+':'+str(i)
+        nodeid=c['description'] if paired and 0<len(c['description'])<251 else 'das:'+c['name']+':'+str(i)
         result.append(dict(value_channel=i,quality_channel=i+1 if paired else None,nodeid=nodeid,display_name=c['name'],unit=c['unit']))
         i+=2 if paired else 1
     return result
@@ -159,6 +183,8 @@ def export_parquet(original,nodes,max_bytes=0):
     if not 1<=len(ids)<=64:raise ValueError('FDA: selezionare da 1 a 64 segnali')
     library=RecordingLibrary(original.parent);source_meta=library._metadata(original)
     limits=[0.]*len(ids);staged=[];files=[];stream=None;partial=None
+    if not enough_space(original.parent):raise ValueError('Spazio disco insufficiente per la conversione FDA: archivio originale conservato')
+    last_seen={};discont=dict(count=0,tolerance_ms=1.0,examples=[]);staged_rows=0
     handle,temp=tempfile.mkstemp(prefix='.fda_sort_',suffix='.sqlite',dir=original.parent);os.close(handle)
     db=sqlite3.connect(temp)
     try:
@@ -169,11 +195,20 @@ def export_parquet(original,nodes,max_bytes=0):
             if nid not in ids:continue
             t=float(row['timestamp_ms'])
             if not math.isfinite(t):raise ValueError('Timestamp FDA non finito')
+            # A backwards source clock (PLC/NTP step) is reported, never silently hidden.
+            previous_t=last_seen.get(ids[nid])
+            if previous_t is not None and t<previous_t-discont['tolerance_ms']:
+                discont['count']+=1
+                if len(discont['examples'])<16:discont['examples'].append(dict(signal=nid,previous_ms=previous_t,next_ms=t))
+            last_seen[ids[nid]]=t
             q={'Good':3,'Uncertain':2,'Bad':1}.get(row.get('quality'),3 if row.get('good') else 1)
             value=row.get('value_numeric')
-            if q==3 and isinstance(value,(int,float)) and math.isfinite(value):
+            # Uncertain keeps its numeric value (Q=2); only Bad/missing/non-numeric become 0.
+            if q in (2,3) and isinstance(value,(int,float)) and math.isfinite(value):
                 v=float(value);limits[ids[nid]]=max(limits[ids[nid]],abs(v))
             else:v=0.;q=2 if q==2 else 1
+            staged_rows+=1
+            if staged_rows%500000==0 and not enough_space(original.parent):raise ValueError('Spazio disco insufficiente durante la conversione FDA: archivio originale conservato')
             staged.append((t,int(row['cycle']),ids[nid],v,q))
             if len(staged)>=8192:
                 db.executemany('INSERT INTO samples VALUES(?,?,?,?,?)',staged);staged.clear()
@@ -184,11 +219,10 @@ def export_parquet(original,nodes,max_bytes=0):
         channels=[dict(name='INTERNAL TIME',description='Time from start...',unit='Milliseconds',size=4)]
         mapping=[]
         for i,node in enumerate(nodes):
-            peak=limits[i];gain=10.**math.ceil(math.log10(peak)-math.log10(32767)) if peak else 1.
+            peak=limits[i];gain=choose_gain(peak)
             if gain<=0 or not math.isfinite(gain):raise ValueError('Scala FDA fuori dai limiti numerici')
-            if peak/gain>32767:gain*=10
             name=safe_name(node.get('display_name') or node['nodeid'],i)
-            channels.append(dict(name=name,description=node['nodeid'][:200],unit=node.get('unit',''),size=2,gain=gain))
+            channels.append(dict(name=name,description=node['nodeid'][:250],unit=node.get('unit',''),size=2,gain=gain))
             value_channel=len(channels)-1
             channels.append(dict(name=name+'_Q',description='Quality: 0=missing, 1=Bad, 2=Uncertain, 3=Good',unit='',size=2,gain=1.))
             mapping.append(dict(nodeid=node['nodeid'],display_name=node.get('display_name') or node['nodeid'],unit=node.get('unit',''),
@@ -211,14 +245,16 @@ def export_parquet(original,nodes,max_bytes=0):
                   'storage':{'format':'das','label':'FDA DAS4 · Int16 scalato','lossless':False},
                   'fda_compatibility':'reference-derived; external FDA validation pending',
                   'timestamp_semantics':'UInt32 relative milliseconds, nearest ms; original precision in companion Parquet',
-                  'quality_semantics':'Per-signal _Q: 0 missing, 1 Bad, 2 Uncertain, 3 Good; absent values are zero with Q=0'}
+                  'quality_semantics':'Per-signal _Q: 0 missing, 1 Bad, 2 Uncertain, 3 Good; absent values are zero with Q=0; Uncertain keeps its value',
+                  'fda_gain_policy':'1-2-5 scale steps, peak<=32767','time_discontinuities':discont}
             meta=destination.with_suffix('.metadata.json');tmp=meta.with_suffix('.tmp')
             tmp.write_text(json.dumps(info,ensure_ascii=False,indent=2),encoding='utf-8')
-            os.replace(partial,destination);os.replace(tmp,meta);partial=None
+            # Metadata first: a visible .das always has its sidecar, even after a crash.
+            os.replace(tmp,meta);os.replace(partial,destination);partial=None
             files.append(dict(name=destination.name,rows=frames*len(nodes),frames=frames,bytes=destination.stat().st_size,part=part))
 
         def frames_at_source_time():
-            for t,group in itertools.groupby(db.execute('SELECT t,c,n,v,q FROM samples ORDER BY t,c'),key=lambda x:x[0]):
+            for t,group in itertools.groupby(db.execute('SELECT t,c,n,v,q FROM samples ORDER BY t,c'),key=lambda x:int(round(x[0]))):
                 values=[0]*(len(channels)-1);seen=set()
                 for _,_,n,v,q in group:
                     if n in seen:
@@ -230,19 +266,22 @@ def export_parquet(original,nodes,max_bytes=0):
                 yield t,values
 
         for t,values in frames_at_source_time():
-            ticks=int(round(t-epoch*1000))
-            if not 0<=ticks<=0xffffffff:raise ValueError('Durata FDA oltre il limite UInt32 millisecondi')
+            ticks=int(t-epoch*1000)
+            if not 0<=ticks<=MAX_TICKS:
+                # UInt32 ms lasts 49.7 days: continue in a new part with its own epoch.
+                finish();epoch=int(t//1000);raw_header=header(channels,epoch,period);ticks=int(t-epoch*1000)
+                if not 0<=ticks<=MAX_TICKS:raise ValueError('Durata FDA oltre il limite UInt32 millisecondi')
             if stream is not None and max_bytes and stream.tell()+fmt.size>max_bytes:finish()
             if stream is None:
                 part+=1;frames=0;first_t=last_t=None
                 destination=original.with_name(original.stem+f'_FDA{part:04d}.das');partial=Path(str(destination)+'.part')
-                stream=partial.open('xb');stream.write(raw_header)
+                stream=partial.open('wb');stream.write(raw_header)
             stream.write(fmt.pack(ticks,*values));frames+=1
             if first_t is None:first_t=t
             last_t=t
         if not part:
             part=1;destination=original.with_name(original.stem+'_FDA0001.das');partial=Path(str(destination)+'.part')
-            stream=partial.open('xb');stream.write(raw_header)
+            stream=partial.open('wb');stream.write(raw_header)
         finish();return files
     finally:
         if stream is not None:stream.close()
