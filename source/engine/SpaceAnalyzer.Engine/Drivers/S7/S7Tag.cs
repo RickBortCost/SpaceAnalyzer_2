@@ -148,7 +148,7 @@ public static class S7Types
     {
         bool b => b ? 1 : 0,
         long l => l,
-        BigInteger big => (double)big,
+        BigInteger big => Values.BigToDouble(big),
         double d => d,
         _ => double.NaN,
     };

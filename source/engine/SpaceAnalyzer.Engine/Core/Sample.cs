@@ -45,6 +45,8 @@ public sealed class Sample
     public long? ConnectionSequence { get; set; }                // connection_sequence
     public bool Calculated { get; set; }                         // calculated
 
+    public Sample Copy() => (Sample)MemberwiseClone();
+
     public string ProtocolOrDefault => SourceProtocol ?? ProtocolOf(NodeId);
 
     public static string ProtocolOf(string nodeId) =>

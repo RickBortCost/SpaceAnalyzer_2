@@ -177,7 +177,7 @@ public static class MqttFormat
         double? plot = null;
         if (numeric && quality == "Good")
         {
-            var f = value switch { bool b => b ? 1.0 : 0.0, long l => l, BigInteger big => (double)big, double x => x, _ => 0 };
+            var f = value switch { bool b => b ? 1.0 : 0.0, long l => l, BigInteger big => Values.BigToDouble(big), double x => x, _ => 0 };
             if (!double.IsFinite(f)) { plot = null; quality = "Bad"; status = "MQTT numero oltre il limite grafico"; }
             else plot = f;
         }

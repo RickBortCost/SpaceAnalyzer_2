@@ -5,6 +5,7 @@ and cyclic notifications. Notifications run over ADS/TCP against the simulator h
 in production the same logic runs through the local TwinCAT router (TcAdsDll).
 """
 import asyncio
+import json
 import ctypes as C
 import struct
 import sys
@@ -166,7 +167,11 @@ class EngineADS(unittest.TestCase):
         self.engine.call('acq.connect', cfg={**self.cfg, 'ads_mode': 'notify'}, protocols=['ads'], wait_first=True)
         until(lambda: len(self.peer.subscriptions) == 3, 10)
         for t in ticks: self.peer.emit(t)
-        until(lambda: self.engine.call('acq.status')['sources']['ads']['diagnostics'].get('processed') == 3 * len(ticks), 10)
+        try:
+            until(lambda: self.engine.call('acq.status')['sources']['ads']['diagnostics'].get('processed') == 3 * len(ticks), 10)
+        except AssertionError:
+            status = self.engine.call('acq.status')['sources']['ads']
+            self.fail('notifications not processed: ' + json.dumps({k: status['diagnostics'].get(k) for k in ('received', 'accepted', 'processed', 'dropped', 'subscription_restarts', 'queue_samples')}) + ' state=' + status['state'] + ' error=' + status['error'] + ' events=' + json.dumps([e for e in self.events if e['kind'] == 'source_disconnected']))
         time.sleep(.5)
         diag = self.engine.call('acq.status')['sources']['ads']['diagnostics']
         with self.lock: engine = [(m['t'], m['rows']) for m in self.rows]

@@ -44,6 +44,7 @@ public sealed class AdsTcpTransport : IAdsTransport
     (ushort command, uint invoke)? expected;
     Task? reader;
     readonly ConcurrentDictionary<uint, uint> notifications = new();
+    uint? pendingAddUser;
 
     public AdsTcpTransport(string host, int port, string targetNetId, int targetPort, string sourceNetId, int sourcePort, string bindIp, int timeoutMs)
     {
@@ -111,8 +112,11 @@ public sealed class AdsTcpTransport : IAdsTransport
                 if (waiting == null || expected is not var (cmd, inv)) throw new InvalidDataException("Risposta AMS non corrispondente alla richiesta");
                 if (!raw.AsSpan(0, 8).SequenceEqual(source) || !raw.AsSpan(8, 8).SequenceEqual(target) || command != cmd || (flags & 5) != 5 || id != inv || n != length - 32)
                     throw new InvalidDataException("Risposta AMS non corrispondente alla richiesta");
-                if (error != 0) waiting.TrySetException(new AdsException(error, "Router AMS"));
-                else waiting.TrySetResult(raw[32..]);
+                if (error != 0) { waiting.TrySetException(new AdsException(error, "Router AMS")); continue; }
+                // Map a new notification handle before reading on: its first sample may be the next frame.
+                if (command == 6 && pendingAddUser is uint user && raw.Length >= 40 && BinaryPrimitives.ReadUInt32LittleEndian(raw.AsSpan(32)) == 0)
+                    notifications[BinaryPrimitives.ReadUInt32LittleEndian(raw.AsSpan(36))] = user;
+                waiting.TrySetResult(raw[32..]);
             }
         }
         catch (Exception exc)
@@ -180,9 +184,15 @@ public sealed class AdsTcpTransport : IAdsTransport
             pending = waiting; expected = (command, invoke);
             try
             {
-                await stream.WriteAsync(frame, ct);
-                return await waiting.Task.WaitAsync(TimeSpan.FromMilliseconds(timeoutMs), ct);
+                // A request already sent completes its exchange (bounded by the ADS timeout):
+                // cancelling mid-way would desynchronise the stream and leak PLC handles.
+                ct.ThrowIfCancellationRequested();
+                await stream.WriteAsync(frame, CancellationToken.None);
+                var reply = await waiting.Task.WaitAsync(TimeSpan.FromMilliseconds(timeoutMs), CancellationToken.None);
+                ct.ThrowIfCancellationRequested();
+                return reply;
             }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested && stream != null) { throw; }
             catch (TimeoutException)
             {
                 await Abort();
@@ -217,7 +227,10 @@ public sealed class AdsTcpTransport : IAdsTransport
         BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(12), 3);
         BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(16), maxDelay);
         BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(20), cycle);
-        var reply = await Command(6, request, ct);
+        byte[] reply;
+        pendingAddUser = user;
+        try { reply = await Command(6, request, ct); }
+        finally { pendingAddUser = null; }
         AdsClient.CheckResult(reply);
         if (reply.Length != 8) throw new InvalidDataException("Risposta AddDeviceNotification non valida");
         var handle = BinaryPrimitives.ReadUInt32LittleEndian(reply.AsSpan(4));

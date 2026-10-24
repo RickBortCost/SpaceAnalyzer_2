@@ -11,7 +11,7 @@ class Peer:
         self.ads_state=5;self.version=1;self.sum_enabled=True;self.bad=set();self.commands=[]
         self.released=[];self.fault=None;self.delay=0
         # ADS/TCP notifications (AddDeviceNotification 6, Delete 7, DeviceNotification 8).
-        self.subscriptions={};self.next_notification=500;self.current=None;self.loop=None;self.attrs=[]
+        self.subscriptions={};self.write_locks={};self.next_notification=500;self.current=None;self.loop=None;self.attrs=[]
         self.symbols={
             'MAIN.Wave':(5,'LREAL',8), 'MAIN.Running':(33,'BOOL',1),
             'MAIN.Counter':(21,'ULINT',8), 'MAIN.Text':(30,'STRING(15)',16),
@@ -92,7 +92,7 @@ class Peer:
         return struct.pack('<II',e,len(data))+data
     def emit(self,ticks,size_override=None):
         """Push one DeviceNotification per subscription (thread-safe; returns when written)."""
-        def send():
+        async def send():
             for notification,((w,client,server),handle,size) in list(self.subscriptions.items()):
                 name=self.handles.get(handle)
                 if name is None or w.is_closing():continue
@@ -102,9 +102,9 @@ class Peer:
                 stamp=struct.pack('<QI',ticks,1)+sample
                 body=struct.pack('<II',len(stamp)+4,1)+stamp
                 header=client+server+struct.pack('<HHIII',8,4,len(body),0,0)
-                w.write(struct.pack('<HI',0,len(header)+len(body))+header+body)
-        asyncio.run_coroutine_threadsafe(self._run(send),self.loop).result(5)
-    async def _run(self,fn):fn()
+                # Whole frames only: never inside a fragmented response.
+                async with self.write_locks.setdefault(w,asyncio.Lock()):w.write(struct.pack('<HI',0,len(header)+len(body))+header+body)
+        asyncio.run_coroutine_threadsafe(send(),self.loop).result(5)
     async def accept(self,r,w):
         self.writers.add(w)
         try:
@@ -118,9 +118,10 @@ class Peer:
                 if fault=='length':w.write(struct.pack('<HI',0,0xffffffff));await w.drain();continue
                 header=struct.pack('<HI',0,len(response))
                 # Deliberately fragmented TCP writes (header and payload).
-                w.write(header[:2]);await w.drain();await asyncio.sleep(0)
-                w.write(header[2:]+response[:19]);await w.drain();await asyncio.sleep(0)
-                w.write(response[19:]);await w.drain()
+                async with self.write_locks.setdefault(w,asyncio.Lock()):
+                    w.write(header[:2]);await w.drain();await asyncio.sleep(0)
+                    w.write(header[2:]+response[:19]);await w.drain();await asyncio.sleep(0)
+                    w.write(response[19:]);await w.drain()
         except (asyncio.IncompleteReadError,ConnectionError,asyncio.CancelledError):pass
         finally:
             self.writers.discard(w);w.close()

@@ -196,6 +196,14 @@ public static class Values
         return text + "+00:00";
     }
 
+    /// <summary>float(int) of Python: correctly rounded (BigInteger's explicit conversion truncates); infinity beyond the range.</summary>
+    public static double BigToDouble(BigInteger value)
+    {
+        if (value >= long.MinValue && value <= long.MaxValue) return (long)value;
+        if (value >= 0 && value <= ulong.MaxValue) return (ulong)value;
+        return double.Parse(value.ToString(CultureInfo.InvariantCulture), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
+    }
+
     /// <summary>datetime.fromtimestamp(ms/1000, utc).isoformat(): microseconds only when non-zero.</summary>
     public static string IsoFromMs(double ms) => PythonIso(Recording.TableRecorder.PythonFromTimestamp(ms));
 

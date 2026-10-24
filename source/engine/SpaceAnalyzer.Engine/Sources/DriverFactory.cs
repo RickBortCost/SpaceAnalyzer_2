@@ -2,6 +2,7 @@ using System.Text.Json;
 using SpaceAnalyzer.Engine.Core;
 using SpaceAnalyzer.Engine.Drivers.Ads;
 using SpaceAnalyzer.Engine.Drivers.Mqtt;
+using SpaceAnalyzer.Engine.Drivers.OpcUa;
 using SpaceAnalyzer.Engine.Drivers.S7;
 
 namespace SpaceAnalyzer.Engine.Sources;
@@ -12,6 +13,7 @@ public static class DriverFactory
     public static SourceDriver Create(string protocol, JsonElement cfg, bool catalog = false) => protocol switch
     {
         "mqtt" => new MqttDriver(cfg),
+        "opcua" => new OpcUaDriver(cfg),
         "ads" => !catalog && Mode(cfg, "ads_mode", "sum") == "notify" ? new AdsNotifyDriver(cfg) : new AdsDriver(cfg, catalog),
         "s7" => Mode(cfg, "s7_mode", "classic") switch
         {
