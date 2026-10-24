@@ -4,13 +4,18 @@ import threading
 import time
 
 
+_SCALARS=frozenset((int,float,bool,type(None)))
+
 def size_hint(rows):
     # Conservative UTF-8/objects budget, bounded without serializing in callbacks.
     size=128
     for row in rows:
         size+=512
         for value in row.values():
-            if isinstance(value,str):size+=4*len(value)
+            kind=type(value)
+            if kind is str:size+=4*len(value)
+            elif kind in _SCALARS:continue
+            elif isinstance(value,str):size+=4*len(value)
             elif isinstance(value,(bytes,bytearray,memoryview)):size+=len(value)
             elif isinstance(value,(list,tuple,dict)):size+=len(repr(value).encode('utf-8'))*2
     return size

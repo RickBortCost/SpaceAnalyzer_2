@@ -12,6 +12,8 @@ import uuid
 from acquisition_buffers import ConnectionBuffer, size_hint
 from acquisition_health import SourceMetrics,source_clock_ns
 
+UNSET=object()
+
 
 class LiveDistribution:
     def __init__(self, deliver, capacity=8192, max_bytes=16*1024**2):
@@ -96,18 +98,25 @@ class AcquisitionEngine:
                 work=True;serial,(t,rows,period,generation),count,queued=entry
                 try:
                     with m.lock:
+                        # Rows of one notification block share their clocks: an identical
+                        # (receive, monotonic) pair cannot change the counters, so it is checked once.
+                        checked=None;clocks={}
                         for row in rows:
-                            received=(int(row['received_ns']),int(row['_received_mono_ns']))
-                            previous_receive=m.last_receive
-                            if previous_receive is not None:
-                                if received[1]<previous_receive[1]:m.receive_reordered+=1
-                                elif received[0]<previous_receive[0]:
-                                    m.receive_clock_backwards+=1;row['clock_discontinuity']=True
-                                    self.events.emit('receive_clock_backwards',m.connection_id,previous_ns=str(previous_receive[0]),received_ns=str(received[0]),policy='recording interval uses monotonic clock; original UTC preserved')
-                            if previous_receive is None or received[1]>=previous_receive[1]:m.last_receive=received
-                            nid=row['nodeid'];m.sequences[nid]=m.sequences.get(nid,0)+1
-                            row.update(connection_id=m.connection_id,sample_sequence=m.sequences[nid],source_protocol=m.protocol)
-                            prior=m.last_time.get(nid);source_time=source_clock_ns(row)
+                            receive_key=(row['received_ns'],row['_received_mono_ns'])
+                            if receive_key!=checked:
+                                checked=receive_key;received=(int(receive_key[0]),int(receive_key[1]))
+                                previous_receive=m.last_receive
+                                if previous_receive is not None:
+                                    if received[1]<previous_receive[1]:m.receive_reordered+=1
+                                    elif received[0]<previous_receive[0]:
+                                        m.receive_clock_backwards+=1;row['clock_discontinuity']=True;checked=None
+                                        self.events.emit('receive_clock_backwards',m.connection_id,previous_ns=str(previous_receive[0]),received_ns=str(received[0]),policy='recording interval uses monotonic clock; original UTC preserved')
+                                if previous_receive is None or received[1]>=previous_receive[1]:m.last_receive=received
+                            nid=row['nodeid'];sequence=m.sequences[nid]=m.sequences.get(nid,0)+1
+                            row.update(connection_id=m.connection_id,sample_sequence=sequence,source_protocol=m.protocol)
+                            prior=m.last_time.get(nid);clock_key=(row.get('source_filetime'),row.get('source_ts'))
+                            source_time=clocks.get(clock_key,UNSET)
+                            if source_time is UNSET:source_time=clocks[clock_key]=source_clock_ns(row)
                             if source_time is not None:
                                 backwards=prior is not None and source_time<prior
                                 duplicate=prior is not None and source_time==prior
@@ -128,7 +137,7 @@ class AcquisitionEngine:
                         with m.lock:m.recording_rejected+=count
                     self.last_timestamp=max(t,self.last_timestamp) if self.last_timestamp is not None else t
                     if self.calculate:self.calculate(t,rows,period,generation)
-                    with m.lock:m.dispatched+=count
+                    with m.lock:m.dispatched+=count;m.observe()
                     if not self.live.put((t,rows,period,generation),count,rows[0]['_buffer_budget']):
                         with m.lock:m.display_skipped+=count
                 except Exception as exc:

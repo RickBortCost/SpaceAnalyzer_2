@@ -2,6 +2,18 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 2.1.0
+
+Seconda iterazione della Fase 1 (hardening acquisizione e registrazione). Report completo, benchmark e limiti in [FASE1_HARDENING_V2.1.md](FASE1_HARDENING_V2.1.md); evidenze in `evidence_v2.1.0/`.
+
+- ADS: rilevamento per canale dei cicli PLC mancanti a monte della callback (`source_gaps`, evento `ads_source_gap`). Prima queste perdite erano silenziose.
+- ADS: notifiche a blocco opzionali (`SPACE_ADS_NOTIFY_GROUPING=1`): una callback per ciclo per le variabili contigue, con fallback automatico. Predefinito disattivo.
+- ADS: callback e decode più leggeri. In simulazione, 1.000 simboli passano da 9.409 a 15.236 valori/s; con i blocchi, 60.000 valori/s sostenuti senza perdite. Il target di 100.000 valori/s **non** è raggiunto.
+- Recorder primario: gli eventi critici sono scritti nel file SAC (blocchi `EVENT`) e sopravvivono al recovery. L'IPC `marshal` sposta la codifica JSON nel processo writer, con file identici.
+- Diagnostica: rate su finestra mobile (`recent`) per connessioni e primario.
+- Sessioni sorgente: un errore rilevato mentre una sessione si chiudeva poteva andare perso se Stop arrivava in quella finestra, e la registrazione risultava completa. Ora l'errore viene attribuito prima di staccare il client e Stop attende la chiusura in corso (difetto già presente nella 2.0.0).
+- Test: nuova suite `test_phase1_integrity` (14). Rese robuste 4 suite dipendenti dai tempi dello Stop asincrono; certificati MQTT di test conformi a RFC 5280. 243 test superati.
+
 ## 2.0.0
 
 Prima versione di Space Analyzer 2, basata su V1.29.0.

@@ -4,6 +4,7 @@ All control runs on the application asyncio loop. Native/MQTT/UDP callbacks
 carry their owning session token; obsolete callbacks cannot enter a new session.
 """
 import asyncio
+import threading
 import time
 from contextlib import suppress
 from datetime import datetime, timezone
@@ -26,6 +27,9 @@ class SourceSession:
         self.period = cfg.get('source_intervals', {}).get(protocol, max(1 if protocol=='ads' else 10,cfg['sample_ms']))
         self.cfg['sample_ms'] = self.period
         self.client = self.task = self.subscription = self.notification_worker = None
+        # Clear while close() runs: Stop must not finish a recording before the
+        # closing client's losses are checked (they would reach no session).
+        self.idle = threading.Event(); self.idle.set()
         self.enabled = True
         self.state, self.error = 'connecting', ''
         self.reconnections = self.received = self.late_samples = 0
@@ -87,9 +91,25 @@ class SourceSession:
             self.notification_worker.start()
 
     def report(self, diag):
+        from ads_notifications import gap_report
+        missing, gaps = gap_report(self.diag, diag)
+        if gaps and getattr(self.owner, 'events', None):
+            self.owner.events.emit('ads_source_gap', connection_id=self.owner.connection_id(self.protocol) if hasattr(self.owner, 'connection_id') else None,
+                                   protocol=self.protocol, missing_samples=missing, gaps=gaps,
+                                   policy='notifications missing upstream of the callback; recording continues and the gap is documented')
         self.diag = dict(diag)
 
     async def close(self):
+        # Attribute a loss already visible before the client is detached: a Stop
+        # running meanwhile would otherwise find no client to check.
+        self.check_loss()
+        self.idle.clear()
+        try:
+            await self._close()
+        finally:
+            self.idle.set()
+
+    async def _close(self):
         # Keep the token valid while the owning queue drains on disconnect.
         worker, self.notification_worker = self.notification_worker, None
         if worker:
@@ -284,8 +304,11 @@ class SourceSessions:
         return s.client
 
     def flush(self, timeout=5):
+        # Runs off the event loop (finish_recording is always called via to_thread).
         deadline = time.monotonic() + timeout
         for s in list(self.sessions.values()):
+            if not s.idle.wait(max(0, deadline-time.monotonic())):
+                self.fatal(s.protocol.upper() + ': chiusura sorgente non completata alla chiusura della registrazione')
             if s.client and hasattr(s.client, 'flush'):
                 if not s.client.flush(max(0, deadline-time.monotonic())):
                     self.fatal(s.protocol.upper() + ': coda non acquisita completamente alla chiusura')

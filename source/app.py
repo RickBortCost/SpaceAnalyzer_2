@@ -92,6 +92,8 @@ IMPORTED_RECORDINGS_DIR = DATA_DIR / "recording_imports"
 acquisition_events = EventStore(DATA_DIR / 'acquisition_events.sqlite')
 DurableRecorder.events = acquisition_events
 recording = RecordingManager(RECORDINGS_DIR, APP_VERSION, factory=DurableRecorder)
+# Every critical event is also written into the acquiring primary capture.
+acquisition_events.listener = recording.annotate
 primary_recovery = RecoveryService(RECORDINGS_DIR / '.primary', acquisition_events)
 recording_library = RecordingLibrary(RECORDINGS_DIR)
 imported_recording_library = RecordingLibrary(IMPORTED_RECORDINGS_DIR)
@@ -1411,7 +1413,12 @@ def ads_notification_sink(ts,rows,sample_ms,generation):
 
 
 def ads_notification_report(diag):
+    from ads_notifications import gap_report
     previous=getattr(runtime,'ads_notification_diag',{})
+    missing,gaps=gap_report(previous,diag)
+    if gaps:
+        acquisition_events.emit('ads_source_gap',acquisition.connection('ads','ads')[1].connection_id,missing_samples=missing,gaps=gaps,
+            policy='notifications missing upstream of the callback; recording continues and the gap is documented')
     if diag.get('error') or diag.get('dropped',0)>previous.get('dropped',0):
         acquisition_events.emit('ads_acquisition_fault',acquisition.connection('ads','ads')[1].connection_id,diagnostics=diag)
         recording.fail(diag.get('error') or 'ADS: perdita notifiche')

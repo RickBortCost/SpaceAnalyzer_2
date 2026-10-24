@@ -1,5 +1,6 @@
 """Primary writer process, controlled only by inherited anonymous pipes."""
 import json
+import marshal
 import os
 from pathlib import Path
 import queue
@@ -66,6 +67,7 @@ def run():
     state=dict(state='recording',pid=os.getpid(),path=str(path),samples=0,blocks=0,durable_samples=0,
                bytes_written=0,last_flush_ns=None,error='',integrity='recording')
     stream=None;pending=[];last_flush=time.monotonic();interval=cfg['flush_ms']/1000
+    marshalled=cfg.get('ipc_encoding')=='marshal'
     try:
         with ownership(str(path)+'.lock'):
             stream=path.open('xb');write_header(stream,cfg['metadata']);stream.flush();os.fsync(stream.fileno())
@@ -89,6 +91,7 @@ def run():
                 kind,first,count,queued,payload=item
                 if kind==DATA:
                     if count<1 or first!=state['samples']+1:raise ValueError('Sequenza IPC campioni non valida')
+                    if marshalled:payload=json_bytes(marshal.loads(payload))
                     state['blocks']+=1;write_block(stream,DATA,state['blocks'],first,count,payload,cfg.get('compression',True))
                     state['samples']+=count;pending.append([queued,count])
                 elif kind==EVENT:

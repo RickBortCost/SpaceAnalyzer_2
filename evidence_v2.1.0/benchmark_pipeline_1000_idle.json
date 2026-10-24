@@ -1,0 +1,288 @@
+{
+  "result": "PASS",
+  "measured_wall_seconds": 27.776379082000005,
+  "requested_seconds": 20.0,
+  "completed_simulated_seconds": 20.0,
+  "segments": [
+    {
+      "result": "PASS",
+      "channels": 1000,
+      "period_ms": 10,
+      "requested_seconds": 20.0,
+      "requested_values_per_second": 100000.0,
+      "produced": 2000000,
+      "saved": 2000000,
+      "missing": 0,
+      "sequence_mismatches": 0,
+      "all_channels_complete": true,
+      "produced_seconds": 19.992174820999992,
+      "producer_values_per_second": 100039.14120934851,
+      "total_seconds": 20.043274752000002,
+      "parent_cpu_seconds": 13.037485272,
+      "parent_cpu_percent_of_one_core": 65.04668240751958,
+      "parent_rss_peak_observed": 25137152,
+      "writer_usage": {
+        "cpu_seconds": 5.880000000000001,
+        "rss_bytes": 17780736
+      },
+      "producer_lateness_ms": {
+        "p95": 0.2782079999406051,
+        "p99": 4.508642999951462,
+        "max": 58.939959999975144
+      },
+      "max_backlog_samples_observed": 1250,
+      "primary": {
+        "state": "stopped",
+        "pid": 1000,
+        "path": "/tmp/tmp0jukbroh/9fa28f3d560644d1857bfaa4e5a51f3b.sac",
+        "samples": 2000000,
+        "blocks": 2015,
+        "durable_samples": 2000000,
+        "bytes_written": 7651455,
+        "last_flush_ns": "1792859169910214637",
+        "error": "",
+        "integrity": "complete",
+        "usage": {
+          "cpu_seconds": 5.880000000000001,
+          "rss_bytes": 17780736
+        },
+        "recording_id": "9fa28f3d560644d1857bfaa4e5a51f3b",
+        "active": false,
+        "busy": false,
+        "received_samples": 2000000,
+        "lost_samples": 0,
+        "inflight_samples": 0,
+        "queue_samples": 0,
+        "queue_bytes": 0,
+        "queue_capacity_samples": 65536,
+        "queue_capacity_bytes": 33554432,
+        "queue_high_water": 6500,
+        "backpressure_waits": 0,
+        "backpressure_ms": 0,
+        "uncommitted_at_failure": 0,
+        "latency_measurement": "sample-weighted batch upper bound: ingress to durable fsync acknowledgement",
+        "latency_ms": {
+          "p95": 108.856863,
+          "p99": 115.364453,
+          "receipt_window": 2014
+        },
+        "samples_per_second": 99599.99460413045,
+        "bytes_per_second": 381042.43835687346,
+        "recent": {
+          "window_s": 9.769387596000001,
+          "durable_samples_per_second": 99801.54747869827,
+          "bytes_written_per_second": 380165.0782614726
+        },
+        "annotations": 0,
+        "annotations_lost": 0
+      },
+      "acquisition": {
+        "connections": {
+          "ads": {
+            "connection_id": "1a43c3a459d94d5cb3f0e6a57833b2ca",
+            "protocol": "ads",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 18036.141073793242,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 2.688566,
+              "p99": 8.259216
+            },
+            "recent": {
+              "window_s": 9.599279393000018,
+              "received_per_second": 4870.157236395371,
+              "dispatched_per_second": 4870.157236395371,
+              "lost_per_second": 0.0,
+              "recording_rejected_per_second": 0.0,
+              "display_skipped_per_second": 0.0
+            },
+            "rate_semantics": "received_per_second: lifetime average; recent: sliding window",
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1500
+            }
+          },
+          "opcua": {
+            "connection_id": "080f0de2f31a44ebb233cd8e589ef1ec",
+            "protocol": "opcua",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 18037.445453718334,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 3.193799,
+              "p99": 8.518407
+            },
+            "recent": {
+              "window_s": 9.598837307999986,
+              "received_per_second": 4870.381536838531,
+              "dispatched_per_second": 4870.381536838531,
+              "lost_per_second": 0.0,
+              "recording_rejected_per_second": 0.0,
+              "display_skipped_per_second": 0.0
+            },
+            "rate_semantics": "received_per_second: lifetime average; recent: sliding window",
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1250
+            }
+          },
+          "mqtt": {
+            "connection_id": "a9ecebd1e6374ff6a1904052abb9e148",
+            "protocol": "mqtt",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 18037.787924340955,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 3.912238,
+              "p99": 10.909855
+            },
+            "recent": {
+              "window_s": 9.59831365399998,
+              "received_per_second": 4870.647249636138,
+              "dispatched_per_second": 4870.647249636138,
+              "lost_per_second": 0.0,
+              "recording_rejected_per_second": 0.0,
+              "display_skipped_per_second": 0.0
+            },
+            "rate_semantics": "received_per_second: lifetime average; recent: sliding window",
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1500
+            }
+          },
+          "s7": {
+            "connection_id": "1d559eb7c5ec483e94f68f699572fa6b",
+            "protocol": "s7",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 18037.908741094096,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 4.701698,
+              "p99": 12.254371
+            },
+            "recent": {
+              "window_s": 9.597859083999992,
+              "received_per_second": 4870.877931301792,
+              "dispatched_per_second": 4870.877931301792,
+              "lost_per_second": 0.0,
+              "recording_rejected_per_second": 0.0,
+              "display_skipped_per_second": 0.0
+            },
+            "rate_semantics": "received_per_second: lifetime average; recent: sliding window",
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1500
+            }
+          }
+        },
+        "live": {
+          "backlog_samples": 0,
+          "backlog_bytes": 0,
+          "skipped_samples": 0,
+          "error": "",
+          "policy": "skip display only; originals already submitted to recorder"
+        },
+        "policy": "bounded; stop recording on original overflow; recorder before calculations and display"
+      },
+      "ui_stress": false,
+      "live_calls": 8000,
+      "limits": "Synthetic adapters; actual PLC, ADS DLL, network and disk require on-site qualification"
+    }
+  ],
+  "platform": "linux",
+  "python": "3.13.17 (main, Oct 22 2026, 14:06:04) [GCC 13.3.0]",
+  "cpu_count": 4,
+  "run_at_ns": "1792859177623880394"
+}

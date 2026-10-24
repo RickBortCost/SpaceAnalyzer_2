@@ -100,11 +100,15 @@ def array_shape(type_name):
     return dims,m[2].strip()
 
 
+_SCALAR_STRUCTS={}
+
 def decode_value(data,symbol,encoding):
-    datatype=symbol['datatype'];kind=symbol['type'].upper()
+    datatype=symbol['datatype']
     if datatype in SCALARS:
-        fmt,label=SCALARS[datatype]
-        if len(data)==struct.calcsize('<'+fmt):return struct.unpack('<'+fmt,data)[0],label
+        fmt,label=SCALARS[datatype];packer=_SCALAR_STRUCTS.get(fmt)
+        if packer is None:packer=_SCALAR_STRUCTS[fmt]=struct.Struct('<'+fmt)
+        if len(data)==packer.size:return packer.unpack(data)[0],label
+    kind=symbol['type'].upper()
     if datatype==30:return data.split(b'\0',1)[0].decode(encoding,errors='replace'),'String'
     if datatype==31:
         end=next((i for i in range(0,len(data)-1,2) if data[i:i+2]==b'\0\0'),len(data))

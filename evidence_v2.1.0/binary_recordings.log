@@ -1,0 +1,6 @@
+.ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.
+.....
+----------------------------------------------------------------------
+Ran 6 tests in 1.863s
+
+OK

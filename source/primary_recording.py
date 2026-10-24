@@ -1,6 +1,7 @@
 """Bounded primary producer and isolated append-only writer, no UI or codecs."""
 from collections import deque
 import copy
+import marshal
 import os
 from pathlib import Path
 import queue
@@ -11,7 +12,7 @@ import threading
 import time
 import uuid
 from acquisition_buffers import size_hint
-from acquisition_health import quantiles
+from acquisition_health import RateWindow,quantiles
 from primary_format import DATA,EVENT,FINISH,FLUSH,IPC,FIELDS,MAX_PAYLOAD,atomic_json,json_bytes,typed
 
 class PrimaryRecorder:
@@ -23,6 +24,7 @@ class PrimaryRecorder:
         self.queued_samples=self.queued_bytes=self.received=self.lost=0;self.sequence={};self.connections={}
         self.latencies=deque(maxlen=4096);self.start_mono=0;self.error='';self.writer_state={};self.stop_sent=False
         self.high_water=0;self.failure_callback=None;self.backpressure_waits=0;self.backpressure_ms=0
+        self.annotations=self.annotations_lost=0;self.rates=RateWindow()
     def start(self,nodes,metadata=None):
         if self.started:raise ValueError('Un recorder primario gestisce una sola sessione')
         if not 1<=len(nodes)<=10000 or len({n['nodeid'] for n in nodes})!=len(nodes):raise ValueError('Canali primari non validi')
@@ -31,7 +33,9 @@ class PrimaryRecorder:
         for node in nodes:
             nid=node['nodeid'];protocol=nid.split(':',1)[0] if nid.startswith(('ads:','mqtt:','s7:','calc:')) else 'opcua'
             self.connections.setdefault(protocol,(metadata or {}).get('connections',{}).get(protocol) or uuid.uuid4().hex)
-        cfg=dict(path=str(self.path),flush_ms=self.flush_ms,metadata={**(metadata or {}),
+        # DATA travels as marshal on the private pipe (same interpreter on both ends);
+        # the writer emits the JSON block payload, byte-identical, on its own core.
+        cfg=dict(path=str(self.path),flush_ms=self.flush_ms,ipc_encoding='marshal',metadata={**(metadata or {}),
             'session_id':self.identity,'started_ns':str(time.time_ns()),'channels':nodes,
             'connections':self.connections,'timestamp_policy':'Original source clocks preserved; received_ns is integer UTC, no resampling'})
         self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('primary_worker.py'))],
@@ -70,23 +74,22 @@ class PrimaryRecorder:
         with self.lock:
             if not self.accepting:return False
             try:
-                for source in rows:
-                    nid=source.get('nodeid')
-                    if nid not in self.channels:continue
-                    row=dict(source);self.sequence[nid]=self.sequence.get(nid,0)+1
+                channels=self.channels;sequences=self.sequence;connections=self.connections;received=str(received_ns)
+                for row in rows:
+                    nid=row.get('nodeid');channel=channels.get(nid)
+                    if channel is None:continue
+                    sequence=sequences[nid]=sequences.get(nid,0)+1
                     protocol=row.get('source_protocol') or (nid.split(':',1)[0] if nid.startswith(('ads:','mqtt:','s7:','calc:')) else 'opcua')
-                    values=dict(timestamp_ms=t,received_ns=str(row.get('received_ns') or received_ns),channel=self.channels[nid],
-                        connection_id=row.get('connection_id') or self.connections.get(protocol,protocol),
-                        sample_sequence=row.get('sample_sequence',self.sequence[nid]),connection_sequence=row.get('connection_sequence'),
-                        source_epoch=row.get('source_epoch'),source_sequence=row.get('source_sequence'),value=row.get('value'),
-                        data_type=row.get('_source_data_type',row.get('data_type')),quality=row.get('quality') or ('Good' if row.get('good') else 'Bad'),
-                        status=row.get('status'),status_code=row.get('status_code'),source_ts=row.get('source_ts'),server_ts=row.get('server_ts'),
-                        source_filetime=row.get('source_filetime'),local_ts=row.get('local_ts'),
-                        source_value=row.get('_source_value',row.get('source_value',row.get('value'))),source_picoseconds=row.get('source_picoseconds'),server_picoseconds=row.get('server_picoseconds'),
-                        acquisition_origin=row.get('acquisition_origin'),sample_ms=period,clock_discontinuity=row.get('clock_discontinuity',False),
-                        acquisition_timestamp_ms=row.get('acquisition_timestamp_ms'),source_binary=row.get('_source_binary_typed',typed(row.get('source_binary'))))
-                    values['value']=typed(values['value']);values['source_value']=row['_source_typed'] if '_source_typed' in row else typed(values['source_value'])
-                    captured.append([values[k] for k in FIELDS])
+                    get=row.get;value=get('value')
+                    # Same order as primary_format.FIELDS.
+                    captured.append([t,str(get('received_ns') or received),channel,
+                        get('connection_id') or connections.get(protocol,protocol),get('sample_sequence',sequence),get('connection_sequence'),
+                        get('source_epoch'),get('source_sequence'),typed(value),
+                        get('_source_data_type',get('data_type')),get('quality') or ('Good' if get('good') else 'Bad'),
+                        get('status'),get('status_code'),get('source_ts'),get('server_ts'),get('source_filetime'),get('local_ts'),
+                        row['_source_typed'] if '_source_typed' in row else typed(get('_source_value',get('source_value',value))),
+                        get('source_picoseconds'),get('server_picoseconds'),get('acquisition_origin'),period,get('clock_discontinuity',False),
+                        get('acquisition_timestamp_ms'),row['_source_binary_typed'] if '_source_binary_typed' in row else typed(get('source_binary'))])
             except Exception as exc:self.lost+=len(rows);self._fail(exc);return False
             count=len(captured)
             if not count:return True
@@ -98,6 +101,17 @@ class PrimaryRecorder:
             except queue.Full:self.lost+=count;self._fail('Overflow messaggi recorder primario');return False
             self.received+=count;self.queued_samples+=count;self.queued_bytes+=budget;self.high_water=max(self.high_water,self.queued_samples)
             return True
+    def annotate(self,kind,details):
+        """Place an integrity event in the capture, ordered after the samples already accepted.
+
+        Never blocks and never fails the session: an annotation that cannot be queued
+        is counted (the persistent SQLite history still holds the event).
+        """
+        with self.lock:
+            if not self.accepting:return False
+            try:self.q.put_nowait((EVENT,self.received+1,0,time.monotonic_ns(),dict(kind=kind,at_ns=str(time.time_ns()),after_sample=self.received,details=details),0))
+            except queue.Full:self.annotations_lost+=1;return False
+            self.annotations+=1;return True
     def _write_all(self,data):
         view=memoryview(data)
         while view:
@@ -105,7 +119,7 @@ class PrimaryRecorder:
             if written<=0:raise BrokenPipeError('Pipe primaria chiusa')
             view=view[written:]
     def _write(self,kind,first,count,queued,value):
-        data=json_bytes(value)
+        data=marshal.dumps(value) if kind==DATA else json_bytes(value)
         if len(data)>MAX_PAYLOAD:raise ValueError('Blocco IPC oltre il limite configurato')
         header=IPC.pack(kind,first,count,queued,len(data))
         self._write_all(header+data)
@@ -139,9 +153,11 @@ class PrimaryRecorder:
             try:self.process.stdin.close()
             except OSError:pass
     def _read(self):
-        import json
+        import io,json
+        # stdout is unbuffered (bufsize=0): without a buffer, readline costs one syscall per byte.
+        stream=io.BufferedReader(self.process.stdout,65536)
         try:
-            for line in self.process.stdout:
+            for line in stream:
                 message=json.loads(line);op=message.pop('op')
                 with self.lock:
                     self.writer_state={k:v for k,v in message.items() if k!='receipts'}
@@ -149,12 +165,13 @@ class PrimaryRecorder:
                     for queued,count in message.get('receipts',[]):
                         # Weighted by sample count, bounded to the latest receipts.
                         self.latencies.append(((now-queued)/1e6,count))
+                    if op=='flush':self.rates.observe(durable_samples=self.writer_state.get('durable_samples',0),bytes_written=self.writer_state.get('bytes_written',0))
                 if op=='ready':self.ready.set()
                 if op=='error':self._fail(message.get('error','Writer primario terminato'))
                 if op in ('finished','error','abandoned'):self.done.set()
         except BaseException as exc:self._fail('Risposta recorder: '+str(exc))
         finally:
-            self.process.stdout.close()
+            stream.close()
             if not self.done.is_set():self._fail('Processo recorder terminato senza finalizzazione');self.done.set()
             self.ready.set()
             try:self.process.wait(timeout=5)
@@ -193,5 +210,6 @@ class PrimaryRecorder:
                 queue_capacity_samples=self.max_samples,queue_capacity_bytes=self.max_bytes,queue_high_water=self.high_water,backpressure_waits=self.backpressure_waits,backpressure_ms=self.backpressure_ms,
                 error=self.error or state.get('error',''),uncommitted_at_failure=max(0,self.received-state.get('durable_samples',0)) if self.error else 0,latency_measurement='sample-weighted batch upper bound: ingress to durable fsync acknowledgement',latency_ms={'p95':percentile(.95),'p99':percentile(.99),'receipt_window':len(weighted)},
                 samples_per_second=state.get('durable_samples',0)/elapsed if elapsed else 0,
-                bytes_per_second=state.get('bytes_written',0)/elapsed if elapsed else 0)
+                bytes_per_second=state.get('bytes_written',0)/elapsed if elapsed else 0,
+                recent=self.rates.snapshot(),annotations=self.annotations,annotations_lost=self.annotations_lost)
             return state

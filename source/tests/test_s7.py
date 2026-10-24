@@ -149,7 +149,8 @@ class ApplicationTests(unittest.TestCase):
         for fmt in ('csv','parquet'):
             self.post('/api/record/start',dict(format=fmt,selected_nodes=[dict(nodeid=n,display_name=n) for n in [a,b,f['nodeid']]]))
             self.wait(lambda:app.recording.status()['cycles_received']>=20)
-            recorded=self.post('/api/record/stop',{})['recording'];self.assertFalse(recorded['error'])
+            self.post('/api/record/stop',{});self.wait(lambda:not app.recording.busy)
+            recorded=app.recording.status();self.assertFalse(recorded['error'])
             path=Path(recorded['path']);metadata=json.loads(path.with_suffix('.metadata.json').read_text())
             self.assertEqual(metadata['source_protocol'],'s7');self.assertTrue(path.name.startswith('S7_'))
             self.assertIn('CPU RUN/STOP state not queried',metadata['quality_semantics'])

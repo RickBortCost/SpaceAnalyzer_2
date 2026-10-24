@@ -63,7 +63,8 @@ class CalculationAPI(unittest.TestCase):
             state=self.post('/api/record/start',dict(format=fmt,selected_nodes=[dict(nodeid=n,display_name=n) for n in (first,second,f['nodeid'])]))['recording']
             self.post('/api/calculations/save',{**f,'name':'Durante Record'},400)
             before=client.recording.status()['cycles_received'];self.wait(lambda:client.recording.status()['cycles_received']>=before+40)
-            state=self.post('/api/record/stop',{})['recording'];self.assertEqual(state['state'],'stopped',state)
+            self.post('/api/record/stop',{});self.wait(lambda:not client.recording.busy,30)
+            state=client.recording.status();self.assertEqual(state['state'],'stopped',state)
             path=Path(state['path']);rows=list(client.recording_library._iter_rows(path))
             raw={float(r['timestamp_ms']) for r in rows if r['node_id']==first}
             calc={float(r['timestamp_ms']) for r in rows if r['node_id']==f['nodeid']}

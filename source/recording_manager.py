@@ -65,6 +65,11 @@ class RecordingManager:
         with self.lock:rec=self.active
         return rec.enqueue_primary(*args) if rec is not None and hasattr(rec,'enqueue_primary') else False
 
+    def annotate(self,event):
+        # Integrity events belong to the acquiring session only, never to a finalizer.
+        with self.lock:rec=self.active
+        return rec.annotate(event) if rec is not None and hasattr(rec,'annotate') else False
+
     def fail(self,*args,**kwargs):
         with self.lock:rec=self.active
         if rec is not None:return rec.fail(*args,**kwargs)
