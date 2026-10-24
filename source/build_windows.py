@@ -71,7 +71,7 @@ def stage(args, work):
         raise RuntimeError('Il runtime deve includere paho-mqtt 2.1.0 per l’acquisizione MQTT')
     if not (runtime/'Lib/site-packages/pyarrow').is_dir():
         raise RuntimeError('Il runtime deve includere PyArrow per la registrazione Parquet')
-    for name in ('acquisition_engine.py','acquisition_buffers.py','acquisition_health.py','primary_format.py','primary_recording.py','primary_worker.py','primary_recovery.py','primary_tools.py','durable_recording.py','source_sessions.py','parallel_mqtt.py','quick_analysis.py','app.py','ssh_service.py','ssh_routes.py','s7_client.py','s7_catalog.py','s7_protocols.py','s7_symbolic.py','s7_udp.py','recordings.py','recording_manager.py','recording_preview.py','conversion_worker.py','recording_storage.py','fda_das.py','fda_recording.py','recording_reader.py','analysis_tools.py','ads_client.py','ads_native.py', 'ads_types.py','ads_notifications.py','fft_engine.py','fft_service.py','fft_worker.py','live_analysis.py','live_archive.py','live_overview.py','formula_engine.py','calculation_store.py','calculation_service.py','calculation_history.py','calculation_worker.py'):
+    for name in ('startup_progress.py','acquisition_engine.py','acquisition_buffers.py','acquisition_health.py','primary_format.py','primary_recording.py','primary_worker.py','primary_recovery.py','primary_tools.py','durable_recording.py','source_sessions.py','parallel_mqtt.py','quick_analysis.py','app.py','ssh_service.py','ssh_routes.py','s7_client.py','s7_catalog.py','s7_protocols.py','s7_symbolic.py','s7_udp.py','recordings.py','recording_manager.py','recording_preview.py','conversion_worker.py','recording_storage.py','fda_das.py','fda_recording.py','recording_reader.py','analysis_tools.py','ads_client.py','ads_native.py', 'ads_types.py','ads_notifications.py','fft_engine.py','fft_service.py','fft_worker.py','live_analysis.py','live_archive.py','live_overview.py','formula_engine.py','calculation_store.py','calculation_service.py','calculation_history.py','calculation_worker.py'):
         shutil.copy2(ROOT/name, runtime/name)
     shutil.copy2(ROOT/'THIRD_PARTY_NOTICES.txt', runtime/'THIRD_PARTY_NOTICES.txt')
     shutil.copy2(ROOT/'mqtt_source.py',runtime/'mqtt_source.py')
@@ -108,7 +108,7 @@ def main():
     work=Path(args.work).resolve();work.mkdir(parents=True,exist_ok=True)
     runtime=stage(args,work)
     launcher=work/'launcher';launcher.mkdir(exist_ok=True)
-    shutil.copy2(ROOT/'launcher/launcher_windows.go',launcher/'launcher_windows.go')
+    for name in ('launcher_windows.go','splash_windows.go','splash_logo.png'):shutil.copy2(ROOT/'launcher'/name,launcher/name)
     payload=launcher/'payload.zip'
     with zipfile.ZipFile(payload,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
         for file in sorted(runtime.rglob('*')):

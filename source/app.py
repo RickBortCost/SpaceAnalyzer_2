@@ -1,3 +1,5 @@
+from startup_progress import report as startup_progress
+startup_progress(50, 'Caricamento moduli')
 import asyncio
 import atexit
 import json
@@ -2958,11 +2960,14 @@ def claim_instance():
 
 def main():
     global http_server
+    startup_progress(70, 'Moduli caricati')
     instance = claim_instance()
     if instance is None:
+        startup_progress(100, 'Istanza già avviata')
         return
     initialize()
     configure_logging()
+    startup_progress(85, 'Servizi inizializzati')
     port = int(os.environ.get("OPCUA_WEB_PORT", "5000"))
     # Bind before opening the browser. A busy port never points to an unrelated app.
     for candidate in range(port, port + 20):
@@ -2977,8 +2982,10 @@ def main():
     url = f"http://127.0.0.1:{port}"
     atomic_json(DATA_DIR / "instance.json", {"port": port, "pid": os.getpid(), "version": APP_VERSION})
     print(f"{APP_NAME} V{APP_VERSION}\nPagina: {url}\nImpostazioni: {DATA_DIR}\nUsa 'Chiudi applicazione' nella pagina per terminare i servizi.", flush=True)
+    startup_progress(95, 'Servizio HTTP pronto')
     if not os.environ.get("OPCUA_NO_BROWSER"):
         webbrowser.open(url)
+    startup_progress(100, 'Pronto')
     timer_started = False
     if os.name == "nt":
         import ctypes
