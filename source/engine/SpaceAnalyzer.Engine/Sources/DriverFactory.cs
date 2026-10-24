@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SpaceAnalyzer.Engine.Core;
 using SpaceAnalyzer.Engine.Drivers.Mqtt;
+using SpaceAnalyzer.Engine.Drivers.S7;
 
 namespace SpaceAnalyzer.Engine.Sources;
 
@@ -10,8 +11,17 @@ public static class DriverFactory
     public static SourceDriver Create(string protocol, JsonElement cfg, bool catalog = false) => protocol switch
     {
         "mqtt" => new MqttDriver(cfg),
+        "s7" => Mode(cfg, "s7_mode", "classic") switch
+        {
+            "udp" => new S7UdpDriver(cfg),
+            "symbolic" => throw new SourceException("S7 simbolico: driver non ancora disponibile"),
+            _ => new S7ClassicDriver(cfg),
+        },
         _ => throw new SourceException("Protocollo non supportato dal motore: " + protocol),
     };
+
+    static string Mode(JsonElement cfg, string key, string fallback) =>
+        cfg.TryGetProperty(key, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? fallback : fallback;
 
     public static Sample LostRow(string protocol, string nodeId, string error, double receivedMs) => protocol switch
     {
