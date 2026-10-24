@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Acquisition and recording engine of Space Analyzer 3.0: a child process of the UI service. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>SpaceAnalyzer.Engine</AssemblyName>
+    <RootNamespace>SpaceAnalyzer.Engine</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+    <Version>3.0.0</Version>
+    <ApplicationIcon>../../static/space-analyzer.ico</ApplicationIcon>
+    <Product>Space Analyzer</Product>
+    <Description>Space Analyzer acquisition and recording engine</Description>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ParquetSharp" Version="25.0.1.1" />
+    <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
+  </ItemGroup>
+</Project>
