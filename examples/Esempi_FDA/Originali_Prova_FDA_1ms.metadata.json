@@ -1,0 +1,62 @@
+{
+  "version": "1.16.0",
+  "format": "parquet",
+  "started_at": "2026-10-20T10:00:00+00:00",
+  "endpoint": "ads://SIMULATOR",
+  "initial_sample_ms": 1,
+  "signals": [
+    {
+      "nodeid": "sim:Sine50",
+      "display_name": "Seno 50 Hz",
+      "unit": "g"
+    },
+    {
+      "nodeid": "sim:Sine125",
+      "display_name": "Seno 125 Hz",
+      "unit": "g"
+    },
+    {
+      "nodeid": "sim:Ramp",
+      "display_name": "Rampa",
+      "unit": "mm"
+    }
+  ],
+  "source_protocol": "synthetic",
+  "quality_semantics": "ADS result code; Uncertain when runtime not RUN",
+  "timestamp_semantics": "Local acquisition time; source/server timestamps unavailable in ADS Read",
+  "layout": "long",
+  "timestamps": "UTC",
+  "source": "acquisition before chart decimation",
+  "storage": {
+    "format": "parquet",
+    "profile": "compact",
+    "lossless": true,
+    "codec": "zstd",
+    "level": 9,
+    "row_group_rows": 32768,
+    "flush_seconds": 5,
+    "label": "Parquet ZSTD · Compatto"
+  },
+  "format_label": "Parquet ZSTD · Compatto",
+  "session_name": "TEST_SINTETICO_FDA",
+  "machine": "SIMULATORE",
+  "operator": "",
+  "description": "Dati sintetici: 10 secondi a 1000 Hz, senza PLC.",
+  "session_id": "TEST_SINTETICO_FDA_ADS_20261020_102302_387074_89e2a817",
+  "max_file_bytes": 0,
+  "max_duration_s": 0.0,
+  "queue_capacity_cycles": 10000,
+  "state": "stopped",
+  "filename": "Originali_Prova_FDA_1ms.parquet",
+  "path": "Originali_Prova_FDA_1ms.parquet",
+  "rows_written": 30000,
+  "cycles_received": 10000,
+  "dropped_cycles": 0,
+  "error": "",
+  "ended_at": "2026-10-20T10:00:09.999000+00:00",
+  "reason": "user",
+  "duration_seconds": 9.999,
+  "part": 1,
+  "session_rows": 30000,
+  "cycles_in_file": 10000
+}

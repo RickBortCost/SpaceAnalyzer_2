@@ -1,0 +1,19 @@
+{
+  "signals": [
+    {
+      "nodeid": "demo:Pressure",
+      "display_name": "Pressione",
+      "unit": "bar"
+    },
+    {
+      "nodeid": "demo:Temperature",
+      "display_name": "Temperatura",
+      "unit": "°C"
+    }
+  ],
+  "started_at": "2026-10-21T12:00:02+00:00",
+  "ended_at": "2026-10-21T12:00:07.990000+00:00",
+  "duration_seconds": 5.99,
+  "rows_written": 1200,
+  "initial_sample_ms": 10
+}

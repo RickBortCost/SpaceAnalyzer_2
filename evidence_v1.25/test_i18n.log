@@ -1,0 +1,9 @@
+test_all_languages_persist_without_changing_source_or_workspace_data (test_i18n.Languages.test_all_languages_persist_without_changing_source_or_workspace_data) ... ok
+test_invalid_or_unauthenticated_changes_are_rejected (test_i18n.Languages.test_invalid_or_unauthenticated_changes_are_rejected) ... ok
+test_late_autosave_cannot_restore_an_older_language (test_i18n.Languages.test_late_autosave_cannot_restore_an_older_language) ... ok
+test_old_configuration_defaults_to_italian_and_page_uses_saved_language (test_i18n.Languages.test_old_configuration_defaults_to_italian_and_page_uses_saved_language) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.595s
+
+OK

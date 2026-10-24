@@ -1,0 +1,57 @@
+{
+  "version": "1.21.0 demo",
+  "format": "parquet",
+  "started_at": "2026-10-21T13:00:00+00:00",
+  "endpoint": "",
+  "initial_sample_ms": 10,
+  "signals": [
+    {
+      "nodeid": "demo:Sine",
+      "display_name": "Sinusoide 6.25 Hz",
+      "unit": "V"
+    },
+    {
+      "nodeid": "demo:Ramp",
+      "display_name": "Rampa",
+      "unit": "u"
+    }
+  ],
+  "source_protocol": "opcua",
+  "quality_semantics": "OPC UA StatusCode",
+  "timestamp_semantics": "OPC UA source/server plus local acquisition time",
+  "layout": "long",
+  "timestamps": "UTC",
+  "source": "acquisition before chart decimation",
+  "storage": {
+    "format": "parquet",
+    "profile": "compact",
+    "lossless": true,
+    "codec": "zstd",
+    "level": 9,
+    "row_group_rows": 32768,
+    "flush_seconds": 5,
+    "label": "Parquet ZSTD · Compatto"
+  },
+  "format_label": "Parquet ZSTD · Compatto",
+  "session_name": "Demo sintetica RBF",
+  "machine": "",
+  "operator": "",
+  "description": "",
+  "session_id": "Demo_sintetica_RBF_OPCUA_20261021_155647_806658_993c1849",
+  "max_file_bytes": 0,
+  "max_duration_s": 0.0,
+  "queue_capacity_cycles": 6000,
+  "state": "stopped",
+  "filename": "Demo_sintetica_RBF_OPCUA_20261021_155647_806658_993c1849_p0001.parquet",
+  "path": "/workspace/scratch/c8691abdb71c/rbf-fda-toolbar/release/Space_Analyzer_V1.21.0_WINDOWS/Esempi_RBF/Demo_sintetica_RBF_OPCUA_20261021_155647_806658_993c1849_p0001.parquet",
+  "rows_written": 2048,
+  "cycles_received": 1024,
+  "dropped_cycles": 0,
+  "error": "",
+  "ended_at": "2026-10-21T13:00:10.230000+00:00",
+  "reason": "user",
+  "duration_seconds": 10.23,
+  "part": 1,
+  "session_rows": 2048,
+  "cycles_in_file": 1024
+}

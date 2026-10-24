@@ -1,0 +1,53 @@
+SPACE ANALYZER V1.14.0 - ACQUISIZIONE ADS DA 1 ms
+
+1. Estrarre tutto lo ZIP e avviare Space_Analyzer_V1.14.0.exe.
+2. Aprire Connessione e scegliere ADS - Beckhoff TwinCAT.
+3. Per notifiche cicliche scegliere TwinCAT locale e il metodo
+   "Notifiche cicliche - timestamp PLC (TwinCAT locale)".
+4. Impostare "Periodo ADS richiesto" a "1 ms - ADS".
+   Sono disponibili anche 2 e 5 ms, oltre ai periodi precedenti.
+5. Salvare la connessione, connettere il PLC e selezionare le variabili.
+
+Il router TwinCAT e TcAdsDll x64 devono essere presenti sul PC, con la
+route verso il target configurata. Il runtime Python dell'app e' incluso.
+La task PLC che alimenta le variabili deve essere compatibile con 1 ms.
+Il client richiede nCycleTime = 10000 unita' da 100 ns (1 ms) e un
+nMaxDelay dello stesso valore. Il periodo reale dipende dal server ADS.
+
+L'impostazione e' conservata nelle impostazioni complete e nel workspace.
+Quando si cambia sorgente, viene ricordato il periodo del relativo profilo.
+OPC UA e S7 mantengono il loro minimo di 10 ms nel selettore client.
+
+Grafici e browser si aggiornano separatamente dall'acquisizione.
+Il worker puo' consegnare piu' campioni insieme: ogni campione mantiene
+il FILETIME originale ADS e il relativo SourceTimestamp. Un invio a
+blocchi non converte automaticamente il campionamento in 5 o 250 ms.
+Record conserva i campioni acquisiti anche con il grafico in pausa.
+
+Nella Diagnostica acquisizione controllare "Campioni PLC": media,
+minimo, massimo e P95, oltre a coda e campioni persi per overflow.
+Questi valori si riferiscono al segnale di riferimento indicato.
+Il periodo di arrivo al PC puo' essere diverso per batching e rete.
+
+Anche SumRead e Read accettano la richiesta di 1 ms, ma il polling e'
+best effort: un'impostazione a 1 ms non garantisce 1000 letture al secondo.
+Non vengono aggiunti campioni artificiali per compensare la frequenza.
+Per valutare il proprio impianto partire con pochi segnali e controllare
+il periodo effettivo e la coda prima di ampliare la selezione.
+
+I limiti di memoria del buffer Live e del recorder restano quelli
+dell'applicazione. A 1 ms si generano 1000 campioni/s per segnale:
+un buffer da 10000 campioni copre 10 secondi; verificare il limite effettivo
+mostrato nell'interfaccia, soprattutto con molti segnali selezionati.
+
+VERIFICHE DI QUESTA VERSIONE
+62 test backend e un flusso UI ADS/OPC UA superati su Linux.
+Simulazione della callback nativa: due segnali, 1000 campioni per segnale
+con timestamp distanti 1 ms; CSV e Parquet conservano tutti i valori e i
+FILETIME, senza overflow nel test. Verificati parametri DLL, salvataggio,
+riapertura, cambio protocollo e riconnessione.
+La simulazione verifica il percorso software, non misura la frequenza
+ottenibile su PAC/TwinCAT/Windows reali. Nessuna garanzia deterministica.
+
+Riferimento Beckhoff: AdsNotificationAttrib
+https://infosys.beckhoff.com/content/1033/tc3_adsdll2/117553803.html

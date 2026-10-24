@@ -1,0 +1,19 @@
+SPACE ANALYZER V1.24.0 — VERIFICHE
+
+39 test backend / 7 suite, 8 flussi UI DOM/componenti.
+Verificati due protocolli reali locali nello stesso processo, Record Parquet
+misto e integrità dei campioni MQTT, caduta/riconnessione di ciascuna fonte
+senza reset dell'altra, annullamento del collegamento iniziale parziale,
+chiusura delle sessioni, catalogo non invasivo, calcoli su campioni originali,
+snapshot in pausa e rifiuto FFT durante Play, esclusione qualità non Good.
+
+UI: refresh MQTT con nuovi campi mantenendo identità DOM, focus, rami aperti
+e scroll; marker a posizione relativa senza pausa; risultati scalari senza
+nuovi segnali; ripristino Play; persistenza profilo OPC UA + MQTT; lingue,
+MQTT singolo, ADS, strumenti grafici, registrazioni, confronto e formule.
+
+Canvas e geometria sono simulati nei test UI: nessuna verifica pixel.
+Non eseguito l'EXE su Windows, né prova su PLC/broker dell'impianto.
+Nessuna nuova certificazione di compatibilità dei formati proprietari.
+Build verificata: PE Windows x64 GUI, icone, runtime incluso, corrispondenza
+sorgenti/payload, hash e CRC di ZIP. I report dettagliano i controlli svolti.

@@ -1,0 +1,12 @@
+test_independent_acquisition_catalog_and_mixed_recording (test_live_extensions.LiveExtensions.test_independent_acquisition_catalog_and_mixed_recording) ... ok
+test_mode_guards_and_disconnect_clean_both_sessions (test_live_extensions.LiveExtensions.test_mode_guards_and_disconnect_clean_both_sessions) ... ok
+test_mqtt_reconnect_does_not_clear_or_stop_opc (test_live_extensions.LiveExtensions.test_mqtt_reconnect_does_not_clear_or_stop_opc) ... ok
+test_opc_reconnect_keeps_mqtt_session_and_samples (test_live_extensions.LiveExtensions.test_opc_reconnect_keeps_mqtt_session_and_samples) ... ok
+test_partial_connect_failure_preserves_primary_session (test_live_extensions.LiveExtensions.test_partial_connect_failure_preserves_primary_session) ... ok
+test_quick_uses_original_samples_and_fft_requires_snapshot (test_live_extensions.LiveExtensions.test_quick_uses_original_samples_and_fft_requires_snapshot) ... ok
+test_statistics_exclude_bad_samples_and_do_not_integrate_gaps (test_live_extensions.LiveExtensions.test_statistics_exclude_bad_samples_and_do_not_integrate_gaps) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 6.442s
+
+OK

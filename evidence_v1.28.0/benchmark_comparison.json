@@ -1,0 +1,35 @@
+{
+  "fixture": {
+    "frames": 60000,
+    "signals": 4,
+    "original_rows": 240000
+  },
+  "scope": "One local deterministic run per source version on the same Linux environment; library calls only, excluding HTTP, browser and PLCs; repeat_full uses a warm view cache. Timings are observations, not throughput guarantees.",
+  "before_seconds": {
+    "fda_conversion": 1.59018,
+    "fda_cold_full": 1.010405,
+    "fda_repeat_full": 1.047144,
+    "fda_narrow_interval": 0.027586,
+    "parquet_cold_full": 1.099189,
+    "parquet_repeat_full": 0.919055,
+    "parquet_narrow_interval": 0.363271
+  },
+  "after_seconds": {
+    "fda_conversion": 1.43539,
+    "fda_cold_full": 0.367735,
+    "fda_repeat_full": 0.002231,
+    "fda_narrow_interval": 0.001765,
+    "parquet_cold_full": 0.696894,
+    "parquet_repeat_full": 0.003475,
+    "parquet_narrow_interval": 0.004482
+  },
+  "ratios": {
+    "fda_conversion": 1.11,
+    "fda_cold_full": 2.75,
+    "fda_repeat_full": 469.36,
+    "fda_narrow_interval": 15.63,
+    "parquet_cold_full": 1.58,
+    "parquet_repeat_full": 264.48,
+    "parquet_narrow_interval": 81.05
+  }
+}

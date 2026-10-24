@@ -1,0 +1,40 @@
+test_external_das_import_and_replay_through_http (test_fda.Format.test_external_das_import_and_replay_through_http) ... ok
+test_malformed_variants_are_rejected (test_fda.Format.test_malformed_variants_are_rejected) ... ok
+test_mixed_float32_int16_scaling_and_nonfinite_values (test_fda.Format.test_mixed_float32_int16_scaling_and_nonfinite_values) ... ok
+test_reference_header_rebuilds_byte_for_byte (test_fda.Format.test_reference_header_rebuilds_byte_for_byte) ... ok
+test_conversion_failure_is_visible_and_keeps_originals (test_fda.Record.test_conversion_failure_is_visible_and_keeps_originals) ... ERROR:root:FDA DAS4 conversion failure
+Traceback (most recent call last):
+  File "/workspace/work/Space_Analyzer_Codex/source/converted_recording.py", line 67, in _run
+    result=self.exporter(self.directory/part['name'],self.nodes,self.original.max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/Space_Analyzer_Codex/source/fda_recording.py", line 8, in <lambda>
+    exporter=lambda *args:export_parquet(*args),fmt='das',title='FDA DAS4',suffix='_FDA0001.das',phase_key='fda_phase')
+                          ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+OSError: disco pieno
+ok
+test_fda_fft_has_the_original_frequency_and_no_resampling (test_fda.Record.test_fda_fft_has_the_original_frequency_and_no_resampling) ... ok
+test_fda_record_lossless_archive_scaled_values_quality_and_replay (test_fda.Record.test_fda_record_lossless_archive_scaled_values_quality_and_replay) ... ok
+test_native_one_ms_notifications_keep_originals_and_fda_samples (test_fda.Record.test_native_one_ms_notifications_keep_originals_and_fda_samples) ... ok
+test_original_queue_overflow_never_generates_a_complete_fda (test_fda.Record.test_original_queue_overflow_never_generates_a_complete_fda) ... ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.
+ERROR:root:FDA DAS4 conversion failure
+Traceback (most recent call last):
+  File "/workspace/work/Space_Analyzer_Codex/source/converted_recording.py", line 64, in _run
+    raise ValueError('Acquisizione originale incompleta: '+state['error']+'; file parziale conservato, esportazione non generata')
+ValueError: Acquisizione originale incompleta: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.; file parziale conservato, esportazione non generata
+ok
+test_out_of_order_cycles_are_sorted_without_merging_equal_timestamps (test_fda.Record.test_out_of_order_cycles_are_sorted_without_merging_equal_timestamps) ... ok
+test_rotation_never_splits_fda_frames_and_respects_size (test_fda.Record.test_rotation_never_splits_fda_frames_and_respects_size) ... ok
+test_separate_notifications_at_identical_source_time_share_frame (test_fda.Record.test_separate_notifications_at_identical_source_time_share_frame) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.017s
+
+OK

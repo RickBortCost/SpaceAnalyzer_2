@@ -1,0 +1,15 @@
+test_averages (test_fft_engine.FFT.test_averages) ... ok
+test_dc_and_nyquist (test_fft_engine.FFT.test_dc_and_nyquist) ... ok
+test_flat_top_off_bin (test_fft_engine.FFT.test_flat_top_off_bin) ... ok
+test_noise_normalization (test_fft_engine.FFT.test_noise_normalization) ... ok
+test_non_power_two_preserves_fs (test_fft_engine.FFT.test_non_power_two_preserves_fs) ... ok
+test_psd_asd_band_rms (test_fft_engine.FFT.test_psd_asd_band_rms) ... ok
+test_quality_and_timing (test_fft_engine.FFT.test_quality_and_timing) ... ok
+test_resolution_overlap_limits (test_fft_engine.FFT.test_resolution_overlap_limits) ... ok
+test_subprocess (test_fft_engine.FFT.test_subprocess) ... ok
+test_tone_units_and_windows (test_fft_engine.FFT.test_tone_units_and_windows) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 3.540s
+
+OK

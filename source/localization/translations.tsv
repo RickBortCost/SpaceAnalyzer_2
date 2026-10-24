@@ -1,0 +1,1124 @@
+# id|English|Deutsch|Français|Español
+3|Recordings|Aufzeichnungen|Enregistrements|Grabaciones
+4|Calculated data|Berechnete Daten|Données calculées|Datos calculados
+5|SSH debug|SSH-Diagnose|Diagnostic SSH|Depuración SSH
+6|Connection|Verbindung|Connexion|Conexión
+7|Disconnected|Nicht verbunden|Déconnecté|Desconectado
+8|No server|Kein Server|Aucun serveur|Sin servidor
+10|ACTUAL|IST|RÉEL|REAL
+11|Ⅱ Pause|Ⅱ Pause|Ⅱ Pause|Ⅱ Pausa
+12|● Record|● Aufnahme|● Enregistrer|● Grabar
+13|■ Stop|■ Stopp|■ Arrêter|■ Detener
+17|⚙ Settings|⚙ Einstellungen|⚙ Paramètres|⚙ Ajustes
+18|Save settings|Einstellungen speichern|Enregistrer les paramètres|Guardar ajustes
+20|Close application|Anwendung schließen|Fermer l’application|Cerrar aplicación
+21|Theme|Design|Thème|Tema
+23|Dark|Dunkel|Sombre|Oscuro
+24|System|System|Système|Sistema
+25|Live signals|Live-Signale|Signaux en direct|Señales en vivo
+26|Signals displayed in the chart|Im Diagramm angezeigte Signale|Signaux affichés dans le graphique|Señales mostradas en el gráfico
+27|Select variables from the Address Space or enter a NodeId.|Variablen im Address Space auswählen oder eine NodeId eingeben.|Sélectionnez des variables dans l’Address Space ou saisissez un NodeId.|Selecciona variables del Address Space o introduce un NodeId.
+28|Add NodeId / manage|NodeId hinzufügen / verwalten|Ajouter un NodeId / gérer|Añadir NodeId / gestionar
+29|Add NodeId|NodeId hinzufügen|Ajouter un NodeId|Añadir NodeId
+30|Remove all|Alle entfernen|Tout retirer|Quitar todas
+32|Automatically save workspace|Arbeitsbereich automatisch speichern|Enregistrement automatique de l’espace de travail|Guardar espacio de trabajo automáticamente
+33|Loading workspace…|Arbeitsbereich wird geladen…|Chargement de l’espace de travail…|Cargando espacio de trabajo…
+34|No saved profile.|Kein gespeichertes Profil.|Aucun profil enregistré.|No hay perfiles guardados.
+35|Address Space · scan|Address Space · Suche|Address Space · exploration|Address Space · exploración
+37|No scan|Keine Suche|Aucune exploration|Sin exploración
+38|Starting node (i=85 = Objects)|Startknoten (i=85 = Objects)|Nœud initial (i=85 = Objects)|Nodo inicial (i=85 = Objects)
+39|Node limit per scan|Knotenlimit pro Suche|Limite de nœuds par exploration|Límite de nodos por exploración
+40|Browse branches|Zweige durchsuchen|Parcourir les branches|Explorar ramas
+41|Scan all|Alles durchsuchen|Tout explorer|Explorar todo
+42|Cancel|Abbrechen|Interrompre|Interrumpir
+43|Connect the client to browse the server.|Client verbinden, um den Server zu durchsuchen.|Connectez le client pour parcourir le serveur.|Conecta el cliente para explorar el servidor.
+44|Details of unexplored nodes|Details nicht durchsuchter Knoten|Détails des nœuds non explorés|Detalles de nodos no explorados
+45|Scan list|Suchliste|Liste d’exploration|Lista de exploración
+46|Tree|Baum|Arborescence|Árbol
+47|Variables only|Nur Variablen|Variables uniquement|Solo variables
+48|Select results|Ergebnisse auswählen|Sélectionner les résultats|Seleccionar resultados
+49|Chart|Diagramm|Graphique|Gráfico
+50|Name|Name|Nom|Nombre
+52|Class|Klasse|Classe|Clase
+53|Path|Pfad|Chemin|Ruta
+54|Use “Scan all” to find descendant nodes, including variable properties.|„Alles durchsuchen“ findet untergeordnete Knoten einschließlich Variableneigenschaften.|Utilisez « Tout explorer » pour trouver les nœuds enfants, propriétés comprises.|Usa «Explorar todo» para encontrar nodos descendientes y propiedades.
+55|Use “Browse branches” to open the starting node.|„Zweige durchsuchen“ öffnet den Startknoten.|Utilisez « Parcourir les branches » pour ouvrir le nœud initial.|Usa «Explorar ramas» para abrir el nodo inicial.
+56|Previous|Zurück|Précédents|Anteriores
+57|Next|Weiter|Suivants|Siguientes
+58|Recording not started.|Aufzeichnung nicht gestartet.|Enregistrement non démarré.|Grabación no iniciada.
+59|Live trend|Live-Trend|Tendance en direct|Tendencia en vivo
+60|Time view|Zeitansicht|Vue temporelle|Vista temporal
+61|Entire acquisition|Gesamte Erfassung|Acquisition complète|Adquisición completa
+62|Latest window|Letztes Zeitfenster|Dernière fenêtre|Última ventana
+63|Layout|Anordnung|Disposition|Distribución
+64|1 chart|1 Diagramm|1 graphique|1 gráfico
+65|2 vertical|2 übereinander|2 verticaux|2 verticales
+66|2 horizontal|2 nebeneinander|2 horizontaux|2 horizontales
+67|4 charts|4 Diagramme|4 graphiques|4 gráficos
+68|Free · column|Frei · Spalte|Libre · colonne|Libre · columna
+69|Free · grid|Frei · Raster|Libre · grille|Libre · cuadrícula
+70|+ Chart|+ Diagramm|+ Graphique|+ Gráfico
+71|Synchronization|Synchronisierung|Synchronisation|Sincronización
+72|Synchronize X axis|X-Achse synchronisieren|Synchroniser l’axe X|Sincronizar eje X
+73|Shared crosshair|Gemeinsames Fadenkreuz|Réticule commun|Cursor común
+74|Entire acquisition · waiting for first sample|Gesamte Erfassung · warte auf ersten Messwert|Acquisition complète · en attente du premier échantillon|Adquisición completa · esperando la primera muestra
+75|0 signals|0 Signale|0 signaux|0 señales
+76|Autoscale enabled|Automatische Skalierung aktiv|Échelle automatique active|Escala automática activa
+77|⏸ Pause|⏸ Pause|⏸ Pause|⏸ Pausa
+78|Active chart|Aktives Diagramm|Graphique actif|Gráfico activo
+79|Rename chart|Diagramm umbenennen|Renommer le graphique|Renombrar gráfico
+80|Duplicate chart|Diagramm duplizieren|Dupliquer le graphique|Duplicar gráfico
+81|Configure Y1/Y2 axes|Y1/Y2-Achsen konfigurieren|Configurer les axes Y1/Y2|Configurar ejes Y1/Y2
+82|Configure signals|Signale konfigurieren|Configurer les signaux|Configurar señales
+83|Synchronize time|Zeit synchronisieren|Synchroniser le temps|Sincronizar tiempo
+84|Export PNG image|PNG-Bild exportieren|Exporter une image PNG|Exportar imagen PNG
+85|FFT / Export X1–X2|FFT / Export X1–X2|FFT / Export X1–X2|FFT / Exportar X1–X2
+86|Reset zoom|Zoom zurücksetzen|Réinitialiser le zoom|Restablecer zoom
+87|Clear chart|Diagramm leeren|Vider le graphique|Vaciar gráfico
+88|Remove chart|Diagramm entfernen|Supprimer le graphique|Eliminar gráfico
+89|Good 0 · Uncertain 0 · Bad 0|Gut 0 · Unsicher 0 · Schlecht 0|Bon 0 · Incertain 0 · Mauvais 0|Buena 0 · Incierta 0 · Mala 0
+90|X axis|X-Achse|Axe X|Eje X
+91|Full view|Gesamtansicht|Vue complète|Vista completa
+92|X1 ↔ X2 analysis|Analyse X1 ↔ X2|Analyse X1 ↔ X2|Análisis X1 ↔ X2
+94|Place X1|X1 setzen|Placer X1|Colocar X1
+95|Place X2|X2 setzen|Placer X2|Colocar X2
+96|Reset markers|Marker zurücksetzen|Réinitialiser les marqueurs|Restablecer marcadores
+97|Select X1 or X2, then click the chart to place the marker.|X1 oder X2 auswählen, dann im Diagramm den Marker setzen.|Sélectionnez X1 ou X2, puis cliquez dans le graphique pour placer le marqueur.|Selecciona X1 o X2 y pulsa en el gráfico para colocar el marcador.
+101|Signal|Signal|Signal|Señal
+102|Axis|Achse|Axe|Eje
+103|Value at X1|Wert bei X1|Valeur à X1|Valor en X1
+104|Value at X2|Wert bei X2|Valeur à X2|Valor en X2
+105|Δ value (X2 − X1)|Δ Wert (X2 − X1)|Δ valeur (X2 − X1)|Δ valor (X2 − X1)
+106|Place both X1 and X2 to calculate values and differences.|X1 und X2 setzen, um Werte und Differenzen zu berechnen.|Placez X1 et X2 pour calculer les valeurs et les différences.|Coloca X1 y X2 para calcular valores y diferencias.
+107|Acquisition diagnostics|Erfassungsdiagnose|Diagnostic d’acquisition|Diagnóstico de adquisición
+108|Cycle duration|Zyklusdauer|Durée du cycle|Duración del ciclo
+109|Cycles|Zyklen|Cycles|Ciclos
+110|OPC UA Subscription with Read fallback. The 10 ms target depends on server, network and PC.|OPC UA Subscription mit Read-Rückfall. Das 10-ms-Ziel hängt von Server, Netzwerk und PC ab.|OPC UA Subscription avec repli Read. L’objectif de 10 ms dépend du serveur, du réseau et du PC.|OPC UA Subscription con alternativa Read. El objetivo de 10 ms depende del servidor, la red y el PC.
+111|Record saves every selected acquisition signal. Chart layout does not affect recording.|Record speichert alle ausgewählten Erfassungssignale unabhängig von der Diagrammanordnung.|Record enregistre tous les signaux acquis sélectionnés, quelle que soit leur disposition.|Record guarda todas las señales adquiridas seleccionadas, independientemente de los gráficos.
+112|Refresh|Aktualisieren|Actualiser|Actualizar
+113|Target chart|Zieldiagramm|Graphique cible|Gráfico de destino
+114|Files created by the application in the local folder|Von der Anwendung im lokalen Ordner erstellte Dateien|Fichiers créés par l’application dans le dossier local|Archivos creados por la aplicación en la carpeta local
+116|Open file from PC…|Datei vom PC öffnen…|Ouvrir un fichier du PC…|Abrir archivo del PC…
+117|DAT without manifest: internal calendar UTC offset (minutes)|DAT ohne Manifest: UTC-Versatz des internen Kalenders (Minuten)|DAT sans manifeste : décalage UTC du calendrier interne (minutes)|DAT sin manifiesto: desfase UTC del calendario interno (minutos)
+118|Join consecutive DAT files only if continuity is verified|Aufeinanderfolgende DAT-Dateien nur bei geprüfter Kontinuität verbinden|Joindre les DAT consécutifs uniquement si la continuité est vérifiée|Unir DAT consecutivos solo con continuidad verificada
+119|Select DAT files with their JSON files for actual times. Without a manifest, verify UTC offset; original template channel names and indices are retained.|DAT und zugehörige JSON-Dateien gemeinsam auswählen. Ohne Manifest UTC-Versatz prüfen; Kanalnamen und Indizes der Vorlage bleiben erhalten.|Sélectionnez les DAT et leurs JSON pour les heures réelles. Sans manifeste, vérifiez le décalage UTC ; noms et indices du modèle sont conservés.|Selecciona los DAT con sus JSON para usar las horas reales. Sin manifiesto, comprueba el desfase UTC; se conservan nombres e índices del modelo.
+120|Recordings repository|Aufzeichnungsarchiv|Dépôt des enregistrements|Repositorio de grabaciones
+121|Search files|Dateien suchen|Rechercher des fichiers|Buscar archivos
+122|Format|Format|Format|Formato
+123|All formats|Alle Formate|Tous les formats|Todos los formatos
+125|Parquet / comparisons|Parquet / Vergleiche|Parquet / comparaisons|Parquet / comparaciones
+128|iba DAT / PDA3 sequences|iba DAT / PDA3-Sequenzen|iba DAT / séquences PDA3|iba DAT / secuencias PDA3
+129|Minimum duration (s)|Mindestdauer (s)|Durée minimale (s)|Duración mínima (s)
+130|Maximum duration (s)|Maximale Dauer (s)|Durée maximale (s)|Duración máxima (s)
+131|Open this page to find available recordings.|Diese Seite öffnen, um verfügbare Aufzeichnungen zu suchen.|Ouvrez cette page pour rechercher les enregistrements disponibles.|Abre esta página para buscar grabaciones disponibles.
+132|Compare multiple files|Mehrere Dateien vergleichen|Comparer plusieurs fichiers|Comparar varios archivos
+133|0 selected|0 ausgewählt|0 sélectionnés|0 seleccionados
+134|Select files to compare. Each signal retains its name, source file and sample interval. Different formats and durations are supported.|Vergleichsdateien auswählen. Signalname, Quelldatei und Abtastintervall bleiben erhalten. Unterschiedliche Formate und Dauern sind zulässig.|Cochez les fichiers à comparer. Nom, origine et échantillonnage sont conservés. Formats et durées peuvent différer.|Marca los archivos que comparar. Se conservan nombre, origen y muestreo de cada señal. Se admiten distintos formatos y duraciones.
+135|Time reference|Zeitbezug|Référence temporelle|Referencia temporal
+136|Actual date and time (UTC)|Tatsächliches Datum und Uhrzeit (UTC)|Date et heure réelles (UTC)|Fecha y hora reales (UTC)
+137|Align starts to the first selected file|Startzeiten an erster ausgewählter Datei ausrichten|Aligner les débuts sur le premier fichier sélectionné|Alinear inicios con el primer archivo seleccionado
+138|Comparison interval|Vergleichsintervall|Intervalle de comparaison|Intervalo de comparación
+139|Entire file coverage|Gesamter Dateibereich|Étendue complète des fichiers|Extensión completa de los archivos
+140|Common interval only|Nur gemeinsamer Zeitraum|Intervalle commun uniquement|Solo intervalo común
+141|The millisecond offset is added to each file’s time. Samples are not interpolated and clocks are not corrected automatically.|Der Millisekundenversatz wird zur Dateizeit addiert. Keine Interpolation oder automatische Uhrkorrektur.|Le décalage en millisecondes s’ajoute à l’heure du fichier. Aucune interpolation ni correction automatique des horloges.|El desfase en milisegundos se suma a la hora del archivo. No hay interpolación ni corrección automática de relojes.
+142|Compare in chart|Im Diagramm vergleichen|Comparer dans le graphique|Comparar en el gráfico
+143|Clear selection|Auswahl leeren|Vider la sélection|Vaciar selección
+144|No file selected|Keine Datei ausgewählt|Aucun fichier sélectionné|Ningún archivo seleccionado
+145|From|Von|De|Desde
+146|To|Bis|À|Hasta
+147|Chart resolution per signal|Diagrammauflösung pro Signal|Résolution du graphique par signal|Resolución del gráfico por señal
+148|5,000 points|5.000 Punkte|5 000 points|5.000 puntos
+149|25,000 points|25.000 Punkte|25 000 points|25.000 puntos
+150|50,000 points|50.000 Punkte|50 000 points|50.000 puntos
+151|100,000 points|100.000 Punkte|100 000 points|100.000 puntos
+152|Signals|Signale|Signaux|Señales
+153|All|Alle|Tous|Todas
+154|None|Keine|Aucun|Ninguna
+155|Open in chart|Im Diagramm öffnen|Ouvrir dans le graphique|Abrir en el gráfico
+156|Entire file|Gesamte Datei|Fichier entier|Archivo completo
+157|Select a CSV or Apache Parquet recording.|CSV- oder Apache-Parquet-Aufzeichnung auswählen.|Sélectionnez un enregistrement CSV ou Apache Parquet.|Selecciona una grabación CSV o Apache Parquet.
+158|Recording analysis|Aufzeichnungsanalyse|Analyse des enregistrements|Análisis de grabaciones
+159|Close file|Datei schließen|Fermer le fichier|Cerrar archivo
+160|Close all|Alle schließen|Tout fermer|Cerrar todos
+161|+ Empty chart|+ Leeres Diagramm|+ Graphique vide|+ Gráfico vacío
+162|Close file and clear chart|Datei schließen und Diagramm leeren|Fermer le fichier et vider le graphique|Cerrar archivo y vaciar gráfico
+163|Clear view|Ansicht leeren|Vider la vue|Vaciar vista
+164|Place both markers to analyze the original file.|Beide Marker setzen, um die Originaldatei zu analysieren.|Placez les deux marqueurs pour analyser le fichier original.|Coloca ambos marcadores para analizar el archivo original.
+165|Recording details|Aufzeichnungsdetails|Détails de l’enregistrement|Detalles de grabación
+166|Duration|Dauer|Durée|Duración
+167|Displayed points|Angezeigte Punkte|Points affichés|Puntos mostrados
+168|Large files use min/max decimation for responsive charts. Markers query the original file for the nearest sample.|Große Dateien werden mit Min/Max-Erhaltung für flüssige Diagramme reduziert. Marker lesen den nächsten Originalmesswert.|Les grands fichiers utilisent une décimation min/max. Les marqueurs interrogent l’original pour trouver l’échantillon le plus proche.|Los archivos grandes usan decimación mín./máx. Los marcadores consultan el original para obtener la muestra más cercana.
+169|New recording|Neue Aufzeichnung|Nouvel enregistrement|Nueva grabación
+170|Record selected acquisition signals. Chart pause and zoom do not stop saving.|Ausgewählte Signale aufzeichnen. Diagrammpause und Zoom unterbrechen das Speichern nicht.|Enregistrez les signaux acquis sélectionnés. Pause et zoom du graphique n’arrêtent pas la sauvegarde.|Graba las señales adquiridas seleccionadas. La pausa y el zoom del gráfico no detienen el guardado.
+171|File format|Dateiformat|Format du fichier|Formato de archivo
+172|Binary Parquet · recommended|Binäres Parquet · empfohlen|Parquet binaire · recommandé|Parquet binario · recomendado
+173|Lossless compression preserves values, quality, timestamps and all samples. Supports charts and FFT.|Verlustfreie Kompression erhält Werte, Qualität, Zeitstempel und alle Messwerte. Für Diagramme und FFT.|La compression sans perte conserve valeurs, qualité, horodatages et échantillons. Compatible graphiques et FFT.|La compresión sin pérdida conserva valores, calidad, marcas temporales y muestras. Compatible con gráficos y FFT.
+174|FDA · DAS4 + original archive|FDA · DAS4 + Originalarchiv|FDA · DAS4 + archive originale|FDA · DAS4 + archivo original
+175|FDA .DAS files are generated after Stop. The associated Parquet preserves every original sample.|FDA-.DAS-Dateien entstehen nach Stopp. Das zugehörige Parquet erhält jeden Originalmesswert.|Les fichiers FDA .DAS sont générés après Arrêter. Le Parquet associé conserve chaque échantillon original.|Los .DAS para FDA se generan tras Detener. El Parquet asociado conserva cada muestra original.
+176|RBF · original archive included|RBF · Originalarchiv enthalten|RBF · archive originale incluse|RBF · archivo original incluido
+177|Record up to 64 signals. RBF files are generated after Stop; the associated Parquet preserves all original values.|Bis zu 64 Signale. RBF-Dateien entstehen nach Stopp; das Parquet erhält alle Originalwerte.|Jusqu’à 64 signaux. Les RBF sont générés après Arrêter ; le Parquet conserve les valeurs originales.|Hasta 64 señales. Los RBF se generan tras Detener; el Parquet conserva los valores originales.
+178|Verified RBF v3 profile: Float32, Boolean, strings up to 80 bytes, timestamps and signal quality. No interpolation; up to 57,600 frames per file without losing updates. Keep Parquet for original precision. External RBF compatibility still needs verification.|Geprüftes RBF-v3-Profil: Float32, Boolean, Zeichenfolgen bis 80 Byte, Zeitstempel und Signalqualität. Keine Interpolation; bis 57.600 Frames pro Datei ohne Verlust von Aktualisierungen. Parquet für Originalpräzision behalten. Externe RBF-Kompatibilität noch prüfen.|Profil RBF v3 vérifié : Float32, booléens, chaînes de 80 octets, horodatages et qualité. Sans interpolation ; jusqu’à 57 600 trames par fichier sans perte de mises à jour. Garder le Parquet pour la précision originale. Compatibilité externe à vérifier.|Perfil RBF v3 verificado: Float32, booleanos, cadenas de hasta 80 bytes, marcas temporales y calidad. Sin interpolación; hasta 57.600 tramas por archivo sin perder actualizaciones. Conserva Parquet para la precisión original. Compatibilidad externa pendiente.
+179|iba DAT (PDA3) · 64-channel template|iba DAT (PDA3) · Vorlage mit 64 Kanälen|iba DAT (PDA3) · modèle 64 canaux|iba DAT (PDA3) · modelo de 64 canales
+180|10 ms · segments up to 10 minutes · Stop also saves short recordings · actual times in JSON. No ibaFiles.dll required.|10 ms · Segmente bis 10 Minuten · Stopp speichert auch kurze Aufzeichnungen · reale Zeiten in JSON. Ohne ibaFiles.dll.|10 ms · segments jusqu’à 10 minutes · Arrêter sauvegarde aussi les enregistrements courts · heures réelles dans le JSON. Sans ibaFiles.dll.|10 ms · segmentos de hasta 10 minutos · Detener guarda también grabaciones cortas · horas reales en JSON. Sin ibaFiles.dll.
+181|Template not yet verified.|Vorlage noch nicht geprüft.|Modèle non encore vérifié.|Modelo aún no verificado.
+182|Experimental: ibaAnalyzer keeps the template’s start and channel names; the end follows sample count. Space Analyzer uses actual JSON times/mapping. Verify short DAT files in ibaAnalyzer. Float32 values; complete originals in Recordings/Parquet.|Experimentell: ibaAnalyzer behält Vorlagenstart und Kanalnamen; das Ende folgt der Messwertzahl. Space Analyzer nutzt reale JSON-Zeiten und Zuordnung. Kurze DAT in ibaAnalyzer prüfen. Float32; vollständige Originale in Recordings/Parquet.|Expérimental : ibaAnalyzer conserve le début et les noms du modèle ; la fin suit le nombre d’échantillons. Space Analyzer utilise les heures et correspondances JSON réelles. Vérifier les DAT courts dans ibaAnalyzer. Float32 ; originaux dans Recordings/Parquet.|Experimental: ibaAnalyzer conserva inicio y nombres del modelo; el final depende de las muestras. Space Analyzer usa horas y asignación reales del JSON. Verifica DAT cortos en ibaAnalyzer. Float32; originales completos en Recordings/Parquet.
+183|Stop at any time: the final segment contains only acquired time, even below 10 minutes. Reserved space beyond the end is NaN and excluded from replay; unused channels are zero. Real gaps, duplicates, invalid values and incompressible blocks are still reported.|Jederzeit stoppen: Das letzte Segment enthält nur die erfasste Zeit, auch unter 10 Minuten. Reservierter Bereich danach ist NaN und wird nicht wiedergegeben; ungenutzte Kanäle sind null. Echte Lücken, Duplikate, ungültige Werte und nicht komprimierbare Blöcke werden gemeldet.|Arrêtez à tout moment : le dernier segment contient uniquement la durée acquise, même inférieure à 10 minutes. L’espace réservé après la fin est NaN et exclu de la lecture ; canaux inutilisés à zéro. Lacunes, doublons, valeurs invalides et blocs incompressibles restent signalés.|Detén en cualquier momento: el último segmento contiene solo el intervalo adquirido, aunque sea menor de 10 minutos. El espacio reservado posterior es NaN y no se reproduce; canales sin usar a cero. Se siguen indicando huecos, duplicados, valores inválidos y bloques no comprimibles.
+184|If a block does not fit, automatically create consecutive DAT files of up to 10 seconds|Wenn ein Block nicht passt, automatisch fortlaufende DAT-Dateien bis 10 Sekunden erzeugen|Si un bloc ne tient pas, créer des DAT consécutifs de 10 secondes maximum|Si un bloque no cabe, crear DAT consecutivos de hasta 10 segundos
+185|No sample or Float32 precision loss. Split DAT files share one Space Analyzer timeline; each retains the 13.19 MiB template structure, increasing total size.|Kein Messwert- oder Float32-Präzisionsverlust. Geteilte DAT nutzen eine gemeinsame Zeitachse; jede Datei behält die 13,19-MiB-Vorlagenstruktur und erhöht den Gesamtbedarf.|Aucune perte d’échantillons ni de précision Float32. Les DAT partagés ont une seule chronologie ; chaque fichier conserve la structure de 13,19 Mio du modèle, augmentant l’espace total.|Sin pérdida de muestras ni precisión Float32. Los DAT divididos comparten una línea temporal; cada archivo conserva la estructura de 13,19 MiB del modelo y aumenta el espacio total.
+186|Grid matching tolerance (ms, no value interpolation)|Toleranz der Rasterzuordnung (ms, keine Interpolation)|Tolérance d’association à la grille (ms, sans interpolation)|Tolerancia de ajuste a la rejilla (ms, sin interpolación)
+187|I accept experimental mode with template start and actual times in the manifest|Ich akzeptiere den experimentellen Modus mit Vorlagenstart und realen Zeiten im Manifest|J’accepte le mode expérimental avec début du modèle et heures réelles dans le manifeste|Acepto el modo experimental con inicio del modelo y horas reales en el manifiesto
+188|iba DAT · DLL 3.2.0 + original archive|iba DAT · DLL 3.2.0 + Originalarchiv|iba DAT · DLL 3.2.0 + archive originale|iba DAT · DLL 3.2.0 + archivo original
+189|Requires Windows and a real writing license. DAT is generated and verified after Stop; originals remain in Parquet.|Windows und echte Schreiblizenz erforderlich. DAT wird nach Stopp erzeugt und geprüft; Originale bleiben in Parquet.|Nécessite Windows et une licence d’écriture réelle. DAT généré et vérifié après Arrêter ; originaux en Parquet.|Requiere Windows y licencia de escritura real. El DAT se genera y verifica tras Detener; originales en Parquet.
+190|Legacy DAT: Float32, nominal time axis, up to 64 variables. Each uses value, _Q quality and _T actual relative seconds channels. No resampling. Full precision/timestamps remain in associated Parquet for charts and FFT. Verify ibaPDA/ibaAnalyzer compatibility; no license is simulated.|Legacy-DAT: Float32, nominale Zeitachse, bis 64 Variablen. Je Variable Kanäle für Wert, _Q-Qualität und _T reale relative Sekunden. Keine Neuabtastung. Volle Präzision und Zeitstempel im Parquet für Diagramme/FFT. iba-Kompatibilität prüfen; keine Lizenzsimulation.|DAT ancien : Float32, axe nominal, 64 variables maximum. Chacune utilise valeur, qualité _Q et secondes relatives réelles _T. Aucun rééchantillonnage. Précision et horodatages complets dans le Parquet pour graphiques/FFT. Vérifier la compatibilité iba ; aucune licence simulée.|DAT antiguo: Float32, eje nominal, máximo 64 variables. Cada una usa valor, calidad _Q y segundos relativos reales _T. Sin remuestreo. Precisión y marcas completas en Parquet para gráficos/FFT. Verifica compatibilidad iba; no se simula licencia.
+191|Check DLL and license|DLL und Lizenz prüfen|Vérifier DLL et licence|Verificar DLL y licencia
+192|Check not yet performed.|Prüfung noch nicht ausgeführt.|Vérification non encore effectuée.|Verificación aún no realizada.
+193|FDA: rounded Int16 with automatic scale and millisecond time. _Q: 0=missing, 1=Bad, 2=Uncertain, 3=Good. Original precision and timestamps remain in Parquet. Verify compatibility in your FDA version; sample file included.|FDA: gerundetes Int16 mit automatischer Skalierung und Millisekundenzeit. _Q: 0=fehlend, 1=Bad, 2=Uncertain, 3=Good. Originalpräzision und Zeitstempel bleiben in Parquet. Kompatibilität in Ihrer FDA-Version prüfen; Beispieldatei enthalten.|FDA : Int16 arrondi avec échelle automatique et temps en millisecondes. _Q : 0=absent, 1=Bad, 2=Uncertain, 3=Good. Précision et horodatages originaux dans le Parquet. Vérifier la compatibilité FDA ; fichier d’essai inclus.|FDA: Int16 redondeado con escala automática y tiempo en milisegundos. _Q: 0=ausente, 1=Bad, 2=Uncertain, 3=Good. Precisión y marcas originales en Parquet. Verifica compatibilidad FDA; archivo de prueba incluido.
+194|Readable text for Excel and analysis tools; usually uses more space.|Lesbarer Text für Excel und Analysewerkzeuge; meist größerer Speicherbedarf.|Texte lisible pour Excel et les outils d’analyse ; généralement plus volumineux.|Texto legible para Excel y herramientas de análisis; suele ocupar más espacio.
+195|Binary compression|Binäre Kompression|Compression binaire|Compresión binaria
+196|Compact · ZSTD 9 · recommended|Kompakt · ZSTD 9 · empfohlen|Compact · ZSTD 9 · recommandé|Compacto · ZSTD 9 · recomendado
+197|Maximum compression · ZSTD 19|Maximale Kompression · ZSTD 19|Compression maximale · ZSTD 19|Compresión máxima · ZSTD 19
+198|Fast · ZSTD 3 · less CPU|Schnell · ZSTD 3 · weniger CPU|Rapide · ZSTD 3 · moins de CPU|Rápido · ZSTD 3 · menos CPU
+199|Compatibility · Snappy|Kompatibilität · Snappy|Compatibilité · Snappy|Compatibilidad · Snappy
+200|Savings depend on signals. ZSTD writes in blocks, at most every 5 seconds; Stop flushes all buffered data. Acquisition frequency remains as configured.|Die Einsparung hängt von den Signalen ab. ZSTD schreibt blockweise, spätestens alle 5 Sekunden; Stopp leert den Puffer. Die Erfassungsfrequenz bleibt unverändert.|Le gain dépend des signaux. ZSTD écrit par blocs, au plus tard toutes les 5 secondes ; Arrêter vide le tampon. La fréquence d’acquisition reste configurée.|El ahorro depende de las señales. ZSTD escribe por bloques, como máximo cada 5 segundos; Detener vacía el búfer. La frecuencia de adquisición no cambia.
+201|Session name|Sitzungsname|Nom de session|Nombre de sesión
+202|Machine|Maschine|Machine|Máquina
+203|Operator|Bediener|Opérateur|Operador
+204|New file every|Neue Datei alle|Nouveau fichier toutes les|Nuevo archivo cada
+205|No time limit|Keine Zeitbegrenzung|Aucune limite de durée|Sin límite temporal
+206|30 seconds|30 Sekunden|30 secondes|30 segundos
+207|1 minute|1 Minute|1 minute|1 minuto
+208|5 minutes|5 Minuten|5 minutes|5 minutos
+209|15 minutes|15 Minuten|15 minutes|15 minutos
+210|1 hour|1 Stunde|1 heure|1 hora
+211|Maximum file size (MiB; 0 = disabled)|Maximale Dateigröße (MiB; 0 = deaktiviert)|Taille maximale (Mio ; 0 = désactivée)|Tamaño máximo (MiB; 0 = desactivado)
+212|Write buffer (seconds)|Schreibpuffer (Sekunden)|Tampon d’écriture (secondes)|Búfer de escritura (segundos)
+213|Description|Beschreibung|Description|Descripción
+214|Rotate at the first limit without stopping acquisition. Size includes header/footer. Cycles remain whole; if one cycle exceeds the limit, recording reports an error and keeps files already written. The write buffer also has a memory limit.|Rotation beim ersten Grenzwert ohne Erfassungsstopp. Größe enthält Kopf/Fuß. Zyklen bleiben vollständig; überschreitet ein Zyklus das Limit, folgt ein Fehler und vorhandene Dateien bleiben erhalten. Auch der Schreibpuffer ist speicherbegrenzt.|Rotation dès la première limite sans arrêter l’acquisition. Taille incluant en-tête/pied. Cycles entiers ; si un cycle dépasse la limite, erreur et conservation des fichiers écrits. La mémoire du tampon est également limitée.|Rotación al primer límite sin detener la adquisición. El tamaño incluye cabecera y pie. Ciclos completos; si uno supera el límite, se indica error y se conservan archivos escritos. El búfer también limita la memoria.
+215|signals. Selection stays fixed until Stop.|Signale. Die Auswahl bleibt bis Stopp unverändert.|signaux. La sélection reste fixe jusqu’à Arrêter.|señales. La selección permanece fija hasta Detener.
+216|Destination folder|Zielordner|Dossier de destination|Carpeta de destino
+217|Cancel|Abbrechen|Annuler|Cancelar
+218|Start recording|Aufzeichnung starten|Démarrer l’enregistrement|Iniciar grabación
+219|Shared formulas for Live and recordings.|Gemeinsame Formeln für Live und Aufzeichnungen.|Formules communes au direct et aux enregistrements.|Fórmulas compartidas entre vivo y grabaciones.
+220|+ New formula|+ Neue Formel|+ Nouvelle formule|+ Nueva fórmula
+221|Search formulas|Formeln suchen|Rechercher des formules|Buscar fórmulas
+222|Formula builder|Formeleditor|Éditeur de formules|Editor de fórmulas
+223|Variable name|Variablenname|Nom de la variable|Nombre de variable
+224|Measurement unit|Maßeinheit|Unité de mesure|Unidad de medida
+225|Live|Live|Direct|En vivo
+226|Enabled|Aktiv|Active|Activa
+227|Sources / preview|Quellen / Vorschau|Sources / aperçu|Fuentes / vista previa
+228|Live acquisition|Live-Erfassung|Acquisition en direct|Adquisición en vivo
+229|Recording|Aufzeichnung|Enregistrement|Grabación
+230|Recorded file|Aufgezeichnete Datei|Fichier enregistré|Archivo grabado
+231|Select a recording|Aufzeichnung auswählen|Sélectionner un enregistrement|Seleccionar una grabación
+232|Available variables · click to insert|Verfügbare Variablen · zum Einfügen klicken|Variables disponibles · cliquez pour insérer|Variables disponibles · pulsa para insertar
+233|Mathematical formula|Mathematische Formel|Formule mathématique|Fórmula matemática
+243|Names in [square brackets] identify sources. Example: ([Delta Carico] / [Carico Live 1]) * 100. mean averages arguments at the same instant.|Namen in [eckigen Klammern] kennzeichnen Quellen. Beispiel: ([Delta Carico] / [Carico Live 1]) * 100. mean mittelt Argumente zum selben Zeitpunkt.|Les noms entre [crochets] identifient les sources. Exemple : ([Delta Carico] / [Carico Live 1]) * 100. mean calcule la moyenne au même instant.|Los nombres entre [corchetes] identifican fuentes. Ejemplo: ([Delta Carico] / [Carico Live 1]) * 100. mean calcula la media en el mismo instante.
+244|Time synchronization and references|Zeitsynchronisierung und Referenzen|Synchronisation temporelle et références|Sincronización temporal y referencias
+245|Alignment|Ausrichtung|Alignement|Alineación
+246|Latest preceding value|Letzter vorheriger Wert|Dernière valeur précédente|Último valor anterior
+247|Identical timestamps|Identische Zeitstempel|Horodatages identiques|Marcas temporales idénticas
+248|Source tolerance (ms)|Quellentoleranz (ms)|Tolérance des sources (ms)|Tolerancia de fuentes (ms)
+249|Calculate when updated|Berechnen bei Aktualisierung von|Calculer lors de la mise à jour de|Calcular al actualizar
+250|Any source|Beliebige Quelle|N’importe quelle source|Cualquier fuente
+251|Calculations use only previous or simultaneous values. Null, Bad, Uncertain, stale sources and division by zero produce invalid points. Future values are not interpolated.|Berechnung nur mit früheren oder gleichzeitigen Werten. Null, Bad, Uncertain, veraltete Quellen und Division durch null erzeugen ungültige Punkte. Keine Interpolation zukünftiger Werte.|Calcul avec valeurs antérieures ou simultanées uniquement. Null, Bad, Uncertain, sources périmées et division par zéro produisent des points invalides. Aucune interpolation future.|El cálculo solo usa valores anteriores o simultáneos. Null, Bad, Uncertain, fuentes caducadas y división por cero generan puntos inválidos. No se interpolan valores futuros.
+252|Use recording chart interval|Intervall des Aufzeichnungsdiagramms verwenden|Utiliser l’intervalle du graphique enregistré|Usar intervalo del gráfico de grabaciones
+253|Use X1/X2 when set; otherwise use the active recording’s From/To filter.|Gesetzte X1/X2 verwenden, sonst den Von/Bis-Filter der aktiven Aufzeichnung.|Utilise X1/X2 si définis, sinon le filtre De/À de l’enregistrement actif.|Usa X1/X2 si están definidos; en caso contrario, el filtro Desde/Hasta de la grabación activa.
+254|Validate|Validieren|Valider|Validar
+255|Test and preview|Test und Vorschau|Tester et prévisualiser|Probar y previsualizar
+256|Save formula|Formel speichern|Enregistrer la formule|Guardar fórmula
+257|New / reset|Neu / Zurücksetzen|Nouveau / réinitialiser|Nueva / restablecer
+258|Preview|Vorschau|Aperçu|Vista previa
+259|Press Test and preview. Live tests use up to 5,000 samples per source.|„Test und Vorschau“ drücken. Live-Tests nutzen bis zu 5.000 Messwerte pro Quelle.|Cliquez sur Tester et prévisualiser. Le test direct utilise jusqu’à 5 000 échantillons par source.|Pulsa Probar y previsualizar. La prueba en vivo usa hasta 5.000 muestras por fuente.
+260|Use in charts|In Diagrammen verwenden|Utiliser dans les graphiques|Usar en gráficos
+261|Save the formula first. Calculated series support the same markers, axes, zoom, FFT and export as original signals.|Zuerst die Formel speichern. Berechnete Reihen haben dieselben Marker, Achsen, Zoom-, FFT- und Exportfunktionen wie Originalsignale.|Enregistrez d’abord la formule. Les séries calculées utilisent les mêmes marqueurs, axes, zoom, FFT et export que les signaux originaux.|Guarda primero la fórmula. Las series calculadas tienen los mismos marcadores, ejes, zoom, FFT y exportación que las señales originales.
+262|Add to Live chart|Zum Live-Diagramm hinzufügen|Ajouter au graphique en direct|Añadir al gráfico en vivo
+263|Apply to recording|Auf Aufzeichnung anwenden|Appliquer à l’enregistrement|Aplicar a grabación
+264|Save new dataset|Neuen Datensatz speichern|Enregistrer un nouveau jeu de données|Guardar nuevo conjunto de datos
+266|Save with calculated data|Mit berechneten Daten speichern|Enregistrer avec les données calculées|Guardar con datos calculados
+267|Client configuration|Client-Konfiguration|Configuration du client|Configuración del cliente
+268|Close ×|Schließen ×|Fermer ×|Cerrar ×
+269|Data source and connection|Datenquelle und Verbindung|Source de données et connexion|Fuente de datos y conexión
+270|Local client|Lokaler Client|Client local|Cliente local
+271|Live data source|Live-Datenquelle|Source de données en direct|Fuente de datos en vivo
+275|MQTT · TCP/TLS broker|MQTT · TCP/TLS-Broker|MQTT · courtier TCP/TLS|MQTT · bróker TCP/TLS
+276|One source active at a time. Selections and charts are stored separately for OPC UA, ADS, S7 and MQTT. Disconnect before switching.|Eine aktive Quelle gleichzeitig. Auswahl und Diagramme werden für OPC UA, ADS, S7 und MQTT getrennt gespeichert. Vor dem Wechsel trennen.|Une seule source active. Sélections et graphiques sont conservés séparément pour OPC UA, ADS, S7 et MQTT. Déconnectez avant de changer.|Una fuente activa cada vez. Selecciones y gráficos se guardan por separado para OPC UA, ADS, S7 y MQTT. Desconecta antes de cambiar.
+277|Server endpoint|Server-Endpunkt|Endpoint du serveur|Endpoint del servidor
+278|Discover endpoints and policies|Endpunkte und Richtlinien ermitteln|Détecter endpoints et politiques|Detectar endpoints y políticas
+279|Security policy|Sicherheitsrichtlinie|Politique de sécurité|Política de seguridad
+284|Message security|Nachrichtensicherheit|Sécurité des messages|Seguridad de mensajes
+287|Username|Benutzername|Nom d’utilisateur|Usuario
+288|Password|Passwort|Mot de passe|Contraseña
+289|Certificates and Application URI|Zertifikate und Application URI|Certificats et Application URI|Certificados y Application URI
+290|Checking…|Prüfung…|Vérification…|Verificando…
+291|Client Application URI|Application URI des Clients|Application URI du client|Application URI del cliente
+292|The URI must match the certificate. After regeneration, authorize the new client.der on the server.|Die URI muss mit dem Zertifikat übereinstimmen. Nach Neuerstellung client.der auf dem Server freigeben.|L’URI doit correspondre au certificat. Après régénération, autorisez le nouveau client.der sur le serveur.|El URI debe coincidir con el certificado. Tras regenerarlo, autoriza el nuevo client.der en el servidor.
+293|Client certificate|Client-Zertifikat|Certificat client|Certificado del cliente
+294|Client private key|Privater Client-Schlüssel|Clé privée du client|Clave privada del cliente
+295|Regenerate certificate|Zertifikat neu erstellen|Régénérer le certificat|Regenerar certificado
+296|Export client.der|client.der exportieren|Exporter client.der|Exportar client.der
+297|Server certificate|Server-Zertifikat|Certificat serveur|Certificado del servidor
+298|Fetch from server|Vom Server abrufen|Récupérer du serveur|Obtener del servidor
+299|Or import .der / .pem / .crt|Oder .der / .pem / .crt importieren|Ou importer .der / .pem / .crt|O importar .der / .pem / .crt
+300|Import certificate|Zertifikat importieren|Importer un certificat|Importar certificado
+301|Basic256Sha256 supports Sign and SignAndEncrypt. Select a server-supported combination and verify the certificate fingerprint.|Basic256Sha256 unterstützt Sign und SignAndEncrypt. Unterstützte Kombination auswählen und Zertifikatsfingerabdruck prüfen.|Basic256Sha256 prend en charge Sign et SignAndEncrypt. Choisissez une combinaison exposée et vérifiez l’empreinte du certificat.|Basic256Sha256 admite Sign y SignAndEncrypt. Elige una combinación del servidor y verifica la huella del certificado.
+302|Event-driven acquisition processes every received publication independently of chart refresh and nominal period. Space Analyzer subscribes but sends no PUBLISH or machine commands.|Ereigniserfassung verarbeitet jede empfangene Veröffentlichung unabhängig von Diagrammaktualisierung und Sollperiode. Space Analyzer abonniert, sendet aber kein PUBLISH und keine Maschinenbefehle.|L’acquisition événementielle traite chaque publication indépendamment du graphique et de la période indicative. Space Analyzer s’abonne sans envoyer de PUBLISH ni de commandes machine.|La adquisición por eventos procesa cada publicación independientemente del gráfico y período nominal. Space Analyzer se suscribe sin enviar PUBLISH ni órdenes a máquinas.
+303|Broker · IP or hostname|Broker · IP oder Hostname|Courtier · IP ou nom d’hôte|Bróker · IP o nombre de host
+304|Port|Port|Port|Puerto
+305|MQTT version|MQTT-Version|Version MQTT|Versión MQTT
+306|Requested QoS|Angeforderte QoS|QoS demandé|QoS solicitado
+307|0 · at most once|0 · höchstens einmal|0 · au plus une fois|0 · como máximo una vez
+308|1 · at least once|1 · mindestens einmal|1 · au moins une fois|1 · al menos una vez
+309|2 · session QoS 2|2 · QoS 2 der Sitzung|2 · QoS 2 de la session|2 · QoS 2 de sesión
+310|Client ID (empty = automatic)|Client-ID (leer = automatisch)|ID client (vide = automatique)|ID de cliente (vacío = automático)
+311|Password · session only|Passwort · nur Sitzung|Mot de passe · session uniquement|Contraseña · solo sesión
+312|TLS · verify broker certificate and name|TLS · Broker-Zertifikat und -Name prüfen|TLS · vérifier certificat et nom du courtier|TLS · verificar certificado y nombre del bróker
+313|Broker CA (empty = system authorities)|Broker-CA (leer = Systemvertrauensstellen)|CA du courtier (vide = autorités système)|CA del bróker (vacío = autoridades del sistema)
+314|Client PEM certificate (optional)|Client-PEM-Zertifikat (optional)|Certificat client PEM (facultatif)|Certificado PEM de cliente (opcional)
+315|Client PEM key|Client-PEM-Schlüssel|Clé client PEM|Clave PEM del cliente
+316|Topics to subscribe · one filter per line|Abonnierte Topics · ein Filter pro Zeile|Topics à souscrire · un filtre par ligne|Topics que suscribir · un filtro por línea
+317|Examples: impianto/linea1/# or impianto/+/pressione. The catalogue shows received topics/fields only; MQTT cannot list all broker signals.|Beispiele: impianto/linea1/# oder impianto/+/pressione. Der Katalog zeigt nur empfangene Topics/Felder; MQTT kann nicht alle Broker-Signale abfragen.|Exemples : impianto/linea1/# ou impianto/+/pressione. Le catalogue affiche les topics/champs reçus ; MQTT ne liste pas tous les signaux du courtier.|Ejemplos: impianto/linea1/# o impianto/+/pressione. El catálogo muestra topics/campos recibidos; MQTT no lista todas las señales del bróker.
+318|Sample time basis|Zeitbasis der Messwerte|Base de temps des échantillons|Base temporal de muestras
+319|Local reception|Lokaler Empfang|Réception locale|Recepción local
+320|Timestamp in JSON|Zeitstempel in JSON|Horodatage dans le JSON|Marca temporal en JSON
+321|JSON timestamp format|JSON-Zeitstempelformat|Format d’horodatage JSON|Formato de marca temporal JSON
+322|ISO 8601 with timezone|ISO 8601 mit Zeitzone|ISO 8601 avec fuseau horaire|ISO 8601 con zona horaria
+323|Unix seconds|Unix-Sekunden|Secondes Unix|Segundos Unix
+324|Unix milliseconds|Unix-Millisekunden|Millisecondes Unix|Milisegundos Unix
+325|Unix microseconds|Unix-Mikrosekunden|Microsecondes Unix|Microsegundos Unix
+326|Unix nanoseconds|Unix-Nanosekunden|Nanosecondes Unix|Nanosegundos Unix
+327|Timestamp JSON Pointer (optional with local reception)|Zeitstempel-JSON-Pointer (bei lokalem Empfang optional)|JSON Pointer de l’horodatage (facultatif en réception locale)|JSON Pointer temporal (opcional con recepción local)
+328|Quality JSON Pointer (optional: Good / Uncertain / Bad)|Qualitäts-JSON-Pointer (optional: Good / Uncertain / Bad)|JSON Pointer qualité (facultatif : Good / Uncertain / Bad)|JSON Pointer de calidad (opcional: Good / Uncertain / Bad)
+329|Include retained messages · marked Uncertain|Retained-Nachrichten erfassen · als Uncertain markiert|Inclure les messages retained · marqués Uncertain|Incluir mensajes retained · marcados Uncertain
+330|Retained messages populate the catalogue but are excluded from Live/Record unless enabled. Supports numbers, booleans, UTF-8 text, nested JSON/arrays. Field: mqtt:impianto/topic#/value; whole payload: mqtt:impianto/topic#.|Retained-Nachrichten füllen den Katalog, sind ohne diese Option aber aus Live/Record ausgeschlossen. Zahlen, Boolean, UTF-8 und JSON/Arrays. Feld: mqtt:impianto/topic#/value; gesamter Payload: mqtt:impianto/topic#.|Les retained alimentent le catalogue mais sont exclus du direct/Record sauf activation. Nombres, booléens, UTF-8, JSON imbriqué/tableaux. Champ : mqtt:impianto/topic#/value ; payload entier : mqtt:impianto/topic#.|Los retained alimentan el catálogo pero se excluyen de vivo/Record salvo activación. Números, booleanos, UTF-8, JSON anidado/arrays. Campo: mqtt:impianto/topic#/value; payload entero: mqtt:impianto/topic#.
+331|MQTT timeouts and acquisition limits|MQTT-Zeitlimits und Erfassungsgrenzen|Délais et limites d’acquisition MQTT|Tiempos y límites de adquisición MQTT
+333|Connection timeout (ms)|Verbindungszeitlimit (ms)|Délai de connexion (ms)|Tiempo de espera de conexión (ms)
+334|Maximum queue (messages)|Maximale Warteschlange (Nachrichten)|File maximale (messages)|Cola máxima (mensajes)
+335|Maximum payload (KiB)|Maximaler Payload (KiB)|Payload maximal (Kio)|Payload máximo (KiB)
+336|Queue also limited to 32 MiB. Overflow stops Record with an error and preserves the partial file. Reconnection restores subscriptions, not missed offline history.|Warteschlange auch auf 32 MiB begrenzt. Überlauf stoppt Record mit Fehler und erhält die Teildatei. Wiederverbindung erneuert Abonnements, holt aber keine Offline-Historie nach.|File également limitée à 32 Mio. Un débordement arrête Record avec erreur et conserve le fichier partiel. La reconnexion rétablit les abonnements sans récupérer l’historique perdu hors ligne.|Cola limitada también a 32 MiB. Un desbordamiento detiene Record con error y conserva el parcial. La reconexión restaura suscripciones, no el historial perdido sin conexión.
+337|Check broker and subscriptions|Broker und Abonnements prüfen|Vérifier courtier et abonnements|Verificar bróker y suscripciones
+338|Use local TwinCAT + cyclic notifications|Lokales TwinCAT + zyklische Benachrichtigungen|Utiliser TwinCAT local + notifications cycliques|Usar TwinCAT local + notificaciones cíclicas
+339|ADS connection mode|ADS-Verbindungsmodus|Mode de connexion ADS|Modo de conexión ADS
+340|Local TwinCAT · use PC routes|Lokales TwinCAT · PC-Routen verwenden|TwinCAT local · routes du PC|TwinCAT local · usar rutas del PC
+341|Direct ADS/TCP · independent client|Direktes ADS/TCP · unabhängiger Client|ADS/TCP direct · client indépendant|ADS/TCP directo · cliente independiente
+342|Cyclic notifications: dedicated acquisition thread, original timestamps and bounded queue. Requires local TwinCAT; actual period depends on PLC task. SumRead remains an explicit alternative.|Zyklische Benachrichtigungen: eigener Erfassungsthread, Originalzeitstempel, begrenzte Warteschlange. Lokales TwinCAT erforderlich; reale Periode abhängig von SPS-Task. SumRead bleibt auswählbar.|Notifications cycliques : thread dédié, horodatages originaux et file limitée. TwinCAT local requis ; période réelle selon tâche automate. SumRead reste disponible.|Notificaciones cíclicas: hilo dedicado, marcas originales y cola limitada. Requiere TwinCAT local; período real según tarea PLC. SumRead sigue disponible.
+343|To edit parameters, Disconnect and Stop any active recording.|Zum Ändern trennen und eine laufende Aufzeichnung stoppen.|Pour modifier, déconnectez et arrêtez tout enregistrement actif.|Para modificar, desconecta y detén cualquier grabación activa.
+344|64-bit TcAdsDll.dll (optional)|TcAdsDll.dll 64 Bit (optional)|TcAdsDll.dll 64 bits (facultatif)|TcAdsDll.dll de 64 bits (opcional)
+345|Requires TwinCAT router and x64 DLL on the PC. The router assigns client Net ID/local port; existing routes resolve PAC IP from AMS Net ID. Routes are not changed.|TwinCAT-Router und x64-DLL auf dem PC erforderlich. Router vergibt Client-Net-ID und lokalen Port; vorhandene Routen lösen PAC-IP aus AMS-Net-ID auf. Keine Routenänderung.|Nécessite routeur TwinCAT et DLL x64 sur le PC. Le routeur attribue Net ID/port client ; les routes existantes résolvent l’IP du PAC depuis l’AMS Net ID. Aucune route modifiée.|Requiere router TwinCAT y DLL x64 en el PC. El router asigna Net ID/puerto del cliente; las rutas existentes resuelven IP del PAC desde AMS Net ID. No se modifican rutas.
+346|PLC IP / hostname|SPS-IP / Hostname|IP / nom d’hôte de l’automate|IP / nombre de host del PLC
+348|PLC AMS Net ID|AMS Net ID der SPS|AMS Net ID de l’automate|AMS Net ID del PLC
+349|Runtime ADS port|ADS-Port der Laufzeit|Port ADS du runtime|Puerto ADS del runtime
+353|Router TCP port|TCP-Port des Routers|Port TCP du routeur|Puerto TCP del router
+354|Client AMS Net ID|AMS Net ID des Clients|AMS Net ID du client|AMS Net ID del cliente
+355|Client AMS port|AMS-Port des Clients|Port AMS du client|Puerto AMS del cliente
+356|Local IP / network interface (optional)|Lokale IP / Netzwerkschnittstelle (optional)|IP locale / interface réseau (facultatif)|IP local / interfaz de red (opcional)
+357|Request timeout (ms)|Anfragezeitlimit (ms)|Délai par requête (ms)|Tiempo de espera por solicitud (ms)
+358|Acquisition method|Erfassungsmethode|Méthode d’acquisition|Método de adquisición
+359|Cyclic notifications · PLC timestamp (local TwinCAT)|Zyklische Benachrichtigungen · SPS-Zeitstempel (lokales TwinCAT)|Notifications cycliques · horodatage automate (TwinCAT local)|Notificaciones cíclicas · marca PLC (TwinCAT local)
+360|SumRead · grouped reads|SumRead · gebündelte Lesezugriffe|SumRead · lectures groupées|SumRead · lecturas agrupadas
+361|Read · individual reads|Read · einzelne Lesezugriffe|Read · lectures individuelles|Read · lecturas individuales
+362|PLC STRING encoding|SPS-STRING-Kodierung|Encodage PLC STRING|Codificación PLC STRING
+365|SumRead groups up to 32 signals, with Read fallback. Supports BOOL, integers, REAL/LREAL, STRING/WSTRING and primitive arrays. Only scalar numbers enter the trend; other values remain viewable and recordable.|SumRead bündelt bis 32 Signale mit Read-Rückfall. BOOL, Ganzzahlen, REAL/LREAL, STRING/WSTRING und einfache Arrays. Nur skalare Zahlen im Trend; andere Werte bleiben anzeigbar und aufzeichnbar.|SumRead groupe jusqu’à 32 signaux avec repli Read. BOOL, entiers, REAL/LREAL, STRING/WSTRING et tableaux primitifs. Seuls les scalaires numériques entrent dans la tendance ; autres valeurs consultables/enregistrables.|SumRead agrupa hasta 32 señales con alternativa Read. BOOL, enteros, REAL/LREAL, STRING/WSTRING y arrays primitivos. Solo escalares numéricos en la tendencia; otros valores se pueden consultar/grabar.
+366|AMS route and requirements|AMS-Route und Voraussetzungen|Route AMS et prérequis|Ruta AMS y requisitos
+367|Add a route in the PLC’s TwinCAT router to the PC IP and client AMS Net ID. PLC Net ID need not equal its IP. Use a unique client Net ID, distinct from PLC and local TwinCAT.|Im TwinCAT-Router der SPS eine Route zu PC-IP und Client-AMS-Net-ID anlegen. SPS-Net-ID muss nicht der IP entsprechen. Eindeutige Client-Net-ID verwenden, anders als SPS und lokales TwinCAT.|Ajoutez une route dans le routeur TwinCAT de l’automate vers IP du PC et AMS Net ID client. Net ID et IP peuvent différer. Utilisez un Net ID client unique, distinct de l’automate et de TwinCAT local.|Añade una ruta en el router TwinCAT del PLC hacia IP del PC y AMS Net ID cliente. Net ID e IP pueden diferir. Usa un Net ID cliente único, distinto del PLC y TwinCAT local.
+368|Direct ADS/TCP normally uses TCP 48898 without TwinCAT on the client PC; PLC must allow route and symbols. Local TwinCAT supports PC routes and cyclic PLC timestamps. Secure ADS/TLS is not implemented. No variable writes or RUN/STOP commands.|Direktes ADS/TCP nutzt normalerweise TCP 48898 ohne TwinCAT am Client. SPS muss Route und Symbole freigeben. Lokales TwinCAT unterstützt PC-Routen und zyklische SPS-Zeitstempel. Kein Secure ADS/TLS, keine Schreib- oder RUN/STOP-Befehle.|ADS/TCP direct utilise normalement TCP 48898 sans TwinCAT client ; route et symboles doivent être autorisés. TwinCAT local utilise les routes du PC et horodatages cycliques automate. Secure ADS/TLS non implémenté. Aucune écriture ni commande RUN/STOP.|ADS/TCP directo usa normalmente TCP 48898 sin TwinCAT cliente; PLC debe permitir ruta y símbolos. TwinCAT local usa rutas del PC y marcas cíclicas PLC. Secure ADS/TLS no implementado. Sin escritura ni órdenes RUN/STOP.
+369|The test shows actual connection parameters. Direct ADS/TCP: specify client Net ID; browse/test use client AMS port + 1. Local TwinCAT ports are router-assigned. Read timestamps are local; cyclic notifications retain PLC timestamps. PLC not RUN → Uncertain.|Test zeigt tatsächliche Parameter. Direktes ADS/TCP: Client-Net-ID angeben; Suche/Test nutzen AMS-Client-Port + 1. Lokale TwinCAT-Ports vergibt der Router. Read-Zeitstempel lokal; zyklische Benachrichtigungen behalten SPS-Zeitstempel. SPS nicht RUN → Uncertain.|Le test affiche les paramètres réels. ADS/TCP direct : renseigner Net ID client ; exploration/test utilisent port AMS client + 1. TwinCAT local : ports attribués par routeur. Read horodaté localement ; notifications gardent l’heure automate. Automate hors RUN → Uncertain.|La prueba muestra parámetros reales. ADS/TCP directo: indica Net ID cliente; exploración/prueba usan puerto AMS cliente + 1. TwinCAT local: puertos asignados por router. Read usa hora local; notificaciones conservan hora PLC. PLC fuera de RUN → Uncertain.
+370|Test ADS connection|ADS-Verbindung testen|Tester la connexion ADS|Probar conexión ADS
+371|Test not run.|Test nicht ausgeführt.|Test non effectué.|Prueba no ejecutada.
+373|ADS from 1 ms: use local TwinCAT/cyclic notifications and a compatible PLC task. SumRead/polling is best effort. Live diagnostics show actual period; browser refresh is independent.|ADS ab 1 ms: lokales TwinCAT, zyklische Benachrichtigungen und passende SPS-Task verwenden. SumRead/Polling ohne Periodengarantie. Reale Periode in Live-Diagnose; Browseraktualisierung unabhängig.|ADS dès 1 ms : TwinCAT local, notifications cycliques et tâche automate adaptée. SumRead/polling sans garantie de période. Période réelle dans le diagnostic ; navigateur indépendant.|ADS desde 1 ms: TwinCAT local, notificaciones cíclicas y tarea PLC compatible. SumRead/polling sin garantía de período. Diagnóstico muestra período real; navegador independiente.
+374|Read interval|Leseintervall|Intervalle de lecture|Intervalo de lectura
+386|Recent buffer / FFT|Letzter Puffer / FFT|Tampon récent / FFT|Búfer reciente / FFT
+387|10 seconds|10 Sekunden|10 secondes|10 segundos
+388|2 minutes|2 Minuten|2 minutes|2 minutos
+389|Automatically reconnect after connection loss|Nach Verbindungsverlust automatisch verbinden|Reconnecter automatiquement après une coupure|Reconectar automáticamente tras una desconexión
+390|Connect and read|Verbinden und lesen|Connecter et lire|Conectar y leer
+391|Disconnect|Trennen|Déconnecter|Desconectar
+392|Save settings and layout|Einstellungen und Anordnung speichern|Enregistrer paramètres et disposition|Guardar ajustes y distribución
+393|Live buffer limit|Live-Pufferlimit|Limite du tampon direct|Límite del búfer en vivo
+394|Time + sample limit|Zeit + Messwertlimit|Temps + limite d’échantillons|Tiempo + límite de muestras
+395|Sample count only|Nur Messwertanzahl|Nombre d’échantillons uniquement|Solo número de muestras
+396|Maximum samples per signal|Maximale Messwerte pro Signal|Échantillons maximum par signal|Máximo de muestras por señal
+397|Total memory limit: 2 million samples. The effective per-signal limit appears in Live diagnostics. Record also saves samples that leave the buffer.|Gesamtlimit: 2 Millionen Messwerte. Effektives Signallimit in der Live-Diagnose. Record speichert auch Messwerte außerhalb des Puffers.|Limite totale : 2 millions d’échantillons. Limite effective par signal dans le diagnostic direct. Record conserve aussi les échantillons sortis du tampon.|Límite total: 2 millones de muestras. Límite efectivo por señal en diagnóstico. Record guarda también las muestras que salen del búfer.
+398|X1–X2 analysis|Analyse X1–X2|Analyse X1–X2|Análisis X1–X2
+399|Close|Schließen|Fermer|Cerrar
+400|FFT parameters · signal, blocks, windows and harmonics|FFT-Parameter · Signal, Blöcke, Fenster und Harmonische|Paramètres FFT · signal, blocs, fenêtres et harmoniques|Parámetros FFT · señal, bloques, ventanas y armónicos
+401|FFT signal|FFT-Signal|Signal FFT|Señal FFT
+402|Interval|Intervall|Intervalle|Intervalo
+404|Live · sliding window|Live · gleitendes Fenster|Direct · fenêtre glissante|En vivo · ventana deslizante
+405|Live window (s)|Live-Fenster (s)|Fenêtre directe (s)|Ventana en vivo (s)
+406|Window|Fenster|Fenêtre|Ventana
+407|Hann · general|Hann · allgemein|Hann · général|Hann · general
+408|Flat-top · amplitude|Flat-top · Amplitude|Flat-top · amplitude|Flat-top · amplitud
+410|Rectangular|Rechteck|Rectangulaire|Rectangular
+411|Define resolution using|Auflösung definieren mit|Définir la résolution par|Definir resolución con
+412|Samples per block|Messwerte pro Block|Échantillons par bloc|Muestras por bloque
+413|Desired Δf (Hz)|Gewünschte Δf (Hz)|Δf souhaitée (Hz)|Δf deseada (Hz)
+414|Minimum block duration (s)|Mindestblockdauer (s)|Durée minimale de bloc (s)|Duración mínima de bloque (s)
+415|Value (0 = automatic samples)|Wert (0 = automatische Messwertanzahl)|Valeur (0 = échantillons automatiques)|Valor (0 = muestras automáticas)
+417|Averaging|Mittelung|Moyennage|Promediado
+418|Energy|Energetisch|Énergétique|Energético
+419|None · latest block|Keine · letzter Block|Aucun · dernier bloc|Ninguno · último bloque
+420|Exponential energy|Exponentiell energetisch|Énergétique exponentiel|Energético exponencial
+421|Interval Max Hold|Intervall-Max-Hold|Max Hold de l’intervalle|Max Hold del intervalo
+422|Latest blocks (0 = all)|Letzte Blöcke (0 = alle)|Derniers blocs (0 = tous)|Últimos bloques (0 = todos)
+423|Exponential constant τ (s)|Exponentielle Konstante τ (s)|Constante exponentielle τ (s)|Constante exponencial τ (s)
+424|Quantity|Messgröße|Grandeur|Magnitud
+425|Peak amplitude|Spitzenamplitude|Amplitude crête|Amplitud pico
+426|RMS amplitude|RMS-Amplitude|Amplitude RMS|Amplitud RMS
+430|Original signal unit|Originaleinheit des Signals|Unité du signal original|Unidad original de la señal
+431|Quality and gaps|Qualität und Lücken|Qualité et lacunes|Calidad y huecos
+432|Exclude invalid blocks|Ungültige Blöcke ausschließen|Exclure les blocs invalides|Excluir bloques inválidos
+433|Reject invalid interval|Ungültiges Intervall ablehnen|Refuser l’intervalle invalide|Rechazar intervalo inválido
+434|Period tolerance (%)|Periodentoleranz (%)|Tolérance de période (%)|Tolerancia de período (%)
+435|RMS band from (Hz)|RMS-Band ab (Hz)|Bande RMS de (Hz)|Banda RMS desde (Hz)
+436|RMS band to (empty = Nyquist)|RMS-Band bis (leer = Nyquist)|Bande RMS à (vide = Nyquist)|Banda RMS hasta (vacío = Nyquist)
+437|Fundamental F1|Grundfrequenz F1|Fondamentale F1|Fundamental F1
+438|Auto · dominant AC peak|Auto · dominanter AC-Peak|Auto · pic AC dominant|Auto · pico AC dominante
+439|Manual|Manuell|Manuel|Manual
+440|Manual F1 (Hz)|Manuelle F1 (Hz)|F1 manuelle (Hz)|F1 manual (Hz)
+441|Harmonic search ± (%)|Harmonischensuche ± (%)|Recherche d’harmoniques ± (%)|Búsqueda de armónicos ± (%)
+442|Remove DC mean|DC-Mittelwert entfernen|Retirer la moyenne DC|Eliminar media DC
+443|Calculate FFT|FFT berechnen|Calculer la FFT|Calcular FFT
+444|Stop live FFT|Live-FFT stoppen|Arrêter la FFT directe|Detener FFT en vivo
+445|Reset result|Ergebnis zurücksetzen|Réinitialiser le résultat|Restablecer resultado
+446|Frequency spectrum|Frequenzspektrum|Spectre de fréquence|Espectro de frecuencia
+447|Recalculate FFT|FFT neu berechnen|Recalculer la FFT|Recalcular FFT
+448|Enlarge spectrum|Spektrum vergrößern|Agrandir le spectre|Ampliar espectro
+449|Save spectrum PNG|Spektrum als PNG speichern|Enregistrer le spectre PNG|Guardar espectro PNG
+450|View|Ansicht|Vue|Vista
+451|Curve|Kurve|Courbe|Curva
+452|Spectral lines|Spektrallinien|Raies spectrales|Líneas espectrales
+453|F1–H5 view|F1–H5-Ansicht|Vue F1–H5|Vista F1–H5
+454|From Hz|Ab Hz|De Hz|Desde Hz
+455|To Hz|Bis Hz|À Hz|Hasta Hz
+458|Latest block|Letzter Block|Dernier bloc|Último bloque
+461|Export spectrum CSV|Spektrum als CSV exportieren|Exporter le spectre CSV|Exportar espectro CSV
+462|Drag: zoom · Wheel: zoom · Double-click: autoscale|Ziehen: Zoom · Mausrad: Zoom · Doppelklick: Autoskalierung|Glisser : zoom · Molette : zoom · Double-clic : échelle auto|Arrastrar: zoom · Rueda: zoom · Doble clic: escala automática
+463|Fundamental and harmonics up to the fifth|Grundfrequenz und Harmonische bis zur fünften|Fondamentale et harmoniques jusqu’à la cinquième|Fundamental y armónicos hasta el quinto
+464|Order|Ordnung|Ordre|Orden
+465|Expected (Hz)|Erwartet (Hz)|Attendue (Hz)|Esperada (Hz)
+466|Measured (Hz)|Gemessen (Hz)|Mesurée (Hz)|Medida (Hz)
+467|Amplitude / level|Amplitude / Pegel|Amplitude / niveau|Amplitud / nivel
+468|Deviation (Hz)|Abweichung (Hz)|Écart (Hz)|Desviación (Hz)
+469|Result|Ergebnis|Résultat|Resultado
+470|Export harmonics CSV|Harmonische als CSV exportieren|Exporter les harmoniques CSV|Exportar armónicos CSV
+471|Export chart signals between X1 and X2|Diagrammsignale zwischen X1 und X2 exportieren|Exporter les signaux entre X1 et X2|Exportar señales del gráfico entre X1 y X2
+472|DAT PDA3 · up to 600 s · experimental, template calendar|DAT PDA3 · bis 600 s · experimentell, Vorlagenkalender|DAT PDA3 · jusqu’à 600 s · expérimental, calendrier du modèle|DAT PDA3 · hasta 600 s · experimental, calendario del modelo
+473|Export interval|Intervall exportieren|Exporter l’intervalle|Exportar intervalo
+474|Download file|Datei herunterladen|Télécharger le fichier|Descargar archivo
+475|Application log|Anwendungsprotokoll|Journal de l’application|Registro de la aplicación
+476|Latest 64 KiB. Automatic rotation: 5 MiB per file, 5 previous copies. Includes backend, OPC UA, recordings and frontend errors.|Letzte 64 KiB. Automatische Rotation: 5 MiB pro Datei, 5 vorherige Kopien. Enthält Backend, OPC UA, Aufzeichnungen und Oberflächenfehler.|Derniers 64 Kio. Rotation automatique : 5 Mio par fichier, 5 copies précédentes. Backend, OPC UA, enregistrements et erreurs d’interface inclus.|Últimos 64 KiB. Rotación automática: 5 MiB por archivo, 5 copias anteriores. Incluye backend, OPC UA, grabaciones y errores de interfaz.
+477|Properties|Eigenschaften|Propriétés|Propiedades
+478|Apply|Anwenden|Appliquer|Aplicar
+479|Local service|Lokaler Dienst|Service local|Servicio local
+480|Drag: zoom · Double-click: reset · Draggable X1/X2|Ziehen: Zoom · Doppelklick: Zurücksetzen · X1/X2 verschiebbar|Glisser : zoom · Double-clic : réinitialiser · X1/X2 déplaçables|Arrastrar: zoom · Doble clic: restablecer · X1/X2 arrastrables
+483|Pages|Seiten|Pages|Páginas
+484|Data source, OPC UA / ADS / S7 connection and acquisition|Datenquelle, OPC-UA-/ADS-/S7-Verbindung und Erfassung|Source de données, connexion OPC UA / ADS / S7 et acquisition|Fuente de datos, conexión OPC UA / ADS / S7 y adquisición
+485|OPC UA server|OPC-UA-Server|Serveur OPC UA|Servidor OPC UA
+486|Pause/play active chart|Aktives Diagramm pausieren/fortsetzen|Pause/lecture du graphique actif|Pausar/reanudar gráfico activo
+487|Place X1 in active chart|X1 im aktiven Diagramm setzen|Placer X1 dans le graphique actif|Colocar X1 en el gráfico activo
+488|Place X2 in active chart|X2 im aktiven Diagramm setzen|Placer X2 dans le graphique actif|Colocar X2 en el gráfico activo
+489|Signal selection|Signalauswahl|Sélection des signaux|Selección de señales
+490|Filter acquired signals|Erfasste Signale filtern|Filtrer les signaux acquis|Filtrar señales adquiridas
+491|Filter signals…|Signale filtern…|Filtrer les signaux…|Filtrar señales…
+492|NodeId to add|Hinzuzufügende NodeId|NodeId à ajouter|NodeId que añadir
+493|Direct NodeId: ns=2;s=PLC1.Temperatura|Direkte NodeId: ns=2;s=PLC1.Temperatura|NodeId direct : ns=2;s=PLC1.Temperatura|NodeId directo: ns=2;s=PLC1.Temperatura
+495|Scan progress|Suchfortschritt|Progression de l’exploration|Progreso de exploración
+496|Address Space view|Address-Space-Ansicht|Vue Address Space|Vista Address Space
+497|Search discovered nodes|Gefundene Knoten durchsuchen|Rechercher les nœuds détectés|Buscar nodos detectados
+498|Search name, path or NodeId in scan…|Name, Pfad oder NodeId suchen…|Rechercher nom, chemin ou NodeId…|Buscar nombre, ruta o NodeId…
+499|Drag to resize. Double-click to reset.|Zum Ändern der Größe ziehen. Doppelklick zum Zurücksetzen.|Glissez pour redimensionner. Double-cliquez pour réinitialiser.|Arrastra para cambiar el tamaño. Doble clic para restablecer.
+500|Resize signal panel and chart area|Signalbereich und Diagrammfläche skalieren|Redimensionner le panneau des signaux et les graphiques|Redimensionar panel de señales y gráficos
+501|Show/hide left panel|Linken Bereich ein-/ausblenden|Afficher/masquer le panneau gauche|Mostrar/ocultar panel izquierdo
+502|Entire acquisition: visual history from first sample. Latest window: recent original buffer.|Gesamte Erfassung: visuelle Historie ab erstem Messwert. Letztes Fenster: aktueller Originalpuffer.|Acquisition complète : historique visuel depuis le premier échantillon. Dernière fenêtre : tampon original récent.|Adquisición completa: historial visual desde la primera muestra. Última ventana: búfer original reciente.
+503|Chart name|Diagrammname|Nom du graphique|Nombre del gráfico
+504|Fullscreen analysis (Esc to exit)|Vollbildanalyse (Esc zum Verlassen)|Analyse plein écran (Échap pour quitter)|Análisis a pantalla completa (Esc para salir)
+505|Fullscreen analysis|Vollbildanalyse|Analyse plein écran|Análisis a pantalla completa
+506|Chart actions|Diagrammaktionen|Actions du graphique|Acciones del gráfico
+507|Time chart of selected variables. Drag a rectangle to zoom or use X1/X2 markers.|Zeitdiagramm ausgewählter Variablen. Rechteck für Zoom ziehen oder X1/X2-Marker verwenden.|Graphique temporel des variables. Tracez un rectangle pour zoomer ou utilisez les marqueurs X1/X2.|Gráfico temporal de variables. Arrastra un rectángulo para ampliar o usa marcadores X1/X2.
+508|Time overview|Zeitübersicht|Vue temporelle globale|Panorámica temporal
+509|Time window|Zeitfenster|Fenêtre temporelle|Ventana temporal
+510|Time window start|Anfang des Zeitfensters|Début de la fenêtre temporelle|Inicio de ventana temporal
+511|Time window end|Ende des Zeitfensters|Fin de la fenêtre temporelle|Fin de ventana temporal
+512|X-axis time scrolling|Zeitliches Verschieben der X-Achse|Défilement temporel de l’axe X|Desplazamiento temporal del eje X
+513|Scroll chart time window|Zeitfenster des Diagramms verschieben|Faire défiler la fenêtre du graphique|Desplazar ventana temporal del gráfico
+514|X1 and X2 marker data|Daten der Marker X1 und X2|Données des marqueurs X1 et X2|Datos de marcadores X1 y X2
+515|Planned extended analysis: min, max, mean, RMS, peak-to-peak. Current values are X1, X2 and their difference.|Geplante erweiterte Analyse: Min, Max, Mittelwert, RMS, Spitze-Spitze. Aktuell X1, X2 und Differenz.|Analyse étendue prévue : min, max, moyenne, RMS, crête à crête. Actuellement X1, X2 et différence.|Análisis ampliado previsto: mín., máx., media, RMS, pico a pico. Actualmente X1, X2 y diferencia.
+516|Name, machine or session…|Name, Maschine oder Sitzung…|Nom, machine ou session…|Nombre, máquina o sesión…
+517|Any|Beliebig|Quelconque|Cualquiera
+518|Resize recording panel and chart area|Aufzeichnungsbereich und Diagrammfläche skalieren|Redimensionner le panneau des enregistrements et les graphiques|Redimensionar panel de grabaciones y gráficos
+519|Close recording and clear active chart|Aufzeichnung schließen und aktives Diagramm leeren|Fermer l’enregistrement et vider le graphique actif|Cerrar grabación y vaciar gráfico activo
+520|Close all recordings and start with an empty chart|Alle Aufzeichnungen schließen und mit leerem Diagramm beginnen|Fermer tous les enregistrements et repartir d’un graphique vide|Cerrar todas las grabaciones y empezar con un gráfico vacío
+521|Add an empty chart|Leeres Diagramm hinzufügen|Ajouter un graphique vide|Añadir un gráfico vacío
+522|Chart of the loaded recording. Drag a rectangle to zoom or use X1/X2 markers.|Diagramm der geladenen Aufzeichnung. Rechteck zum Zoomen ziehen oder X1/X2 verwenden.|Graphique de l’enregistrement chargé. Tracez un rectangle pour zoomer ou utilisez X1/X2.|Gráfico de la grabación cargada. Arrastra un rectángulo para ampliar o usa X1/X2.
+523|Recording X-axis time scrolling|Zeitliches Verschieben der Aufzeichnungs-X-Achse|Défilement temporel de l’enregistrement|Desplazamiento temporal de la grabación
+524|Scroll recording time window|Zeitfenster der Aufzeichnung verschieben|Faire défiler la fenêtre de l’enregistrement|Desplazar ventana temporal de grabación
+525|Recording marker data|Markerdaten der Aufzeichnung|Données des marqueurs de l’enregistrement|Datos de marcadores de grabación
+526|Rolling test|Walzversuch|Essai de laminage|Prueba de laminación
+527|Name, formula or source|Name, Formel oder Quelle|Nom, formule ou source|Nombre, fórmula o fuente
+528|Load difference|Lastdifferenz|Différence de charge|Diferencia de carga
+530|Filter by name or path|Nach Name oder Pfad filtern|Filtrer par nom ou chemin|Filtrar por nombre o ruta
+532|Calculated variable preview|Vorschau der berechneten Variablen|Aperçu de la variable calculée|Vista previa de variable calculada
+533|Close connection dialog|Verbindungsdialog schließen|Fermer la fenêtre de connexion|Cerrar diálogo de conexión
+535|Dedicated SpaceAnalyzer ID|Dedizierte SpaceAnalyzer-ID|ID SpaceAnalyzer dédié|ID SpaceAnalyzer dedicado
+539|Automatic search in TwinCAT Common64|Automatische Suche in TwinCAT Common64|Recherche automatique dans TwinCAT Common64|Búsqueda automática en TwinCAT Common64
+540|Automatic: local IP + .1.1|Automatisch: lokale IP + .1.1|Automatique : IP locale + .1.1|Automático: IP local + .1.1
+541|Automatic|Automatisch|Automatique|Automático
+542|FFT spectrum: frequency in Hz and amplitude or spectral density; drag to zoom|FFT-Spektrum: Frequenz in Hz und Amplitude oder Spektraldichte; zum Zoomen ziehen|Spectre FFT : fréquence en Hz et amplitude ou densité spectrale ; glissez pour zoomer|Espectro FFT: frecuencia en Hz y amplitud o densidad espectral; arrastra para ampliar
+544|Workspace not saved:|Arbeitsbereich nicht gespeichert:|Espace de travail non enregistré :|Espacio de trabajo no guardado:
+545|Wait for operations to finish before saving|Vor dem Speichern Vorgänge abschließen lassen|Attendez la fin des opérations avant d’enregistrer|Espera a que finalicen las operaciones antes de guardar
+546|Workspace saved ·|Arbeitsbereich gespeichert ·|Espace de travail enregistré ·|Espacio de trabajo guardado ·
+548|Workspace ready. Automatic saving enabled.|Arbeitsbereich bereit. Automatisches Speichern aktiv.|Espace de travail prêt. Enregistrement automatique actif.|Espacio de trabajo listo. Guardado automático activo.
+550|Workspace restored ·|Arbeitsbereich wiederhergestellt ·|Espace de travail restauré ·|Espacio de trabajo restaurado ·
+551|No samples in the frozen view|Keine Messwerte in eingefrorener Ansicht|Aucun échantillon dans la vue figée|Sin muestras en la vista congelada
+552|Open a chart first|Zuerst ein Diagramm öffnen|Ouvrez d’abord un graphique|Abre primero un gráfico
+553|Analysis chart changed|Analysediagramm geändert|Graphique d’analyse modifié|Gráfico de análisis cambiado
+554|This restored paused view has no original samples. Resume playback and freeze again, or open the recording.|Diese wiederhergestellte Pauseansicht enthält keine Originalmesswerte. Wiedergabe fortsetzen und erneut einfrieren oder Aufzeichnung öffnen.|Cette vue figée restaurée ne contient pas les originaux. Reprenez puis figez à nouveau, ou ouvrez l’enregistrement.|Esta vista pausada restaurada no contiene muestras originales. Reanuda y congela de nuevo, o abre la grabación.
+555|Place X1 and X2 at different times.|X1 und X2 zu unterschiedlichen Zeiten setzen.|Placez X1 et X2 à des instants différents.|Coloca X1 y X2 en instantes distintos.
+556|Wait for samples before opening FFT.|Vor dem Öffnen der FFT auf Messwerte warten.|Attendez des échantillons avant d’ouvrir la FFT.|Espera muestras antes de abrir FFT.
+557|Add at least one signal to the chart.|Mindestens ein Signal zum Diagramm hinzufügen.|Ajoutez au moins un signal au graphique.|Añade al menos una señal al gráfico.
+558|· X1–X2 analysis|· Analyse X1–X2|· Analyse X1–X2|· Análisis X1–X2
+559|Original samples. Live FFT/export use the recent buffer, even in full overview. Open the recording for earlier history. FFT needs a continuous Good interval.|Originalmesswerte. Live-FFT/Export nutzen auch in der Übersicht den letzten Puffer. Für ältere Historie Aufzeichnung öffnen. FFT benötigt lückenlos Good.|Échantillons originaux. FFT/export directs utilisent le tampon récent, même en vue globale. Ouvrez l’enregistrement pour l’historique antérieur. La FFT exige un intervalle Good continu.|Muestras originales. FFT/exportación en vivo usan el búfer reciente, incluso en panorámica. Abre la grabación para historial anterior. FFT requiere un tramo Good continuo.
+560|Open a recording before analysis|Vor der Analyse eine Aufzeichnung öffnen|Ouvrez un enregistrement avant l’analyse|Abre una grabación antes del análisis
+561|Exporting original samples…|Originalmesswerte werden exportiert…|Export des échantillons originaux…|Exportando muestras originales…
+562|rows exported ·|Zeilen exportiert ·|lignes exportées ·|filas exportadas ·
+563|No events.|Keine Ereignisse.|Aucun événement.|Sin eventos.
+565|JavaScript error|JavaScript-Fehler|Erreur JavaScript|Error JavaScript
+566|Signal added to|Signal hinzugefügt zu|Signal ajouté à|Señal añadida a
+567|Layout changed. Use “Save settings” to keep it.|Anordnung geändert. Mit „Einstellungen speichern“ beibehalten.|Disposition modifiée. Utilisez « Enregistrer les paramètres » pour la conserver.|Distribución modificada. Usa «Guardar ajustes» para conservarla.
+568|Invalid response from local service|Ungültige Antwort des lokalen Dienstes|Réponse du service local invalide|Respuesta no válida del servicio local
+569|Local service timeout (|Zeitüberschreitung des lokalen Dienstes (|Délai du service local dépassé (|Tiempo de espera del servicio local agotado (
+570|Present · SHA-256:|Vorhanden · SHA-256:|Présent · SHA-256 :|Presente · SHA-256:
+571|No server certificate: fetch one to use Sign / SignAndEncrypt.|Kein Server-Zertifikat: für Sign/SignAndEncrypt abrufen.|Aucun certificat serveur : récupérez-le pour Sign / SignAndEncrypt.|Sin certificado de servidor: obtén uno para Sign / SignAndEncrypt.
+572|Server certificate present|Server-Zertifikat vorhanden|Certificat serveur présent|Certificado de servidor presente
+573|Server certificate missing|Server-Zertifikat fehlt|Certificat serveur absent|Certificado de servidor ausente
+574|Last saved:|Zuletzt gespeichert:|Dernier enregistrement :|Último guardado:
+575|Settings folder:|Einstellungsordner:|Dossier des paramètres :|Carpeta de ajustes:
+576|Connected|Verbunden|Connecté|Conectado
+577|Connecting…|Verbindung wird aufgebaut…|Connexion…|Conectando…
+578|Reconnecting…|Wiederverbindung…|Reconnexion…|Reconectando…
+579|Use this policy and retain the entered server address|Diese Richtlinie nutzen und Serveradresse beibehalten|Utiliser cette politique en conservant l’adresse saisie|Usar esta política manteniendo la dirección indicada
+580|Unsupported policy|Nicht unterstützte Richtlinie|Politique non prise en charge|Política no compatible
+581|Discovering endpoints…|Endpunkte werden ermittelt…|Détection des endpoints…|Detectando endpoints…
+582|endpoints found.|Endpunkte gefunden.|endpoints détectés.|endpoints detectados.
+583|Session|Sitzung|Session|Sesión
+584|active. Browse branches or start a full scan.|aktiv. Zweige durchsuchen oder vollständige Suche starten.|active. Parcourez les branches ou lancez une exploration complète.|activa. Explora ramas o inicia una exploración completa.
+585|Connected; browsing:|Verbunden; Suche:|Connecté ; exploration :|Conectado; exploración:
+586|Session disconnected.|Sitzung getrennt.|Session déconnectée.|Sesión desconectada.
+587|Saved parameters, NodeIds, server data, certificates and layout. Passwords marked “session only” are not saved.|Parameter, NodeIds, Serverdaten, Zertifikate und Anordnung gespeichert. Als „nur Sitzung“ markierte Passwörter werden nicht gespeichert.|Paramètres, NodeIds, serveur, certificats et disposition enregistrés. Les mots de passe « session uniquement » ne sont pas sauvegardés.|Parámetros, NodeIds, servidor, certificados y distribución guardados. No se guardan contraseñas marcadas «solo sesión».
+588|Acquisition parameters updated.|Erfassungsparameter aktualisiert.|Paramètres d’acquisition mis à jour.|Parámetros de adquisición actualizados.
+589|Client certificate regenerated. Export client.der and authorize it on the server.|Client-Zertifikat neu erstellt. client.der exportieren und am Server freigeben.|Certificat client régénéré. Exportez client.der et autorisez-le sur le serveur.|Certificado del cliente regenerado. Exporta client.der y autorízalo en el servidor.
+590|Server certificate fetched. Verify its SHA-256 fingerprint in Certificates.|Server-Zertifikat abgerufen. SHA-256-Fingerabdruck unter Zertifikate prüfen.|Certificat serveur récupéré. Vérifiez l’empreinte SHA-256 dans Certificats.|Certificado del servidor obtenido. Verifica la huella SHA-256 en Certificados.
+591|Select a server certificate first.|Zuerst ein Server-Zertifikat auswählen.|Sélectionnez d’abord un certificat serveur.|Selecciona primero un certificado de servidor.
+592|Server certificate imported.|Server-Zertifikat importiert.|Certificat serveur importé.|Certificado del servidor importado.
+593|Press Stop before changing signals.|Vor dem Ändern der Signale Stopp drücken.|Appuyez sur Arrêter avant de changer les signaux.|Pulsa Detener antes de cambiar señales.
+594|Maximum|Maximal|Maximum|Máximo
+595|variables in the chart.|Variablen im Diagramm.|variables dans le graphique.|variables en el gráfico.
+596|Select|Auswählen|Sélectionner|Seleccionar
+597|acquired ·|erfasst ·|acquis ·|adquiridas ·
+598|calculated|berechnet|calculés|calculadas
+599|Connect the client and select variables in the tree or enter a NodeId.|Client verbinden und Variablen im Baum auswählen oder NodeId eingeben.|Connectez le client puis sélectionnez dans l’arbre ou saisissez un NodeId.|Conecta el cliente y selecciona variables del árbol o introduce un NodeId.
+600|Drag this signal onto a chart|Dieses Signal auf ein Diagramm ziehen|Glisser ce signal sur un graphique|Arrastra esta señal a un gráfico
+602|Show|Anzeigen|Afficher|Mostrar
+603|Waiting|Warten|En attente|En espera
+604|Remove|Entfernen|Retirer|Quitar
+605|from acquisition|aus der Erfassung|de l’acquisition|de la adquisición
+606|· approximate chart value|· angenäherter Diagrammwert|· valeur graphique approchée|· valor gráfico aproximado
+607|Server:|Server:|Serveur :|Servidor:
+608|Connect the client to verify the NodeId.|Client zum Prüfen der NodeId verbinden.|Connectez le client pour vérifier le NodeId.|Conecta el cliente para verificar el NodeId.
+609|The node is|Der Knoten ist|Le nœud est|El nodo es
+610|: use it as a starting node to browse its variables.|: als Startknoten zum Durchsuchen seiner Variablen verwenden.|: utilisez-le comme nœud initial pour parcourir ses variables.|: úsalo como nodo inicial para explorar sus variables.
+611|No valid numeric values ·|Keine gültigen Zahlenwerte ·|Aucune valeur numérique valide ·|Sin valores numéricos válidos ·
+612|Waiting for the first valid sample…|Warte auf ersten gültigen Messwert…|En attente du premier échantillon valide…|Esperando la primera muestra válida…
+613|Select a numeric variable to start the trend|Numerische Variable auswählen, um den Trend zu starten|Sélectionnez une variable numérique pour démarrer la tendance|Selecciona una variable numérica para iniciar la tendencia
+614|Mode:|Modus:|Mode :|Modo:
+615|· Invalid quality:|· Ungültige Qualität:|· Qualité invalide :|· Calidad inválida:
+616|Connection:|Verbindung:|Connexion :|Conexión:
+617|Latest period:|Letzte Periode:|Dernière période :|Último período:
+618|Waiting for first samples.|Warte auf erste Messwerte.|En attente des premiers échantillons.|Esperando las primeras muestras.
+619|Last sample received|Letzter Messwert empfangen vor|Dernier échantillon reçu|Última muestra recibida
+620|· Requested period|· Angeforderte Periode|· Période demandée|· Período solicitado
+621|ms, subject to server, network and PC.|ms, abhängig von Server, Netzwerk und PC.|ms, selon serveur, réseau et PC.|ms, según servidor, red y PC.
+622|MQTT · every publication ·|MQTT · jede Veröffentlichung ·|MQTT · chaque publication ·|MQTT · cada publicación ·
+623|· The nominal period does not limit samples; broker and publishers determine frequency and QoS.|· Die Sollperiode begrenzt Messwerte nicht; Broker und Publisher bestimmen Frequenz und QoS.|· La période indicative ne limite pas les échantillons ; courtier et éditeurs déterminent fréquence et QoS.|· El período nominal no limita muestras; bróker y publicadores determinan frecuencia y QoS.
+624|Buffer|Puffer|Tampon|Búfer
+625|sample-count mode|nach Messwertanzahl|par nombre d’échantillons|por número de muestras
+626|· effective limit|· effektives Limit|· limite effective|· límite efectivo
+627|samples/signal · Good/Uncertain/Bad preserved with timestamps.|Messwerte/Signal · Good/Uncertain/Bad mit Zeitstempeln erhalten.|échantillons/signal · Good/Uncertain/Bad conservés avec horodatages.|muestras/señal · Good/Uncertain/Bad conservados con marcas temporales.
+628|Local service unreachable:|Lokaler Dienst nicht erreichbar:|Service local inaccessible :|Servicio local no disponible:
+629|Connect the client first.|Zuerst Client verbinden.|Connectez d’abord le client.|Conecta primero el cliente.
+630|Expand|Aufklappen|Développer|Expandir
+631|Ancestor reference: cycle already explored|Verweis auf Vorfahren: Zyklus bereits durchsucht|Référence à un ancêtre : cycle déjà exploré|Referencia a antecesor: ciclo ya explorado
+632|Load more…|Weitere laden…|Charger davantage…|Cargar más…
+634|Scanning…|Suche läuft…|Exploration…|Explorando…
+635|Scan in progress|Suche läuft|Exploration en cours|Exploración en curso
+636|Scan completed|Suche abgeschlossen|Exploration terminée|Exploración completada
+637|Completed with inaccessible nodes|Mit unzugänglichen Knoten abgeschlossen|Terminée avec des nœuds inaccessibles|Completada con nodos inaccesibles
+638|Scan cancelled|Suche abgebrochen|Exploration interrompue|Exploración interrumpida
+639|Limit reached: partial results. Increase the limit and start a new scan to continue.|Limit erreicht: Teilergebnisse. Limit erhöhen und erneut suchen.|Limite atteinte : résultats partiels. Augmentez la limite et relancez l’exploration.|Límite alcanzado: resultados parciales. Aumenta el límite y vuelve a explorar.
+640|Scan failed|Suche fehlgeschlagen|Échec de l’exploration|Exploración fallida
+641|nodes ·|Knoten ·|nœuds ·|nodos ·
+642|explored ·|durchsucht ·|explorés ·|explorados ·
+643|errors|Fehler|erreurs|errores
+644|nodes found|Knoten gefunden|nœuds détectés|nodos detectados
+645|Scan:|Suche:|Exploration :|Exploración:
+646|No nodes match the filter.|Keine Knoten entsprechen dem Filter.|Aucun nœud ne correspond au filtre.|Ningún nodo coincide con el filtro.
+647|Use “Scan all” to find data under the selected node.|„Alles durchsuchen“ findet Daten unter dem ausgewählten Knoten.|Utilisez « Tout explorer » pour trouver les données du nœud choisi.|Usa «Explorar todo» para encontrar datos del nodo elegido.
+648|results|Ergebnisse|résultats|resultados
+649|0 results|0 Ergebnisse|0 résultat|0 resultados
+650|The filter contains|Der Filter enthält|Le filtre contient|El filtro contiene
+651|new variables. Refine the search: maximum|neue Variablen. Suche eingrenzen: maximal|nouvelles variables. Affinez la recherche : maximum|variables nuevas. Afina la búsqueda: máximo
+652|selected.|ausgewählt.|sélectionnées.|seleccionadas.
+653|Workspace not updated before closing:|Arbeitsbereich vor dem Schließen nicht aktualisiert:|Espace de travail non actualisé avant fermeture :|Espacio de trabajo no actualizado antes de cerrar:
+654|Application closed. You may close this page.|Anwendung beendet. Diese Seite kann geschlossen werden.|Application fermée. Vous pouvez fermer cette page.|Aplicación cerrada. Puedes cerrar esta página.
+655|Recording error:|Aufzeichnungsfehler:|Erreur d’enregistrement :|Error de grabación:
+656|rows written ·|Zeilen geschrieben ·|lignes écrites ·|filas escritas ·
+657|rows in memory · Part|Zeilen im Speicher · Teil|lignes en mémoire · Partie|filas en memoria · Parte
+658|· Queue|· Warteschlange|· File|· Cola
+659|cycles ·|Zyklen ·|cycles ·|ciclos ·
+660|Generating files|Dateien werden erzeugt|Génération des fichiers|Generando archivos
+661|Closing file…|Datei wird geschlossen…|Fermeture du fichier…|Cerrando archivo…
+662|Recording saved ·|Aufzeichnung gespeichert ·|Enregistrement sauvegardé ·|Grabación guardada ·
+663|rows · Part|Zeilen · Teil|lignes · Partie|filas · Parte
+664|Recording not started. Folder:|Aufzeichnung nicht gestartet. Ordner:|Enregistrement non démarré. Dossier :|Grabación no iniciada. Carpeta:
+665|· Window|· Fenster|· Fenêtre|· Ventana
+666|· Latest DAT:|· Letzte DAT:|· Dernier DAT :|· Último DAT:
+667|· Timeline:|· Zeitachse:|· Chronologie :|· Línea temporal:
+668|Connect the client before starting Record.|Client vor dem Aufzeichnen verbinden.|Connectez le client avant de lancer Record.|Conecta el cliente antes de iniciar Record.
+669|Select at least one signal to record.|Mindestens ein Signal zum Aufzeichnen auswählen.|Sélectionnez au moins un signal à enregistrer.|Selecciona al menos una señal que grabar.
+670|A recording is already running.|Eine Aufzeichnung läuft bereits.|Un enregistrement est déjà en cours.|Ya hay una grabación en curso.
+671|Confirm actual manifest times and the PDA3 template’s internal calendar.|Reale Manifest-Zeiten und internen PDA3-Vorlagenkalender bestätigen.|Confirmez les heures réelles du manifeste et le calendrier interne du modèle PDA3.|Confirma horas reales del manifiesto y calendario interno del modelo PDA3.
+672|started. Pause and zoom do not interrupt Record.|gestartet. Pause und Zoom unterbrechen Record nicht.|démarré. Pause et zoom n’interrompent pas Record.|iniciada. La pausa y el zoom no interrumpen Record.
+673|Recording saved in|Aufzeichnung gespeichert in|Enregistrement sauvegardé dans|Grabación guardada en
+674|Checking PDA3 template…|PDA3-Vorlage wird geprüft…|Vérification du modèle PDA3…|Verificando modelo PDA3…
+675|Template verified ·|Vorlage geprüft ·|Modèle vérifié ·|Modelo verificado ·
+676|available channels ·|verfügbare Kanäle ·|canaux disponibles ·|canales disponibles ·
+677|selected ·|ausgewählt ·|sélectionnés ·|seleccionados ·
+678|ms · maximum 600 s / 60,000 samples; early Stop allowed.|ms · maximal 600 s / 60.000 Messwerte; früherer Stopp möglich.|ms · maximum 600 s / 60 000 échantillons ; arrêt anticipé possible.|ms · máximo 600 s / 60.000 muestras; se permite detener antes.
+679|ZSTD level 19: higher compression at higher CPU cost. No loss of precision or samples.|ZSTD-Stufe 19: höhere Kompression bei mehr CPU-Bedarf. Kein Präzisions- oder Messwertverlust.|ZSTD niveau 19 : compression supérieure, coût CPU accru. Aucune perte de précision ni d’échantillons.|ZSTD nivel 19: mayor compresión y consumo de CPU. Sin pérdida de precisión ni muestras.
+680|ZSTD level 3: lower CPU cost, useful for many signals. No loss of precision or samples.|ZSTD-Stufe 3: weniger CPU-Bedarf, gut für viele Signale. Kein Präzisions- oder Messwertverlust.|ZSTD niveau 3 : CPU réduite, utile pour de nombreux signaux. Aucune perte de précision ni d’échantillons.|ZSTD nivel 3: menor consumo de CPU, útil con muchas señales. Sin pérdida de precisión ni muestras.
+681|Snappy: previous versions’ codec, usually larger files. No loss of precision or samples.|Snappy: Codec früherer Versionen, meist größere Dateien. Kein Präzisions- oder Messwertverlust.|Snappy : codec des versions précédentes, fichiers souvent plus grands. Aucune perte de précision ni d’échantillons.|Snappy: códec anterior, archivos generalmente mayores. Sin pérdida de precisión ni muestras.
+682|ZSTD level 9: recommended size reduction with moderate CPU cost. No loss of precision or samples.|ZSTD-Stufe 9: empfohlene Speicherreduktion bei mäßigem CPU-Bedarf. Kein Präzisions- oder Messwertverlust.|ZSTD niveau 9 : réduction recommandée avec CPU modérée. Aucune perte de précision ni d’échantillons.|ZSTD nivel 9: reducción recomendada con CPU moderada. Sin pérdida de precisión ni muestras.
+684|Native check: write/read back 512 synthetic samples…|Native Prüfung: 512 synthetische Messwerte schreiben/zurücklesen…|Vérification native : écriture/relecture de 512 échantillons synthétiques…|Verificación nativa: escribir/releer 512 muestras sintéticas…
+685|: license detected, write/read-back check passed.|: Lizenz erkannt, Schreib-/Rücklesetest bestanden.|: licence détectée, test écriture/relecture réussi.|: licencia detectada, prueba de escritura/relectura superada.
+686|Check failed.|Prüfung fehlgeschlagen.|Échec de la vérification.|Verificación fallida.
+687|Interface error:|Oberflächenfehler:|Erreur d’interface :|Error de interfaz:
+688|JavaScript error|JavaScript-Fehler|erreur JavaScript|error JavaScript
+689|· waiting for first sample|· warte auf ersten Messwert|· en attente du premier échantillon|· esperando la primera muestra
+690|· Overview preserves peaks and quality; recent detail remains in the buffer. Use Record to retain all samples.|· Übersicht erhält Spitzen und Qualität; aktuelle Details im Puffer. Für alle Messwerte Record verwenden.|· Vue globale avec pics et qualité ; détails récents dans le tampon. Utilisez Record pour tout conserver.|· Panorámica con picos y calidad; detalle reciente en el búfer. Usa Record para conservar todas las muestras.
+691|· Original recent-buffer data.|· Originaldaten des letzten Puffers.|· Données originales du tampon récent.|· Datos originales del búfer reciente.
+693|Edit|Bearbeiten|Modifier|Editar
+694|Duplicate|Duplizieren|Dupliquer|Duplicar
+695|Delete formula “|Formel löschen „|Supprimer la formule «|Eliminar la fórmula «
+696|”? Existing recorded files will be kept.|“? Bereits aufgezeichnete Dateien bleiben erhalten.| » ? Les fichiers déjà enregistrés seront conservés.|»? Se conservarán los archivos ya grabados.
+697|No formulas match the search.|Keine Formeln entsprechen der Suche.|Aucune formule ne correspond à la recherche.|Ninguna fórmula coincide con la búsqueda.
+698|Create a formula using Live signals or a recording.|Formel mit Live-Signalen oder einer Aufzeichnung erstellen.|Créez une formule avec des signaux directs ou un enregistrement.|Crea una fórmula con señales en vivo o una grabación.
+699|Calculated variable deleted or disabled.|Berechnete Variable gelöscht oder deaktiviert.|Variable calculée supprimée ou désactivée.|Variable calculada eliminada o desactivada.
+700|Recording update:|Aktualisierung der Aufzeichnung:|Mise à jour de l’enregistrement :|Actualización de grabación:
+701|New calculated variable|Neue berechnete Variable|Nouvelle variable calculée|Nueva variable calculada
+702|Edit ·|Bearbeiten ·|Modifier ·|Editar ·
+703|Variable|Variable|Variable|Variable
+704|Select/scan Live variables or choose a recorded file.|Live-Variablen auswählen/suchen oder Aufzeichnung wählen.|Sélectionnez/explorez les variables directes ou choisissez un fichier.|Selecciona/explora variables en vivo o elige un archivo grabado.
+705|First 150 variables: filter to find others.|Erste 150 Variablen: weitere mit Filter suchen.|150 premières variables : filtrez pour trouver les autres.|Primeras 150 variables: filtra para encontrar las demás.
+706|To use the interval, select the same file as the recording chart.|Für das Intervall dieselbe Datei wie im Aufzeichnungsdiagramm wählen.|Pour utiliser l’intervalle, choisissez le même fichier que le graphique.|Para usar el intervalo, selecciona el mismo archivo del gráfico de grabaciones.
+707|Press Test and preview.|„Test und Vorschau“ drücken.|Cliquez sur Tester et prévisualiser.|Pulsa Probar y previsualizar.
+708|preview samples|Vorschaumesswerte|échantillons d’aperçu|muestras de vista previa
+710|Value|Wert|Valeur|Valor
+711|Quality|Qualität|Qualité|Calidad
+713|Valid formula ·|Gültige Formel ·|Formule valide ·|Fórmula válida ·
+714|sources|Quellen|sources|fuentes
+715|· estimated unit:|· geschätzte Einheit:|· unité estimée :|· unidad estimada:
+716|· specify a unit if required|· Einheit bei Bedarf angeben|· préciser l’unité si nécessaire|· indica la unidad si es necesaria
+717|Select a recording.|Aufzeichnung auswählen.|Sélectionnez un enregistrement.|Selecciona una grabación.
+718|Formula validated and tested|Formel validiert und getestet|Formule validée et testée|Fórmula validada y probada
+719|Select source|Quelle auswählen|Sélectionnez la source|Selecciona la fuente
+720|in the Connection dialog.|im Verbindungsdialog.|dans la fenêtre Connexion.|en el diálogo Conexión.
+721|The formula exceeds the limit of|Die Formel überschreitet das Limit von|La formule dépasse la limite de|La fórmula supera el límite de
+722|acquired variables.|erfassten Variablen.|variables acquises.|variables adquiridas.
+723|Formula saved · Rev.|Formel gespeichert · Rev.|Formule enregistrée · Rév.|Fórmula guardada · Rev.
+724|Calculated variable “|Berechnete Variable „|Variable calculée «|Variable calculada «
+725|Save the formula first.|Zuerst Formel speichern.|Enregistrez d’abord la formule.|Guarda primero la fórmula.
+726|Enable the formula in mode|Formel aktivieren im Modus|Activez la formule en mode|Activa la fórmula en modo
+727|Save changes before applying the formula.|Änderungen vor dem Anwenden speichern.|Enregistrez les modifications avant d’appliquer la formule.|Guarda los cambios antes de aplicar la fórmula.
+728|Choose a recording in the Formula Builder sources.|Aufzeichnung in den Quellen des Formeleditors wählen.|Choisissez un enregistrement dans les sources de l’éditeur.|Elige una grabación en las fuentes del editor de fórmulas.
+729|Calculating and saving original samples…|Originalmesswerte werden berechnet und gespeichert…|Calcul et enregistrement des échantillons originaux…|Calculando y guardando muestras originales…
+730|Saved:|Gespeichert:|Enregistré :|Guardado:
+731|rows. The original file is preserved.|Zeilen. Die Originaldatei bleibt erhalten.|lignes. Le fichier original est conservé.|filas. Se conserva el archivo original.
+732|New dataset|Neuer Datensatz|Nouveau jeu de données|Nuevo conjunto de datos
+733|saved in Recordings.|in Recordings gespeichert.|enregistré dans Recordings.|guardado en Recordings.
+734|Queue|Warteschlange|File|Cola
+735|· calculation|· Berechnung|· calcul|· cálculo
+736|· late samples|· verspätete Messwerte|· échantillons tardifs|· muestras tardías
+737|formulas with unselected sources|Formeln mit nicht ausgewählten Quellen|formules avec sources non sélectionnées|fórmulas con fuentes no seleccionadas
+739|Formula modified: validate or test before saving.|Formel geändert: vor dem Speichern validieren oder testen.|Formule modifiée : validez ou testez avant d’enregistrer.|Fórmula modificada: valida o prueba antes de guardar.
+741|Invalid parameter:|Ungültiger Parameter:|Paramètre invalide :|Parámetro inválido:
+742|Start live FFT|Live-FFT starten|Démarrer la FFT directe|Iniciar FFT en vivo
+744|Original samples · complete blocks · no automatic resampling. Units label original values.|Originalmesswerte · vollständige Blöcke · keine automatische Neuabtastung. Einheiten beschriften Originalwerte.|Échantillons originaux · blocs complets · aucun rééchantillonnage automatique. Les unités décrivent les valeurs originales.|Muestras originales · bloques completos · sin remuestreo automático. Las unidades etiquetan valores originales.
+745|Calculating in a separate process…|Berechnung in eigenem Prozess…|Calcul dans un processus séparé…|Calculando en un proceso independiente…
+746|Hz · block|Hz · Block|Hz · bloc|Hz · bloque
+747|samples /|Messwerte /|échantillons /|muestras /
+748|blocks used /|Blöcke verwendet /|blocs utilisés /|bloques usados /
+749|excluded ·|ausgeschlossen ·|exclus ·|excluidos ·
+750|original samples,|Originalmesswerte,|échantillons originaux,|muestras originales,
+751|not used|nicht verwendet|non utilisés|no usados
+752|Band RMS|Band-RMS|RMS de bande|RMS de banda
+753|· overall RMS:|· Gesamt-RMS:|· RMS global :|· RMS total:
+754|). AC peak:|). AC-Peak:|). Pic AC :|). Pico AC:
+755|Origin:|Ursprung:|Origine :|Origen:
+756|invalid samples;|ungültige Messwerte;|échantillons invalides ;|muestras inválidas;
+757|time discontinuities. Tolerance|Zeitsprünge. Toleranz|discontinuités temporelles. Tolérance|discontinuidades temporales. Tolerancia
+758|%. Blue: result · green: latest block · orange: Max Hold.|%. Blau: Ergebnis · Grün: letzter Block · Orange: Max Hold.|%. Bleu : résultat · vert : dernier bloc · orange : Max Hold.|%. Azul: resultado · verde: último bloque · naranja: Max Hold.
+759|Peaks on FFT lines:|Peaks auf FFT-Linien:|Pics sur les raies FFT :|Picos en líneas FFT:
+760|no local peaks|keine lokalen Peaks|aucun pic local|sin picos locales
+761|Live FFT active · sliding window, recalculated every second after completion.|Live-FFT aktiv · gleitendes Fenster, Neuberechnung jede Sekunde nach Abschluss.|FFT directe active · fenêtre glissante, recalcul chaque seconde après achèvement.|FFT en vivo activa · ventana deslizante, recálculo cada segundo tras finalizar.
+762|Amplitude / level [|Amplitude / Pegel [|Amplitude / niveau [|Amplitud / nivel [
+763|Frequency [Hz]|Frequenz [Hz]|Fréquence [Hz]|Frecuencia [Hz]
+764|Reset size|Größe zurücksetzen|Réinitialiser la taille|Restablecer tamaño
+765|Set or calculate a fundamental for F1–H5 view.|Grundfrequenz für F1–H5 festlegen oder berechnen.|Définissez ou calculez une fondamentale pour la vue F1–H5.|Define o calcula una fundamental para la vista F1–H5.
+767|FFT updates stopped. Acquisition and Record continue.|FFT-Aktualisierung gestoppt. Erfassung und Record laufen weiter.|Actualisation FFT arrêtée. Acquisition et Record continuent.|Actualización FFT detenida. Adquisición y Record continúan.
+768|Result reset; next calculation uses the selected interval.|Ergebnis zurückgesetzt; nächste Berechnung nutzt das gewählte Intervall.|Résultat réinitialisé ; le prochain calcul utilise l’intervalle choisi.|Resultado restablecido; el próximo cálculo usa el intervalo seleccionado.
+770|Select a recording or check multiple files to compare.|Aufzeichnung wählen oder mehrere Vergleichsdateien markieren.|Sélectionnez un enregistrement ou cochez plusieurs fichiers à comparer.|Selecciona una grabación o marca varios archivos que comparar.
+771|Empty chart. Select another recording or open a file from your PC.|Leeres Diagramm. Andere Aufzeichnung wählen oder PC-Datei öffnen.|Graphique vide. Choisissez un autre enregistrement ou ouvrez un fichier du PC.|Gráfico vacío. Selecciona otra grabación o abre un archivo del PC.
+773|Invalid durations: maximum must be at least minimum.|Ungültige Dauern: Maximum muss mindestens Minimum entsprechen.|Durées invalides : maximum au moins égal au minimum.|Duraciones inválidas: la máxima debe ser al menos igual a la mínima.
+774|files ·|Dateien ·|fichiers ·|archivos ·
+775|selected|ausgewählt|sélectionnés|seleccionados
+776|Compare|Vergleichen|Comparer|Comparar
+777|Select at most 32 files.|Höchstens 32 Dateien auswählen.|Sélectionnez au maximum 32 fichiers.|Selecciona como máximo 32 archivos.
+779|values|Werte|valeurs|valores
+780|No files match the filters. Existing selections remain available.|Keine Dateien entsprechen den Filtern. Bisherige Auswahl bleibt erhalten.|Aucun fichier ne correspond aux filtres. Les sélections existantes sont conservées.|Ningún archivo coincide con los filtros. Se conservan selecciones anteriores.
+781|No recordings available. You may open multiple files from your PC.|Keine Aufzeichnungen verfügbar. Mehrere PC-Dateien können geöffnet werden.|Aucun enregistrement disponible. Vous pouvez ouvrir plusieurs fichiers du PC.|No hay grabaciones disponibles. Puedes abrir varios archivos del PC.
+782|from comparison|aus dem Vergleich|de la comparaison|de la comparación
+783|Time offset (ms)|Zeitversatz (ms)|Correction horaire (ms)|Desfase horario (ms)
+784|Time offset in milliseconds for|Zeitversatz in Millisekunden für|Correction horaire en millisecondes pour|Desfase en milisegundos para
+785|Invalid time offset (maximum 10 years).|Ungültiger Zeitversatz (maximal 10 Jahre).|Correction horaire invalide (10 ans maximum).|Desfase horario inválido (máximo 10 años).
+786|A comparison is already being prepared.|Ein Vergleich wird bereits vorbereitet.|Une comparaison est déjà en préparation.|Ya se está preparando una comparación.
+787|Check at least two files to compare.|Mindestens zwei Vergleichsdateien markieren.|Cochez au moins deux fichiers à comparer.|Marca al menos dos archivos que comparar.
+788|Preparing comparison…|Vergleich wird vorbereitet…|Préparation de la comparaison…|Preparando comparación…
+789|Aligning samples|Messwerte ausrichten|Alignement des échantillons|Alineando muestras
+790|Reading timestamps|Zeitstempel lesen|Lecture des horodatages|Leyendo marcas temporales
+791|· file|· Datei|· fichier|· archivo
+792|Comparison failed|Vergleich fehlgeschlagen|Échec de la comparaison|Comparación fallida
+793|Comparison ready ·|Vergleich bereit ·|Comparaison prête ·|Comparación lista ·
+794|files · original samples, no interpolation|Dateien · Originalmesswerte ohne Interpolation|fichiers · échantillons originaux sans interpolation|archivos · muestras originales sin interpolación
+795|Maximum 64 signals per chart. Add another chart for other signals.|Maximal 64 Signale pro Diagramm. Für weitere Signale ein Diagramm hinzufügen.|64 signaux maximum par graphique. Ajoutez un graphique pour les autres.|Máximo 64 señales por gráfico. Añade otro gráfico para las demás.
+796|No signals match the filter.|Keine Signale entsprechen dem Filter.|Aucun signal ne correspond au filtre.|Ninguna señal coincide con el filtro.
+797|Signals will be detected when the file is first opened.|Signale werden beim ersten Öffnen erkannt.|Les signaux seront détectés à la première ouverture.|Las señales se detectarán al abrir el archivo por primera vez.
+798|PC files|PC-Dateien|Fichiers du PC|Archivos del PC
+800|Min/max view. Markers read original-file samples, including after zooming and scrolling.|Min/Max-Ansicht. Marker lesen Originalmesswerte auch nach Zoom/Verschieben.|Vue min/max. Les marqueurs lisent les originaux, même après zoom et défilement.|Vista mín./máx. Los marcadores leen el original incluso tras ampliar o desplazar.
+801|Markers are shared by all charts on this page using absolute times. Each chart retains its own file, signals and interval.|Gemeinsame Marker mit absoluten Zeiten auf dieser Seite. Jedes Diagramm behält eigene Datei, Signale und Intervall.|Marqueurs communs avec heures absolues sur cette page. Chaque graphique conserve fichier, signaux et intervalle.|Marcadores comunes con horas absolutas en esta página. Cada gráfico conserva archivo, señales e intervalo propios.
+802|File selected. Press “Open in chart”. DAT initially selects up to 8 channels; others remain in the list.|Datei gewählt. „Im Diagramm öffnen“ drücken. Bei DAT anfangs bis 8 Kanäle; weitere in der Liste.|Fichier sélectionné. Cliquez sur « Ouvrir dans le graphique ». DAT : jusqu’à 8 canaux initiaux, autres dans la liste.|Archivo seleccionado. Pulsa «Abrir en el gráfico». DAT selecciona inicialmente hasta 8 canales; los demás siguen en la lista.
+803|Comparison ready: select up to 64 signals per chart.|Vergleich bereit: bis 64 Signale je Diagramm auswählen.|Comparaison prête : sélectionnez jusqu’à 64 signaux par graphique.|Comparación lista: selecciona hasta 64 señales por gráfico.
+804|Select CSV, Parquet, FDA DAS4, RBF, DAT PDA3 and associated JSON files.|CSV, Parquet, FDA DAS4, RBF, DAT PDA3 und zugehörige JSON wählen.|Sélectionnez CSV, Parquet, FDA DAS4, RBF, DAT PDA3 et JSON associés.|Selecciona CSV, Parquet, FDA DAS4, RBF, DAT PDA3 y JSON asociados.
+805|files…|Dateien…|fichiers…|archivos…
+806|All files imported; first 32 selected for comparison.|Alle Dateien importiert; erste 32 zum Vergleich gewählt.|Tous les fichiers importés ; 32 premiers sélectionnés pour comparaison.|Todos los archivos importados; primeros 32 seleccionados para comparar.
+807|Select a recording first.|Zuerst Aufzeichnung auswählen.|Sélectionnez d’abord un enregistrement.|Selecciona primero una grabación.
+808|Select at least one signal for the chart.|Mindestens ein Signal für das Diagramm auswählen.|Sélectionnez au moins un signal pour le graphique.|Selecciona al menos una señal para el gráfico.
+809|Reading|Lesen von|Lecture de|Leyendo
+810|numeric samples|numerische Messwerte|échantillons numériques|muestras numéricas
+811|· min/max view|· Min/Max-Ansicht|· vue min/max|· vista mín./máx.
+813|First 64 signals selected. Distribute the others across additional charts.|Erste 64 Signale ausgewählt. Weitere auf zusätzliche Diagramme verteilen.|64 premiers signaux sélectionnés. Répartissez les autres sur d’autres graphiques.|Primeras 64 señales seleccionadas. Distribuye las demás en más gráficos.
+814|No variables configured.|Keine Variablen konfiguriert.|Aucune variable configurée.|No hay variables configuradas.
+815|Disconnect and stop Record before editing the S7 catalogue.|Vor Änderung des S7-Katalogs trennen und Record stoppen.|Déconnectez et arrêtez Record avant de modifier le catalogue S7.|Desconecta y detén Record antes de modificar el catálogo S7.
+816|S7 catalogue saved. Existing chart selections remain independent.|S7-Katalog gespeichert. Vorhandene Diagrammauswahlen bleiben unabhängig.|Catalogue S7 enregistré. Les sélections des graphiques restent indépendantes.|Catálogo S7 guardado. Las selecciones de gráficos siguen independientes.
+819|JSON catalogue: maximum 2 MiB.|JSON-Katalog: maximal 2 MiB.|Catalogue JSON : 2 Mio maximum.|Catálogo JSON: máximo 2 MiB.
+820|JSON: a tags list is required.|JSON: Eine tags-Liste ist erforderlich.|JSON : une liste tags est requise.|JSON: se requiere una lista tags.
+821|TLS, certificate verified|TLS, Zertifikat geprüft|TLS, certificat vérifié|TLS, certificado verificado
+822|TLS, certificate not verified|TLS, Zertifikat nicht geprüft|TLS, certificat non vérifié|TLS, certificado no verificado
+823|Session without TLS|Sitzung ohne TLS|Session sans TLS|Sesión sin TLS
+824|CPU symbols:|CPU-Symbole:|Symboles CPU :|Símbolos CPU:
+825|bytes · sender IP filter enabled|Byte · Absender-IP-Filter aktiv|octets · filtre IP émetteur actif|bytes · filtro IP emisor activo
+826|bytes|Byte|octets|bytes
+827|Connecting S7…|S7-Verbindung wird aufgebaut…|Connexion S7…|Conectando S7…
+828|Test|Test|Test|Prueba
+829|S7 connection and first variable verified.|S7-Verbindung und erste Variable geprüft.|Connexion S7 et première variable vérifiées.|Conexión S7 y primera variable verificadas.
+830|S7 connected, but read denied/invalid:|S7 verbunden, aber Lesen verweigert/ungültig:|S7 connecté, mais lecture refusée/invalide :|S7 conectado, pero lectura denegada/inválida:
+831|Symbolic session verified. Symbols available:|Symbolische Sitzung geprüft. Verfügbare Symbole:|Session symbolique vérifiée. Symboles disponibles :|Sesión simbólica verificada. Símbolos disponibles:
+832|Valid UDP datagram received. Configure chart fields.|Gültiges UDP-Telegramm empfangen. Diagrammfelder konfigurieren.|Datagramme UDP valide reçu. Configurez les champs.|Datagrama UDP válido recibido. Configura los campos del gráfico.
+833|S7 connection/PDU negotiation succeeded. Add a variable to check data access.|S7-Verbindung/PDU-Aushandlung erfolgreich. Variable zum Prüfen des Datenzugriffs hinzufügen.|Connexion S7/négociation PDU réussies. Ajoutez une variable pour vérifier l’accès aux données.|Conexión S7/negociación PDU correctas. Añade una variable para verificar acceso a datos.
+835|S7-1200/1500 · named access and symbol scanning on TCP 102. No absolute offsets or Siemens software needed on the PC.|S7-1200/1500 · Namenszugriff und Symbolsuche über TCP 102. Keine absoluten Offsets oder Siemens-Software am PC erforderlich.|S7-1200/1500 · accès par nom et exploration des symboles sur TCP 102. Sans offsets absolus ni logiciel Siemens sur le PC.|S7-1200/1500 · acceso por nombre y exploración de símbolos en TCP 102. Sin offsets absolutos ni software Siemens en el PC.
+836|Cyclic PLC → PC transmission. Configure cycle and datagram layout in the PLC program.|Zyklisches Senden SPS → PC. Zyklus und Telegrammaufbau im SPS-Programm konfigurieren.|Envoi cyclique automate → PC. Cycle et structure du datagramme dans le programme automate.|Envío cíclico PLC → PC. Ciclo y estructura del datagrama se configuran en el PLC.
+837|Classic S7 read on TCP 102 with configured DB/M/I/Q addresses.|Klassisches S7-Lesen über TCP 102 mit DB/M/I/Q-Adressen.|Lecture S7 classique sur TCP 102 avec adresses DB/M/I/Q configurées.|Lectura S7 clásica en TCP 102 con direcciones DB/M/I/Q configuradas.
+838|Disconnect and stop Record before changing S7 mode.|Vor Wechsel des S7-Modus trennen und Record stoppen.|Déconnectez et arrêtez Record avant de changer de mode S7.|Desconecta y detén Record antes de cambiar modo S7.
+839|S7 mode|S7-Modus|Mode S7|Modo S7
+840|selected. Configure and press Connect.|gewählt. Konfigurieren und verbinden.|sélectionné. Configurez puis connectez.|seleccionado. Configura y conecta.
+841|CPU catalogue updated:|CPU-Katalog aktualisiert:|Catalogue CPU actualisé :|Catálogo CPU actualizado:
+842|symbols. Browse or scan the tree.|Symbole. Baum durchsuchen.|symboles. Parcourez ou explorez l’arbre.|símbolos. Explora el árbol.
+843|No fields configured.|Keine Felder konfiguriert.|Aucun champ configuré.|No hay campos configurados.
+844|Disconnect and stop Record before editing the UDP catalogue.|Vor Änderung des UDP-Katalogs trennen und Record stoppen.|Déconnectez et arrêtez Record avant de modifier le catalogue UDP.|Desconecta y detén Record antes de modificar catálogo UDP.
+845|UDP catalogue saved. Offsets start after the 6-byte header, relative to the payload.|UDP-Katalog gespeichert. Offsets beziehen sich auf den Payload nach dem 6-Byte-Header.|Catalogue UDP enregistré. Offsets relatifs au payload après l’en-tête de 6 octets.|Catálogo UDP guardado. Offsets relativos al payload tras la cabecera de 6 bytes.
+847|UDP JSON: maximum 2 MiB.|UDP-JSON: maximal 2 MiB.|JSON UDP : 2 Mio maximum.|JSON UDP: máximo 2 MiB.
+848|UDP JSON: a tags list is required.|UDP-JSON: tags-Liste erforderlich.|JSON UDP : liste tags requise.|JSON UDP: se requiere una lista tags.
+849|receiving|Empfang aktiv|réception active|recepción activa
+850|waiting / timeout|Warten / Zeitüberschreitung|en attente / délai dépassé|en espera / tiempo agotado
+851|· sample period|· Messwertperiode|· période d’échantillonnage|· período de muestras
+852|· last datagram|· letztes Telegramm|· dernier datagramme|· último datagrama
+853|ago · Valid|zuvor · Gültig|auparavant · Valides|antes · Válidos
+854|· duplicates|· Duplikate|· doublons|· duplicados
+855|· out of order|· außer Reihenfolge|· hors ordre|· fuera de orden
+856|· Queue|· Warteschlange|· File|· Cola
+857|· overflow|· Überlauf|· débordement|· desbordamiento
+858|· timeout|· Zeitüberschreitung|· délai dépassé|· tiempo agotado
+859|· timestamp errors|· Zeitstempelfehler|· erreurs d’horodatage|· errores temporales
+860|· Time:|· Zeit:|· Temps :|· Tiempo:
+861|UDP datagram reception interval measured by the PC|Vom PC gemessenes UDP-Empfangsintervall|Intervalle de réception UDP mesuré par le PC|Intervalo de recepción UDP medido por el PC
+862|Siemens S7|Siemens S7|Siemens S7|Siemens S7
+864|Local TwinCAT|Lokales TwinCAT|TwinCAT local|TwinCAT local
+866|Nominal MQTT period (ms)|MQTT-Sollperiode (ms)|Période MQTT indicative (ms)|Período nominal MQTT (ms)
+867|Requested ADS period|Angeforderte ADS-Periode|Période ADS demandée|Período ADS solicitado
+869|ADS symbol prefix (ads:/ = all)|ADS-Symbolpräfix (ads:/ = alle)|Préfixe des symboles ADS (ads:/ = tous)|Prefijo de símbolos ADS (ads:/ = todos)
+870|ads:/ or ads:MAIN|ads:/ oder ads:MAIN|ads:/ ou ads:MAIN|ads:/ o ads:MAIN
+871|Symbol: MAIN.Temperatura or MAIN.Array[0]|Symbol: MAIN.Temperatura oder MAIN.Array[0]|Symbole : MAIN.Temperatura ou MAIN.Array[0]|Símbolo: MAIN.Temperatura o MAIN.Array[0]
+872|ADS symbol to add|Hinzuzufügendes ADS-Symbol|Symbole ADS à ajouter|Símbolo ADS que añadir
+873|Add symbol|Symbol hinzufügen|Ajouter un symbole|Añadir símbolo
+874|S7 catalogue (s7:/ = all definitions)|S7-Katalog (s7:/ = alle Definitionen)|Catalogue S7 (s7:/ = toutes les définitions)|Catálogo S7 (s7:/ = todas las definiciones)
+875|s7:/ or s7:/DB1|s7:/ oder s7:/DB1|s7:/ ou s7:/DB1|s7:/ o s7:/DB1
+876|DB1.DBD0:REAL or M0.0:BOOL|DB1.DBD0:REAL oder M0.0:BOOL|DB1.DBD0:REAL ou M0.0:BOOL|DB1.DBD0:REAL o M0.0:BOOL
+877|Add address|Adresse hinzufügen|Ajouter une adresse|Añadir dirección
+878|CPU symbols (s7:sym:/ = all DBs)|CPU-Symbole (s7:sym:/ = alle DBs)|Symboles CPU (s7:sym:/ = tous les DB)|Símbolos CPU (s7:sym:/ = todos los DB)
+879|s7:sym:/ or s7:sym:/DB_Produzione|s7:sym:/ oder s7:sym:/DB_Produzione|s7:sym:/ ou s7:sym:/DB_Produzione|s7:sym:/ o s7:sym:/DB_Produzione
+880|DB_Produzione.Carico or s7:sym:DB_Produzione.Carico|DB_Produzione.Carico oder s7:sym:DB_Produzione.Carico|DB_Produzione.Carico ou s7:sym:DB_Produzione.Carico|DB_Produzione.Carico o s7:sym:DB_Produzione.Carico
+881|UDP datagram fields|Felder des UDP-Telegramms|Champs du datagramme UDP|Campos del datagrama UDP
+882|s7:udp:0:REAL (configured field)|s7:udp:0:REAL (konfiguriertes Feld)|s7:udp:0:REAL (champ configuré)|s7:udp:0:REAL (campo configurado)
+883|Add field|Feld hinzufügen|Ajouter un champ|Añadir campo
+884|Observed MQTT catalogue|Beobachteter MQTT-Katalog|Catalogue MQTT observé|Catálogo MQTT observado
+885|plant/press#/value or plant/temperature#|plant/press#/value oder plant/temperature#|plant/press#/value ou plant/temperature#|plant/press#/value o plant/temperature#
+886|MQTT topic and JSON Pointer|MQTT-Topic und JSON-Pointer|Topic MQTT et JSON Pointer|Topic MQTT y JSON Pointer
+887|Add MQTT field|MQTT-Feld hinzufügen|Ajouter un champ MQTT|Añadir campo MQTT
+888|List received topics/fields|Empfangene Topics/Felder auflisten|Lister les topics/champs reçus|Listar topics/campos recibidos
+889|Scan CPU symbols|CPU-Symbole durchsuchen|Explorer les symboles CPU|Explorar símbolos CPU
+890|List UDP fields|UDP-Felder auflisten|Lister les champs UDP|Listar campos UDP
+891|List configured variables|Konfigurierte Variablen auflisten|Lister les variables configurées|Listar variables configuradas
+893|All fields are editable and saved. Local TwinCAT uses the PC route to PLC AMS Net ID/runtime port; router assigns actual client Net ID/port. ADS/TCP fields apply to direct mode.|Alle Felder sind editierbar und werden gespeichert. Lokales TwinCAT nutzt PC-Route zur SPS-AMS-Net-ID/Laufzeitport; Router vergibt Client-Net-ID/Port. ADS/TCP-Felder gelten für direkten Modus.|Tous les champs sont modifiables et enregistrés. TwinCAT local utilise la route du PC vers AMS Net ID/port automate ; routeur attribue Net ID/port client. Champs ADS/TCP pour le mode direct.|Todos los campos se pueden editar y guardar. TwinCAT local usa la ruta del PC hacia AMS Net ID/puerto PLC; router asigna Net ID/puerto cliente. Campos ADS/TCP para modo directo.
+894|Direct PAC connection applies IP, TCP port, client Net ID/AMS port and network interface. Use a dedicated AMS client identity and route, distinct from an active TwinCAT router.|Direktverbindung zum PAC nutzt IP, TCP-Port, Client-Net-ID/AMS-Port und Netzwerkschnittstelle. Dedizierte AMS-Identität und Route verwenden, nicht die eines aktiven TwinCAT-Routers.|Connexion PAC directe : IP, port TCP, Net ID/port AMS client et interface réseau sont appliqués. Utilisez une identité AMS dédiée, différente d’un routeur TwinCAT actif.|Conexión PAC directa: aplica IP, puerto TCP, Net ID/puerto AMS e interfaz. Usa identidad AMS y ruta dedicadas, distintas de un router TwinCAT activo.
+895|local (polling)|lokal (Polling)|local (polling)|local (sondeo)
+896|Fallback:|Rückfall:|Repli :|Alternativa:
+897|Actual parameters ·|Tatsächliche Parameter ·|Paramètres effectifs ·|Parámetros efectivos ·
+898|) Client|) Client|) Client|) Cliente
+899|· port|· Port|· port|· puerto
+900|Timestamp:|Zeitstempel:|Horodatage :|Marca temporal:
+901|Disconnect and stop Record before switching data source.|Vor Quellenwechsel trennen und Record stoppen.|Déconnectez et arrêtez Record avant de changer de source.|Desconecta y detén Record antes de cambiar de fuente.
+902|Connect, then Browse branches or Scan all.|Verbinden, dann Zweige oder alles durchsuchen.|Connectez, puis parcourez les branches ou explorez tout.|Conecta y explora ramas o todo.
+903|Source|Quelle|Source|Fuente
+904|selected. Configure connection in the dialog.|gewählt. Verbindung im Dialog konfigurieren.|sélectionnée. Configurez la connexion dans la fenêtre.|seleccionada. Configura la conexión en el diálogo.
+905|Testing ADS…|ADS-Test läuft…|Test ADS…|Probando ADS…
+906|AMS route and device reachable. PLC state:|AMS-Route und Gerät erreichbar. SPS-Zustand:|Route AMS et équipement accessibles. État automate :|Ruta AMS y dispositivo accesibles. Estado PLC:
+907|Direct ADS/TCP selected: SumRead acquisition. Cyclic notifications require local TwinCAT.|Direktes ADS/TCP gewählt: SumRead-Erfassung. Zyklische Benachrichtigungen benötigen lokales TwinCAT.|ADS/TCP direct sélectionné : acquisition SumRead. Notifications cycliques nécessitent TwinCAT local.|ADS/TCP directo seleccionado: adquisición SumRead. Las notificaciones cíclicas requieren TwinCAT local.
+908|Cyclic ADS selected: press Connect.|Zyklisches ADS gewählt: Verbinden drücken.|ADS cyclique sélectionné : cliquez sur Connecter.|ADS cíclico seleccionado: pulsa Conectar.
+909|waiting|Warten|en attente|en espera
+910|PLC samples: mean|SPS-Messwerte: Mittelwert|Échantillons automate : moyenne|Muestras PLC: media
+911|· peak|· Spitze|· pic|· pico
+912|· lost to overflow|· durch Überlauf verloren|· perdus par débordement|· perdidos por desbordamiento
+913|· max queue wait|· maximale Wartezeit|· attente maximale|· espera máxima en cola
+914|(includes clock misalignment). Subscription restarts:|(einschließlich Uhrenversatz). Abonnement-Neustarts:|(inclut le décalage d’horloge). Redémarrages d’abonnement :|(incluye desfase de relojes). Reinicios de suscripción:
+915|· duration|· Dauer|· durée|· duración
+916|PLC timestamp period on reference signal|SPS-Zeitstempelperiode des Referenzsignals|Période des horodatages automate sur signal de référence|Período de marcas PLC en la señal de referencia
+917|Mean PC polling period|Mittlere PC-Pollingperiode|Période moyenne de polling du PC|Período medio de sondeo del PC
+918|Topics:|Topics:|Topics :|Topics:
+919|Time basis:|Zeitbasis:|Base de temps :|Base temporal:
+920|· read only|· nur lesen|· lecture seule|· solo lectura
+921|MQTT · waiting for connection and first publications.|MQTT · warte auf Verbindung und erste Veröffentlichungen.|MQTT · attente de connexion et premières publications.|MQTT · esperando conexión y primeras publicaciones.
+922|MQTT · messages|MQTT · Nachrichten|MQTT · messages|MQTT · mensajes
+923|· selected values|· ausgewählte Werte|· valeurs sélectionnées|· valores seleccionados
+924|· catalogue|· Katalog|· catalogue|· catálogo
+925|fields · queue|Felder · Warteschlange|champs · file|campos · cola
+926|· invalid payloads|· ungültige Payloads|· payloads invalides|· payloads inválidos
+927|· retained excluded|· Retained ausgeschlossen|· retained exclus|· retained excluidos
+928|Checking broker and subscription permissions…|Broker und Abonnementrechte werden geprüft…|Vérification du courtier et des droits d’abonnement…|Verificando bróker y permisos de suscripción…
+929|MQTT broker connected and subscriptions accepted.|MQTT-Broker verbunden, Abonnements akzeptiert.|Courtier MQTT connecté et abonnements acceptés.|Bróker MQTT conectado y suscripciones aceptadas.
+930|Open interactive shell|Interaktive Shell öffnen|Ouvrir un shell interactif|Abrir shell interactiva
+931|Script is sent to the target interpreter’s stdin without creating remote files. Manual input is unavailable while running.|Skript wird ohne Remotedatei an Interpreter-stdin gesendet. Währenddessen keine manuelle Eingabe.|Script envoyé au stdin de l’interpréteur cible sans fichier distant. Saisie manuelle indisponible pendant l’exécution.|Script enviado a stdin del intérprete remoto sin crear archivos. Entrada manual no disponible durante su ejecución.
+932|Persistent PTY shell: enter lines below the console. cd and variables persist until closure.|Dauerhafte PTY-Shell: Zeilen unter der Konsole eingeben. cd und Variablen bleiben bis zum Schließen erhalten.|Shell PTY persistant : saisissez sous la console. cd et variables restent valides jusqu’à fermeture.|Shell PTY persistente: escribe bajo la consola. cd y variables se mantienen hasta cerrar.
+933|Each command starts a new remote process. Use interactive shell to preserve cd and variables.|Jeder Befehl startet einen neuen Remoteprozess. Für cd und Variablen interaktive Shell nutzen.|Chaque commande ouvre un processus distant. Le shell interactif conserve cd et variables.|Cada orden inicia un proceso remoto nuevo. Usa shell interactiva para mantener cd y variables.
+934|Console limited to about 2 MiB; older lines removed.|Konsole auf etwa 2 MiB begrenzt; ältere Zeilen entfernt.|Console limitée à environ 2 Mio ; anciennes lignes supprimées.|Consola limitada a unos 2 MiB; se eliminan líneas anteriores.
+935|Connecting SSH…|SSH-Verbindung wird aufgebaut…|Connexion SSH…|Conectando SSH…
+936|Fingerprint verification required|Fingerabdruckprüfung erforderlich|Vérification d’empreinte requise|Se requiere verificar la huella
+937|SSH error|SSH-Fehler|Erreur SSH|Error SSH
+938|No session open.|Keine Sitzung geöffnet.|Aucune session ouverte.|Ninguna sesión abierta.
+939|Channel stopped|Kanal gestoppt|Canal arrêté|Canal detenido
+941|Error|Fehler|Erreur|Error
+942|No command|Kein Befehl|Aucune commande|Sin comando
+943|Some output has left the 2 MiB buffer. Showing latest available data.|Ein Teil der Ausgabe ist nicht mehr im 2-MiB-Puffer. Neueste verfügbare Daten werden angezeigt.|Une partie de la sortie a quitté le tampon de 2 Mio. Dernières données disponibles affichées.|Parte de la salida ya no está en el búfer de 2 MiB. Se muestran los últimos datos disponibles.
+944|No key saved for this profile.|Kein Schlüssel für dieses Profil gespeichert.|Aucune clé enregistrée pour ce profil.|No hay clave guardada para este perfil.
+945|Select a private key of at most 128 KiB|Privaten Schlüssel bis 128 KiB wählen|Sélectionnez une clé privée de 128 Kio maximum|Selecciona una clave privada de hasta 128 KiB
+946|SSH parameters saved; credentials excluded.|SSH-Parameter gespeichert; ohne Zugangsdaten.|Paramètres SSH enregistrés ; identifiants exclus.|Parámetros SSH guardados; credenciales excluidas.
+947|Remove saved key? You must verify the fingerprint again on the next connection.|Gespeicherten Schlüssel entfernen? Bei nächster Verbindung Fingerabdruck erneut prüfen.|Supprimer la clé enregistrée ? Il faudra vérifier l’empreinte à la prochaine connexion.|¿Eliminar la clave guardada? Deberás verificar la huella en la próxima conexión.
+948|[Stop: channel closed; check any remote background processes.]|[Stopp: Kanal geschlossen; mögliche Remote-Hintergrundprozesse prüfen.]|[Arrêt : canal fermé ; vérifier les processus distants en arrière-plan.]|[Detenido: canal cerrado; comprueba procesos remotos en segundo plano.]
+949|Space Analyzer · SSH output|Space Analyzer · SSH-Ausgabe|Space Analyzer · sortie SSH|Space Analyzer · salida SSH
+951|Script: maximum 128 KiB|Skript: maximal 128 KiB|Script : 128 Kio maximum|Script: máximo 128 KiB
+952|Chart tools|Diagrammwerkzeuge|Outils du graphique|Herramientas del gráfico
+953|Y1/Y2 axes|Y1/Y2-Achsen|Axes Y1/Y2|Ejes Y1/Y2
+954|FFT / Export|FFT / Export|FFT / Export|FFT / Exportar
+955|Synchronize|Synchronisieren|Synchroniser|Sincronizar
+956|Rename|Umbenennen|Renommer|Renombrar
+957|Clear|Leeren|Vider|Vaciar
+961|▶ Play|▶ Fortsetzen|▶ Reprendre|▶ Reanudar
+962|Data source|Datenquelle|Source de données|Fuente de datos
+963|Service stopped|Dienst beendet|Service arrêté|Servicio detenido
+964|● Recording active ·|● Aufzeichnung aktiv ·|● Enregistrement actif ·|● Grabación activa ·
+965|● Service online ·|● Dienst online ·|● Service en ligne ·|● Servicio en línea ·
+966|connected|verbunden|connecté|conectado
+967|Local service ·|Lokaler Dienst ·|Service local ·|Servicio local ·
+968|reconnecting|Wiederverbindung|reconnexion|reconectando
+969|disconnected|nicht verbunden|déconnecté|desconectado
+971|Resize height. Double-click to reset|Höhe ändern. Doppelklick zum Zurücksetzen|Redimensionner la hauteur. Double-clic pour réinitialiser|Cambiar altura. Doble clic para restablecer
+972|Resize chart columns|Diagrammspalten skalieren|Redimensionner les colonnes des graphiques|Redimensionar columnas de gráficos
+973|Maximum 8 charts per page.|Maximal 8 Diagramme pro Seite.|8 graphiques maximum par page.|Máximo 8 gráficos por página.
+974|Image export unavailable.|Bildexport nicht verfügbar.|Export d’image indisponible.|Exportación de imagen no disponible.
+977|Add a signal to the chart.|Signal zum Diagramm hinzufügen.|Ajoutez un signal au graphique.|Añade una señal al gráfico.
+979|FILE|DATEI|FICHIER|ARCHIVO
+980|PAUSED|PAUSE|PAUSE|PAUSA
+982|Drop to add to|Loslassen zum Hinzufügen zu|Déposer pour ajouter à|Suelta para añadir a
+984|Invalid dragged signal.|Ungültiges gezogenes Signal.|Signal glissé invalide.|Señal arrastrada inválida.
+985|This chart uses another file. Use an empty chart for this recording.|Dieses Diagramm nutzt eine andere Datei. Leeres Diagramm für diese Aufzeichnung verwenden.|Ce graphique utilise un autre fichier. Utilisez un graphique vide pour cet enregistrement.|Este gráfico usa otro archivo. Usa un gráfico vacío para esta grabación.
+986|Drag to add to a chart|Ziehen, um zum Diagramm hinzuzufügen|Glisser pour ajouter à un graphique|Arrastra para añadir a un gráfico
+987|Signal properties|Signaleigenschaften|Propriétés du signal|Propiedades de señal
+990|· Approximate chart, exact text value|· Diagramm angenähert, Textwert exakt|· Graphique approché, valeur textuelle exacte|· Gráfico aproximado, valor textual exacto
+991|Drag onto a chart using the same recording|Auf Diagramm derselben Aufzeichnung ziehen|Glisser sur un graphique du même enregistrement|Arrastra a un gráfico de la misma grabación
+992|Open the signal in the chart before configuring it.|Signal vor der Konfiguration im Diagramm öffnen.|Ouvrez le signal dans le graphique avant de le configurer.|Abre la señal en el gráfico antes de configurarla.
+993|Signal ·|Signal ·|Signal ·|Señal ·
+994|Name / alias|Name / Alias|Nom / alias|Nombre / alias
+995|Displayed unit|Angezeigte Einheit|Unité affichée|Unidad mostrada
+996|Y1 · left|Y1 · links|Y1 · gauche|Y1 · izquierda
+997|Colour|Farbe|Couleur|Color
+998|Line width (px)|Linienstärke (px)|Épaisseur du trait (px)|Grosor de línea (px)
+999|Visible in chart|Im Diagramm sichtbar|Visible dans le graphique|Visible en el gráfico
+1000|No (acquisition continues)|Nein (Erfassung läuft weiter)|Non (acquisition continue)|No (continúa la adquisición)
+1002|Properties apply only to this chart. Manual scale: chart menu → Configure axes. Record, FFT and export retain original values.|Eigenschaften gelten nur für dieses Diagramm. Manuelle Skalierung: Diagrammmenü → Achsen konfigurieren. Record, FFT und Export behalten Originalwerte.|Propriétés propres à ce graphique. Échelle manuelle : menu → Configurer les axes. Record, FFT et export conservent les valeurs originales.|Propiedades de este gráfico. Escala manual: menú → Configurar ejes. Record, FFT y exportación conservan valores originales.
+1003|Offset (not applied)|Offset (nicht angewandt)|Offset (non appliqué)|Offset (no aplicado)
+1004|Remove from acquisition|Aus Erfassung entfernen|Retirer de l’acquisition|Quitar de adquisición
+1005|Axes ·|Achsen ·|Axes ·|Ejes ·
+1006|Scale|Skalierung|Échelle|Escala
+1008|Axis unit (optional)|Achseneinheit (optional)|Unité de l’axe (facultatif)|Unidad del eje (opcional)
+1009|Assign Y1/Y2 in signal properties. Automatic mode separates orders of magnitude. Manual scales do not change acquired values.|Y1/Y2 in Signaleigenschaften zuordnen. Automatik trennt Größenordnungen. Manuelle Skalen ändern keine erfassten Werte.|Affectez Y1/Y2 dans les propriétés des signaux. Le mode automatique sépare les ordres de grandeur. Les échelles manuelles ne modifient pas les valeurs.|Asigna Y1/Y2 en propiedades de señales. El modo automático separa órdenes de magnitud. Las escalas manuales no modifican valores adquiridos.
+1010|Line width must be between 0.5 and 6 px.|Linienstärke zwischen 0,5 und 6 px.|Épaisseur du trait entre 0,5 et 6 px.|Grosor de línea entre 0,5 y 6 px.
+1011|: Max must be greater than Min.|: Max muss größer als Min sein.|: Max doit être supérieur à Min.|: Max debe ser mayor que Min.
+1012|Zoom enabled|Zoom aktiv|Zoom actif|Zoom activo
+1013|Zoom enabled · Chart paused|Zoom aktiv · Diagramm angehalten|Zoom actif · Graphique en pause|Zoom activo · Gráfico pausado
+1014|Chart paused|Diagramm angehalten|Graphique en pause|Gráfico pausado
+1015|s · drag to scroll|s · zum Verschieben ziehen|s · glisser pour défiler|s · arrastra para desplazar
+1016|Zoom to entire interval|Gesamtes Intervall anzeigen|Zoom sur l’intervalle complet|Ampliar intervalo completo
+1017|Click the chart to place|Zum Setzen im Diagramm klicken:|Cliquez dans le graphique pour placer|Pulsa en el gráfico para colocar
+1018|No valid samples|Keine gültigen Messwerte|Aucun échantillon valide|Sin muestras válidas
+1020|No signals selected.|Keine Signale ausgewählt.|Aucun signal sélectionné.|Ninguna señal seleccionada.
+1021|Reading original samples…|Originalmesswerte werden gelesen…|Lecture des échantillons originaux…|Leyendo muestras originales…
+1024|(sample far from cursor)|(Messwert weit vom Cursor)|(échantillon éloigné du curseur)|(muestra lejos del cursor)
+1026|Open a recording|Aufzeichnung öffnen|Ouvrir un enregistrement|Abrir una grabación
+1027|Drop signals here or select them in the list|Signale hier ablegen oder aus Liste wählen|Déposez les signaux ici ou sélectionnez dans la liste|Arrastra señales aquí o selecciónalas de la lista
+1028|Up to 8 charts are available per page.|Bis zu 8 Diagramme pro Seite verfügbar.|Jusqu’à 8 graphiques par page.|Hasta 8 gráficos por página.
+1029|Keep at least one chart on the page.|Mindestens ein Diagramm auf der Seite behalten.|Conservez au moins un graphique sur la page.|Mantén al menos un gráfico en la página.
+1033|Quality of displayed samples (possibly decimated). Red: Bad; amber: Uncertain.|Qualität angezeigter Messwerte (ggf. reduziert). Rot: Bad; Gelb: Uncertain.|Qualité des échantillons affichés (éventuellement décimés). Rouge : Bad ; ambre : Uncertain.|Calidad de muestras mostradas (posiblemente decimadas). Rojo: Bad; ámbar: Uncertain.
+1035|signals|Signale|signaux|señales
+1037|Acquisition mode|Erfassungsmodus|Mode d’acquisition|Modo de adquisición
+1038|Classic S7 · absolute addresses / TCP 102|Klassisches S7 · absolute Adressen / TCP 102|S7 classique · adresses absolues / TCP 102|S7 clásico · direcciones absolutas / TCP 102
+1039|Symbolic S7 · browse CPU DBs / S7CommPlus|Symbolisches S7 · CPU-DBs durchsuchen / S7CommPlus|S7 symbolique · explorer les DB CPU / S7CommPlus|S7 simbólico · explorar DB de CPU / S7CommPlus
+1040|S7 UDP Direct Generic · cyclic PLC transmission|S7 UDP Direct Generic · zyklisches Senden der SPS|S7 UDP Direct Generic · envoi cyclique automate|S7 UDP Direct Generic · envío cíclico PLC
+1041|CPU family / preset|CPU-Familie / Vorgabe|Famille CPU / préréglage|Familia CPU / preajuste
+1044|S7-400 · rack 0, slot 3 (check hardware)|S7-400 · Rack 0, Steckplatz 3 (Hardware prüfen)|S7-400 · rack 0, slot 3 (vérifier le matériel)|S7-400 · rack 0, slot 3 (verificar hardware)
+1045|Custom|Benutzerdefiniert|Personnalisé|Personalizado
+1046|PLC IP / hostname|SPS-IP / Hostname|IP / nom d’hôte automate|IP / nombre de host PLC
+1047|TCP port|TCP-Port|Port TCP|Puerto TCP
+1049|CPU slot|CPU-Steckplatz|Slot CPU|Slot CPU
+1050|Advanced S7 parameters|Erweiterte S7-Parameter|Paramètres S7 avancés|Parámetros S7 avanzados
+1051|Connection resource|Verbindungsressource|Ressource de connexion|Recurso de conexión
+1055|Request timeout (ms)|Anfragezeitlimit (ms)|Délai de requête (ms)|Tiempo de espera de solicitud (ms)
+1056|Local TSAP (hex)|Lokaler TSAP (Hex)|TSAP local (hex)|TSAP local (hex)
+1057|Remote TSAP (hex, optional)|Remote-TSAP (Hex, optional)|TSAP distant (hex, facultatif)|TSAP remoto (hex, opcional)
+1058|Requested PDU (bytes)|Angeforderte PDU (Byte)|PDU demandée (octets)|PDU solicitada (bytes)
+1059|Explicit remote TSAP replaces type/rack/slot. Actual PDU size is negotiated with CPU; reads are grouped within PDU limits.|Expliziter Remote-TSAP ersetzt Typ/Rack/Slot. PDU-Größe wird mit CPU ausgehandelt; Lesegruppen bleiben innerhalb des Limits.|Le TSAP distant explicite remplace type/rack/slot. La taille PDU est négociée avec la CPU ; lectures groupées dans ses limites.|El TSAP remoto explícito sustituye tipo/rack/slot. La PDU se negocia con la CPU; lecturas agrupadas dentro de sus límites.
+1060|Classic S7-1200/1500: enable PUT/GET and use standard non-optimized DBs. Symbolic mode is available separately.|Klassisches S7-1200/1500: PUT/GET aktivieren und nicht optimierte Standard-DBs nutzen. Symbolischer Modus separat verfügbar.|S7-1200/1500 classique : activer PUT/GET et utiliser des DB standard non optimisés. Mode symbolique séparé.|S7-1200/1500 clásico: activa PUT/GET y usa DB estándar no optimizados. Modo simbólico disponible por separado.
+1061|Browse CPU symbols, including structures and arrays. Add tree leaves to charts. Optimized DB access depends on firmware/HMI permissions. S7CommPlus beta: test on your CPU.|CPU-Symbole mit Strukturen und Arrays durchsuchen. Blätter zu Diagrammen hinzufügen. Optimierte DBs je nach Firmware/HMI-Rechten. S7CommPlus beta: eigene CPU prüfen.|Explorez symboles, structures et tableaux CPU. Ajoutez les feuilles aux graphiques. Accès DB optimisés selon firmware/droits HMI. S7CommPlus bêta : tester sur votre CPU.|Explora símbolos, estructuras y arrays CPU. Añade hojas a gráficos. Acceso a DB optimizados según firmware/permisos HMI. S7CommPlus beta: prueba en tu CPU.
+1062|CPU password (optional, this session only)|CPU-Passwort (optional, nur diese Sitzung)|Mot de passe CPU (facultatif, session uniquement)|Contraseña CPU (opcional, solo esta sesión)
+1063|Use TLS (required by some recent CPU/TIA configurations)|TLS verwenden (bei manchen neueren CPU/TIA-Konfigurationen erforderlich)|Utiliser TLS (requis par certaines configurations CPU/TIA récentes)|Usar TLS (requerido por algunas configuraciones CPU/TIA recientes)
+1064|TLS certificates and firmware compatibility|TLS-Zertifikate und Firmware-Kompatibilität|Certificats TLS et compatibilité firmware|Certificados TLS y compatibilidad de firmware
+1065|PLC CA / trusted certificate · PEM path on PC|SPS-CA / Vertrauenszertifikat · PEM-Pfad am PC|CA / certificat de confiance automate · chemin PEM sur PC|CA / certificado de confianza PLC · ruta PEM en el PC
+1066|Client PEM private key (if required)|Privater Client-PEM-Schlüssel (falls erforderlich)|Clé privée client PEM (si requise)|Clave privada PEM cliente (si se requiere)
+1067|Legacy firmware SessionKey compatibility (bounded retries)|SessionKey-Kompatibilität alter Firmware (begrenzte Versuche)|Compatibilité SessionKey ancien firmware (essais limités)|Compatibilidad SessionKey firmware antiguo (intentos limitados)
+1068|Without CA, TLS encrypts but does not verify CPU identity. CPU password is not saved. CPU authentication unsupported by the driver returns an explicit error.|Ohne CA verschlüsselt TLS, prüft aber keine CPU-Identität. CPU-Passwort wird nicht gespeichert. Nicht unterstützte Authentifizierung meldet einen Fehler.|Sans CA, TLS chiffre sans vérifier l’identité CPU. Mot de passe CPU non enregistré. Authentification non prise en charge : erreur explicite.|Sin CA, TLS cifra sin verificar identidad CPU. La contraseña CPU no se guarda. La autenticación no admitida devuelve error explícito.
+1069|Refresh CPU symbols|CPU-Symbole aktualisieren|Actualiser les symboles CPU|Actualizar símbolos CPU
+1070|Local PC IPv4 · listening interface|Lokale PC-IPv4 · Empfangsschnittstelle|IPv4 locale PC · interface d’écoute|IPv4 local PC · interfaz de escucha
+1071|PC UDP port|UDP-Port des PCs|Port UDP du PC|Puerto UDP del PC
+1072|Generic module index|Generic-Modulindex|Indice du module Generic|Índice de módulo Generic
+1073|Total datagram length (bytes, even)|Gesamtlänge Telegramm (Byte, gerade)|Longueur totale du datagramme (octets, paire)|Longitud total de datagrama (bytes, par)
+1074|Payload byte order|Byte-Reihenfolge des Payloads|Ordre des octets du payload|Orden de bytes del payload
+1075|Big endian · Siemens standard|Big Endian · Siemens-Standard|Big endian · standard Siemens|Big endian · estándar Siemens
+1076|Little endian · custom payload|Little Endian · eigener Payload|Little endian · payload personnalisé|Little endian · payload personalizado
+1077|No-data timeout (ms)|Zeitlimit ohne Daten (ms)|Délai sans données (ms)|Tiempo de espera sin datos (ms)
+1078|PLC timestamp and UDP buffer|SPS-Zeitstempel und UDP-Puffer|Horodatage automate et tampon UDP|Marca temporal PLC y búfer UDP
+1079|Payload UTC µs LINT timestamp offset (−1 = absent)|Payload-Offset UTC-µs-LINT-Zeitstempel (−1 = fehlt)|Offset horodatage UTC µs LINT du payload (−1 = absent)|Offset temporal UTC µs LINT en payload (−1 = ausente)
+1080|PLC sender port (0 = any)|SPS-Absenderport (0 = beliebig)|Port émetteur automate (0 = tout)|Puerto emisor PLC (0 = cualquiera)
+1081|Maximum datagram queue|Maximale Telegrammwarteschlange|File maximale de datagrammes|Cola máxima de datagramas
+1082|The Direct header contains length, module and sequence, no timestamp. PLC must explicitly write the optional timestamp into payload. Original source and reception times are retained.|Direct-Header enthält Länge, Modul und Sequenz, keinen Zeitstempel. SPS muss optionalen Zeitstempel explizit im Payload schreiben. Quell- und Empfangszeiten bleiben erhalten.|L’en-tête Direct contient longueur, module et séquence, sans horodatage. L’automate écrit l’horodatage facultatif dans le payload. Heures source et réception conservées.|La cabecera Direct contiene longitud, módulo y secuencia, sin marca temporal. El PLC escribe la marca opcional en el payload. Se conservan horas fuente y recepción.
+1083|PLC IP above filters senders. PLC must send to this PC/port using TUSEND / Open User Communication. Uses iba-documented Direct Generic, without proprietary iba Request negotiation. Configure payload fields below. Guide and SCL sources included.|SPS-IP oben filtert Absender. SPS sendet mit TUSEND/Open User Communication an PC/Port. Dokumentiertes iba Direct Generic ohne proprietäre iba-Request-Aushandlung. Payload-Felder unten konfigurieren. Anleitung und SCL enthalten.|L’IP automate filtre les émetteurs. Envoi via TUSEND/Open User Communication vers ce PC/port. Direct Generic documenté iba, sans négociation propriétaire iba Request. Configurez les champs ci-dessous. Guide et sources SCL inclus.|IP del PLC filtra emisores. Envío con TUSEND/Open User Communication al PC/puerto. Direct Generic documentado por iba, sin negociación propietaria iba Request. Configura campos abajo. Guía y fuentes SCL incluidas.
+1084|Variables in UDP payload|Variablen im UDP-Payload|Variables du payload UDP|Variables del payload UDP
+1085|Byte offset from payload (0 = datagram byte 6)|Byte-Offset ab Payload (0 = Telegrammbyte 6)|Offset depuis le payload (0 = octet 6 du datagramme)|Offset de byte desde payload (0 = byte 6 del datagrama)
+1087|Type|Typ|Type|Tipo
+1105|Add / save field|Feld hinzufügen / speichern|Ajouter / enregistrer le champ|Añadir / guardar campo
+1106|Export UDP catalogue|UDP-Katalog exportieren|Exporter le catalogue UDP|Exportar catálogo UDP
+1107|Import UDP JSON catalogue|UDP-JSON-Katalog importieren|Importer le catalogue UDP JSON|Importar catálogo UDP JSON
+1108|Test S7 connection|S7-Verbindung testen|Tester la connexion S7|Probar conexión S7
+1109|S7 variables · address catalogue|S7-Variablen · Adresskatalog|Variables S7 · catalogue d’adresses|Variables S7 · catálogo de direcciones
+1110|Define name, absolute address and type. After connecting, browse the catalogue on the left. These are user definitions; the PLC program is not discovered automatically.|Name, absolute Adresse und Typ definieren. Nach Verbindung Katalog links durchsuchen. Benutzerdefinierte Definitionen; keine automatische SPS-Programmerkennung.|Définissez nom, adresse absolue et type. Après connexion, catalogue à gauche. Définitions utilisateur ; pas de détection automatique du programme automate.|Define nombre, dirección absoluta y tipo. Tras conectar, catálogo a la izquierda. Definiciones del usuario; no se detecta automáticamente el programa PLC.
+1111|Address|Adresse|Adresse|Dirección
+1112|Data type|Datentyp|Type de données|Tipo de dato
+1113|STRING length|STRING-Länge|Longueur STRING|Longitud STRING
+1114|Add / save variable|Variable hinzufügen / speichern|Ajouter / enregistrer la variable|Añadir / guardar variable
+1115|Cancel edit|Bearbeitung abbrechen|Annuler la modification|Cancelar edición
+1116|Examples: DB1.DBX4.0 BOOL · DB1.DBW6 INT · DB1.DBD8 REAL · MW10 INT · I0.0 BOOL · QB0 BYTE. For 64-bit use DBD/MD/ID/QD and explicit type. TIME is milliseconds.|Beispiele: DB1.DBX4.0 BOOL · DB1.DBW6 INT · DB1.DBD8 REAL · MW10 INT · I0.0 BOOL · QB0 BYTE. Für 64 Bit DBD/MD/ID/QD und expliziten Typ nutzen. TIME in Millisekunden.|Exemples : DB1.DBX4.0 BOOL · DB1.DBW6 INT · DB1.DBD8 REAL · MW10 INT · I0.0 BOOL · QB0 BYTE. Pour 64 bits, utiliser DBD/MD/ID/QD et type explicite. TIME en millisecondes.|Ejemplos: DB1.DBX4.0 BOOL · DB1.DBW6 INT · DB1.DBD8 REAL · MW10 INT · I0.0 BOOL · QB0 BYTE. Para 64 bits usa DBD/MD/ID/QD y tipo explícito. TIME en milisegundos.
+1117|Export JSON catalogue|JSON-Katalog exportieren|Exporter le catalogue JSON|Exportar catálogo JSON
+1118|Import JSON catalogue|JSON-Katalog importieren|Importer le catalogue JSON|Importar catálogo JSON
+1119|Import adds definitions. Duplicate addresses are reported. Catalogue and connection are saved in local settings.|Import fügt Definitionen hinzu. Doppelte Adressen werden gemeldet. Katalog und Verbindung bleiben lokal gespeichert.|L’import ajoute des définitions. Adresses en doublon signalées. Catalogue et connexion enregistrés localement.|La importación añade definiciones. Se indican direcciones duplicadas. Catálogo y conexión se guardan localmente.
+1120|Reads variables and receives datagrams without writing PLC data. Actual period depends on CPU, program, network and PC. In UDP, the PLC program sets the rate, independently of interface polling.|Liest Variablen und empfängt Telegramme ohne SPS-Schreiben. Reale Periode hängt von CPU, Programm, Netzwerk und PC ab. UDP-Rate wird vom SPS-Programm bestimmt, unabhängig vom Oberflächen-Polling.|Lecture et réception sans écriture automate. Période réelle selon CPU, programme, réseau et PC. En UDP, cadence fixée par le programme automate, indépendamment du polling de l’interface.|Lee variables y recibe datagramas sin escribir PLC. Período real según CPU, programa, red y PC. En UDP, el programa PLC fija la cadencia independientemente del sondeo de interfaz.
+1121|Automatic from type, rack and slot|Automatisch aus Typ, Rack und Slot|Automatique selon type, rack et slot|Automático según tipo, rack y slot
+1123|Left load|Last links|Charge gauche|Carga izquierda
+1125|SSH2 independent of acquisition. Supports PCs and Beckhoff TwinCAT/BSD / FreeBSD PACs with SSH enabled.|SSH2 unabhängig von Erfassung. PCs und Beckhoff TwinCAT/BSD-/FreeBSD-PACs mit SSH-Dienst.|SSH2 indépendant de l’acquisition. PC et PAC Beckhoff TwinCAT/BSD / FreeBSD avec SSH actif.|SSH2 independiente de adquisición. PC y PAC Beckhoff TwinCAT/BSD / FreeBSD con SSH activo.
+1126|Target IP / hostname|Ziel-IP / Hostname|IP / nom d’hôte cible|IP / nombre de host destino
+1127|SSH user|SSH-Benutzer|Utilisateur SSH|Usuario SSH
+1128|Authentication|Authentifizierung|Authentification|Autenticación
+1129|OpenSSH / PEM private key|Privater OpenSSH-/PEM-Schlüssel|Clé privée OpenSSH / PEM|Clave privada OpenSSH / PEM
+1130|Password (this connection only)|Passwort (nur diese Verbindung)|Mot de passe (cette connexion uniquement)|Contraseña (solo esta conexión)
+1131|Private key file|Private Schlüsseldatei|Fichier de clé privée|Archivo de clave privada
+1132|Key passphrase (if required)|Schlüsselpassphrase (falls erforderlich)|Phrase secrète de la clé (si requise)|Frase de contraseña (si se requiere)
+1133|RSA, Ed25519 or ECDSA. Convert PPK to OpenSSH with PuTTYgen. The key is not saved.|RSA, Ed25519 oder ECDSA. PPK mit PuTTYgen nach OpenSSH exportieren. Schlüssel wird nicht gespeichert.|RSA, Ed25519 ou ECDSA. Convertissez PPK en OpenSSH avec PuTTYgen. Clé non enregistrée.|RSA, Ed25519 o ECDSA. Convierte PPK a OpenSSH con PuTTYgen. No se guarda la clave.
+1134|Advanced parameters|Erweiterte Parameter|Paramètres avancés|Parámetros avanzados
+1135|Connection timeout (s)|Verbindungszeitlimit (s)|Délai de connexion (s)|Tiempo de espera de conexión (s)
+1137|Output encoding|Ausgabekodierung|Encodage de sortie|Codificación de salida
+1139|Connect SSH|SSH verbinden|Connecter SSH|Conectar SSH
+1140|Save parameters|Parameter speichern|Enregistrer les paramètres|Guardar parámetros
+1141|Target host key|Hostschlüssel des Ziels|Clé d’hôte cible|Clave del host de destino
+1142|Key not saved yet.|Schlüssel noch nicht gespeichert.|Clé non encore enregistrée.|Clave aún no guardada.
+1143|Remove saved key…|Gespeicherten Schlüssel entfernen…|Supprimer la clé enregistrée…|Eliminar clave guardada…
+1144|IP, user and parameters are saved. Passwords, passphrases, private keys and console output are not saved automatically.|IP, Benutzer und Parameter werden gespeichert. Passwörter, Passphrasen, private Schlüssel und Konsolenausgabe nicht automatisch.|IP, utilisateur et paramètres enregistrés. Mots de passe, phrases secrètes, clés privées et console ne sont pas sauvegardés automatiquement.|Se guardan IP, usuario y parámetros. No se guardan automáticamente contraseñas, frases secretas, claves privadas ni consola.
+1145|Target console|Zielkonsole|Console cible|Consola de destino
+1146|Mode|Modus|Mode|Modo
+1147|Command|Befehl|Commande|Comando
+1148|Multiline script|Mehrzeiliges Skript|Script multiligne|Script multilínea
+1149|Interactive shell|Interaktive Shell|Shell interactif|Shell interactiva
+1150|Target interpreter|Interpreter am Ziel|Interpréteur cible|Intérprete de destino
+1151|Maximum duration (s, 0 = unlimited)|Maximale Dauer (s, 0 = unbegrenzt)|Durée maximale (s, 0 = illimitée)|Duración máxima (s, 0 = sin límite)
+1152|PTY for interactive input|PTY für interaktive Eingabe|PTY pour saisie interactive|PTY para entrada interactiva
+1153|Command / script content|Befehl / Skriptinhalt|Commande / contenu du script|Comando / contenido del script
+1154|Open local script…|Lokales Skript öffnen…|Ouvrir un script local…|Abrir script local…
+1155|Insert FreeBSD diagnostics|FreeBSD-Diagnose einfügen|Insérer le diagnostic FreeBSD|Insertar diagnóstico FreeBSD
+1156|Run on target|Am Ziel ausführen|Exécuter sur la cible|Ejecutar en destino
+1157|■ Stop channel|■ Kanal stoppen|■ Arrêter le canal|■ Detener canal
+1158|Clear console|Konsole leeren|Vider la console|Vaciar consola
+1159|Export TXT output|Ausgabe als TXT exportieren|Exporter la sortie TXT|Exportar salida TXT
+1160|Auto-scroll|Automatisch scrollen|Défilement automatique|Desplazar automáticamente
+1161|Send input|Eingabe senden|Envoyer la saisie|Enviar entrada
+1164|Commands run on the target with the connected user’s permissions. Stop/timeout close the channel; remote background processes may continue. PTY merges stdout/stderr. Use a dedicated terminal for full-screen programs.|Befehle laufen mit Rechten des verbundenen Benutzers am Ziel. Stopp/Zeitlimit schließen den Kanal; Hintergrundprozesse können weiterlaufen. PTY führt stdout/stderr zusammen. Für Vollbildprogramme eigenes Terminal nutzen.|Commandes exécutées sur la cible avec les droits de l’utilisateur. Arrêt/délai ferment le canal ; processus en arrière-plan peuvent continuer. PTY fusionne stdout/stderr. Terminal dédié pour plein écran.|Órdenes ejecutadas en destino con permisos del usuario. Detener/tiempo cierran el canal; procesos en segundo plano pueden continuar. PTY une stdout/stderr. Usa terminal dedicado para pantalla completa.
+1165|Verify SSH target identity|SSH-Zielidentität prüfen|Vérifier l’identité SSH cible|Verificar identidad SSH del destino
+1166|Compare the fingerprint with one obtained from a trusted channel. Authentication proceeds after acceptance; the public key will be remembered.|Fingerabdruck mit vertrauenswürdig erhaltenem Wert vergleichen. Nach Annahme erfolgt Authentifizierung; öffentlicher Schlüssel wird gespeichert.|Comparez l’empreinte obtenue par un canal fiable. L’authentification suit l’acceptation ; la clé publique est mémorisée.|Compara la huella obtenida por un canal fiable. La autenticación continúa tras aceptar; se recordará la clave pública.
+1167|Fingerprint verified · Accept|Fingerabdruck geprüft · Akzeptieren|Empreinte vérifiée · Accepter|Huella verificada · Aceptar
+1168|Reject|Ablehnen|Refuser|Rechazar
+1169|SSH connection|SSH-Verbindung|Connexion SSH|Conexión SSH
+1170|SSH console and scripts|SSH-Konsole und Skripte|Console et scripts SSH|Consola y scripts SSH
+1172|Target SSH output|SSH-Ausgabe des Ziels|Sortie SSH de la cible|Salida SSH del destino
+1173|Remote input|Remote-Eingabe|Saisie distante|Entrada remota
+1174|Line to send to active process/shell…|Zeile an aktiven Prozess/Shell senden…|Ligne à envoyer au processus/shell actif…|Línea que enviar al proceso/shell activo…
+1175|Language|Sprache|Langue|Idioma
+1181|Language updated.|Sprache aktualisiert.|Langue mise à jour.|Idioma actualizado.
+1182|Could not save language:|Sprache konnte nicht gespeichert werden:|Impossible d’enregistrer la langue :|No se pudo guardar el idioma:
+1183|Yes|Ja|Oui|Sí
+1184|Y2 · right|Y2 · rechts|Y2 · droite|Y2 · derecha
+1185|Gain (not applied)|Verstärkung (nicht angewandt)|Gain (non appliqué)|Ganancia (no aplicada)
+1186|Transformations · UI preview|Transformationen · Oberflächenvorschau|Transformations · aperçu d’interface|Transformaciones · vista previa de interfaz
+1187|Restoring:|Wiederherstellung:|Restauration :|Restauración:
+1188|Selected|Ausgewählt|Sélectionnée|Seleccionada
+1189|Source:|Quelle:|Source :|Fuente:
+1190|Missing UI element:|Oberflächenelement fehlt:|Élément d’interface manquant :|Falta elemento de interfaz:
+1191|Export:|Export:|Export :|Exportación:
+1192|unhandled promise|unbehandelte Promise|promesse non gérée|promesa no gestionada
+1193|Disabled|Deaktiviert|Désactivée|Desactivada
+1194|Disable|Deaktivieren|Désactiver|Desactivar
+1195|Delete|Löschen|Supprimer|Eliminar
+1196|FFT completed.|FFT abgeschlossen.|FFT terminée.|FFT completada.
+1197|Part|Teil|Partie|Parte
+1198|Importing|Import von|Import de|Importando
+1199|Module|Modul|Module|Módulo
+1200|Cyclic UDP|Zyklisches UDP|UDP cyclique|UDP cíclico
+1201|Target|Ziel|Cible|Destino
+1202|SSH connected|SSH verbunden|SSH connecté|SSH conectado
+1203|Encryption:|Verschlüsselung:|Chiffrement :|Cifrado:
+1204|Starting…|Start…|Démarrage…|Iniciando…
+1205|Running|Wird ausgeführt|En cours|En ejecución
+1206|Finished|Beendet|Terminé|Finalizado
+1207|Interface startup:|Start der Oberfläche:|Démarrage de l’interface :|Inicio de interfaz:
+1208|of|von|sur|de
+1209|. Time basis:|. Zeitbasis:|. Base de temps :|. Base temporal:
+1210|Symbolic S7 ·|Symbolisches S7 ·|S7 symbolique ·|S7 simbólico ·
+1211|· protocol V|· Protokoll V|· protocole V|· protocolo V
+1212|· mean arrival|· mittlerer Empfang|· arrivée moyenne|· llegada media
+1213|· lost|· verloren|· perdus|· perdidos
+1214|· invalid|· ungültig|· invalides|· inválidos
+1215|· filtered|· gefiltert|· filtrés|· filtrados
+1216|· Module|· Modul|· Module|· Módulo
+1217|· Symbolic S7|· Symbolisches S7|· S7 symbolique|· S7 simbólico
+1218|· PC arrival:|· PC-Empfang:|· Arrivée PC :|· Llegada al PC:
+1219|· processed|· verarbeitet|· traités|· procesados
+1220|. Reference:|. Referenz:|. Référence :|. Referencia:
+1221|. ADS control:|. ADS-Kontrolle:|. Contrôle ADS :|. Control ADS:
+1222|Unsupported interface language|Nicht unterstützte Oberflächensprache|Langue d’interface non prise en charge|Idioma de interfaz no compatible
+1223|Simultaneous OPC UA + MQTT acquisition|Gleichzeitige OPC UA + MQTT-Erfassung|Acquisition simultanée OPC UA + MQTT|Adquisición simultánea OPC UA + MQTT
+1224|Catalogue|Katalog|Catalogue|Catálogo
+1225|MQTT catalogue updated|MQTT-Katalog aktualisiert|Catalogue MQTT mis à jour|Catálogo MQTT actualizado
+1226|Calculation|Berechnung|Calcul|Cálculo
+1227|Latest value|Letzter Wert|Dernière valeur|Último valor
+1228|Standard deviation|Standardabweichung|Écart type|Desviación estándar
+1229|Integral (s)|Integral (s)|Intégrale (s)|Integral (s)
+1230|Marker interval|Markerintervall|Intervalle des marqueurs|Intervalo de marcadores
+1231|Visible window|Sichtbares Zeitfenster|Fenêtre visible|Ventana visible
+1232|valid samples|gültige Messwerte|échantillons valides|muestras válidas
+1233|excluded|ausgeschlossen|exclus|excluidos
+1234|Original values: result × K + offset|Originalwerte: Ergebnis × K + Offset|Valeurs originales : résultat × K + offset|Valores originales: resultado × K + offset
+1235|Resume Play, then pause again|Wiedergabe fortsetzen, dann erneut pausieren|Reprendre la lecture, puis mettre à nouveau en pause|Reanudar y volver a pausar
+1236|FFT requires Pause and markers X1 and X2|FFT erfordert Pause und Marker X1 und X2|La FFT nécessite la pause et les marqueurs X1 et X2|La FFT requiere Pausa y los marcadores X1 y X2
+1237|Live FFT: pause the chart and place X1 and X2|Live-FFT: Diagramm pausieren und X1 und X2 setzen|FFT live : mettre le graphique en pause et placer X1 et X2|FFT en vivo: pausar el gráfico y colocar X1 y X2
+1238|Simultaneous mode supports OPC UA + MQTT|Der gleichzeitige Modus unterstützt OPC UA + MQTT|Le mode simultané prend en charge OPC UA + MQTT|El modo simultáneo admite OPC UA + MQTT
+1239|OPC UA + MQTT: select MQTT PC arrival time|OPC UA + MQTT: MQTT-PC-Empfangszeit auswählen|OPC UA + MQTT : sélectionner l’heure de réception MQTT sur PC|OPC UA + MQTT: seleccionar la hora de llegada MQTT al PC
+1240|Simultaneous acquisition: use CSV or Parquet to retain asynchronous samples|Gleichzeitige Erfassung: CSV oder Parquet für asynchrone Messwerte verwenden|Acquisition simultanée : utiliser CSV ou Parquet pour conserver les échantillons asynchrones|Adquisición simultánea: usar CSV o Parquet para conservar las muestras asíncronas
+1241|Disconnect before changing simultaneous mode|Vor Änderung des gleichzeitigen Modus trennen|Déconnecter avant de changer le mode simultané|Desconectar antes de cambiar el modo simultáneo
+1242|Simultaneous acquisition|Gleichzeitige Erfassung|Acquisition simultanée|Adquisición simultánea
+1243|Protocols and intervals (ms)|Protokolle und Intervalle (ms)|Protocoles et périodes (ms)|Protocolos e intervalos (ms)
+1244|Reconnect source|Quelle neu verbinden|Reconnecter la source|Reconectar fuente
+1245|Disconnect source|Quelle trennen|Déconnecter la source|Desconectar fuente
+1246|MQTT records every publication; the interval is indicative.|MQTT erfasst jede Veröffentlichung; das Intervall ist ein Richtwert.|MQTT enregistre chaque publication ; la période est indicative.|MQTT registra cada publicación; el intervalo es orientativo.
+1247|Configure each protocol. During simultaneous acquisition, switching catalog preserves selection and charts.|Konfigurieren Sie jedes Protokoll. Bei gleichzeitiger Erfassung bleiben Auswahl und Diagramme beim Katalogwechsel erhalten.|Configurez chaque protocole. En acquisition simultanée, changer de catalogue conserve la sélection et les graphiques.|Configure cada protocolo. En adquisición simultánea, cambiar de catálogo conserva la selección y los gráficos.
+1248|Mixed sessions: 10 ms grid, last valid sample held for up to three source intervals; gaps and invalid quality become NaN. Originals and quality remain in Parquet.|Gemischte Sitzungen: 10-ms-Raster, letzter gültiger Wert für bis zu drei Quellintervalle; Lücken und ungültige Qualität werden NaN. Originale und Qualität bleiben in Parquet.|Sessions mixtes : grille de 10 ms, dernier échantillon valide maintenu pendant trois périodes de la source au maximum ; lacunes et qualité non valide deviennent NaN. Originaux et qualité dans le Parquet.|Sesiones mixtas: cuadrícula de 10 ms, última muestra válida hasta tres intervalos de la fuente; vacíos y calidad no válida pasan a NaN. Originales y calidad en Parquet.
+1249|Samples|Messwerte|Échantillons|Muestras
+1250|Late|Verspätet|Tardifs|Tardías
+1251|Lost|Verloren|Perdus|Perdidas
+1252|Live zoom|Live-Zoom|Zoom en direct|Zoom en vivo
+1253|Live zoom · fixed Y|Live-Zoom · feste Y|Zoom en direct · Y fixes|Zoom en vivo · Y fijas
+1254|Keep playing while zooming: scrolling X window and fixed Y limits on all LIVE charts|Bei Zoom weiterlaufen: gleitendes X-Zeitfenster und feste Y-Grenzen für alle LIVE-Diagramme|Continuer pendant le zoom : fenêtre X défilante et limites Y fixes sur tous les graphiques LIVE|Seguir durante el zoom: ventana X deslizante y límites Y fijos en todos los gráficos LIVE
+1255|Saved formula|Gespeicherte Formel|Formule enregistrée|Fórmula guardada
+1256|New formula|Neue Formel|Nouvelle formule|Nueva fórmula
+1257|Unit|Einheit|Unité|Unidad
+1258|Add variable|Variable hinzufügen|Ajouter une variable|Añadir variable
+1259|Formula|Formel|Formule|Fórmula
+1260|Tolerance (ms)|Toleranz (ms)|Tolérance (ms)|Tolerancia (ms)
+1261|Last valid value|Letzter gültiger Wert|Dernière valeur valide|Último valor válido
+1262|Calculate|Berechnen|Calculer|Calcular
+1263|Automatic update|Automatisch aktualisieren|Mise à jour automatique|Actualización automática
+1264|Result|Ergebnis|Résultat|Resultado
+1265|Save and add to chart|Speichern und zum Diagramm hinzufügen|Enregistrer et ajouter au graphique|Guardar y añadir al gráfico
+1266|Open full editor|Vollständigen Editor öffnen|Ouvrir l’éditeur complet|Abrir editor completo
+1267|Calculated|Berechnet|Calculé|Calculado
+1268|Calculating…|Berechnung läuft…|Calcul en cours…|Calculando…
+1269|Interval calculation|Intervallberechnung|Calcul de l’intervalle|Cálculo del intervalo
+1270|Formula saved and added to the chart.|Formel gespeichert und zum Diagramm hinzugefügt.|Formule enregistrée et ajoutée au graphique.|Fórmula guardada y añadida al gráfico.
+1271|Press Stop before editing formulas: recording retains the initial definition|Vor dem Bearbeiten der Formeln Stop drücken: die Aufzeichnung behält die ursprüngliche Definition|Appuyez sur Stop avant de modifier les formules : l’enregistrement conserve la définition initiale|Pulse Stop antes de editar fórmulas: la grabación conserva la definición inicial
+1272|Press Calculate to evaluate the formula over the selected interval.|Berechnen drücken, um die Formel im gewählten Intervall auszuwerten.|Appuyez sur Calculer pour évaluer la formule sur l’intervalle sélectionné.|Pulse Calcular para evaluar la fórmula en el intervalo seleccionado.
+1273|Select a variable|Variable auswählen|Sélectionner une variable|Seleccione una variable
+1274|Original samples unavailable for this interval: start a new acquisition or open the recording|Originaldaten für dieses Intervall nicht verfügbar: neue Erfassung starten oder Aufzeichnung öffnen|Échantillons originaux indisponibles pour cet intervalle : démarrez une nouvelle acquisition ou ouvrez l’enregistrement|Muestras originales no disponibles en este intervalo: inicie una nueva adquisición o abra la grabación
+1275|Live acquisition changed: reposition markers or resume Play|Live-Erfassung geändert: Marker neu setzen oder Play fortsetzen|Acquisition Live modifiée : replacez les marqueurs ou reprenez la lecture|Adquisición Live modificada: reposicione los marcadores o reanude Play
+1276|Background saves|Speichern im Hintergrund|Enregistrements en arrière-plan|Guardados en segundo plano
+1277|You can start a new recording while previous files are being saved.|Sie können eine neue Aufzeichnung starten, während vorherige Dateien gespeichert werden.|Vous pouvez démarrer un nouvel enregistrement pendant la sauvegarde des fichiers précédents.|Puede iniciar una nueva grabación mientras se guardan los archivos anteriores.
+1278|Converting|Konvertierung läuft|Conversion en cours|Convirtiendo
+1279|Conversion queued|Konvertierung wartet|Conversion en attente|Conversión en espera
+1280|Saving originals|Originale werden gespeichert|Sauvegarde des originaux|Guardando originales
+1281|Ready|Bereit|Prêt|Listo
+1282|Open recording|Aufzeichnung öffnen|Ouvrir l’enregistrement|Abrir grabación
+1283|Recording not found|Aufzeichnung nicht gefunden|Enregistrement introuvable|Grabación no encontrada
+1284|Waiting for saves to finish before closing…|Warten auf Abschluss der Speicherung vor dem Schließen…|En attente de la fin des sauvegardes avant de fermer…|Esperando a que terminen los guardados antes de cerrar…
+1285|Recording changed: refresh the status before pressing Stop|Aufzeichnung geändert: Status vor Stop aktualisieren|Enregistrement modifié : actualisez l’état avant d’appuyer sur Stop|Grabación modificada: actualice el estado antes de pulsar Stop
+1286|Too many pending saves: wait for one file to finish|Zu viele ausstehende Speicherungen: auf eine fertige Datei warten|Trop de sauvegardes en attente : attendez la fin d’un fichier|Demasiados guardados pendientes: espere a que termine un archivo

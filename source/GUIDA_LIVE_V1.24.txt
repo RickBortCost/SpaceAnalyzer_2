@@ -1,0 +1,81 @@
+SPACE ANALYZER V1.24.0 — LIVE, AUTOSCAN E DATI CALCOLATI
+
+AUTOSCAN MQTT
+Con MQTT connesso, nella sezione Address Space scegliere il pulsante
+"Autoscan · 1 s". Il pulsante evidenziato indica che l'opzione è attiva.
+Ogni secondo viene verificato il catalogo dei topic/campi già ricevuti.
+Se il catalogo non cambia, non viene riscritta la lista. I nuovi campi
+vengono aggiunti mantenendo rami aperti, selezione, focus e scorrimento.
+Autoscan non riconnette il broker, non modifica sottoscrizioni, selezione
+o buffer, e non sceglie automaticamente nuovi segnali da acquisire.
+Le richieste non si sovrappongono. La scheda del browser nascosta sospende
+il refresh grafico; la ricezione MQTT continua nel servizio dedicato.
+MQTT mostra i topic pubblicati sui filtri configurati, non un elenco di
+tutti i topic che potrebbero esistere nel broker. Un'interruzione conserva
+l'ultimo catalogo visibile. Disconnetti disattiva Autoscan.
+
+MARKER LIVE E FFT
+Posizionare X1 e X2 sul grafico: Play rimane attivo. La posizione dei marker
+è relativa alla larghezza visibile del grafico, e i timestamp avanzano
+insieme alla vista. Per mantenere una durata d'intervallo costante usare
+"Ultima finestra"; nella panoramica completa la durata cresce con la vista.
+La tabella marker viene aggiornata sui campioni originali circa ogni secondo.
+Pausa congela il grafico e conserva i campioni originali per l'analisi.
+In Pausa i marker indicano timestamp fissi; Play ripristina il riferimento
+alla schermata. Gli altri comandi di zoom mantengono il comportamento di pausa.
+FFT richiede Pausa e X1/X2 su istanti diversi. Per i file Registrazioni,
+già statici, sono sufficienti X1/X2. La precedente FFT live continua è
+disabilitata. La FFT mantiene finestre, blocchi, spettro e armoniche.
+La panoramica dell'intera sessione può includere dati aggregati più vecchi
+del buffer originale: per quel tratto aprire il file Record.
+
+OPC UA + MQTT SIMULTANEI
+Nel popup Connessione scegliere OPC UA e abilitare
+"Acquisizione simultanea OPC UA + MQTT". Configurare endpoint OPC UA,
+broker, filtri topic ed eventuali credenziali/TLS MQTT, quindi Connetti.
+La coppia implementata in questa versione è OPC UA + MQTT, una sessione
+per protocollo. ADS e S7 rimangono disponibili come sorgenti singole.
+Nel pannello Address Space, "Catalogo" permette di scegliere OPC UA o MQTT
+senza disconnettere. I segnali delle due fonti possono stare nello stesso
+grafico o in grafici separati, fino al limite complessivo dell'applicazione.
+La lettura OPC UA e la ricezione MQTT hanno cicli indipendenti. La perdita
+di una connessione non cancella i campioni dell'altra. Con riconnessione
+automatica abilitata, ogni sessione recupera il proprio collegamento.
+Se il collegamento iniziale di una fonte fallisce, il tentativo iniziale
+viene annullato per entrambe; correggere i parametri e riprovare.
+Disconnetti chiude entrambe. Lo stato di ciascuna fonte è nel popup.
+
+La base comune del trend simultaneo è l'arrivo sul PC in UTC: scegliere
+"Arrivo PC" per MQTT. Gli eventuali timestamp del payload restano nei
+metadati originali. Questa scelta non sincronizza gli orologi dei dispositivi
+e include le diverse latenze di rete/protocollo; non equivale a PTP.
+Record simultaneo supporta CSV e Parquet, con i campioni asincroni originali
+e i rispettivi timestamp, senza interpolazione o ripetizione artificiale.
+I formati a griglia regolare non sono proposti come conversione implicita
+di questi campioni: per acquisizione simultanea scegliere CSV o Parquet.
+
+DATI CALCOLATI SOTTO I GRAFICI
+La sezione compatta sostituisce Diagnostica acquisizione nel Live.
+Scegliere un segnale del grafico attivo, il calcolo e, se necessario,
+un fattore K e un offset: risultato visualizzato = calcolo × K + offset.
+Sono disponibili ultimo valore, minimo, massimo, media aritmetica dei
+campioni, RMS, Peak-to-Peak, deviazione standard della popolazione,
+differenza X2−X1, variazione per secondo e integrale trapezoidale (secondi).
+Con entrambi i marker si usa l'intervallo X1–X2; altrimenti la finestra
+visibile. I risultati vengono ricalcolati circa ogni secondo sui valori
+originali Good, con conteggio dei campioni validi/esclusi. Gain/offset del
+grafico non vengono applicati a questi risultati: usare i campi ×K e +offset.
+Nessun segnale aggiuntivo viene creato e la selezione Record non cambia.
+In Pausa vengono usati i campioni conservati nello snapshot del grafico.
+Se l'intervallo non ha dati originali disponibili il risultato è assente,
+con messaggio esplicativo; non viene calcolato sulla panoramica decimata.
+L'integrale esclude segmenti Bad/Uncertain e separazioni oltre tre periodi
+di campionamento indicativi. Media e RMS sono pesate per campione, non per tempo.
+La diagnostica tecnica resta disponibile dentro il popup Connessione.
+Le preferenze del riquadro vengono salvate con il workspace.
+
+INSTALLAZIONE
+Chiudere l'app precedente, estrarre tutto lo ZIP e avviare
+Space_Analyzer_V1.24.0.exe. Runtime Python, librerie e cinque lingue inclusi.
+L'avvio nativo su Windows e la prova con dispositivi di campo non sono
+stati eseguiti in questo ambiente; le verifiche automatiche sono incluse.

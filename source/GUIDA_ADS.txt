@@ -1,0 +1,248 @@
+SPACE ANALYZER V1.8.2 - MODIFICA PARAMETRI ADS
+
+I campi IP/hostname PLC, porta TCP router, AMS Net ID client, porta AMS client
+e IP locale/scheda di rete sono modificabili anche con TwinCAT locale scelto.
+Disconnettere e fermare Record per cambiare la configurazione; poi usare
+Salva impostazione e layout. Tutti i valori vengono recuperati al riavvio.
+
+TwinCAT locale: AMS Net ID PLC, porta runtime, timeout, DLL e acquisizione
+sono usati dalla connessione. IP e identita manuali marcati ADS/TCP sono
+salvati per il profilo diretto. La route del PC determina l'IP del PLC;
+AdsPortOpenEx/AdsGetLocalAddressEx forniscono porta e Net ID client effettivi.
+Modificare un campo manuale non cambia le route o il Net ID del router.
+
+ADS/TCP diretto: IP/hostname PLC, porta TCP, Net ID client, porta AMS client
+e bind IP vengono applicati alla nuova connessione. Se si cambia trasporto
+da notifiche cicliche, la UI seleziona SumRead con un messaggio esplicito;
+Read individuale resta selezionabile. Notifiche cicliche richiede TwinCAT locale.
+Parametri effettivi nel risultato del test: il test diretto usa porta client
+configurata + 1; la sessione di acquisizione usa la porta client configurata.
+In TwinCAT locale ogni sessione ottiene la propria porta dal router.
+
+Riferimenti Beckhoff:
+https://infosys.beckhoff.com/content/1033/tc3_adsdll2/117535499.html
+https://infosys.beckhoff.com/content/1033/tc3_adsdll2/117537547.html
+
+--- Note delle versioni precedenti ---
+V1.5.0 - ADS notifiche cicliche con timestamp originali
+
+ATTIVAZIONE
+1. Chiudere la vecchia versione ed estrarre tutto lo ZIP in una nuova cartella.
+2. Avviare OPCUA_Web_Client_V1.5.0.exe.
+3. Connessione > fonte ADS > Usa TwinCAT locale + notifiche cicliche.
+4. Impostare AMS Net ID e porta del target, quindi Connetti.
+5. Selezionare i segnali ed impostare il periodo richiesto, per esempio 10 ms.
+Le impostazioni precedenti vengono conservate: una configurazione SumRead salvata
+non viene cambiata automaticamente. Il pulsante dedicato attiva la nuova modalita.
+
+ARCHITETTURA E DIAGNOSTICA
+Notifiche SERVERCYCLE mediante TcAdsDll x64 installata sul PC. Il worker di
+acquisizione usa un thread, un event loop e una porta ADS propri. Le callback
+copiano dati e timestamp in una FIFO limitata a 32768 campioni / 16 MiB; non
+eseguono chiamate ADS, grafica o scritture su disco. Il worker decodifica e passa
+ogni campione al buffer grafico e alla coda del recorder gia esistente.
+Il browser aggiorna la visualizzazione indipendentemente dall'acquisizione.
+ReadState e controllo versione simboli sono esterni alle callback. Le notifiche
+continuano ad essere accodate durante tali controlli. MaxDelay = periodo richiesto.
+
+REALE indica il periodo medio tra timestamp PLC sul primo segnale selezionato.
+Diagnostica acquisizione distingue min/medio/max/P95 del periodo PLC, periodo
+medio di arrivo al PC, coda e campioni persi per overflow, attesa nella coda,
+riavvii delle subscription e differenza fra orologio PC e timestamp PLC.
+PC - PLC include il disallineamento degli orologi: non e una misura affidabile
+della sola latenza di rete senza sincronizzazione dei clock.
+
+TIMESTAMP E FILE
+Il grafico e la colonna timestamp_ms usano il timestamp originale ADS.
+source_timestamp contiene UTC con sette cifre frazionarie (100 ns).
+ads_filetime conserva esattamente il contatore FILETIME come stringa decimale,
+anche in CSV/Parquet ed export X1-X2, evitando arrotondamenti JavaScript.
+local_timestamp conserva l'ora locale UTC di ricezione della callback.
+server_timestamp resta vuoto: ADS non fornisce un secondo timestamp separato.
+La qualita indica l'esito della comunicazione e lo stato RUN/STOP osservato;
+non e un QualityCode nativo OPC UA del valore PLC.
+
+CONTINUITA
+Cambio segnali/periodo e online change ricreano le subscription. Il watchdog
+rileva flusso assente su ciascun segnale (minimo 5 s); errori e overflow vengono
+segnalati e producono un'interruzione Bad, con riconnessione se abilitata.
+Il conteggio overflow riguarda perdite locali note, non tutte le possibili
+perdite sul PLC/rete. Durante riconnessione non e possibile recuperare dati
+non ricevuti: servirebbe un buffer storico sul PLC. Nessun campione viene
+inventato tramite ripetizione/interpolazione per riempire i buchi.
+La FIFO viene drenata prima del rilascio normale delle subscription.
+
+COMPATIBILITA
+Questa modalita richiede TwinCAT locale e TcAdsDll a 64 bit. Il trasporto ADS/TCP
+diretto mantiene SumRead/Read: non supporta le nuove notifiche. Nessun fallback
+silenzioso. Nessuna modifica del programma PLC o delle route. La cadenza effettiva
+dipende dalla task/runtime PLC e dal carico; non e garantito un arrivo Windows
+puntuale ogni 10 ms. Callback FIFO e timestamp originali separano questi aspetti.
+
+VERIFICHE
+9 test specifici con DLL simulata: ABI packed, callback in blocco, timestamp
+100 ns, CSV/Parquet, cambio selezione/periodo, online change, stati PLC, errori,
+overflow, watchdog, API Flask, export live e riconnessione automatica.
+Regressioni: 11 ADS/TCP, 6 native ADS, 4 datatype, 17 OPC UA, 6 recorder,
+5 analisi/export; test interfaccia JSDOM con servizio reale e canvas simulato.
+Verifica statica Windows PE x64, runtime incorporato e corrispondenza sorgenti.
+Non eseguito su Windows/TcAdsDll reali ne su un PAC fisico in questo ambiente.
+
+
+--- Note versioni precedenti ---
+V1.4.2 - Espansione datatype ADS
+
+Aprire Esplora rami ed espandere PlcSlow > fbEntryPoint: vengono letti i datatype ADS per mostrare i membri di FB, strutture e array. Gli array sono paginati con Carica altri. La scansione include i membri fino al limite configurato. Se il PLC non pubblica un datatype viene mostrato un errore esplicito. Pointer e reference non vengono dereferenziati. La lettura dei valori usa sempre handle simbolici. Compatibile con TwinCAT locale e ADS/TCP.
+
+Verifica: peer ADS simulato e DLL simulata; nessuna prova su Windows o PAC reale.
+
+V1.4.1 — TwinCAT locale (30 settembre 2026)
+==========================================
+Se TwinCAT e' installato sul PC e la route e' gia' funzionante, scegliere:
+  Connessione > ADS > Modalita' collegamento ADS > TwinCAT locale.
+Il client usa TcAdsDll x64 installata sul PC e il suo router. Il Net ID locale
+viene letto da AdsGetLocalAddressEx; una porta libera e' aperta da AdsPortOpenEx.
+Non vengono modificate route e non vengono scritte variabili PLC.
+I campi IP PLC, TCP, Net ID client manuale, porta client manuale e IP locale
+sono disabilitati e ignorati in questa modalita': la route TwinCAT determina
+il percorso verso l'AMS Net ID target. Restano operativi timeout, lettura
+aggregata/individuale, scansione, acquisizione e registrazioni.
+
+Configurazione per il caso segnalato:
+  Modalita': TwinCAT locale
+  AMS Net ID PLC: 192.168.100.12.1.1
+  Porta runtime: 851 (primo runtime PLC TwinCAT 3)
+  Il router del PC deve riportare Net ID 192.168.92.35.1.1.
+  La route esistente del PC deve raggiungere il PAC a 192.168.5.220.
+Premere Test connessione ADS: nel risultato sono visibili trasporto,
+Net ID/porta client effettivi e informazioni del dispositivo.
+
+Richiede Windows x64 con router TwinCAT avviato e TcAdsDll.dll a 64 bit.
+La DLL Beckhoff NON e' distribuita nello ZIP: si usa l'installazione locale.
+Ricerca automatica in TwinCAT Common64, cartelle installazione e System32;
+per installazioni personalizzate specificare il percorso assoluto della DLL.
+Non usare una DLL a 32 bit con l'EXE x64.
+Non disinstallare o arrestare TwinCAT per usare questa modalita'.
+
+La modalita' ADS/TCP diretto resta disponibile per client indipendenti.
+La selezione precedente viene conservata: dopo l'aggiornamento selezionare
+esplicitamente TwinCAT locale e salvare il workspace.
+Non e' stato dimostrato che la duplicazione del Net ID sia la causa esatta
+della disconnessione osservata: questo aggiornamento permette di usare il
+percorso del router gia' verificato dall'utente, evitando tale ambiguita'.
+Il codice DLL e' verificato con un adattatore simulato e test di integrazione,
+NON eseguito su Windows/TwinCAT reale. Vedere VERIFICA.txt.
+
+
+RIFERIMENTO ADS/TCP DIRETTO DELLA VERSIONE PRECEDENTE
+GUIDA ADS — OPC UA / ADS Analyzer V1.4.0
+======================================
+
+1. PARAMETRI DEL POPUP CONNESSIONE
+Fonte dati: ADS · Beckhoff TwinCAT.
+IP / hostname PLC: indirizzo IPv4 raggiungibile o nome risolto in IPv4.
+AMS Net ID PLC: identificatore a sei numeri del router TwinCAT di destinazione;
+  leggerlo dalla configurazione TwinCAT. Non dedurlo necessariamente dall'IP.
+Porta ADS runtime: 851 = primo PLC TwinCAT 3, 852 = secondo; 801 = primo
+  PLC TwinCAT 2. Inserire la porta effettiva se diversa.
+Porta TCP router: 48898 di default.
+AMS Net ID client: a sei numeri, univoco. Se vuoto viene derivato dall'IP
+  locale scelto dalla rete con suffisso .1.1. Per la prima configurazione
+  e per PC con piu' schede e' preferibile specificarlo esplicitamente.
+Porta AMS client: 32905 di default; test e catalogo usano porta + 1.
+IP locale / scheda: IPv4 della scheda da usare; vuoto = scelta del sistema.
+Timeout richiesta: 100–10000 ms, default 3000.
+Acquisizione: SumRead (default) oppure Read individuale.
+Codifica STRING: Windows-1252 o UTF-8. WSTRING e' decodificato UTF-16LE.
+Intervallo: condiviso con OPC UA, richiesta minima 10 ms.
+Riconnessione automatica, buffer e impostazioni grafico sono condivisi.
+
+2. ROUTE DI RITORNO SUL PLC
+Nel router TwinCAT del dispositivo configurare una route statica che associ
+l'AMS Net ID del client all'IP del PC su cui gira l'applicazione.
+Esempio, solo illustrativo:
+  PLC IP 192.168.10.20; Net ID PLC 5.45.120.1.1.1; porta ADS 851.
+  PC IP 192.168.10.50; Net ID client 192.168.10.50.1.1.
+  Sul PLC: route a 192.168.10.50.1.1 via 192.168.10.50.
+Il Net ID client deve essere distinto da quello del PLC e da eventuali
+router TwinCAT gia' attivi sul PC. Le autorizzazioni per creare la route
+sono gestite dagli strumenti Beckhoff, non da questa applicazione.
+Consentire la connessione ADS/TCP al router e rendere disponibili i simboli
+PLC tramite la configurazione di esportazione del progetto TwinCAT.
+Il client non installa route automaticamente e non richiede credenziali
+PLC nella propria schermata ADS. Il trasporto implementato e' ADS/TCP
+classico, non Secure ADS/TLS.
+
+3. TEST E DIAGNOSTICA
+A client disconnesso premere Test connessione ADS. Una risposta riuscita
+mostra nome/versione del dispositivo, stato ADS e device state, IP e Net ID
+sorgente effettivi, target e porta. Il test non avvia trend o registrazioni.
+- Timeout: controllare IP, firewall, TCP, route di ritorno e Net ID sorgente.
+- Porta non trovata: controllare la porta del runtime e il runtime attivo.
+- Simbolo non trovato: verificare nome completo ed esportazione simboli.
+I codici ADS sono mostrati in esadecimale; diagnostica e log applicativo
+restano accessibili. La scansione usa una connessione separata dalla lettura.
+
+4. SCANSIONE E TIPI
+Prefisso ads:/ = tutti i simboli pubblicati; ads:MAIN = sottoinsieme MAIN.
+Scansiona tutto carica la tabella pubblicata dal runtime, con limite righe
+configurabile e possibilita' di interrompere. Esplora rami raggruppa i nomi.
+La lista mostra nome, identificatore, tipo e percorso; il commento del
+simbolo e' disponibile come tooltip. I membri gia' pubblicati sono inclusi.
+Aggiungi simbolo accetta MAIN.Temperatura, ads:MAIN.Temperatura o un membro
+come MAIN.Motore.Velocita'. Il nome viene verificato dal PLC prima di usarlo.
+Gli array si possono espandere in Esplora rami fino a 10000 elementi;
+per array piu' grandi aggiungere direttamente gli indici necessari.
+La lettura usa handle simbolici; dopo un cambio online gli handle invalidi
+sono rilasciati e riacquisiti. La versione simboli viene controllata a 1 Hz
+quando il dispositivo supporta tale richiesta.
+
+Tipi: BOOL, interi 8/16/32/64 bit signed/unsigned, REAL/LREAL, STRING/WSTRING,
+array di primitivi. Solo scalari numerici/booleani sono tracciati nel tempo.
+Array e stringhe sono consultabili/registrabili. Gli interi oltre 2^53
+mantengono il testo esatto e segnalano l'approssimazione del grafico.
+Le strutture e i tipi non riconosciuti sono mantenuti come byte esadecimali;
+i singoli membri scalari sono acquisibili per nome, se il PLC li risolve.
+Non viene caricata la tabella dei datatype per enumerare automaticamente
+membri di strutture non presenti nella tabella simboli. Pointer, reference,
+bit-field compatti, REAL80 e tipi vendor non hanno una conversione dedicata.
+I nomi dei simboli sono interpretati UTF-8; preferire nomi ASCII se il PLC
+usa una codifica legacy. Massimo 1 MiB per valore e 64 MiB per catalogo.
+
+5. ACQUISIZIONE, QUALITA' E TEMPO
+SumRead aggrega fino a 32 segnali per richiesta (massimo 64 selezionati).
+Se il servizio non e' supportato si passa automaticamente a Read individuale.
+Le letture aggregate non garantiscono una fotografia atomica del task PLC.
+Il periodo effettivo dipende da carico PLC, rete, dimensione e numero valori.
+La UI mostra periodo richiesto, effettivo e durata del ciclo.
+Non sono implementate sottoscrizioni/notifiche ADS o trigger PLC.
+Nessuna scrittura di valori: il comando ADS Write viene usato esclusivamente
+per rilasciare handle simbolici acquisiti dal client.
+
+Good = Read riuscita e ultimo ReadState osservato RUN.
+Uncertain = Read riuscita ma ultimo stato osservato diverso da RUN.
+Bad = errore di lettura del simbolo o perdita di connessione.
+ReadState e' verificato a 1 Hz: il cambio stato puo' essere rilevato con
+questo ritardo. Good non e' un bit di validita' o freschezza fornito dal PLC.
+Campioni Bad/Uncertain interrompono la linea del trend e sono registrati.
+status_code e' il risultato ADS, non un OPC UA StatusCode; stato PLC diverso
+da RUN puo' avere risultato ADS 0 ma qualita' Uncertain. Errori locali hanno
+un nome diagnostico e possono non avere un codice ADS.
+ADS Read non fornisce SourceTimestamp o ServerTimestamp: questi campi restano
+vuoti. Il timestamp locale UTC e' misurato alla conclusione del ciclo; non
+e' un timestamp del task PLC, PTP o del momento fisico di misura.
+Perdita trasporto: gap Bad, riconnessione ogni circa 3 s se abilitata;
+configurazione/segnali restano. Non si possono recuperare dati non ricevuti.
+
+6. WORKSPACE E FILE
+Cambio fonte consentito solo dopo Disconnetti e Stop. Selezioni e grafici
+per fonte sono conservati nello stesso workspace, insieme ai parametri.
+CSV/Parquet ADS condividono formato, Recordings, pagina Registrazioni,
+FFT/export, metadati e rotazione delle acquisizioni OPC UA.
+I nomi automatici dei file ADS iniziano con ADS_; i metadata e il Parquet
+contengono source_protocol. Conservare i file .metadata.json associati.
+
+RIFERIMENTI DI PROTOCOLLO
+Beckhoff ADS / AdsLib: https://github.com/Beckhoff/ADS
+Specifiche ADS/AMS: https://infosys.beckhoff.com/content/1033/tc3_ads_intro/index.html
+Il client ADS/TCP di questo progetto e' un'implementazione Python autonoma.

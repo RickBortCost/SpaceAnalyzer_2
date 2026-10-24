@@ -1,0 +1,8 @@
+test_empty_stop_is_normal_without_fake_dat (test_pda3_lifecycle.Lifecycle.test_empty_stop_is_normal_without_fake_dat) ... ok
+test_old_short_stop_retried_only_with_finalized_sources (test_pda3_lifecycle.Lifecycle.test_old_short_stop_retried_only_with_finalized_sources) ... ok
+test_one_sample_replay_accepts_same_start_and_end (test_pda3_lifecycle.Lifecycle.test_one_sample_replay_accepts_same_start_and_end) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 33.694s
+
+OK

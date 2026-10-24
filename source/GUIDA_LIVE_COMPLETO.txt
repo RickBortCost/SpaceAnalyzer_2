@@ -1,0 +1,65 @@
+V1.24.0: marker relativi alla schermata in Play; Pausa fissa i timestamp.
+Vedere GUIDA_LIVE_V1.24.txt per tutte le nuove funzioni.
+
+Space Analyzer V1.15.0 - Vista Live dall'inizio dell'acquisizione
+20 ottobre 2026
+
+AVVIO
+Chiudere la precedente versione, estrarre tutto lo ZIP e avviare
+Space_Analyzer_V1.23.0.exe. Runtime Python, dipendenze e servizi inclusi.
+Per mantenere la stessa cartella Recordings si puo' usare il nuovo EXE
+nella cartella dell'applicativo precedente. Le route e i driver dei
+protocolli industriali restano configurati sul PC come prima.
+
+USO
+In Trend live -> Vista tempo, la scelta predefinita e' Intera acquisizione.
+L'asse X parte dal primo campione acquisito dei segnali selezionati e si
+estende con i nuovi dati. Tutti i grafici usano l'intervallo temporale comune,
+anche con segnali differenti. La scelta Ultima finestra visualizza il buffer
+originale recente, configurabile nel popup Connessione.
+Passare da una vista all'altra non cancella la panoramica accumulata.
+La scelta viene salvata nel workspace. Non e' necessario premere Record
+per mantenere la panoramica durante la connessione corrente.
+
+Pausa congela solo la vista: i dati continuano ad essere acquisiti.
+Play riporta la vista ai dati aggiornati. Lo zoom mantiene la pausa come
+nelle versioni precedenti; Ripristina zoom torna alla vista in aggiornamento.
+Marker X1/X2, crosshair e sincronizzazione zoom restano disponibili.
+I grafici aggiunti dopo l'avvio possono visualizzare lo storico dei segnali
+che erano gia' selezionati per l'acquisizione.
+
+STORICO VISUALE E CAMPIONI ORIGINALI
+La panoramica e' una sintesi progressiva per il disegno, in memoria limitata:
+conserva primo/ultimo campione, estremi e rappresentanti di qualita'/gap.
+Non conserva ogni oscillazione o transizione e lo zoom sullo storico
+compattato non ricrea i campioni eliminati dalla sintesi. Dalla V1.24.0 le letture
+ai marker interrogano il buffer originale disponibile e segnalano i tratti
+non più disponibili: non ricostruiscono i campioni usciti dal buffer.
+Per analizzare un intervallo con il dettaglio originale usare Ultima finestra
+o il file registrato. FFT ed export non usano mai la sintesi grafica.
+Se la parte iniziale richiesta e' uscita dal buffer originale, il servizio
+segnala che l'intervallo non e' disponibile invece di esportare solo la coda.
+Il buffer temporale originale e la registrazione non vengono ampliati,
+ritemporizzati o decimati da questa modifica.
+Per conservare tutti i campioni e riaprire l'intera sessione usare Record.
+
+CICLO DI VITA
+Lo storico visuale dura per l'acquisizione corrente, comprese le riconnessioni
+automatiche e il cambio della vista. Una nuova connessione manuale o
+l'azzeramento del buffer avviano una nuova panoramica. Non viene riaperto al
+riavvio dell'applicazione. Pulire un singolo grafico ne azzera la vista,
+senza cancellare gli altri grafici o la registrazione. Le variabili non
+selezionate per l'acquisizione non hanno campioni storici da recuperare.
+
+VERIFICHE
+85 test backend superati: storico limitato, limiti memoria, ricambio FIFO,
+resize, formule, ADS nativa, timestamp, OPC UA, FFT e registrazioni.
+2 test dell'interfaccia su servizio reale: nuova vista e regressione ADS.
+Verificato su due grafici che il primo campione rimanga visibile dopo
+la scadenza del buffer originale di 10 s, con nuovi dati in arrivo.
+Verificati pausa/play, zoom sincronizzato, X1/X2, crosshair, scelta vista
+e ripristino del workspace. Canvas simulato: nessuna verifica pixel.
+EXE Windows AMD64 e contenuti runtime/CRC verificati; EXE non eseguito
+su Windows e nessun PLC fisico utilizzato in questo ambiente.
+Nessuna garanzia di periodo effettivo a 1 ms introdotta da questa versione.
+Report inclusi in Verifiche/V1.15.0.

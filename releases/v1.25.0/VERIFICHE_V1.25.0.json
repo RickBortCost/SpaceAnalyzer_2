@@ -1,0 +1,237 @@
+{
+  "version": "1.25.0",
+  "base_version": "1.24.0",
+  "date": "2026-10-22",
+  "environment": "Linux; CPython 3.12; Node 24; requirements.txt versions installed in an isolated venv",
+  "backend_tests": 180,
+  "backend": [
+    {
+      "suite": "test_ads",
+      "tests": 12,
+      "seconds": 7.186,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_ads.py -v"
+    },
+    {
+      "suite": "test_ads_notifications",
+      "tests": 12,
+      "seconds": 18.237,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_ads_notifications.py -v"
+    },
+    {
+      "suite": "test_s7",
+      "tests": 8,
+      "seconds": 1.309,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_s7.py -v"
+    },
+    {
+      "suite": "test_s7_extended",
+      "tests": 16,
+      "seconds": 8.763,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_s7_extended.py -v"
+    },
+    {
+      "suite": "test_binary_recordings",
+      "tests": 6,
+      "seconds": 2.929,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_binary_recordings.py -v"
+    },
+    {
+      "suite": "test_recordings",
+      "tests": 6,
+      "seconds": 0.298,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_recordings.py -v"
+    },
+    {
+      "suite": "test_recording_reader",
+      "tests": 1,
+      "seconds": 0.273,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_recording_reader.py -v"
+    },
+    {
+      "suite": "test_recording_compare_api",
+      "tests": 4,
+      "seconds": 1.352,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_recording_compare_api.py -v"
+    },
+    {
+      "suite": "test_fda",
+      "tests": 12,
+      "seconds": 1.017,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_fda.py -v"
+    },
+    {
+      "suite": "test_rbf",
+      "tests": 11,
+      "seconds": 0.769,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_rbf.py -v"
+    },
+    {
+      "suite": "test_pda3_codec",
+      "tests": 3,
+      "seconds": 0.03,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_pda3_codec.py -v"
+    },
+    {
+      "suite": "test_pda3",
+      "tests": 14,
+      "seconds": 122.783,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_pda3.py -v"
+    },
+    {
+      "suite": "test_pda3_lifecycle",
+      "tests": 3,
+      "seconds": 33.694,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_pda3_lifecycle.py -v"
+    },
+    {
+      "suite": "test_pda3_capacity",
+      "tests": 8,
+      "seconds": 134.1,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_pda3_capacity.py -v"
+    },
+    {
+      "suite": "test_iba_dat",
+      "tests": 13,
+      "seconds": 3.342,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_iba_dat.py -v"
+    },
+    {
+      "suite": "test_calculation_api",
+      "tests": 3,
+      "seconds": 13.311,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_calculation_api.py -v"
+    },
+    {
+      "suite": "test_fft_api",
+      "tests": 5,
+      "seconds": 1.648,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_fft_api.py -v"
+    },
+    {
+      "suite": "test_fft_engine",
+      "tests": 10,
+      "seconds": 3.54,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_fft_engine.py -v"
+    },
+    {
+      "suite": "test_i18n",
+      "tests": 4,
+      "seconds": 0.595,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_i18n.py -v"
+    },
+    {
+      "suite": "test_mqtt_api",
+      "tests": 10,
+      "seconds": 6.37,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_mqtt_api.py -v"
+    },
+    {
+      "suite": "test_live_extensions",
+      "tests": 7,
+      "seconds": 6.442,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_live_extensions.py -v"
+    },
+    {
+      "suite": "test_source_sessions",
+      "tests": 9,
+      "seconds": 18.351,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_source_sessions.py -v"
+    },
+    {
+      "suite": "test_mixed_resampling",
+      "tests": 3,
+      "seconds": 9.296,
+      "result": "PASS",
+      "command": "python -m unittest discover -s tests -p test_mixed_resampling.py -v"
+    }
+  ],
+  "ui": [
+    {
+      "script": "test_i18n_ui.cjs",
+      "result": "PASS",
+      "command": "JSDOM_PATH=tests/node_modules/jsdom UI_SCRIPT=test_i18n_ui.cjs python tests/test_ui_harness.py"
+    },
+    {
+      "script": "test_recording_close_ui.cjs",
+      "result": "PASS",
+      "command": "JSDOM_PATH=tests/node_modules/jsdom MULTICHART_TEST=1 UI_SCRIPT=test_recording_close_ui.cjs python tests/test_ui_harness.py"
+    },
+    {
+      "script": "test_recording_sync_ui.cjs",
+      "result": "PASS",
+      "command": "JSDOM_PATH=tests/node_modules/jsdom MULTICHART_TEST=1 UI_SCRIPT=test_recording_sync_ui.cjs python tests/test_ui_harness.py"
+    },
+    {
+      "script": "test_chart_tools_ui.cjs",
+      "result": "PASS",
+      "command": "JSDOM_PATH=tests/node_modules/jsdom MULTICHART_TEST=1 UI_SCRIPT=test_chart_tools_ui.cjs python tests/test_ui_harness.py"
+    },
+    {
+      "script": "test_calculations_ui.cjs",
+      "result": "PASS",
+      "command": "JSDOM_PATH=tests/node_modules/jsdom MULTICHART_TEST=1 UI_SCRIPT=test_calculations_ui.cjs python tests/test_ui_harness.py"
+    },
+    {
+      "script": "test_live_extensions_ui.cjs",
+      "result": "PASS",
+      "command": "JSDOM_PATH=tests/node_modules/jsdom UI_SCRIPT=test_live_extensions_ui.cjs python tests/test_ui_harness.py"
+    },
+    {
+      "script": "test_source_sessions_ui.cjs",
+      "result": "PASS",
+      "command": "JSDOM_PATH=tests/node_modules/jsdom python tests/test_source_sessions_ui_harness.py"
+    }
+  ],
+  "syntax": {
+    "python": "PASS: compileall of changed Python modules",
+    "javascript": "PASS: node --check on changed application JavaScript"
+  },
+  "protocols": {
+    "all_nonempty_subsets": 15,
+    "simultaneous": 4,
+    "opcua": "local asyncua server",
+    "ads": "local ADS/TCP peer; native notification ABI simulated",
+    "mqtt": "local MQTT wire peer",
+    "s7": "local Snap7 server, S7CommPlus fixtures and real UDP sockets"
+  },
+  "formats": {
+    "csv": "PASS: real codec and replay",
+    "parquet": "PASS: real PyArrow codec and replay",
+    "das": "PASS: real codec and replay",
+    "rbf": "PASS: real codec and replay",
+    "pda3": "PASS: real template codec, exact readback, NaN gaps, projection, window context and segmentation",
+    "dat": "PASS with explicit FakeNative substitute only; no real iba DLL or licensed writer was executed"
+  },
+  "unverified": [
+    "Physical PLCs/brokers and industrial networks",
+    "Windows executable build or execution",
+    "Real Beckhoff native DLL and PLC cycle performance",
+    "Real licensed ibaFiles.dll write/readback",
+    "External FDA/RBF/ibaAnalyzer compatibility in the target applications",
+    "Real browser visual rendering; DOM tests stub canvas"
+  ],
+  "windows_application_exe_produced": false,
+  "publications_or_pushes": false
+}

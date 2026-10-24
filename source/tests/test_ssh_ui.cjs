@@ -1,0 +1,25 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {JSDOM,VirtualConsole}=require(process.env.JSDOM_PATH||'jsdom');
+const [base,endpoint,root,...ids]=process.argv.slice(2),errors=[];
+const wait=async(fn,label)=>{const end=Date.now()+12000;while(Date.now()<end){if(await fn()){console.error('PASS '+label);return;}await new Promise(r=>setTimeout(r,30));}throw Error('Timeout '+label+' '+errors.join(';'));};
+(async()=>{
+const vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));const html=await(await fetch(base)).text(),dom=new JSDOM(html,{url:base,runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:vc}),w=dom.window,$=id=>w.document.getElementById(id);
+w.fetch=(url,options)=>fetch(new URL(url,base),options);w.AbortController=globalThis.AbortController;w.FormData=globalThis.FormData;w.ResizeObserver=class{observe(){}disconnect(){}};
+const ctx=new Proxy({measureText:t=>({width:String(t).length*7})},{get:(o,k)=>k in o?o[k]:(()=>{})});w.HTMLCanvasElement.prototype.getContext=()=>ctx;w.HTMLCanvasElement.prototype.getBoundingClientRect=()=>({x:0,y:0,left:0,top:0,width:950,height:560,right:950,bottom:560});
+w.addEventListener('error',e=>errors.push(e.message));w.eval([...w.document.querySelectorAll('script[src]')].map(s=>fs.readFileSync(path.join(__dirname,'../static',path.basename(new URL(s.src).pathname)),'utf8')).join('\n')+'\nwindow.sshTest={get ssh(){return SSH},get connected(){return connected},get chart(){return liveCharts.charts[0]},stop(){polling=false;clearTimeout(pollTimer);clearTimeout(workspaceTimer);clearTimeout(SSH.timer);applicationClosed=true;}};');const t=w.sshTest;
+try{
+ await wait(()=>$('endpoint').value,'config loaded');await w.opcuaConfigReady;
+ $('nav-connection').click();$('endpoint').value=endpoint;$('security').value='None';$('sample_ms').value='10';$('root_nodeid').value=root;$('connect').click();await wait(()=>t.connected,'OPC UA acquiring');
+ $('manual-node').value=ids[0];$('add-node').click();await wait(()=>t.chart.trend.series[ids[0]]?.length>20,'live graph');
+ $('nav-ssh').click();await wait(()=>!$('ssh-page').hidden&&t.ssh.loaded,'SSH page');assert($('live-page').hidden);assert($('recordings-page').hidden);assert($('calculations-page').hidden);
+ $('ssh-host').value='127.0.0.1';$('ssh-port').value=process.env.TEST_SSH_PORT;$('ssh-password').value='test-password';$('ssh-connect-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
+ await wait(()=>$('ssh-trust-dialog').open,'host fingerprint before auth');assert($('ssh-trust-fingerprint').textContent.startsWith('SHA256:'));assert.equal($('ssh-password').value,'');$('ssh-trust-accept').click();await wait(()=>t.ssh.state==='connected'&&!$('ssh-run').disabled,'SSH connected');assert(t.connected);assert($('ssh-host').disabled);
+ $('ssh-editor').value='streams';$('ssh-run').click();await wait(()=>$('ssh-output').textContent.includes('first'),'streaming before completion');await wait(()=>t.ssh.job.state==='finished'&&!$('ssh-run').disabled,'exit status');assert.equal(t.ssh.job.exit_code,7);assert($('ssh-output').querySelector('.stderr').textContent.includes('warning'));assert($('ssh-output').textContent.includes('42 °C'));
+ $('ssh-editor').value='markup';$('ssh-run').click();await wait(()=>t.ssh.job.state==='finished'&&$('ssh-output').textContent.includes('<img'),'safe output');assert.equal($('ssh-output').querySelector('img'),null);
+ $('ssh-mode').value='script';$('ssh-mode').dispatchEvent(new w.Event('change'));$('ssh-editor').value='echo A\necho B';$('ssh-run').click();await wait(()=>t.ssh.job.state==='finished'&&$('ssh-output').textContent.includes('SCRIPT:echo A\necho B'),'multiline script');
+ $('ssh-mode').value='shell';$('ssh-mode').dispatchEvent(new w.Event('change'));$('ssh-run').click();await wait(()=>t.ssh.job.state==='running'&&!$('ssh-send').disabled,'interactive shell');$('ssh-input').value='cd /tmp';$('ssh-input-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await wait(()=>$('ssh-output').textContent.includes('input:cd /tmp'),'shell input');$('ssh-stop').click();await wait(()=>t.ssh.job.state==='cancelled','stop channel');
+ $('nav-live').click();assert(!$('live-page').hidden);assert($('ssh-page').hidden);assert(t.chart.trend.series[ids[0]].length>30);$('nav-calculations').click();assert($('ssh-page').hidden);$('nav-ssh').click();assert(!$('ssh-page').hidden);
+ $('ssh-disconnect').click();await wait(()=>t.ssh.state==='disconnected'&&!$('ssh-save').disabled,'disconnect');await wait(()=>$('ssh-known-key').textContent.includes('SHA256:'),'trusted key persisted');assert(t.connected);
+ assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks:['SSH page/navigation','acquisition continues','password cleared','host key approval','stream stdout/stderr/Unicode/exit','text-only XSS-safe output','multiline script','interactive input and stop','settings/public key persistence'],files:[]},null,2));
+}finally{t.stop();await new Promise(r=>setTimeout(r,300));w.close();}
+})().catch(e=>{console.error(e.stack);process.exit(1);});

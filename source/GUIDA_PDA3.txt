@@ -1,0 +1,185 @@
+SPACE ANALYZER V1.18.2 - DAT PDA3 NATIVO (SPERIMENTALE)
+
+AVVIO WINDOWS
+Estrarre l'intero ZIP in una cartella scrivibile. Avviare Space_Analyzer_V1.18.2.exe.
+L'EXE contiene Python, PyArrow, i servizi web, il modello PDA3 e il profilo canali.
+Non servono Python, pip o una connessione Internet sul PC di acquisizione.
+La funzione PDA3 non carica ibaFiles.dll e non richiede una licenza ibaFiles.
+L'opzione legacy "iba DAT (DLL)" e distinta e mantiene i propri controlli di
+licenza reali; non viene utilizzata dal nuovo writer/reader PDA3.
+
+PRIMO UTILIZZO
+1. Connessioni: scegliere OPC UA, ADS o S7 e impostare 10 ms effettivi.
+2. Scegliere da 1 a 64 segnali analogici numerici, anche calcolati.
+3. Record -> iba DAT PDA3. Controllare il pannello modello/griglia e accettare
+   la modalita sperimentale del calendario interno, descritta qui sotto.
+4. Impostare sessione, macchina, operatore, descrizione e buffer di coda.
+5. Avviare. Ogni finestra completa di 600 s genera un DAT e un JSON.
+   La conversione opera in un processo separato; l'originale continua in Parquet.
+   Pausa, zoom e selezione dei grafici non arrestano la registrazione.
+6. Puoi premere Stop anche dopo pochi secondi: chiude l'originale e genera
+   il DAT dell'ultimo intervallo effettivo. I 10 minuti sono il massimo per
+   segmento. La sola durata inferiore non genera un errore.
+   Se non e arrivato alcun campione, chiude normalmente senza creare un DAT.
+
+CARTELLE (accanto all'EXE)
+Recordings/Parquet/                 originali ZSTD, timestamp e qualita completi
+Recordings/DAT/AAAA-MM-GG/          DAT, manifest JSON, journal dei job
+Recordings/Exports/                 ZIP dei DAT esportati da X1-X2
+Ogni DAT ha 64 canali fisici, 100 Hz e spazio per 60000 campioni per canale, occupa
+13829608 byte (circa 13,19 MiB). Se sono selezionati meno segnali, gli altri
+canali sono Float32 +0. Il limite dimensione deve essere almeno 13,19 MiB,
+oppure 0 (nessun limite). Il limite si applica anche alle parti Parquet:
+parti dello stesso intervallo vengono raccolte nello stesso job DAT.
+La durata massima DAT e di 600 s. L'ultimo segmento puo durare da 10 ms
+a 600 s; la struttura fisica resta della stessa dimensione del modello.
+Il limite file non cambia la durata temporale. Lasciare spazio anche per
+originali e file temporanei.
+
+TIMESTAMP: LEGGERE PRIMA DI USARE I DAT FUORI DA SPACE ANALYZER
+Il timestamp iniziale interno non puo ancora essere riscritto in modo validato.
+Il timestamp iniziale, i metadati e tutti gli indici del modello restano immutati.
+Il solo timestamp finale viene ridotto a inizio + N * 10 ms per un segmento breve.
+ibaAnalyzer mantiene quindi la data/ora iniziale del modello originale.
+La compatibilita del nuovo file breve e della sua fine deve essere verificata
+nella propria versione ibaAnalyzer: la funzione resta sperimentale.
+Gli orari effettivi UTC sono nel JSON associato, insieme all'hash SHA256 del
+DAT, alla mappatura canali e agli hash degli archivi Parquet sorgente.
+Space Analyzer legge direttamente i Float32 del DAT e usa gli orari reali
+del JSON verificato. Portare DAT e JSON insieme quando si copiano i file.
+Senza JSON, l'importazione richiede esplicitamente l'offset UTC in minuti
+del calendario originale (es. +120 per CEST). Non viene inventato un fuso.
+Il modello originale parte dal 21/10/2026 11:45:15.890 e termina a 11:55:15.890
+come intervallo esclusivo; l'ultimo campione completo si trova a 11:55:15.880.
+Un DAT di 81,4 s conserva lo stesso inizio interno e finisce a 11:46:37.290
+(ultimo campione 11:46:37.280), mentre il JSON conserva gli orari reali.
+
+PRECISIONE, GRIGLIA E CAMPIONI MANCANTI
+Il DAT usa Float32: un valore Double/Int64 viene convertito in Float32, con
+massimo errore di conversione dichiarato per canale nel manifest. Il Parquet
+conserva i valori numerici Float64 e value_text originali (anche Int64/UInt64),
+Good/Uncertain/Bad, SourceTimestamp, ServerTimestamp, timestamp locale e ADS
+FILETIME quando disponibili. Il DAT non contiene tutta questa diagnostica.
+La codifica RLE non altera i bit Float32 e viene riletta integralmente prima
+della pubblicazione. Non vengono mediate, interpolate o approssimate serie
+per farle entrare nei blocchi del modello.
+La griglia nominale DAT e di 10 ms, ancorata al primo timestamp acquisito.
+La tolleranza esplicita (default 1 ms, configurabile da 0 a meno di 5 ms)
+associa ogni campione al punto piu vicino. Il valore e originale, mentre
+il tempo esatto e tutti i timestamp sorgente restano nel Parquet.
+Un DAT richiede N campioni distinti Good e finiti per ogni segnale nell'intervallo
+effettivo. N va da 1 a 60000; in caso di Stop viene ricavato dall'ultimo campione.
+Lo spazio fisico residuo del modello viene marcato con NaN IEEE-754, oltre
+il timestamp finale. Non rappresenta misure aggiuntive: il reader esclude
+interamente questa coda da grafici, FFT, formule ed export. Il manifest distingue
+valid_samples_per_channel, storage_samples_per_channel e reserved_tail_samples.
+Non vengono copiati zeri, medie o l'ultimo valore come campioni acquisiti mancanti.
+Gap, duplicati, Uncertain/Bad/null, overflow Float32, campioni fuori griglia
+e ritardi fuori finestra fanno saltare la finestra. I soli limiti di capacita
+attivano invece la suddivisione lossless descritta sotto, se abilitata.
+Il JSON riporta conteggi, esempi, errori e originali: nessun riempimento.
+Un intero intervallo saltato tra finestre e segnalato nel journal/manifest.
+Frequenze miste o formule asincrone possono non completare la griglia richiesta.
+
+CAPACITA DEL MODELLO E COMPATIBILITA
+Il profilo e ricavato esclusivamente dal DAT originale fornito dall'utente.
+L'export CSV di ibaAnalyzer ha confermato l'appartenenza di tutti i 2752
+blocchi ai 64 canali, con 60000 campioni esatti ciascuno e undici pagine indice.
+Una serie molto variabile puo richiedere piu byte del payload assegnato.
+V1.18.2 gestisce questo caso con l'opzione "Suddividi automaticamente", attiva
+per impostazione predefinita: la finestra viene suddivisa in DAT consecutivi
+da massimo 1000 campioni (10 s). Anche Float32 che cambiano a ogni campione
+entrano nella porzione iniziale del modello con la coda NaN esclusa.
+Ogni parte viene riletta integralmente prima della pubblicazione; la sequenza
+.pda3seq verifica continuita e copertura di tutti i valori. In Registrazioni
+aprire la voce "sequenza lossless" per l'intera finestra su una sola timeline,
+con grafici, marker, FFT e formule consueti.
+Non viene modificata la griglia a 10 ms, non si riduce la precisione Float32 e
+non si sostituiscono i valori con medie o con l'ultimo valore.
+Se si disabilita la suddivisione, un payload insufficiente resta un errore
+esplicito e il DAT singolo non viene creato; il Parquet originale resta intatto.
+Errori reali di qualita, gap e disco non vengono nascosti dalla suddivisione.
+
+SPAZIO DELLA SUDDIVISIONE
+Ogni parte DAT mantiene la struttura fisica di 13829608 byte (13,19 MiB).
+Un intervallo di 36,35 s poco comprimibile genera quattro DAT: 10, 10, 10 e
+6,35 s, circa 52,76 MiB complessivi. Una finestra di 600 s puo generarne 60,
+circa 791 MiB. Il processo controlla lo spazio prima di scrivere tutte le
+parti. Per conservare grandi volumi con meno spazio, usare Parquet ZSTD.
+Il limite dimensione configurato rimane per singolo file; non e un limite
+allo spazio dell'intera sessione. La UI indica progresso e numero delle parti.
+Con la struttura del modello attuale non e garantito un solo DAT di 10 minuti
+per valori arbitrari: servirebbe un modello con payload piu capienti o la
+decodifica completa degli indici. La suddivisione mantiene indici e offset.
+Non sono dichiarati supportati modelli DAT generici, file cifrati o con
+strutture diverse. Il reader verifica header, metadati, indici e conteggi.
+1/2/5 ms NON sono supportati in PDA3 con questo modello; CSV e Parquet
+mantengono le funzionalita precedenti e le frequenze consentite dal protocollo.
+
+APERTURA E ANALISI
+Registrazioni elenca anche le sottocartelle DAT e Parquet. "Apri dal PC"
+accetta piu CSV/Parquet/DAS/DAT e relativi JSON nello stesso caricamento.
+Se richiesto, i DAT sono uniti in una timeline solo se intervalli consecutivi
+e identificativi dei segnali coincidono; gap/sovrapposizioni sono segnalati.
+DAT grezzi senza manifest espongono i 64 identificativi [0:0] ... [0:63].
+I nomi opachi originali dentro ibaAnalyzer non sono rinominati: il manifest
+descrive il legame tra segnale acquisito e slot PDA3. In Space Analyzer vengono
+mostrati alias e unita del manifest. Qualita e timestamp PLC non si possono
+ricavare dal DAT: per diagnosticarli aprire il Parquet originale associato.
+Lo stesso motore grafico gestisce DAT, CSV e Parquet, anche su grafici separati:
+assi Y1/Y2, gain/offset, autoscale, zoom, X1/X2, crosshair, FFT, formule e workspace.
+Per export DAT storico selezionare un intervallo fino a 600 s e fino a 64
+segnali. Sono consentiti anche intervalli di pochi secondi. La durata finale
+comprende l'ultimo campione (es. 1000 campioni a 10 ms = 10 s; distanza tra
+primo e ultimo timestamp 9,99 s). Si ottiene uno ZIP DAT+JSON; l'originale
+selezionato viene conservato in Parquet. Se necessario, lo ZIP contiene tutte
+le parti DAT e i relativi JSON. Per riaprire tutto dal PC selezionare insieme
+DAT e JSON e abilitare "Unisci DAT consecutivi". Intervalli maggiori: CSV/Parquet.
+
+RIAVVIO, DISCO E CONCORRENZA
+Un controller separato raccoglie le parti Parquet completate; un solo processo
+PDA3 esporta alla volta. L'acquisizione non attende compressione o lettura DAT.
+Una coda piena arresta esplicitamente Record: non viene nascosta perdita dati.
+Al riavvio vengono ricostruiti job mancanti da metadati di Parquet chiusi e
+ripresi i job accodati. I vecchi job V1.18.0 respinti per il minimo di 60000
+campioni vengono riprovati se i metadati confermano uno Stop normale; i controlli
+su veri gap e dati non validi restano attivi. Parti .part incomplete restano
+intatte e sono segnalate. In alternativa, aprire il Parquet originale di una
+vecchia registrazione breve ed esportare il suo intervallo in DAT.
+Errori disco/processo restano nei log e nei job, con originali conservati quando
+scrivibili. Nessuna promessa di recuperare byte non arrivati al disco.
+I DAT sono pubblicati solo dopo fsync e rilettura, senza sovrascrittura.
+Serve un filesystem che supporti hard link (es. NTFS). Su volumi senza tale
+supporto viene segnalato errore e conservato il Parquet, senza fallback rischiosi.
+
+VALIDAZIONE ESTERNA ANCORA NECESSARIA
+Il file diagnostico con ID dei blocchi e stato aperto dall'utente in ibaAnalyzer;
+l'export dei 64 canali ha risolto la mappa. Il nuovo ricodificatore lossless
+e verificato automaticamente a livello di bit/container, ma NON eseguito qui
+in ibaAnalyzer. Aprire Verifica_PDA3/PDA3_Lossless_64ch.dat con ibaAnalyzer e
+confrontare i livelli con valori_attesi.csv e il calendario con il modello.
+La funzione rimane sperimentale fino a questa prova, e la limitazione del
+calendario interno rimane comunque esplicita. I test simulati non certificano
+una frequenza di acquisizione reale su PLC, rete e PC dell'utente.
+
+COMPONENTI
+V1.18.2 recupera inoltre i job precedenti rifiutati per "dati non comprimibili
+nel blocco", mantenendo Recordings/Parquet e i journal DAT nella stessa struttura
+accanto all'EXE aggiornato. Il recupero non modifica gli archivi originali.
+Per il nuovo caso di prova aprire Verifica_PDA3_Rumore: contiene quattro DAT
+con 9 segnali sempre variabili, 3635 campioni per segnale e 36,35 s totali.
+I file sono sintetici, prodotti dal vero writer e non da un mock; verificare
+apertura e valori in ibaAnalyzer, ancora non eseguito qui.
+
+COMPONENTI SOFTWARE
+pda3/reader.py, template_loader.py, channel_mapper.py: contenitore e profilo.
+pda3/rle_codec.py, block_writer.py, exporter.py: Float32 e scrittura atomica.
+pda3/recording.py, window_export.py, pda3_worker.py: segmenti/processo/recupero.
+pda3/errors.py, segmented_export.py: limite capacita e suddivisione lossless.
+pda3/service.py, import_service.py, historical_export.py: replay/import/export.
+recordings.py e recording_reader.py riusano buffer, qualita e storage esistenti.
+Non vengono modificati algoritmi ADS, OPC UA, S7 o FFT per questa integrazione.
+La nuova prova Verifica_PDA3/PDA3_Breve_81_4s_9ch.dat contiene 8140 campioni
+per ciascuno di 9 segnali, con fine interna abbreviata e coda NaN esclusa.
+Aprirla in ibaAnalyzer per verificare la compatibilita dei segmenti brevi.
+

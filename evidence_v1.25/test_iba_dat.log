@@ -1,0 +1,32 @@
+test_channel_limit_rejected_before_original_file_creation (test_iba_dat.Format.test_channel_limit_rejected_before_original_file_creation) ... ok
+test_check_requires_native_license_and_complete_roundtrip (test_iba_dat.Format.test_check_requires_native_license_and_complete_roundtrip) ... ok
+test_companion_missing_modified_and_traversal_rejected (test_iba_dat.Format.test_companion_missing_modified_and_traversal_rejected) ... ok
+test_existing_dat_never_overwritten (test_iba_dat.Format.test_existing_dat_never_overwritten) ... ok
+test_float32_overflow_keeps_archive (test_iba_dat.Format.test_float32_overflow_keeps_archive) ... ok
+test_float32_quality_timestamps_and_lossless_originals (test_iba_dat.Format.test_float32_quality_timestamps_and_lossless_originals) ... ok
+test_http_simulation_flags_cannot_grant_license (test_iba_dat.Format.test_http_simulation_flags_cannot_grant_license) ... ok
+test_isolated_worker_reports_unavailable_native_runtime (test_iba_dat.Format.test_isolated_worker_reports_unavailable_native_runtime) ... ok
+test_mixed_frequencies_are_not_resampled (test_iba_dat.Format.test_mixed_frequencies_are_not_resampled) ... ok
+test_negative_license_blocks_before_original_file_creation (test_iba_dat.Format.test_negative_license_blocks_before_original_file_creation) ... ok
+test_record_stop_and_native_failure_keeps_original (test_iba_dat.Format.test_record_stop_and_native_failure_keeps_original) ... ERROR:root:iba DAT conversion failure
+Traceback (most recent call last):
+  File "/workspace/work/Space_Analyzer_Codex/source/converted_recording.py", line 67, in _run
+    result=self.exporter(self.directory/part['name'],self.nodes,self.original.max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+ValueError: Licensed = false
+ok
+test_record_stop_and_replay (test_iba_dat.Format.test_record_stop_and_replay) ... ok
+test_rotation_preserves_late_duplicate_samples_and_whole_cycles (test_iba_dat.Format.test_rotation_preserves_late_duplicate_samples_and_whole_cycles) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.342s
+
+OK

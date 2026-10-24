@@ -1,0 +1,57 @@
+/* Danieli colour standard supplied by the user. RGB values sampled from swatches. */
+:root{
+ --brand-primary:#006EFF;--brand-primary-soft:#CCE2FF;
+ --brand-orange:#F58C3A;--brand-orange-soft:#FFD6B7;
+ --brand-teal:#0AAF96;--brand-teal-soft:#90E5D8;
+ --brand-disabled:#CCC3BE;--brand-error:#E53C14;--brand-error-soft:#FAB7A7;
+ --bg:#E5E5E5;--surface:#FFFFFF;--surface2:#F2F2F2;
+ --ink:#000000;--muted:#707E86;--line:#E5E5E5;
+ --blue:var(--brand-primary);--green:var(--brand-teal);--danger:var(--brand-error);--warning:var(--brand-orange);
+ --plot-text:#707E86;--plot-grid:#E5E5E5;--hover:#CCE2FF;--shadow:0 8px 32px #00000014;color-scheme:light;
+}
+:root[data-theme=dark]{
+ --bg:#101010;--surface:#1A1A1A;--surface2:#292929;--ink:#FFFFFF;--muted:#CCC3BE;--line:#404040;
+ --blue:#006EFF;--green:#0AAF96;--danger:#E53C14;--warning:#F58C3A;
+ --plot-text:#CCC3BE;--plot-grid:#404040;--hover:#003B88;--shadow:0 8px 32px #0006;color-scheme:dark;
+}
+.primary,.save,.brand-mark{background:var(--brand-primary);color:#FFFFFF;border-color:var(--brand-primary)}
+.primary:hover:not(:disabled),.save:hover:not(:disabled){filter:brightness(.94)}
+button:disabled,.button[aria-disabled=true],input:disabled,select:disabled{background:var(--brand-disabled);color:#707E86;border-color:var(--brand-disabled);opacity:1;cursor:not-allowed}
+.primary:disabled,.save:disabled{background:var(--brand-primary-soft);color:#707E86;border-color:var(--brand-primary-soft)}
+input[type=checkbox],input[type=radio],input[type=range],progress{accent-color:var(--brand-primary)}
+.page-tab.active,.tab.active,.history-file.active{background:var(--brand-primary-soft);color:#000000;border-color:var(--brand-primary)}
+.page-tab.active{box-shadow:inset 0 -2px var(--brand-primary)}.history-file.active{box-shadow:inset 3px 0 var(--brand-primary)}
+.workspace-chart.active-chart{border-color:var(--brand-primary)}
+.selected-row:hover,.node:hover,tr:hover td,.history-signal-row:hover{background:var(--hover)}
+.record-button{background:var(--brand-orange);color:#000000;border-color:var(--brand-orange)}
+body.is-recording #record{background:var(--brand-orange-soft);color:#000000;border-color:var(--brand-orange)}
+@keyframes record-pulse{50%{box-shadow:0 0 0 3px #F58C3A44;filter:brightness(1.05)}}
+.status.ok,.autoscale{background:var(--brand-teal-soft);color:#000000;border-color:var(--brand-teal)}
+.status.pending,.autoscale.zoomed,button.paused{background:var(--brand-orange-soft);color:#000000;border-color:var(--brand-orange)}
+.status.bad,.record-error,.message.error,.quality-summary.has-bad{background:var(--brand-error-soft);color:#000000;border-color:var(--brand-error)}
+#record-stop{color:var(--danger)}#record-stop:disabled{color:#707E86}
+.marker-button.active{background:var(--brand-primary-soft);color:#000000;border-color:var(--brand-primary);box-shadow:none}
+.navigator{background:var(--surface2);border-color:var(--line)}.navigator-window{border-color:var(--brand-primary);background:#006EFF22}
+.navigator-handle{background:var(--brand-primary)}.synchronized-crosshair{border-color:var(--muted)}
+.source-picker,.properties-note{background:var(--surface2);border-color:var(--line)}
+.tooltip{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow)}
+.marker-table th,.marker-summary,.marker-panel,.graph-choice{background:var(--surface2);border-color:var(--line)}
+.page-splitter:hover span,.grid-resizer:hover,.chart-resizer:hover{background:var(--brand-primary)}
+.brand .company-logo{background:#E5E5E5}.brand strong,.chart-name{color:var(--ink)}
+:root[data-theme=dark] .page-tab.active,:root[data-theme=dark] .tab.active,:root[data-theme=dark] .history-file.active{background:#003B88;color:#FFFFFF}
+.record-dialog::backdrop,.connection-dialog::backdrop,.analysis-dialog::backdrop,.properties-dialog::backdrop{background:#00000066}
+.logs-content{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.quality-summary{background:var(--brand-teal-soft);color:#000000}.quality-summary.has-bad{background:var(--brand-error-soft);color:#000000}
+.connection-feedback{background:var(--brand-primary-soft);color:#000000}.connection-feedback.error{background:var(--brand-error-soft);color:#000000}
+.record-status.active{background:var(--brand-orange-soft);color:#000000}.record-status.error{color:var(--brand-error)}
+.record-overlay{background:#00000066}.record-dialog,.connection-dialog,.analysis-dialog{box-shadow:var(--shadow)}
+.record-option input{accent-color:var(--brand-primary)}.node .expander{background:var(--surface2);color:var(--muted)}.indent{border-color:var(--line)}
+.chart-footer{border-color:var(--line)}.page-splitter:focus-visible span,.page-splitter.dragging span{background:var(--brand-primary)}
+.page-splitter:focus-visible::before,.page-splitter.dragging::before{background:var(--hover)}.workspace-chart.signal-drag-over{box-shadow:0 0 0 2px #006EFF33}
+.ads-field-scope{display:inline-block;margin-left:4px;font-size:9px;padding:1px 4px;border-radius:3px;background:var(--surface2);color:var(--muted);font-weight:400}
+
+/* Typed Siemens catalog remains usable within the responsive connection dialog. */
+.s7-tag-list{max-height:280px;overflow:auto;margin:12px 0}.s7-tag-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid #cbd5e1}.s7-tag-row>span{flex:1;min-width:120px;overflow-wrap:anywhere}.s7-tag-row>small{flex:1;min-width:160px;overflow-wrap:anywhere}#s7-info{white-space:pre-line}#s7-connection-fields .row>div{min-width:0}#s7-tags-import{max-width:100%}
+
+/* Live zoom keeps the selected time span and Y limits while data advances. */
+#global-live-zoom[aria-pressed="true"],.autoscale.live-zoom{background:var(--brand-teal-soft);color:#000000;border-color:var(--brand-teal)}

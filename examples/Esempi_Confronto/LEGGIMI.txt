@@ -1,0 +1,15 @@
+PROVA SINTETICA DEL CONFRONTO - NESSUN DATO DI IMPIANTO
+
+In Registrazioni -> Apri file dal PC selezionare insieme:
+  Confronto_1ms.csv + Confronto_1ms.metadata.json
+  Confronto_10ms.parquet + Confronto_10ms.metadata.json
+
+La prima registrazione inizia il 21/10/2026 alle 12:00:00 UTC, dura 9,999 s
+e ha 1 ms di passo; la seconda inizia due secondi dopo e dura 5,990 s,
+con passo di 10 ms. Il browser visualizza l'ora locale del PC.
+Sono presenti due segnali per file e un identificativo Pressione comune:
+nel confronto i due segnali Pressione restano distinti e identificano la fonte.
+Nel CSV manca il tratto da 4,000 a 4,099 s: la traccia viene interrotta.
+Nessun campione viene interpolato o replicato per uniformare le basi tempo.
+Provare Intera estensione, Solo intervallo comune, oppure correggere
+l'orario della seconda registrazione di -2000 ms per allinearne gli inizi.

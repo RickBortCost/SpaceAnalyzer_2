@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Five-language selector next to Settings; immediate navigation, modal, action and document-lang updates; language persisted through API",
+    "Open property dialogs translate without replacing inputs, losing unsaved edits or changing operator data",
+    "Live data and raw signal/chart names survive all languages; translated toolbar measures overflow and preserves the same controls/listeners",
+    "Acquisition and Parquet Record continue through language changes; finalized file reopens with original signal IDs and values",
+    "MQTT, S7 and SSH labels translate; workspace persists language and restores it even when localStorage is disabled"
+  ],
+  "files": []
+}

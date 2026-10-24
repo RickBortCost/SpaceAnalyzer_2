@@ -1,0 +1,3 @@
+{"path": "/tmp/space-soak-phase1/f9f8410d46e24f31b5036efda20b1d65.sac", "samples": 106000, "latency_ms": {"p95": 102.21796, "p99": 105.580837, "receipt_window": 106}, "usage": {"cpu_seconds": 0.07, "rss_bytes": 11485184}}
+{"path": "/tmp/space-soak-phase1/d1deeec4293246d0b103f60478cce314.sac", "samples": 105000, "latency_ms": {"p95": 163.649651, "p99": 187.259854, "receipt_window": 76}, "usage": {"cpu_seconds": 0.08, "rss_bytes": 11513856}}
+{"path": "/tmp/space-soak-phase1/a880f930ac5845439f297c818dfc062f.sac", "samples": 89000, "latency_ms": {"p95": 166.531463, "p99": 173.496306, "receipt_window": 64}, "usage": {"cpu_seconds": 0.07, "rss_bytes": 11505664}}

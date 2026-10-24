@@ -1,0 +1,12 @@
+PROVA FDA - DATI INTERAMENTE SINTETICI
+Aprire Prova_FDA_1ms.das nel proprio FDA.
+10 secondi di dati a 1000 Hz, 10000 frame.
+Seno 50 Hz: ampiezza picco 1.5 g.
+Seno 125 Hz: ampiezza picco 0.5 g.
+Rampa: da -10 a +10 mm.
+Ogni segnale ha un canale _Q, sempre 3 (Good) in questa prova.
+Il nome dei segnali termina con un indice univoco.
+Controllare apertura, nomi, unita', valori, scale e durata.
+Origine fissa sintetica: 20 ottobre 2026, 10:00 UTC (12:00 ora italiana).
+Valori FDA Int16 scalati e tempo al millisecondo; originali in Parquet.
+Questa prova non certifica acquisizione reale o compatibilita' FDA.

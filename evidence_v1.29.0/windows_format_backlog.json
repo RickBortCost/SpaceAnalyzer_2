@@ -1,0 +1,46 @@
+{
+  "workflow_run_id": 40073637942,
+  "job_id": 120812238841,
+  "source_commit": "95a56daf64d6c36b46edb71ef5a4fbd8e66332e8",
+  "stage": "FDA burst before Stop",
+  "primary": {
+    "received_samples": 128000,
+    "durable_samples": 128000,
+    "lost_samples": 0,
+    "inflight_samples": 0,
+    "integrity": "recording"
+  },
+  "acquisition": {
+    "received": 128156,
+    "lost": 0,
+    "buffer": {
+      "accepted_batches": 2156,
+      "bytes": 0,
+      "capacity_batches": 4096,
+      "capacity_bytes": 33554432,
+      "capacity_samples": 32768,
+      "completed_batches": 2156,
+      "failed": false,
+      "high_water": 1600,
+      "lost_samples": 0,
+      "samples": 0
+    }
+  },
+  "external": {
+    "cycles_received": 397,
+    "error": "Formato esterno in ritardo: originale primario conservato",
+    "buffer": {
+      "accepted_batches": 889,
+      "bytes": 0,
+      "capacity_batches": 4096,
+      "capacity_bytes": 33554432,
+      "capacity_samples": 65536,
+      "completed_batches": 889,
+      "failed": true,
+      "high_water": 31488,
+      "lost_samples": 64,
+      "samples": 0
+    }
+  },
+  "followup": "Recover selected formats from the sealed primary in a separate process; leave capture and new recordings independent."
+}

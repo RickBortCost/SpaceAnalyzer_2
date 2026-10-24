@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Full-session range and original start retained on two live charts beyond 10-second raw FIFO eviction",
+    "Pause/play, shared zoom, X1/X2 and crosshair preserved",
+    "Recent/full selector, visible summary disclosure and workspace reload verified"
+  ],
+  "files": []
+}

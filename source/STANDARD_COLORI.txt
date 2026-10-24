@@ -1,0 +1,23 @@
+SPACE ANALYZER V1.8.2 - STANDARD COLORI DANIELI
+Palette ricavata dai campioni RGB delle immagini fornite:
+Primario: #006EFF; primario chiaro: #CCE2FF.
+Secondario arancio: #F58C3A; arancio chiaro: #FFD6B7.
+Secondario verde acqua: #0AAF96; verde acqua chiaro: #90E5D8.
+Disabilitato: #CCC3BE. Errore: #E53C14; errore chiaro: #FAB7A7.
+Sfondo: #E5E5E5; pannelli secondari: #F2F2F2; schede: #FFFFFF.
+Testo principale: #000000; testo secondario/griglia: #707E86/#E5E5E5.
+
+Il tema Standard usa fondo grigio e pannelli bianchi, selezione azzurra,
+azioni principali blu, registrazione arancio, qualita Good verde acqua,
+Uncertain arancio e Bad rosso. Live, Registrazioni, Connessione, FFT, popup,
+menu, tooltip e log usano la stessa palette. Marcatori X1 blu / X2 arancio.
+FFT: risultato blu, ultimo blocco verde acqua, Max Hold arancio.
+I primi segnali usano i tre colori principali; per ulteriori segnali sono
+impiegate varianti piu scure distinguibili su bianco. I colori personalizzati
+salvati dall'utente continuano a essere rispettati.
+
+Al primo ripristino di un workspace precedente viene scelto Standard per
+applicare il riferimento fornito; configurazione e segnali vengono recuperati.
+Dark/System restano selezionabili e la scelta successiva viene salvata.
+Il profilo scuro mantiene gli accenti aziendali su neutri scuri adattati.
+La richiesta riguarda la palette: nessun font proprietario e stato incorporato.

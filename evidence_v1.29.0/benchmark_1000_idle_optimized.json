@@ -1,0 +1,227 @@
+{
+  "result": "PASS",
+  "measured_wall_seconds": 13.125822393999897,
+  "requested_seconds": 10.0,
+  "completed_simulated_seconds": 10.0,
+  "segments": [
+    {
+      "result": "PASS",
+      "channels": 1000,
+      "period_ms": 10,
+      "requested_seconds": 10.0,
+      "requested_values_per_second": 100000.0,
+      "produced": 1000000,
+      "saved": 1000000,
+      "missing": 0,
+      "sequence_mismatches": 0,
+      "all_channels_complete": true,
+      "produced_seconds": 9.991616541999974,
+      "producer_values_per_second": 100083.90492133866,
+      "total_seconds": 10.025657128000148,
+      "parent_cpu_seconds": 10.347702165,
+      "parent_cpu_percent_of_one_core": 103.21222319782335,
+      "parent_rss_peak_observed": 19709952,
+      "writer_usage": {
+        "cpu_seconds": 0.39,
+        "rss_bytes": 12263424
+      },
+      "producer_lateness_ms": {
+        "p95": 1.2623940001503797,
+        "p99": 11.034772999892084,
+        "max": 35.55014500011566
+      },
+      "max_backlog_samples_observed": 1000,
+      "primary": {
+        "state": "stopped",
+        "pid": 7053,
+        "path": "/tmp/tmp938izws7/d971458a8a7845169052cea7a0a73b25.sac",
+        "samples": 1000000,
+        "blocks": 1009,
+        "durable_samples": 1000000,
+        "bytes_written": 3839132,
+        "last_flush_ns": "1792824627619095458",
+        "error": "",
+        "integrity": "complete",
+        "usage": {
+          "cpu_seconds": 0.39,
+          "rss_bytes": 12263424
+        },
+        "recording_id": "d971458a8a7845169052cea7a0a73b25",
+        "active": false,
+        "busy": false,
+        "received_samples": 1000000,
+        "lost_samples": 0,
+        "inflight_samples": 0,
+        "queue_samples": 0,
+        "queue_bytes": 0,
+        "queue_capacity_samples": 65536,
+        "queue_capacity_bytes": 33554432,
+        "queue_high_water": 4250,
+        "uncommitted_at_failure": 0,
+        "latency_measurement": "sample-weighted batch upper bound: ingress to durable fsync acknowledgement",
+        "latency_ms": {
+          "p95": 105.353303,
+          "p99": 110.548956,
+          "receipt_window": 1008
+        },
+        "samples_per_second": 99470.06537850731,
+        "bytes_per_second": 381878.7110367195
+      },
+      "acquisition": {
+        "connections": {
+          "ads": {
+            "connection_id": "346b316ca6e548299f5fb42dbb3aaeed",
+            "protocol": "ads",
+            "received": 250000,
+            "dispatched": 250000,
+            "lost": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19093.86663003434,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 2.976015,
+              "p99": 27.545825
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 1000,
+              "completed_batches": 1000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1250
+            }
+          },
+          "opcua": {
+            "connection_id": "646d4e2daf4042d49b274d90e253ac55",
+            "protocol": "opcua",
+            "received": 250000,
+            "dispatched": 250000,
+            "lost": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19097.937907365835,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 3.45917,
+              "p99": 29.646102
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 1000,
+              "completed_batches": 1000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1500
+            }
+          },
+          "mqtt": {
+            "connection_id": "0a7718b36faf464a9b0bc2768da18e42",
+            "protocol": "mqtt",
+            "received": 250000,
+            "dispatched": 250000,
+            "lost": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19101.953135037074,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 4.083548,
+              "p99": 29.631754
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 1000,
+              "completed_batches": 1000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1500
+            }
+          },
+          "s7": {
+            "connection_id": "3d5e58bb72e74bb882a6307af348d149",
+            "protocol": "s7",
+            "received": 250000,
+            "dispatched": 250000,
+            "lost": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19104.9257856232,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 5.343555,
+              "p99": 30.03592
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 1000,
+              "completed_batches": 1000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 1500
+            }
+          }
+        },
+        "live": {
+          "backlog_samples": 0,
+          "backlog_bytes": 0,
+          "skipped_samples": 0,
+          "error": "",
+          "policy": "skip display only; originals already submitted to recorder"
+        },
+        "policy": "bounded; stop recording on original overflow; recorder before calculations and display"
+      },
+      "ui_stress": false,
+      "live_calls": 4000,
+      "limits": "Synthetic adapters; actual PLC, ADS DLL, network and disk require on-site qualification"
+    }
+  ],
+  "platform": "linux",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "cpu_count": 3,
+  "run_at_ns": "1792824630696809164"
+}

@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Autoscan every second preserves open branches, DOM identity, focus, scroll and selected signals while discovering new fields",
+    "Markers stay in Play at fixed screen fractions; interval results update from raw samples without new variables",
+    "FFT requires paused graph and two markers; paused timestamps remain fixed and resume follows the viewport",
+    "Simultaneous-source profile survives switching away and back"
+  ],
+  "files": []
+}

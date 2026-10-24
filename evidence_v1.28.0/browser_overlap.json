@@ -1,0 +1,37 @@
+{
+  "version": "1.28.0",
+  "browser": "Chromium",
+  "canvas_stubbed": false,
+  "hardware_tested": false,
+  "checks": [
+    "Actual Stop and Record controls start a new CSV acquisition while the old FDA disk writer is blocked; independent states visible in the background-save panel",
+    "Previous FDA conversion finishes in a separate process while the new acquisition continues",
+    "Both FDA and CSV replay all four protocol signals with exactly their own original row counts"
+  ],
+  "result": "PASS",
+  "browser_version": "154.0.8037.57",
+  "recordings": [
+    {
+      "format": "das",
+      "rows": 77,
+      "numeric": 77,
+      "signals": [
+        "ads:MAIN.Wave",
+        "mqtt:plant/motor#/load",
+        "ns=2;s=Temperature",
+        "s7:DB1.DBD0:REAL"
+      ]
+    },
+    {
+      "format": "csv",
+      "rows": 229,
+      "numeric": 229,
+      "signals": [
+        "ads:MAIN.Wave",
+        "mqtt:plant/motor#/load",
+        "ns=2;s=Temperature",
+        "s7:DB1.DBD0:REAL"
+      ]
+    }
+  ]
+}

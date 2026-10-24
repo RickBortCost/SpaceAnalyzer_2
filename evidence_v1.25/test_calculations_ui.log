@@ -1,0 +1,89 @@
+{
+  "result": "PASS",
+  "checks": [
+    "builder references",
+    "validation",
+    "preview live/replay",
+    "CRUD duplicate",
+    "record calculated timestamps",
+    "two live charts shared markers",
+    "historical original 6000 samples",
+    "Parquet materialization",
+    "safe parser rejection",
+    "workspace restoration"
+  ],
+  "files": [
+    {
+      "active": false,
+      "buffer_seconds_effective": 10,
+      "busy": false,
+      "bytes_written": 17376,
+      "cycles_received": 38,
+      "directory": "/tmp/opcua-v1111-test-k3mfmjva/application/Recordings",
+      "dropped_cycles": 0,
+      "duration_seconds": 0.295,
+      "ended_at": "2026-10-22T11:01:15.252868+00:00",
+      "error": "",
+      "filename": "OPCUA_20261022_110114_957679_1b5c8310_p0001.csv",
+      "files": [
+        {
+          "bytes": 17376,
+          "name": "OPCUA_20261022_110114_957679_1b5c8310_p0001.csv",
+          "part": 1,
+          "rows": 57
+        }
+      ],
+      "format": "csv",
+      "format_label": "CSV",
+      "node_ids": [
+        "ns=2;s=Temperature",
+        "ns=2;s=Power",
+        "calc:e015f0841bdf4b8ab36f8f1907be38b5"
+      ],
+      "nodes": [
+        {
+          "display_name": "Temperatura",
+          "node_class": "Variable",
+          "nodeid": "ns=2;s=Temperature"
+        },
+        {
+          "display_name": "Potenza",
+          "node_class": "Variable",
+          "nodeid": "ns=2;s=Power"
+        },
+        {
+          "display_name": "Delta Carico",
+          "node_class": "Variable",
+          "nodeid": "calc:e015f0841bdf4b8ab36f8f1907be38b5"
+        }
+      ],
+      "part": 1,
+      "path": "Recordings/OPCUA_20261022_110114_957679_1b5c8310_p0001.csv",
+      "pending_rows": 0,
+      "queue_capacity_cycles": 1000,
+      "queue_cycles": 0,
+      "reason": "user",
+      "rows_written": 57,
+      "session": {
+        "description": "",
+        "machine": "",
+        "operator": "",
+        "session_name": ""
+      },
+      "started_at": "2026-10-22T11:01:14.957679+00:00",
+      "state": "stopped",
+      "storage": {
+        "codec": "none",
+        "flush_seconds": 1,
+        "format": "csv",
+        "label": "CSV",
+        "level": null,
+        "lossless": true,
+        "profile": "text",
+        "row_group_rows": 4096
+      }
+    }
+  ],
+  "formula_id": "calc:e015f0841bdf4b8ab36f8f1907be38b5",
+  "errors": []
+}

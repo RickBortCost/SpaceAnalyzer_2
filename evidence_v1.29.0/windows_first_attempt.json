@@ -1,0 +1,11 @@
+{
+  "workflow_run_id": 40072831217,
+  "job_id": 120809776622,
+  "source_commit": "93b9f88da0bdd15b1509c776d20fcf1afea61d35",
+  "result": "FAIL",
+  "stage": "Execute packaged EXE / FDA burst",
+  "reason": "128000-sample FDA fixture did not reach 2000 processed cycles before timeout; first harness did not capture queue health",
+  "five_formats_and_primary_sequence": "PASS",
+  "published": false,
+  "followup": "Bounded MQTT consumer backpressure, monotonic recording fences, explicit failure health, rerun full Windows workflow"
+}

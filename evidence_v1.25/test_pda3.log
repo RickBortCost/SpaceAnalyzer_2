@@ -1,0 +1,20 @@
+test_active_1_8_32_and_unused_channels_zero (test_pda3.Container.test_active_1_8_32_and_unused_channels_zero) ... ok
+test_all_64_channels_every_float32_bit_and_all_indexes (test_pda3.Container.test_all_64_channels_every_float32_bit_and_all_indexes) ... PDA3 64-channel exact writer seconds: 16.049
+ok
+test_explicit_raw_timezone_manifest_hash_and_known_profile_only (test_pda3.Container.test_explicit_raw_timezone_manifest_hash_and_known_profile_only) ... ok
+test_no_overwrite_and_uncompressible_rejected (test_pda3.Container.test_no_overwrite_and_uncompressible_rejected) ... ok
+test_export_does_not_hold_original_recording_queue_and_source_windows_rotate (test_pda3.Window.test_export_does_not_hold_original_recording_queue_and_source_windows_rotate) ... ok
+test_full_then_short_sequence_reports_true_duration_and_count (test_pda3.Window.test_full_then_short_sequence_reports_true_duration_and_count) ... ok
+test_gaps_duplicate_bad_null_overflow_off_grid_preserve_original (test_pda3.Window.test_gaps_duplicate_bad_null_overflow_off_grid_preserve_original) ... ok
+test_isolated_process_exact_window_real_utc_fft_and_interval_export (test_pda3.Window.test_isolated_process_exact_window_real_utc_fft_and_interval_export) ... ok
+test_partial_stop_and_wrong_rate_no_invented_samples (test_pda3.Window.test_partial_stop_and_wrong_rate_no_invented_samples) ... ok
+test_recovery_rebuilds_closed_windows_reports_partials_once (test_pda3.Window.test_recovery_rebuilds_closed_windows_reports_partials_once) ... ok
+test_sequence_requires_same_signals_and_exact_continuity (test_pda3.Window.test_sequence_requires_same_signals_and_exact_continuity) ... ok
+test_short_durations_exact_count_clock_and_reserved_nan_tail (test_pda3.Window.test_short_durations_exact_count_clock_and_reserved_nan_tail) ... ok
+test_short_gap_and_invalid_data_remain_explicit_errors (test_pda3.Window.test_short_gap_and_invalid_data_remain_explicit_errors) ... ok
+test_short_header_manifest_validation_and_historical_export (test_pda3.Window.test_short_header_manifest_validation_and_historical_export) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 122.783s
+
+OK

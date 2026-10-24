@@ -1,0 +1,27 @@
+........ERROR:root:RBF v3 conversion failure
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/rbf.py", line 339, in export_parquet
+    raw = frame.pack(*divmod(ticks, 1_000_000_000), *values)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OverflowError: float too large to pack with f format
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/converted_recording.py", line 93, in _run
+    result=self._export(self.directory/part['name'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/SpaceAnalizer/source/converted_recording.py", line 69, in _export
+    return self.exporter(path,self.nodes,self.original.max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/SpaceAnalizer/source/rbf_recording.py", line 9, in <lambda>
+    exporter=lambda *args: export_parquet(*args), fmt='rbf',
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/SpaceAnalizer/source/rbf.py", line 341, in export_parquet
+    raise ValueError('RBF: valore oltre i limiti Float32; archivio originale conservato') from exc
+ValueError: RBF: valore oltre i limiti Float32; archivio originale conservato
+...
+----------------------------------------------------------------------
+Ran 11 tests in 1.146s
+
+OK

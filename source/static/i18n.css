@@ -1,0 +1,8 @@
+.preferences-controls{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto}
+.language-control{display:flex;align-items:center;gap:5px;flex:0 0 auto;min-width:0}
+.language-control select{width:105px;min-width:0;height:32px;padding:4px 20px 4px 7px;font-size:11px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:5px}
+.language-icon{font-size:15px;line-height:1}
+@media(max-width:1500px){.language-control{gap:3px}.language-control select{width:89px;font-size:10px}}
+@media(max-width:1350px){html[lang] .app-bar{height:auto;min-height:54px;flex-wrap:wrap}}
+@media(max-width:900px){.language-control select{width:88px}.language-icon{display:none}}
+@media(max-width:480px){.language-control select{width:83px}.app-bar .page-tabs{flex-wrap:wrap}}

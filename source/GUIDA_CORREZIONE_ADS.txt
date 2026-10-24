@@ -1,0 +1,45 @@
+Space Analyzer V1.14.1 - Correzione blocchi ADS cicliche
+20 ottobre 2026
+
+INSTALLAZIONE
+Chiudere la precedente istanza, estrarre tutto lo ZIP e avviare
+Space_Analyzer_V1.14.1.exe. Runtime Python, dipendenze e servizi inclusi.
+TwinCAT locale/TcAdsDll x64 e route verso il PAC restano necessari per ADS native.
+
+CORREZIONE
+Le letture periodiche di stato e versione simboli non sospendono piu'
+lo svuotamento della coda notifiche. Un timeout di controllo 0x745 o 0x719
+viene segnalato in diagnostica e nel log; mentre le notifiche continuano,
+non provoca da solo una riconnessione. Il controllo ritenta dopo 5 secondi.
+Resta un solo controllo in corso; chiusura e cambio selezione attendono
+la fine delle richieste DLL prima di liberare porta e handle.
+Il watchdog per singolo segnale continua a rilevare un flusso assente
+(dopo almeno 5 secondi; soglia proporzionale per periodi lunghi).
+Le modifiche online ai simboli continuano a ricreare le sottoscrizioni.
+
+Diagnostica aggiornata ogni 250 ms, coda svuotata senza pausa obbligatoria
+quando rimangono campioni, eliminata un'allocazione del buffer per campione.
+Capacita' della coda invariata. Campioni e FILETIME originali invariati.
+Un vero overflow resta un errore esplicito: i campioni persi non sono
+ricostruiti, interpolati o nascosti. La correzione non garantisce 1 ms
+per qualsiasi numero di segnali e non risolve un sovraccarico permanente.
+
+DIAGNOSTICA
+Controllare picco coda, campioni elaborati/persi, periodo PLC e controllo ADS.
+Controllo DEGRADATO significa stato/versione simboli non verificati di recente:
+lo stato PLC disponibile e' l'ultimo letto, anche se il flusso dati prosegue.
+La qualita' ADS esistente resta distinta dalla diagnostica del controllo.
+Se la coda cresce stabilmente, aumentare il periodo richiesto o ridurre i
+segnali selezionati; un buffer piu' grande rimanda soltanto il sovraccarico.
+
+VERIFICHE
+64 test backend e flusso UI ADS/OPC UA superati.
+Timeout simulato di 500 ms con flusso a 1 ms su 2 segnali e coda ridotta:
+nessuna perdita, controllo recuperato senza ricreare le sottoscrizioni.
+Simulazione 64 segnali x 10000 campioni con sink applicativo, API grafici e
+Parquet: 640000 righe integre, FILETIME verificati, zero campioni persi.
+Il generatore ha impiegato circa 40.1 s per 10 s di timestamp sorgente:
+questo NON certifica 64 segnali a 1 ms in tempo reale.
+Timeout simulato di 2 s gestito senza interrompere il flusso.
+EXE compilato Windows AMD64, contenuti e CRC verificati; non eseguito su
+Windows o PAC fisico in questo ambiente. Report inclusi in Verifiche/V1.14.1.

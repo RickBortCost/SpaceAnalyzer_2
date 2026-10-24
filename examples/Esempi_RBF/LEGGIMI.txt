@@ -1,0 +1,5 @@
+DATI SINTETICI, NON MISURE REALI
+
+Demo di 10,23 secondi: sinusoide 6,25 Hz e rampa, passo 10 ms.
+Aprire il file .rbf con Space Analyzer o con il software originale per la
+verifica di compatibilità. Conservare JSON e Parquet originali associati.

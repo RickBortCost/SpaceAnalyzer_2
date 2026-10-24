@@ -1,0 +1,92 @@
+{
+  "version": "1.16.0",
+  "format": "das",
+  "started_at": "2026-10-20T10:00:00+00:00",
+  "endpoint": "ads://SIMULATOR",
+  "initial_sample_ms": 1,
+  "signals": [
+    {
+      "nodeid": "sim:Sine50",
+      "display_name": "Seno 50 Hz",
+      "unit": "g"
+    },
+    {
+      "nodeid": "sim:Sine125",
+      "display_name": "Seno 125 Hz",
+      "unit": "g"
+    },
+    {
+      "nodeid": "sim:Ramp",
+      "display_name": "Rampa",
+      "unit": "mm"
+    }
+  ],
+  "source_protocol": "synthetic",
+  "quality_semantics": "Per-signal _Q: 0 missing, 1 Bad, 2 Uncertain, 3 Good; absent values are zero with Q=0",
+  "timestamp_semantics": "UInt32 relative milliseconds, nearest ms; original precision in companion Parquet",
+  "layout": "FDA DAS4 wide frames",
+  "timestamps": "UTC",
+  "source": "acquisition before chart decimation",
+  "storage": {
+    "format": "das",
+    "label": "FDA DAS4 · Int16 scalato",
+    "lossless": false
+  },
+  "format_label": "Parquet ZSTD · Compatto",
+  "session_name": "TEST_SINTETICO_FDA",
+  "machine": "SIMULATORE",
+  "operator": "",
+  "description": "Dati sintetici: 10 secondi a 1000 Hz, senza PLC.",
+  "session_id": "TEST_SINTETICO_FDA_ADS_20261020_102302_387074_89e2a817",
+  "max_file_bytes": 0,
+  "max_duration_s": 0.0,
+  "queue_capacity_cycles": 10000,
+  "state": "stopped",
+  "filename": "Prova_FDA_1ms.das",
+  "path": "Prova_FDA_1ms.das",
+  "rows_written": 30000,
+  "cycles_received": 10000,
+  "dropped_cycles": 0,
+  "error": "",
+  "ended_at": "2026-10-20T10:00:09.999000+00:00",
+  "reason": "user",
+  "duration_seconds": 9.999,
+  "part": 1,
+  "session_rows": 30000,
+  "cycles_in_file": 10000,
+  "fda_channels": [
+    {
+      "nodeid": "sim:Sine50",
+      "display_name": "Seno 50 Hz",
+      "unit": "g",
+      "value_channel": 1,
+      "quality_channel": 2,
+      "gain": 0.0001,
+      "offset": 0.0,
+      "maximum_rounding_error": 5e-05
+    },
+    {
+      "nodeid": "sim:Sine125",
+      "display_name": "Seno 125 Hz",
+      "unit": "g",
+      "value_channel": 3,
+      "quality_channel": 4,
+      "gain": 0.0001,
+      "offset": 0.0,
+      "maximum_rounding_error": 5e-05
+    },
+    {
+      "nodeid": "sim:Ramp",
+      "display_name": "Rampa",
+      "unit": "mm",
+      "value_channel": 5,
+      "quality_channel": 6,
+      "gain": 0.001,
+      "offset": 0.0,
+      "maximum_rounding_error": 0.0005
+    }
+  ],
+  "original_archive": "Originali_Prova_FDA_1ms.parquet",
+  "frames": 10000,
+  "fda_compatibility": "reference-derived; external FDA validation pending"
+}

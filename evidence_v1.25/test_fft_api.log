@@ -1,0 +1,10 @@
+test_concurrent_calculation_is_bounded (test_fft_api.API.test_concurrent_calculation_is_bounded) ... ok
+test_exclusion_and_errors (test_fft_api.API.test_exclusion_and_errors) ... ok
+test_fft_requires_pause_and_keeps_source_time (test_fft_api.API.test_fft_requires_pause_and_keeps_source_time) ... ok
+test_paused_originals_survive_live_buffer_eviction (test_fft_api.API.test_paused_originals_survive_live_buffer_eviction) ... ok
+test_snapshot_capacity_and_validation (test_fft_api.API.test_snapshot_capacity_and_validation) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.648s
+
+OK

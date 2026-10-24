@@ -1,0 +1,31 @@
+{"result":"PASS","checks":["Real HTML script loading, ADS initial catalog, actual Catalogo dropdown and scans discover/select all four protocols while retaining the common chart","Browse OPC UA while ADS and CSV recording remain active; replay contains all four selected sources","MQTT Autoscan preserves expanded branches, focus, scroll and selection during four-source acquisition","New controls translated in five languages","All six format choices remain available and multi-source configuration persists"],"files":[]}
+PASS configuration loaded
+PASS configure ADS as the initial catalog
+PASS four independent UI sessions
+PASS select ads through the actual Catalogo dropdown
+PASS discover ads signal with Scansiona tutto
+PASS select discovered ads signal without clearing previous selections
+PASS select opcua through the actual Catalogo dropdown
+PASS discover opcua signal with Scansiona tutto
+PASS select discovered opcua signal without clearing previous selections
+PASS select s7 through the actual Catalogo dropdown
+PASS discover s7 signal with Scansiona tutto
+PASS select discovered s7 signal without clearing previous selections
+PASS select mqtt through the actual Catalogo dropdown
+PASS discover mqtt signal with Scansiona tutto
+PASS select discovered mqtt signal without clearing previous selections
+PASS four displayed sources
+PASS individual ADS disconnect
+PASS individual ADS reconnect
+PASS recording dialog
+PASS mixed recording started
+PASS select ads through the actual Catalogo dropdown
+PASS select opcua through the actual Catalogo dropdown
+PASS OPC UA browse remains available while ADS and Record are active
+PASS mixed samples recorded while browsing
+PASS mixed recording finalized
+PASS UI recording state finalized
+PASS select mqtt through the actual Catalogo dropdown
+PASS MQTT tree loaded after catalog switch
+PASS incremental MQTT discovery
+PASS all sessions closed

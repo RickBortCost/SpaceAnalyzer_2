@@ -1,0 +1,186 @@
+SPACE ANALYZER V1.22.0 — ACQUISIZIONE MQTT
+
+AVVIO RAPIDO
+1. Aprire Connessione, scegliere MQTT come fonte dati live.
+2. Impostare IP/hostname e porta del broker (TCP 1883; TLS normalmente 8883).
+3. Scegliere MQTT 3.1.1 o 5.0, QoS richiesto e filtri topic, uno per riga.
+   Esempi: impianto/linea1/# oppure impianto/+/pressione.
+4. Se necessari, inserire username/password. La password vale solo nella
+   sessione dell'app: non viene scritta in config, impostazioni o workspace.
+5. Usare Verifica broker e sottoscrizioni: controlla CONNACK e autorizzazione
+   SUBACK, poi chiude la connessione di prova. Non avvia Record.
+6. Connettere, attendere pubblicazioni e usare Elenca topic/campi ricevuti
+   oppure Esplora rami. Selezionare le variabili da acquisire.
+7. Premere Record, scegliere il formato e poi Stop per finalizzare i file.
+
+Dalla V1.24.0 è disponibile OPC UA + MQTT simultaneo nel popup Connessione.
+Le sorgenti singole restano disponibili. Vedere GUIDA_LIVE_V1.24.txt.
+Disconnettere prima di cambiare il profilo di connessione.
+Il broker è un servizio esterno: Space Analyzer è un client di sola lettura.
+Invia CONNECT/SUBSCRIBE, ACK e keep-alive; non invia PUBLISH né comandi PLC.
+Non è necessario installare Python o Paho sul PC che esegue l'EXE completo.
+
+TOPIC, CATALOGO E INDIRIZZI DEI CAMPI
+Il catalogo contiene solo topic/campi osservati durante questa connessione,
+non un elenco interrogabile di tutti i segnali presenti nel broker. L'elenco
+si può aggiornare con Autoscan ogni secondo preservando nodi aperti e dati.
+I filtri + e # sono ammessi nelle sottoscrizioni, non nei singoli segnali.
+# non include automaticamente i topic di sistema $SYS: configurarli a parte.
+Filtri sovrapposti possono produrre consegne multiple a seconda del broker.
+
+Payload semplice sul topic impianto/temperatura:
+  23.45
+Indirizzo manuale: mqtt:impianto/temperatura#
+
+Payload JSON sul topic impianto/motore:
+  {"pressure":12.5,"load":8.2,"running":true,
+   "ts":"2026-10-21T12:00:00.123456789Z","quality":"Good"}
+Indirizzi manuali:
+  mqtt:impianto/motore#/pressure
+  mqtt:impianto/motore#/load
+  mqtt:impianto/motore#/running
+Nel campo manuale è possibile omettere il prefisso mqtt:.
+
+I percorsi sono JSON Pointer RFC 6901, non JSONPath. Per esempio:
+  /machine/pressure  campo annidato
+  /values/0         primo elemento di un array
+  /a~1b             chiave JSON a/b
+  /a~0b             chiave JSON a~b
+Topic e chiavi sono sensibili a maiuscole/minuscole. È possibile aggiungere
+un indirizzo manuale prima della sua prima pubblicazione.
+
+Sono supportati numeri, booleani e testo UTF-8, payload JSON e relativi
+campi annidati/array. Null, campi selezionati assenti e numeri non finiti
+producono qualità Bad, senza un valore numerico utilizzabile nel grafico.
+Testo semplice non JSON resta testo; oggetti/array selezionati interi vengono
+conservati come stringa JSON. Payload binari, Sparkplug B/Protobuf, CBOR,
+payload compressi e MQTT via WebSocket non sono decodificati da questa versione.
+
+TEMPI E FREQUENZA
+Ogni pubblicazione ricevuta produce un gruppo di campioni per i campi
+selezionati di quel topic, anche se il valore è uguale al precedente.
+Non si interrogano periodicamente i valori e non vengono creati campioni
+con mantenimento/interpolazione per colmare l'assenza di pubblicazioni.
+Il refresh grafico e il Periodo indicativo MQTT non limitano l'acquisizione.
+La cadenza effettiva dipende dai publisher, dal broker, dalla rete e dal PC.
+Il periodo indicativo è solo un fallback per metadati/strumenti che richiedono
+un periodo nominale; viene sostituito dalla mediana osservata quando disponibile.
+Il broker concede un QoS che può essere inferiore a quello richiesto.
+
+Base tempi predefinita: ricezione locale sul PC. L'orologio del PC deve
+essere sincronizzato se si confrontano queste misure con altre registrazioni.
+Per usare l'orologio del publisher, scegliere Timestamp nel JSON e impostare:
+  JSON Pointer timestamp: /ts
+  Formato: ISO 8601 con fuso orario, oppure Unix s / ms / us / ns
+L'opzione si applica a TUTTI i messaggi nei topic sottoscritti: se i payload
+hanno schemi diversi, restringere i filtri o rendere il contratto uniforme.
+Con base ricezione è possibile indicare lo stesso campo solo per conservarlo
+come SourceTimestamp, lasciando la ricezione come asse del grafico.
+
+Il SourceTimestamp è conservato come stringa UTC con nove cifre frazionarie,
+compresi i nanosecondi ricevuti; il timestamp numerico dell'asse e degli
+originali è Float64 in millisecondi e non rappresenta ogni nanosecondo esatto.
+LocalTimestamp resta sempre l'ora di ricezione; ServerTimestamp non è inventato.
+Gli interi oltre 2^53 sono conservati esattamente nel testo originale; il
+grafico usa una conversione Float64 approssimata. RBF usa Float32: mantenere
+il Parquet originale associato per precisione, valori testuali e metadati.
+
+Campioni con timestamp sorgente tardivo restano nell'archivio originale in
+ordine di ricezione. Non fanno retrocedere il grafico Live e non sono inviati
+retroattivamente alle formule Live: sono contati come campioni tardivi.
+In visualizzazione storica i campioni sono ordinati per timestamp.
+Timestamp duplicati e consegne con flag MQTT DUP NON sono deduplicati.
+La FFT richiede tempi idonei: non promette uno spettro valido per messaggi
+irregolari, gap o duplicati. Non viene ricampionata automaticamente la misura.
+
+QUALITÀ E MESSAGGI RETAINED
+In assenza di un campo qualità, Good indica un payload finito/decodificabile
+e comunicazione attiva, non una certificazione della qualità del sensore.
+È possibile configurare un JSON Pointer qualità, ad esempio /quality:
+sono ammessi Good, Uncertain e Bad (senza distinzione maiuscole/minuscole).
+Valori con qualità non Good non diventano punti numerici validi nel grafico.
+Il contratto qualità, come quello timestamp, vale per tutti i topic ricevuti.
+
+I retained consegnati dal broker dopo la sottoscrizione alimentano il catalogo
+ma, per impostazione predefinita, non il Live né Record. È disponibile
+Acquisisci anche i messaggi retained: vengono marcati almeno Uncertain e
+mantengono il timestamp del payload se configurato. La sola ricezione di un
+retained non lo rende una misura attuale. Lo stato arriva dal flag RETAIN
+effettivamente consegnato dal broker, non da ipotesi sul contenuto del payload.
+
+TLS E CREDENZIALI
+TLS verifica sempre catena e nome/IP del certificato del broker. Minimo
+TLS 1.2. CA vuota usa le autorità del sistema; per una CA privata indicare
+il file PEM, ad esempio C:\Certificati\broker-ca.pem. Per autenticazione
+reciproca indicare sia certificato client PEM sia chiave privata PEM.
+I percorsi si riferiscono al PC Windows che esegue Space Analyzer.
+Non è presente un'opzione per disabilitare la verifica del certificato.
+Per chiavi private cifrate serve una gestione password non inclusa in questa
+versione: non usare una chiave che richieda una richiesta interattiva.
+Username/password senza TLS viaggiano senza cifratura: usare TLS fuori da una
+rete di collaudo isolata. Non includere credenziali nel campo hostname.
+Password non salvata; percorsi dei certificati e username sono persistenti.
+Per Client ID vuoto viene generata un'identità casuale; se impostato, usare
+un ID dedicato, per non disconnettere altri client con la stessa identità.
+
+RICONNESSIONE, LIMITI E REGISTRAZIONI
+La riconnessione automatica riapre una sessione pulita e ripete i filtri.
+Il grafico/Record ricevono un gap Bad alla perdita della connessione.
+I messaggi pubblicati mentre il client era scollegato non vengono recuperati.
+QoS 1/2 non costituiscono una garanzia exactly-once del file tra riavvii,
+overflow, guasti disco o interruzioni: non viene implementato un archivio
+persistente di sessione MQTT né una chiave di deduplicazione applicativa.
+
+La decodifica usa un thread separato con coda limitata: 2048 messaggi di
+default, configurabili 32–16384, e massimo 32 MiB di payload accodati.
+Payload massimo predefinito 256 KiB, configurabile 1–8192 KiB. Questi limiti
+si applicano alla coda applicativa, non alla memoria TCP/TLS del protocollo.
+Massimo 32 filtri, 10.000 campi nel catalogo osservato, 4096 foglie per JSON,
+profondità 32, topic/percorso fino ai limiti indicati dal validatore.
+Resta il limite complessivo di 64 segnali selezionati tra fisici e calcolati.
+
+Overflow della coda o payload oltre limite interrompono l'acquisizione con
+errore esplicito. Record non dichiara un file completo: conserva gli originali
+parziali .part e gli eventuali file già finalizzati. Il worker di scrittura
+ha inoltre il proprio buffer limitato. Controllare sempre stato e diagnostica.
+Payload/qualità non validi su base ricezione producono campioni Bad.
+Su base timestamp JSON, un timestamp/payload non valido interrompe Record
+con errore: non viene inventata un'ora sorgente sostitutiva.
+Gli archivi salvano i valori selezionati decodificati, non i pacchetti MQTT
+grezzi né tutti i topic ricevuti ma non selezionati.
+
+Sono riutilizzati i formati e i limiti esistenti: CSV, Parquet, FDA, RBF,
+DAT PDA3 e DAT legacy. Formati a griglia fissa/precisione ridotta mantengono
+le proprie condizioni: una sequenza MQTT irregolare non diventa una griglia
+10 ms valida per PDA3. La conversione può essere rifiutata mantenendo gli
+originali. Per MQTT irregolare è consigliato registrare direttamente Parquet.
+Le formule sui campi MQTT riutilizzano allineamento esatto o hold causale
+e tolleranza impostati per la formula; l'hold del calcolo non aggiunge
+campioni fisici mancanti al file.
+
+Prima di Stop vengono drenati i messaggi già accodati e i risultati calcolati.
+La finestra Record è delimitata dall'ora locale di ricezione, anche quando
+l'asse usa il timestamp sorgente, per non confondere vecchi messaggi con
+misure ricevute prima di premere Record. Dopo Stop non si accodano nuovi dati.
+Non cambiare selezione o broker durante Record. Pausa/zoom/layout del grafico
+non interrompono la registrazione.
+
+Diagnostica: messaggi ricevuti/elaborati, campi/catalogo, coda, overflow,
+payload non validi, retained esclusi, flag DUP, campioni tardivi e riconnessioni.
+I contatori di messaggio/coda si riferiscono alla connessione corrente;
+campioni tardivi/riconnessioni sono cumulativi fino alla prossima connessione
+manuale. I metadati originali contengono configurazione non segreta e
+diagnostica finale della connessione disponibile alla chiusura.
+
+VERIFICHE E LIMITI DEL COLLAUDO
+Test automatici con Paho originale, peer MQTT locale TCP/TLS 3.1.1/5,
+QoS 0/1/2, autenticazione, ACL, CA/nome/certificato client, retained, JSON,
+precisione timestamp/interi, fuori ordine, riconnessione, calcoli, Record,
+overflow e interfaccia. I test UI usano DOM/canvas simulati, non rendering
+pixel. Nessuna esecuzione nativa Windows, prova con broker di impianto o
+garanzia di frequenza massima in questo ambiente. Effettuare un collaudo sul
+broker effettivo prima di impiegare il programma in produzione.
+
+Riferimenti della dipendenza (API verificata sulla versione inclusa):
+https://eclipse.dev/paho/files/paho.mqtt.python/html/client.html
+https://github.com/eclipse-paho/paho.mqtt.python

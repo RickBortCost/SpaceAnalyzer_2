@@ -1,0 +1,9 @@
+test_formula_across_distinct_files_and_persistent_workspace (test_recording_compare_api.API.test_formula_across_distinct_files_and_persistent_workspace) ... ok
+test_multiple_external_csv_parquet_imports_can_be_compared (test_recording_compare_api.API.test_multiple_external_csv_parquet_imports_can_be_compared) ... ok
+test_validation_auth_and_clock_errors_are_explicit (test_recording_compare_api.API.test_validation_auth_and_clock_errors_are_explicit) ... ok
+test_worker_graph_units_markers_fft_and_export (test_recording_compare_api.API.test_worker_graph_units_markers_fft_and_export) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.352s
+
+OK

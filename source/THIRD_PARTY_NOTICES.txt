@@ -1,0 +1,166 @@
+THIRD-PARTY COMPONENTS
+
+The application contains the official CPython 3.13.15 embedded runtime
+(Python Software Foundation License; see LICENSE.txt in the runtime).
+The Windows launcher is compiled with Go 1.27.1 (BSD-style license).
+See GO_LICENSE.txt. This version does not use a 7-Zip launcher.
+Library license texts and notices are included in Lib/site-packages
+inside each package and its .dist-info directory.
+
+Runtime packages:
+
+Eclipse Paho MQTT Python 2.1.0
+Eclipse Public License 2.0 / Eclipse Distribution License 1.0 (dual licensed)
+https://github.com/eclipse-paho/paho.mqtt.python
+Unmodified library; the application subclasses only the TLS socket setup to
+bound the handshake and close sockets on certificate errors.
+
+aiosqlite 0.22.1
+See bundled .dist-info/licenses
+
+anyio 4.15.1
+MIT
+
+asyncua 2.0.1
+GNU Lesser General Public License v3 or later
+
+blinker 1.9.0
+See bundled .dist-info/licenses
+
+cffi 2.1.1
+MIT-0
+
+click 8.5.0
+BSD-3-Clause
+
+colorama 0.4.6
+See bundled .dist-info/licenses
+
+cryptography 49.0.0
+Apache-2.0 OR BSD-3-Clause
+
+Flask 3.1.3
+BSD-3-Clause
+
+idna 3.19
+BSD-3-Clause
+
+itsdangerous 2.2.0
+See bundled .dist-info/licenses
+
+Jinja2 3.1.6
+See bundled .dist-info/licenses
+
+MarkupSafe 3.0.3
+BSD-3-Clause
+
+pycparser 3.0
+BSD-3-Clause
+
+pyOpenSSL 26.4.0
+Apache License, Version 2.0
+
+python-dateutil 2.9.0.post0
+Dual License
+
+pytz 2026.3.post1
+MIT
+
+six 1.17.0
+MIT
+
+sortedcontainers 2.4.0
+Apache 2.0
+
+typing_extensions 4.16.0
+PSF-2.0
+
+Werkzeug 3.1.8
+BSD-3-Clause
+
+PyArrow 25.0.1 / Apache Arrow / Apache Parquet
+Apache License 2.0; bundled native library notices and third-party licenses
+are in licenses/pyarrow and in the embedded pyarrow wheel.
+https://arrow.apache.org/docs/python/
+
+JavaScript component tests use JSDOM 30.0.1 (MIT); JSDOM is not bundled
+into the application executable.
+
+ADS/TCP support (V1.4.0): original Python implementation in ads_client.py,
+using protocol definitions published by Beckhoff at https://github.com/Beckhoff/ADS.
+No AdsLib, TcAdsDll, TwinCAT runtime or pyads binary is bundled or required.
+Beckhoff and TwinCAT are trademarks of their respective owners.
+
+V1.4.1 optional native ADS mode calls the separately installed Beckhoff
+TcAdsDll.dll x64 and TwinCAT router. Neither component is redistributed.
+API: https://infosys.beckhoff.com/content/1033/tcadsdll2/12444744459.html
+
+V1.12.0 SSH support:
+Paramiko 4.0.0 (LGPL-2.1-or-later), unmodified Python source in the embedded
+runtime; https://github.com/paramiko/paramiko/tree/4.0.0
+PyNaCl 1.6.2 (Apache-2.0), including libsodium (ISC), bcrypt 5.0.0 (Apache-2.0),
+and Invoke 3.0.3 (BSD-2-Clause). License texts in licenses/SSH in the package.
+The private runtime is extracted to the user data directory and loads Python
+modules dynamically. Build source and requirements are supplied to permit
+rebuilding/replacing the SSH library. No application modifications to these
+libraries. AsyncSSH is used only by the tests and is not bundled in the EXE.
+
+
+S7CommPlus 0.1.0 (MIT), https://github.com/gijzelaerr/s7commplus
+Pinned wheel SHA256 ef4d9eefa3629505d06cc7c6e98dfb5739910bd873d72fd10a111088ac6cf6db.
+Includes session-authentication code derived from HarpoS7 (MIT).
+Full licenses follow and are supplied in the package licenses directory.
+This driver is unofficial and is not endorsed or supported by Siemens AG.
+No proprietary iba Request blocks or manuals are redistributed.
+
+The MIT License (MIT)
+
+Copyright (c) 2013 Gijs Molenaar, Stephan Preeker
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+The session_auth package is a Python port of HarpoS7 by bonk-dev.
+https://github.com/bonk-dev/HarpoS7
+
+Copyright © 2024 bonk
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+V1.17.0 - ibaFiles.dll: user-supplied legacy DLL, declared version 3.2.0,
+SHA256 63c86505734e56aaac6eb0e845c9a0bad16e55c12abd7922754157fdcb12469b.
+Included as supplied for the user's integration; no license entitlement is
+granted, emulated or bypassed. Writer requires its actual native Licensed
+result. DLL authenticity and compatibility with the user's iba installation
+are not certified by this package. Bridge source is included.
+

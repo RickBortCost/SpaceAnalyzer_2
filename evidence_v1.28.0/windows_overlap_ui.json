@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Stop detaches the FDA save and re-enables Record even while the original disk writer is deliberately blocked",
+    "New session has a distinct identity and selection; a delayed Stop for the old identity cannot stop or truncate the new recording",
+    "FDA and Parquet files replay their own exact signal sets and remain individually accessible after both saves"
+  ],
+  "files": []
+}

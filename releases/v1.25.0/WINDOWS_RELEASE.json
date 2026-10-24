@@ -1,0 +1,39 @@
+{
+  "version": "1.25.0",
+  "source_commit": "b99ba47f5d8756f51cbd813c92dd6c95743744c1",
+  "workflow_url": "https://github.com/RickBortCost/SpaceAnalizer/actions/runs/39784452322",
+  "release_url": "https://github.com/RickBortCost/SpaceAnalizer/releases/tag/v1.25.0",
+  "published_at": "2026-10-22T13:12:00Z",
+  "assets": [
+    {
+      "name": "BUILD_MANIFEST.json",
+      "size": 19720,
+      "sha256": "32bfd4194deccfdcaf00ad3319275907f8f32022d38b55c7877721458d81b840",
+      "url": "https://github.com/RickBortCost/SpaceAnalizer/releases/download/v1.25.0/BUILD_MANIFEST.json"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 380,
+      "sha256": "eb7e3d9f147b3495c2c9c5ff5a3f0f1223d5cf5271eb3d4f43467f628aa2144d",
+      "url": "https://github.com/RickBortCost/SpaceAnalizer/releases/download/v1.25.0/SHA256SUMS.txt"
+    },
+    {
+      "name": "Space_Analyzer_V1.25.0.exe",
+      "size": 52430848,
+      "sha256": "fa629d646027472e410b61522047117578afcbba8ad01240f9d7d1881998a1ca",
+      "url": "https://github.com/RickBortCost/SpaceAnalizer/releases/download/v1.25.0/Space_Analyzer_V1.25.0.exe"
+    },
+    {
+      "name": "Space_Analyzer_V1.25.0_WINDOWS.zip",
+      "size": 50593073,
+      "sha256": "5adcc178be74727713259b82d173fcf011655a7a56e62658d872030a83680634",
+      "url": "https://github.com/RickBortCost/SpaceAnalizer/releases/download/v1.25.0/Space_Analyzer_V1.25.0_WINDOWS.zip"
+    },
+    {
+      "name": "WINDOWS_EXE_VERIFICATION.json",
+      "size": 1262,
+      "sha256": "ae5d35463d75a84c37f943a316ee58fe02cbfa640618f0ae35c7ad1923af87c0",
+      "url": "https://github.com/RickBortCost/SpaceAnalizer/releases/download/v1.25.0/WINDOWS_EXE_VERIFICATION.json"
+    }
+  ]
+}

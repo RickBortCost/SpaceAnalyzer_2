@@ -1,0 +1,14 @@
+test_all_nonempty_protocol_subsets_and_catalogs (test_source_sessions.Sources.test_all_nonempty_protocol_subsets_and_catalogs) ... ok
+test_clear_and_disconnect_drain_pending_original_publications (test_source_sessions.Sources.test_clear_and_disconnect_drain_pending_original_publications) ... ok
+test_duplicate_start_stop_and_restart_keep_record_boundaries (test_source_sessions.Sources.test_duplicate_start_stop_and_restart_keep_record_boundaries) ... ok
+test_each_transport_reconnect_isolated_during_recording (test_source_sessions.Sources.test_each_transport_reconnect_isolated_during_recording) ... ok
+test_every_format_records_four_sources_and_replays (test_source_sessions.Sources.test_every_format_records_four_sources_and_replays) ... ok
+test_native_ads_callbacks_and_s7_udp_remain_independent (test_source_sessions.Sources.test_native_ads_callbacks_and_s7_udp_remain_independent) ... ok
+test_opcua_formula_keeps_exact_snapshot_alignment_in_mixed_recording (test_source_sessions.Sources.test_opcua_formula_keeps_exact_snapshot_alignment_in_mixed_recording) ... ok
+test_queue_overflow_and_late_originals_are_explicit (test_source_sessions.Sources.test_queue_overflow_and_late_originals_are_explicit) ... ok
+test_source_controls_preserve_other_buffers_and_start_failure_is_local (test_source_sessions.Sources.test_source_controls_preserve_other_buffers_and_start_failure_is_local) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 18.351s
+
+OK

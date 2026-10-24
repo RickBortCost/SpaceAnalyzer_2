@@ -1,0 +1,17 @@
+test_one_ms_config_settings_workspace_and_protocol_limits (test_ads.Integrated.test_one_ms_config_settings_workspace_and_protocol_limits) ... ok
+test_reconnect_and_uncertain_state (test_ads.Integrated.test_reconnect_and_uncertain_state) ... ok
+test_record_csv_parquet_and_export (test_ads.Integrated.test_record_csv_parquet_and_export) ... ok
+test_scan_selection_and_source_guard (test_ads.Integrated.test_scan_selection_and_source_guard) ... ok
+test_workspace_and_test_connection (test_ads.Integrated.test_workspace_and_test_connection) ... ok
+test_browse_arrays_and_manual_nested (test_ads.Wire.test_browse_arrays_and_manual_nested) ... ok
+test_fallback_and_runtime_state (test_ads.Wire.test_fallback_and_runtime_state) ... ok
+test_fragmentation_and_decoding (test_ads.Wire.test_fragmentation_and_decoding) ... ok
+test_online_change_and_selection_releases (test_ads.Wire.test_online_change_and_selection_releases) ... ok
+test_reject_mismatched_ams_and_oversized_packet (test_ads.Wire.test_reject_mismatched_ams_and_oversized_packet) ... ok
+test_timeout_and_cancellation_close_transport (test_ads.Wire.test_timeout_and_cancellation_close_transport) ... ok
+test_validation_and_malformed_symbols (test_ads.Wire.test_validation_and_malformed_symbols) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 7.186s
+
+OK

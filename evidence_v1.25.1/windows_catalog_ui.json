@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Real HTML script loading, ADS initial catalog, actual Catalogo dropdown and scans discover/select all four protocols while retaining the common chart",
+    "Browse OPC UA while ADS and CSV recording remain active; replay contains all four selected sources",
+    "MQTT Autoscan preserves expanded branches, focus, scroll and selection during four-source acquisition",
+    "New controls translated in five languages",
+    "All six format choices remain available and multi-source configuration persists"
+  ],
+  "files": []
+}

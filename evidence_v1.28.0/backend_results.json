@@ -1,0 +1,94 @@
+{
+  "result": "PASS",
+  "tests": 157,
+  "suites": {
+    "recordings": {
+      "result": "PASS",
+      "tests": 6
+    },
+    "binary_recordings": {
+      "result": "PASS",
+      "tests": 6
+    },
+    "fda": {
+      "result": "PASS",
+      "tests": 12
+    },
+    "rbf": {
+      "result": "PASS",
+      "tests": 11
+    },
+    "recording_reader": {
+      "result": "PASS",
+      "tests": 1
+    },
+    "recording_compare": {
+      "result": "PASS",
+      "tests": 13
+    },
+    "calculation_api": {
+      "result": "PASS",
+      "tests": 3
+    },
+    "live_interval_calculations": {
+      "result": "PASS",
+      "tests": 8
+    },
+    "manager": {
+      "result": "PASS",
+      "tests": 4
+    },
+    "preview": {
+      "result": "PASS",
+      "tests": 4
+    },
+    "source_sessions": {
+      "result": "PASS",
+      "tests": 9
+    },
+    "mqtt_api": {
+      "result": "PASS",
+      "tests": 10
+    },
+    "s7": {
+      "result": "PASS",
+      "tests": 8
+    },
+    "s7_extended": {
+      "result": "PASS",
+      "tests": 16
+    },
+    "ads": {
+      "result": "PASS",
+      "tests": 12
+    },
+    "calculation_ads": {
+      "result": "PASS",
+      "tests": 1
+    },
+    "pda3_api": {
+      "result": "PASS",
+      "tests": 3
+    },
+    "pda3_lifecycle": {
+      "result": "PASS",
+      "tests": 3
+    },
+    "iba_dat": {
+      "result": "PASS",
+      "tests": 13
+    },
+    "advanced": {
+      "result": "PASS",
+      "tests": 5
+    },
+    "fft_api": {
+      "result": "PASS",
+      "tests": 5
+    },
+    "i18n": {
+      "result": "PASS",
+      "tests": 4
+    }
+  }
+}

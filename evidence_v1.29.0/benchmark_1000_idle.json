@@ -1,0 +1,223 @@
+{
+  "result": "TARGET_NOT_MET",
+  "measured_wall_seconds": 13.428797245000169,
+  "requested_seconds": 10.0,
+  "completed_simulated_seconds": 10.0,
+  "segments": [
+    {
+      "result": "TARGET_NOT_MET",
+      "channels": 1000,
+      "period_ms": 10,
+      "requested_seconds": 10.0,
+      "requested_values_per_second": 100000.0,
+      "produced": 1000000,
+      "saved": 584500,
+      "missing": 415500,
+      "sequence_mismatches": 0,
+      "all_channels_complete": false,
+      "produced_seconds": 9.993598765000115,
+      "producer_values_per_second": 100064.05335205475,
+      "total_seconds": 9.994262758000104,
+      "parent_cpu_seconds": 11.314887118,
+      "parent_cpu_percent_of_one_core": 113.21384446234191,
+      "parent_rss_peak_observed": 76996608,
+      "writer_usage": {
+        "cpu_seconds": 0.27,
+        "rss_bytes": 11571200
+      },
+      "producer_lateness_ms": {
+        "p95": 26.407804000200485,
+        "p99": 115.73744199995417,
+        "max": 144.21776700010014
+      },
+      "max_backlog_samples_observed": 124250,
+      "primary": {
+        "state": "error",
+        "pid": 3589,
+        "path": "/tmp/tmpt0ipglls/31c1748a539146028a09b189d489ddb9.incomplete.sac",
+        "samples": 584500,
+        "blocks": 566,
+        "durable_samples": 584500,
+        "bytes_written": 2249789,
+        "last_flush_ns": "1792824209879902565",
+        "error": "Overflow buffer acquisizione: sessione arrestata; 250 campioni rifiutati",
+        "integrity": "incomplete",
+        "usage": {
+          "cpu_seconds": 0.27,
+          "rss_bytes": 11571200
+        },
+        "recording_id": "31c1748a539146028a09b189d489ddb9",
+        "active": false,
+        "busy": false,
+        "received_samples": 584500,
+        "lost_samples": 0,
+        "inflight_samples": 0,
+        "queue_samples": 0,
+        "queue_bytes": 0,
+        "queue_capacity_samples": 65536,
+        "queue_capacity_bytes": 33554432,
+        "queue_high_water": 17250,
+        "uncommitted_at_failure": 0,
+        "latency_measurement": "sample-weighted batch upper bound: ingress to durable fsync acknowledgement",
+        "latency_ms": {
+          "p95": 263.463652,
+          "p99": 311.894273,
+          "receipt_window": 565
+        },
+        "samples_per_second": 58326.41183932494,
+        "bytes_per_second": 224503.19891459882
+      },
+      "acquisition": {
+        "connections": {
+          "ads": {
+            "connection_id": "c1f0c4ff085e46ba809a9c93dd11c1d7",
+            "protocol": "ads",
+            "received": 250000,
+            "dispatched": 179000,
+            "lost": 71000,
+            "rejected_after_failure": 70750,
+            "display_skipped": 1000,
+            "received_per_second": 18662.93224119769,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "Overflow buffer acquisizione: sessione arrestata; 250 campioni rifiutati",
+            "queue_latency_ms": {
+              "p95": 1160.70188,
+              "p99": 1283.258162
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 716,
+              "completed_batches": 716,
+              "lost_samples": 71000,
+              "failed": true,
+              "high_water": 32750
+            }
+          },
+          "opcua": {
+            "connection_id": "77447cc692a543c9b1f036cb91bbc115",
+            "protocol": "opcua",
+            "received": 250000,
+            "dispatched": 179000,
+            "lost": 71000,
+            "rejected_after_failure": 70750,
+            "display_skipped": 750,
+            "received_per_second": 18667.222253976022,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "Overflow buffer acquisizione: sessione arrestata; 250 campioni rifiutati",
+            "queue_latency_ms": {
+              "p95": 1161.284719,
+              "p99": 1282.075022
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 716,
+              "completed_batches": 716,
+              "lost_samples": 71000,
+              "failed": true,
+              "high_water": 32750
+            }
+          },
+          "mqtt": {
+            "connection_id": "340ff9fa112b423ba2a1f8e30683b263",
+            "protocol": "mqtt",
+            "received": 250000,
+            "dispatched": 178750,
+            "lost": 71250,
+            "rejected_after_failure": 71000,
+            "display_skipped": 1000,
+            "received_per_second": 18667.819060109647,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "Overflow buffer acquisizione: sessione arrestata; 250 campioni rifiutati",
+            "queue_latency_ms": {
+              "p95": 1161.135855,
+              "p99": 1282.603216
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 715,
+              "completed_batches": 715,
+              "lost_samples": 71250,
+              "failed": true,
+              "high_water": 32750
+            }
+          },
+          "s7": {
+            "connection_id": "8ca92b02e70d457483c4717a62c66f98",
+            "protocol": "s7",
+            "received": 250000,
+            "dispatched": 178750,
+            "lost": 71250,
+            "rejected_after_failure": 71000,
+            "display_skipped": 1000,
+            "received_per_second": 18668.770839061654,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "Overflow buffer acquisizione: sessione arrestata; 250 campioni rifiutati",
+            "queue_latency_ms": {
+              "p95": 1163.776746,
+              "p99": 1283.281207
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 715,
+              "completed_batches": 715,
+              "lost_samples": 71250,
+              "failed": true,
+              "high_water": 32750
+            }
+          }
+        },
+        "live": {
+          "backlog_samples": 0,
+          "backlog_bytes": 0,
+          "skipped_samples": 3750,
+          "error": "",
+          "policy": "skip display only; originals already submitted to recorder"
+        },
+        "policy": "bounded; stop recording on original overflow; recorder before calculations and display"
+      },
+      "ui_stress": false,
+      "live_calls": 2847,
+      "limits": "Synthetic adapters; actual PLC, ADS DLL, network and disk require on-site qualification"
+    }
+  ],
+  "platform": "linux",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "cpu_count": 3,
+  "run_at_ns": "1792824216072233341"
+}

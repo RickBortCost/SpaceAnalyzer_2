@@ -1,0 +1,4 @@
+Vettore di riferimento, non output ottenuto da compilazione TIA.
+Lunghezza 24; modulo 200; sequenza 65535; UTC us 1700000000000001;
+CaricoA 42.5; CaricoB 12.25; Enabled true.
+00 18 00 C8 FF FF 00 06 0A 24 18 1E 40 01 42 2A 00 00 41 44 00 00 01 00

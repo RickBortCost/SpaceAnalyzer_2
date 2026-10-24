@@ -1,0 +1,46 @@
+{
+  "result": "PASS",
+  "tests": 59,
+  "suites": {
+    "interval_originals": {
+      "result": "PASS",
+      "tests": 8
+    },
+    "formula_engine": {
+      "result": "PASS",
+      "tests": 14
+    },
+    "formula_api": {
+      "result": "PASS",
+      "tests": 3
+    },
+    "fft_api": {
+      "result": "PASS",
+      "tests": 5
+    },
+    "overview": {
+      "result": "PASS",
+      "tests": 5
+    },
+    "live_extensions": {
+      "result": "PASS",
+      "tests": 7
+    },
+    "source_sessions": {
+      "result": "PASS",
+      "tests": 9
+    },
+    "mixed_resampling": {
+      "result": "PASS",
+      "tests": 3
+    },
+    "languages": {
+      "result": "PASS",
+      "tests": 4
+    },
+    "calculation_ads": {
+      "result": "PASS",
+      "tests": 1
+    }
+  }
+}

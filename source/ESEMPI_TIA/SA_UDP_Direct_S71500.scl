@@ -1,0 +1,144 @@
+// Space Analyzer 1.13.0 - esempio originale S7-1500.
+// NON compilato con TIA / NON collaudato su CPU fisica.
+// Richiede connessione UDP OUC esistente; vedere GUIDA_S7_SIMBOLICO_UDP.md.
+// FC standard: AT conserva il bit pattern IEEE-754 del REAL.
+// Header Direct Generic big-endian; payload: UTC us, REAL A, REAL B, BOOL.
+
+FUNCTION "SA_PackUdpDirect24" : Void
+{ S7_Optimized_Access := 'FALSE' }
+VERSION : 1.0
+   VAR_INPUT
+      ModuleIndex : UInt;
+      Sequence : UInt;
+      PlcUtcUs : LInt;
+      CaricoA : Real;
+      CaricoB : Real;
+      Enabled : Bool;
+   END_VAR
+   VAR_OUTPUT
+      Telegram : Array[0..23] of Byte;
+   END_VAR
+   VAR_TEMP
+      A : Real;
+      ABits AT A : DWord;
+      B : Real;
+      BBits AT B : DWord;
+      UtcBits : LWord;
+      ModuleBits : Word;
+      SequenceBits : Word;
+      i : Int;
+   END_VAR
+BEGIN
+   #A := #CaricoA;
+   #B := #CaricoB;
+   #UtcBits := LINT_TO_LWORD(#PlcUtcUs);
+   #ModuleBits := UINT_TO_WORD(#ModuleIndex);
+   #SequenceBits := UINT_TO_WORD(#Sequence);
+
+   #Telegram[0] := B#16#00;
+   #Telegram[1] := B#16#18; // 24 byte, header incluso
+   #Telegram[2] := WORD_TO_BYTE(SHR(IN := #ModuleBits, N := 8));
+   #Telegram[3] := WORD_TO_BYTE(#ModuleBits);
+   #Telegram[4] := WORD_TO_BYTE(SHR(IN := #SequenceBits, N := 8));
+   #Telegram[5] := WORD_TO_BYTE(#SequenceBits);
+   FOR #i := 0 TO 7 DO
+      #Telegram[6 + #i] := LWORD_TO_BYTE(SHR(IN := #UtcBits, N := (7 - #i) * 8));
+   END_FOR;
+   FOR #i := 0 TO 3 DO
+      #Telegram[14 + #i] := DWORD_TO_BYTE(SHR(IN := #ABits, N := (3 - #i) * 8));
+      #Telegram[18 + #i] := DWORD_TO_BYTE(SHR(IN := #BBits, N := (3 - #i) * 8));
+   END_FOR;
+   IF #Enabled THEN
+      #Telegram[22] := B#16#01;
+   ELSE
+      #Telegram[22] := B#16#00;
+   END_IF;
+   #Telegram[23] := B#16#00;
+END_FUNCTION
+
+// Chiamare regolarmente, con SamplePulse TRUE per una sola chiamata.
+// Esempio: chiamata a 1 ms e impulso ogni 10 ms, non TRUE fisso.
+// TUSEND resta chiamato durante BUSY; Telegram/FrozenTarget non cambiano.
+// Se occupato, l'impulso viene contato e saltato, non accodato.
+FUNCTION_BLOCK "SA_SendUdpDirect24"
+{ S7_Optimized_Access := 'FALSE' }
+VERSION : 1.0
+   VAR_INPUT
+      Enable : Bool;
+      ConnectionReady : Bool;
+      ConnectionId : CONN_OUC;
+      SamplePulse : Bool;
+      ModuleIndex : UInt := 200;
+      PlcUtcUs : LInt;
+      CaricoA : Real;
+      CaricoB : Real;
+      Enabled : Bool;
+   END_VAR
+   VAR_IN_OUT
+      Target : TADDR_Param;
+   END_VAR
+   VAR_OUTPUT
+      Done : Bool;
+      Busy : Bool;
+      Error : Bool;
+      Status : Word;
+      LastErrorStatus : Word;
+      SkippedSamples : UDInt;
+   END_VAR
+   VAR
+      Tx : TUSEND;
+      Telegram : Array[0..23] of Byte;
+      FrozenTarget : TADDR_Param;
+      FrozenId : CONN_OUC;
+      Sequence : UInt;
+      InFlight : Bool;
+      LastPulse : Bool;
+      LastRequest : Bool;
+   END_VAR
+   VAR_TEMP
+      Request : Bool;
+      PulseRising : Bool;
+   END_VAR
+BEGIN
+   #Request := FALSE;
+   #PulseRising := #SamplePulse AND NOT #LastPulse;
+   #LastPulse := #SamplePulse;
+   IF #Enable AND #ConnectionReady AND #PulseRising THEN
+      IF NOT #InFlight AND NOT #Busy AND NOT #LastRequest THEN
+         "SA_PackUdpDirect24"(ModuleIndex := #ModuleIndex,
+                              Sequence := #Sequence,
+                              PlcUtcUs := #PlcUtcUs,
+                              CaricoA := #CaricoA,
+                              CaricoB := #CaricoB,
+                              Enabled := #Enabled,
+                              Telegram => #Telegram);
+         #FrozenTarget := #Target;
+         #FrozenId := #ConnectionId;
+         IF #Sequence = UINT#65535 THEN
+            #Sequence := UINT#0;
+         ELSE
+            #Sequence := #Sequence + UINT#1;
+         END_IF;
+         #Request := TRUE;
+         #InFlight := TRUE;
+      ELSE
+         #SkippedSamples := #SkippedSamples + UDINT#1;
+      END_IF;
+   END_IF;
+   #Tx(REQ := #Request,
+       ID := #FrozenId,
+       LEN := UDINT#24,
+       DATA := #Telegram,
+       ADDR := #FrozenTarget,
+       DONE => #Done,
+       BUSY => #Busy,
+       ERROR => #Error,
+       STATUS => #Status);
+   #LastRequest := #Request;
+   IF #Done OR #Error THEN
+      #InFlight := FALSE;
+   END_IF;
+   IF #Error THEN
+      #LastErrorStatus := #Status;
+   END_IF;
+END_FUNCTION_BLOCK

@@ -1,0 +1,21 @@
+test_symbolic_scan_formula_record_replay_and_workspace_credentials (test_s7_extended.Application.test_symbolic_scan_formula_record_replay_and_workspace_credentials) ... ok
+test_udp_original_samples_recorded_fft_export_and_metadata (test_s7_extended.Application.test_udp_original_samples_recorded_fft_export_and_metadata) ... ok
+test_udp_test_reports_waiting_without_false_tcp_success (test_s7_extended.Application.test_udp_test_reports_waiting_without_false_tcp_success) ... ok
+test_direct_header_exact_length_module_and_microseconds (test_s7_extended.Configuration.test_direct_header_exact_length_module_and_microseconds) ... ok
+test_symbol_names_preserve_case_unicode_and_folders (test_s7_extended.Configuration.test_symbol_names_preserve_case_unicode_and_folders) ... ok
+test_types_precision_and_null_not_finite (test_s7_extended.Configuration.test_types_precision_and_null_not_finite) ... ok
+test_udp_bounds_boolean_and_duplicates (test_s7_extended.Configuration.test_udp_bounds_boolean_and_duplicates) ... ok
+test_network_work_never_blocks_event_loop_and_refresh (test_s7_extended.Symbolic.test_network_work_never_blocks_event_loop_and_refresh) ... ok
+test_partial_failure_unknown_symbol_and_mode_error (test_s7_extended.Symbolic.test_partial_failure_unknown_symbol_and_mode_error) ... ok
+test_real_explore_nested_array_and_lid_read (test_s7_extended.Symbolic.test_real_explore_nested_array_and_lid_read) ... ok
+test_each_datagram_preserves_plc_time_even_if_poll_interval_500ms (test_s7_extended.UDP.test_each_datagram_preserves_plc_time_even_if_poll_interval_500ms) ... ok
+test_little_endian_payload_and_local_time_mode (test_s7_extended.UDP.test_little_endian_payload_and_local_time_mode) ... ok
+test_queue_overflow_is_bounded_and_quality_reports_loss (test_s7_extended.UDP.test_queue_overflow_is_bounded_and_quality_reports_loss) ... ok
+test_sender_filter_exclusive_bind_and_stale_generation (test_s7_extended.UDP.test_sender_filter_exclusive_bind_and_stale_generation) ... ok
+test_sequence_wrap_gap_duplicate_reorder_and_invalid (test_s7_extended.UDP.test_sequence_wrap_gap_duplicate_reorder_and_invalid) ... ok
+test_watchdog_bad_then_resume_and_bad_timestamp (test_s7_extended.UDP.test_watchdog_bad_then_resume_and_bad_timestamp) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 8.763s
+
+OK

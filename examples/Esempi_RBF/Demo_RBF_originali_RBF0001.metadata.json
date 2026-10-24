@@ -1,0 +1,74 @@
+{
+  "version": "1.21.0 demo",
+  "format": "rbf",
+  "started_at": "2026-10-21T13:00:00.000000000+00:00",
+  "endpoint": "",
+  "initial_sample_ms": 10,
+  "signals": [
+    {
+      "nodeid": "demo:Sine",
+      "display_name": "Sinusoide 6.25 Hz",
+      "unit": "V"
+    },
+    {
+      "nodeid": "demo:Ramp",
+      "display_name": "Rampa",
+      "unit": "u"
+    }
+  ],
+  "source_protocol": "opcua",
+  "quality_semantics": "SpaceAnalyzer RBF3 quality 0=missing,1=Bad,2=Uncertain,3=Good",
+  "timestamp_semantics": "UInt32 seconds + UInt32 nanoseconds; original timestamps also in Parquet",
+  "layout": "RBF v3 wide frames",
+  "timestamps": "UTC",
+  "source": "acquisition before chart decimation",
+  "storage": {
+    "format": "rbf",
+    "label": "RBF v3 · Float32 + qualità",
+    "lossless": false
+  },
+  "format_label": "Parquet ZSTD · Compatto",
+  "session_name": "Demo sintetica RBF",
+  "machine": "",
+  "operator": "",
+  "description": "",
+  "session_id": "Demo_sintetica_RBF_OPCUA_20261021_155647_806658_993c1849",
+  "max_file_bytes": 0,
+  "max_duration_s": 0.0,
+  "queue_capacity_cycles": 6000,
+  "state": "stopped",
+  "filename": "Demo_sintetica_RBF_OPCUA_20261021_155647_806658_993c1849_p0001.parquet",
+  "path": "/workspace/scratch/c8691abdb71c/rbf-fda-toolbar/release/Space_Analyzer_V1.21.0_WINDOWS/Esempi_RBF/Demo_sintetica_RBF_OPCUA_20261021_155647_806658_993c1849_p0001.parquet",
+  "rows_written": 2048,
+  "cycles_received": 1024,
+  "dropped_cycles": 0,
+  "error": "",
+  "ended_at": "2026-10-21T13:00:10.230000000+00:00",
+  "reason": "user",
+  "duration_seconds": 10.23,
+  "part": 1,
+  "session_rows": 2048,
+  "cycles_in_file": 1024,
+  "rbf_channels": [
+    {
+      "nodeid": "demo:Sine",
+      "display_name": "Sinusoide 6.25 Hz",
+      "unit": "V",
+      "value_channel": 0,
+      "quality_channel": 1,
+      "data_type": "Float32"
+    },
+    {
+      "nodeid": "demo:Ramp",
+      "display_name": "Rampa",
+      "unit": "u",
+      "value_channel": 2,
+      "quality_channel": 3,
+      "data_type": "Float32"
+    }
+  ],
+  "frames": 1024,
+  "original_archive": "Demo_RBF_originali.parquet",
+  "rbf_compatibility": "reference-derived v3; external application validation pending",
+  "reference_header_word": 57600
+}

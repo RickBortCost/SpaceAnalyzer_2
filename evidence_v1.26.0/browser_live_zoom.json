@@ -1,0 +1,24 @@
+{
+  "version": "1.26.0",
+  "browser": "Chromium",
+  "canvas_stubbed": false,
+  "hardware_tested": false,
+  "checks": [
+    "Real mouse XY zoom pauses by default; Zoom live resumes with fixed duration/Y limits and advancing data from four local protocols",
+    "Actual Pausa/Play controls preserve the XY zoom",
+    "Actual CSV Record runs alongside live zoom and replays all four signals",
+    "Dedicated button is visible at 1366 px width"
+  ],
+  "result": "PASS",
+  "browser_version": "154.0.8037.57",
+  "recording": {
+    "state": "stopped",
+    "rows": 104,
+    "ids": [
+      "ads:MAIN.Wave",
+      "mqtt:plant/motor#/load",
+      "ns=2;s=Temperature",
+      "s7:DB1.DBD0:REAL"
+    ]
+  }
+}

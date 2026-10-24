@@ -1,0 +1,97 @@
+AGGIORNAMENTO V1.21.0
+Il lettore supporta anche canali Float32 insieme a Int16, come in TEST DAS 2.DAS.
+Le limitazioni Int16 riportate sotto descrivono il profilo di scrittura FDA.
+Per le novità complete vedere GUIDA_RBF_FDA_STRUMENTI.txt.
+
+Space Analyzer V1.16.0 - Registrazione FDA DAS4
+20 ottobre 2026
+
+AVVIO
+Chiudere la precedente istanza, estrarre tutto lo ZIP e avviare
+Space_Analyzer_V1.16.0.exe. Runtime Python e servizi inclusi.
+Per riusare Recordings mantenere il nuovo EXE nella cartella applicativa
+precedente, oppure aprire i file precedenti dalla pagina Registrazioni.
+
+REGISTRARE IN FDA
+Connettere ADS, OPC UA o S7, selezionare i segnali e premere Record.
+Nel popup scegliere FDA - DAS4 + archivio originale, poi Avvia.
+I campioni vengono registrati in Parquet senza perdere valori, qualita',
+SourceTimestamp, ServerTimestamp, timestamp locale o ADS FILETIME originali.
+Premere Stop: completato il Parquet, il servizio genera i file FDA .das.
+Attendere la fine della fase Generazione FDA prima di avviare un altro Record.
+Pausa e zoom del grafico non fermano la registrazione.
+Tutti i file si trovano nella cartella Recordings accanto all'applicativo.
+
+Il nome del file FDA e' quello dell'archivio sorgente seguito da _FDA0001.das.
+Un file .metadata.json associato descrive canali, scale, qualita' e archivio
+originale. Conservare insieme DAS, metadati e Parquet per la tracciabilita'.
+Le rotazioni temporali e dimensionali restano applicate agli originali.
+I file FDA vengono ulteriormente suddivisi per rispettare il limite di byte,
+senza spezzare i record binari; l'intestazione deve poter contenere un record.
+Il numero di parti FDA puo' differire da quello delle parti Parquet.
+
+PRECISIONE E TEMPI FDA
+Supportato il sottoinsieme DAS4/CDasChan schema 2 ricostruito dal riferimento:
+tempo UInt32 in millisecondi relativi, canali Int16 con guadagno e offset.
+Il guadagno viene scelto automaticamente per ogni segnale e parte originale,
+come potenza di dieci che evita saturazione dei 16 bit. I valori FDA sono
+arrotondati: l'errore massimo ordinario e' meta' del guadagno, riportato nei
+metadati. Non vengono inventati tipi floating point non verificati nel formato.
+Valori estremi fuori dal sottoinsieme vengono segnalati come errore e
+l'archivio Parquet originale rimane disponibile.
+
+I tempi FDA sono arrotondati al millisecondo, senza eliminare i campioni.
+Non e' effettuato ricampionamento. I timestamp originali, anche sotto 1 ms,
+restano nel Parquet. Con aggiornamenti di canali differenti allo stesso
+istante sorgente viene generato un unico frame. Aggiornamenti ripetuti dello
+stesso canale allo stesso istante restano distinti e possono avere lo stesso
+tempo FDA. Righe di calcolo arrivate in ritardo vengono ordinate su disco,
+con memoria limitata, durante la conversione dopo Stop.
+FDA UInt32 millisecondi: durata massima rappresentabile circa 49.7 giorni.
+La conversione richiede spazio temporaneo aggiuntivo nella cartella Recordings.
+
+QUALITA'
+Ogni segnale ha un canale aggiuntivo _Q: 0=assente, 1=Bad, 2=Uncertain, 3=Good.
+I valori assenti o non validi sono codificati come zero con _Q diverso da 3:
+consultare sempre il canale _Q per distinguere tali zeri dai valori reali.
+Nessun valore precedente viene copiato per mascherare un campione mancante.
+I nomi FDA sono resi ASCII e terminano con un indice univoco; nomi originali,
+NodeId e unita' complete restano nell'archivio e nei metadati.
+Se il buffer originale va in overflow, il servizio segnala l'errore e conserva
+il file parziale: non genera un FDA presentato come registrazione completa.
+Se fallisce solo la conversione, i Parquet gia' salvati restano integri.
+
+RIAPERTURA
+La pagina Registrazioni elenca e apre anche i DAS4 supportati, oltre a CSV e
+Parquet. E' possibile importarli dal PC. Il formato e' riconosciuto dal contenuto,
+non viene creato rinominando file CSV. I canali _Q dei file generati vengono
+riconosciuti anche quando il file JSON non e' disponibile. Il riferimento
+esterno puo' essere letto con i suoi 11 canali, oltre al tempo interno.
+FFT ed export della vista FDA utilizzano i valori e i tempi convertiti FDA;
+per l'analisi alla precisione originale aprire invece il Parquet associato.
+La FFT puo' rifiutare tempi irregolari o duplicati; nessun ricampionamento
+viene introdotto dalla conversione FDA o dall'analizzatore FFT.
+
+PROVA NEL PROPRIO FDA
+Cartella Esempi_FDA: Prova_FDA_1ms.das e originali Parquet associati.
+Dati interamente sintetici: 10000 frame in 10 s, 1000 Hz, due seni a 50 Hz
+(1.5 g picco) e 125 Hz (0.5 g picco), piu' una rampa da -10 a +10 mm.
+Aprire il file in FDA e controllare nomi, unita', scale, andamento e durata.
+Intestazione del riferimento ricostruita byte per byte, ma non e' disponibile
+una specifica completa ufficiale o un SDK FDA. Non e' stata eseguita una prova
+nel software Danieli FDA: la compatibilita' esterna va confermata sul posto.
+Non viene dichiarata compatibilita' universale con altre varianti DAS.
+
+VERIFICHE
+65 test backend superati, inclusi 11 dedicati a FDA; flusso UI Record/Stop,
+riapertura, FFT ed export completato su server OPC UA locale.
+Verificate la struttura binaria del riferimento, la lettura del DAS importato,
+la qualita', le scale, la rotazione, il recupero degli originali su errori,
+l'ordine temporale e l'assenza di scarto di timestamp ripetuti.
+Notifiche ADS native simulate: 1000 campioni per ciascuno di 2 segnali,
+passo sorgente 1 ms, 2000 FILETIME originali conservati in Parquet e
+1000 frame FDA con 2000 campioni Good. Non e' un test PAC reale.
+Esempio sintetico: picco FFT a 125 Hz e frequenza campioni 1000 Hz verificati.
+EXE Windows AMD64 compilato e contenuti/hash/CRC controllati; non eseguito
+su Windows, FDA o PLC fisico in questo ambiente. Canvas UI simulato.
+Report inclusi in Verifiche/V1.16.0.

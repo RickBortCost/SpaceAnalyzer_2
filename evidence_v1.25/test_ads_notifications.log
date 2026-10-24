@@ -1,0 +1,38 @@
+test_burst_timestamps_records_and_shutdown (test_ads_notifications.Cyclic.test_burst_timestamps_records_and_shutdown) ... ok
+test_flask_acquisition_export_and_disconnect (test_ads_notifications.Cyclic.test_flask_acquisition_export_and_disconnect) ... INFO:root:Application start V1.25.0
+INFO:root:Data source disconnected
+INFO:root:ADS connected: device=Native fake PLC state=RUN
+INFO:root:Data source disconnected
+ok
+test_flask_reconnect_restores_selection (test_ads_notifications.Cyclic.test_flask_reconnect_restores_selection) ... INFO:root:Application start V1.25.0
+INFO:root:Data source disconnected
+INFO:root:ADS connected: device=Native fake PLC state=RUN
+ERROR:root:Acquisizione ADS ciclica interrotta
+Traceback (most recent call last):
+  File "/workspace/work/Space_Analyzer_Codex/source/app.py", line 1363, in ads_notification_loop
+    if worker.error:raise RuntimeError(worker.error)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Dimensione notifica ADS incoerente: ads:MAIN.Running
+INFO:root:ADS connected: device=Native fake PLC state=RUN
+INFO:root:Data source disconnected
+ok
+test_invalid_payload (test_ads_notifications.Cyclic.test_invalid_payload) ... ok
+test_no_notifications_watchdog (test_ads_notifications.Cyclic.test_no_notifications_watchdog) ... ok
+test_one_ms_burst_keeps_every_sample_and_original_timestamp (test_ads_notifications.Cyclic.test_one_ms_burst_keeps_every_sample_and_original_timestamp) ... INFO:root:Recording started: format=csv signals=2
+INFO:root:Recording stopped: OPCUA_20261022_105251_762600_a1082c62 rows=2000 parts=1
+INFO:root:Recording started: format=parquet signals=2
+INFO:root:Recording stopped: OPCUA_20261022_105252_245624_287417e7 rows=2000 parts=1
+ok
+test_partial_registration_cleanup (test_ads_notifications.Cyclic.test_partial_registration_cleanup) ... ok
+test_queue_overflow_is_visible (test_ads_notifications.Cyclic.test_queue_overflow_is_visible) ... ok
+test_selection_change_online_change_and_nonrun_quality (test_ads_notifications.Cyclic.test_selection_change_online_change_and_nonrun_quality) ... ok
+test_slow_control_does_not_block_samples_and_timeout_recovers (test_ads_notifications.Cyclic.test_slow_control_does_not_block_samples_and_timeout_recovers) ... WARNING:root:ADS controllo in timeout; consumo notifiche attivo: TwinCAT locale: Timeout ADS (0x00000745)
+INFO:root:ADS controllo ripristinato
+ok
+test_stop_waits_for_inflight_monitor_before_closing_native_port (test_ads_notifications.Cyclic.test_stop_waits_for_inflight_monitor_before_closing_native_port) ... ok
+test_validation_and_timestamp (test_ads_notifications.Cyclic.test_validation_and_timestamp) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 18.237s
+
+OK

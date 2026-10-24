@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "tags": [
+    {"display_name": "Carico sinistro", "address": "DB1.DBD0", "data_type": "REAL"},
+    {"display_name": "Carico destro", "address": "DB1.DBD4", "data_type": "REAL"},
+    {"display_name": "Macchina pronta", "address": "DB1.DBX8.0", "data_type": "BOOL"},
+    {"display_name": "Contatore", "address": "DB1.DBW10", "data_type": "INT"}
+  ]
+}

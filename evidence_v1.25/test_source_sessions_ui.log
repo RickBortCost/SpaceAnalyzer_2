@@ -1,0 +1,12 @@
+{"result":"PASS","checks":["Configure four protocols, switch catalogs, select four signals, disconnect and reconnect ADS while retaining the common chart","MQTT Autoscan preserves expanded branches, focus, scroll and selection during four-source acquisition","New controls translated in five languages","All six format choices remain available and multi-source configuration persists"],"files":[]}
+PASS configuration loaded
+PASS four independent UI sessions
+PASS add opcua signal without clearing previous selections
+PASS add ads signal without clearing previous selections
+PASS add mqtt signal without clearing previous selections
+PASS add s7 signal without clearing previous selections
+PASS four displayed sources
+PASS individual ADS disconnect
+PASS individual ADS reconnect
+PASS incremental MQTT discovery
+PASS all sessions closed

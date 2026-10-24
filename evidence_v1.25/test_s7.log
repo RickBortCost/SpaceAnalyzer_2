@@ -1,0 +1,13 @@
+test_addresses_types_and_exact_int64 (test_s7.AddressTests.test_addresses_types_and_exact_int64) ... ok
+test_reject_invalid_ranges_widths_and_catalog (test_s7.AddressTests.test_reject_invalid_ranges_widths_and_catalog) ... ok
+test_live_formula_parquet_csv_and_historical_data (test_s7.ApplicationTests.test_live_formula_parquet_csv_and_historical_data) ... ok
+test_source_validation_catalog_workspace_and_test_connection (test_s7.ApplicationTests.test_source_validation_catalog_workspace_and_test_connection) ... ok
+test_64_items_pdu_packetization (test_s7.ProtocolTests.test_64_items_pdu_packetization) ... ok
+test_multiread_types_partial_error_and_large_string (test_s7.ProtocolTests.test_multiread_types_partial_error_and_large_string) ... ok
+test_reject_wrong_response_sequence (test_s7.ProtocolTests.test_reject_wrong_response_sequence) ... ok
+test_transport_close_and_reconnect (test_s7.ProtocolTests.test_transport_close_and_reconnect) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.309s
+
+OK

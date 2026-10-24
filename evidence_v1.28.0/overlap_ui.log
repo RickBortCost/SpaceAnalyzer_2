@@ -1,0 +1,19 @@
+{"result":"PASS","checks":["Stop detaches the FDA save and re-enables Record even while the original disk writer is deliberately blocked","New session has a distinct identity and selection; a delayed Stop for the old identity cannot stop or truncate the new recording","FDA and Parquet files replay their own exact signal sets and remain individually accessible after both saves"],"files":[]}
+PASS configuration loaded
+PASS four sources connected
+PASS catalog opcua
+PASS selected opcua
+PASS catalog ads
+PASS selected ads
+PASS Record dialog available
+PASS recording Slow previous
+PASS FDA original samples accepted
+PASS Record re-enabled while previous disk writer remains blocked
+PASS selection editable during save
+PASS catalog mqtt
+PASS selected mqtt
+PASS Record dialog available
+PASS recording Second recording
+PASS next session acquires independently while FDA save is blocked
+PASS FDA finalized while next session stays active
+PASS both saves complete

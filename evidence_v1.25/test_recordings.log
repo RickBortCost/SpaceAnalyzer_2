@@ -1,0 +1,26 @@
+test_bad_format_and_unwritable_directory (test_recordings.Files.test_bad_format_and_unwritable_directory) ... ok
+test_csv_and_parquet_roundtrip (test_recordings.Files.test_csv_and_parquet_roundtrip) ... ok
+test_empty_parquet_has_valid_footer (test_recordings.Files.test_empty_parquet_has_valid_footer) ... ok
+test_initial_metadata_failure_is_recoverable (test_recordings.Files.test_initial_metadata_failure_is_recoverable) ... ok
+test_overflow_is_explicit_and_drains_accepted_cycles (test_recordings.Files.test_overflow_is_explicit_and_drains_accepted_cycles) ... ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.
+ok
+test_write_failure_does_not_claim_success (test_recordings.Files.test_write_failure_does_not_claim_success) ... ERROR:root:Recording write failure
+Traceback (most recent call last):
+  File "/workspace/work/Space_Analyzer_Codex/source/recordings.py", line 460, in _run
+    self._flush(batch)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+OSError: disk full
+ERROR:root:Recording error: Errore di scrittura: disk full
+ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.298s
+
+OK

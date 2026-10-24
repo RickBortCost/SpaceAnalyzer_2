@@ -1,0 +1,60 @@
+{
+  "version": "1.27.0",
+  "browser": "Chromium",
+  "canvas_stubbed": false,
+  "hardware_tested": false,
+  "checks": [
+    "Real full-acquisition view: four protocol marker values resolve from originals after eviction from the recent FIFO",
+    "Actual add-variable, binding, expression, metric and Calculate controls evaluate a two-protocol formula over the old marker interval",
+    "Actual Save and add to chart control registers and plots the formula"
+  ],
+  "result": "PASS",
+  "browser_version": "154.0.8037.57",
+  "value": "530,829377 kN",
+  "markers": [
+    {
+      "nodeid": "ns=2;s=Temperature",
+      "x1": {
+        "timestamp_ms": 1792679946088.9187,
+        "value": 249
+      },
+      "x2": {
+        "timestamp_ms": 1792679946906.0276,
+        "value": 282
+      }
+    },
+    {
+      "nodeid": "ads:MAIN.Wave",
+      "x1": {
+        "timestamp_ms": 1792679946076.9321,
+        "value": -0.22198165435915287
+      },
+      "x2": {
+        "timestamp_ms": 1792679946898.751,
+        "value": 0.023285239842261333
+      }
+    },
+    {
+      "nodeid": "mqtt:plant/motor#/load",
+      "x1": {
+        "timestamp_ms": 1792679946094.3218,
+        "value": 7
+      },
+      "x2": {
+        "timestamp_ms": 1792679946889.7761,
+        "value": 14
+      }
+    },
+    {
+      "nodeid": "s7:DB1.DBD0:REAL",
+      "x1": {
+        "timestamp_ms": 1792679946102.205,
+        "value": 42.5
+      },
+      "x2": {
+        "timestamp_ms": 1792679946898.2126,
+        "value": 42.5
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+SPACE ANALYZER V1.20.0 - FILE APERTI E GRAFICI VUOTI
+
+In Registrazioni sono disponibili:
+
+CHIUDI FILE
+Chiude la registrazione associata al grafico attivo e svuota tracce,
+segnali, impostazioni per segnale/assi, statistiche e selezione del confronto.
+La stessa azione e nel menu del singolo grafico: Chiudi file e svuota grafico.
+Se si chiude il grafico attualmente a schermo intero, si torna alla vista
+normale per poter scegliere un'altra registrazione.
+Gli altri grafici conservano i propri dati e la vista. I marker comuni
+restano disponibili finche esiste un'altra registrazione aperta.
+
+CHIUDI TUTTI
+Chiude le registrazioni in tutti i grafici della pagina Registrazioni,
+rimuove i riquadri aggiuntivi e riparte con un solo grafico vuoto.
+Azzera zoom, intervallo condiviso, marker e confronti selezionati.
+I grafici Live conservano la loro configurazione. Le acquisizioni e le
+registrazioni eventualmente in corso continuano a essere gestite da Record.
+
++ GRAFICO VUOTO
+Aggiunge un riquadro vuoto, senza file, tracce o zoom ereditati. Da quel
+riquadro si puo scegliere un file dall'elenco o usare Apri file dal PC.
+Resta il limite di 8 grafici per pagina.
+
+APERTURA DI UN NUOVO FILE
+Un nuovo file apre l'intero intervallo selezionato con gli assi temporali
+liberi dallo zoom precedente. Con Sincronizza asse X abilitato viene
+azzerato anche il vecchio intervallo condiviso, che poteva essere relativo
+a una data o a una durata differente e nascondere i nuovi dati.
+Se il vecchio intervallo arriva durante il caricamento del nuovo file,
+viene comunque azzerato alla sua apertura.
+Un workspace salvato con uno zoom deliberato continua a ripristinarlo.
+
+CHIUSURA DURANTE UN CARICAMENTO
+Si puo chiudere un file mentre ne vengono caricati i campioni.
+La risposta del caricamento precedente viene ignorata e non riapre il file.
+Le azioni di chiusura non eliminano i file dal disco: gli originali e i
+confronti salvati rimangono disponibili nel repository/importazioni.
+Lo stato vuoto viene salvato nel workspace, se il salvataggio e abilitato.
+
+La scheda di navigazione Live e ora denominata LIVE per qualsiasi protocollo.
+I dettagli del protocollo rimangono nella connessione e nella diagnostica.

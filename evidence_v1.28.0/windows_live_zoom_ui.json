@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Default zoom pauses; enabling Zoom live resumes the existing XY zoom and advances the time window without changing either Y scale",
+    "Repeated rectangle zoom stays live and retains XY limits after buffer eviction and large changes in signal magnitude",
+    "Manual Pausa freezes timestamps and data; Play resumes live updates while preserving the XY zoom",
+    "New charts inherit Zoom live; synchronized charts follow the same window while an explicitly paused chart stays frozen",
+    "Independent charts retain their own zoom widths; navigator and time scrollbar also respect Zoom live",
+    "Disabling Zoom live restores zoom pause; reset returns to autoscale while retaining the selected live policy",
+    "Five languages, historical-view isolation and persisted Zoom live preference survive a real page reload"
+  ],
+  "files": []
+}

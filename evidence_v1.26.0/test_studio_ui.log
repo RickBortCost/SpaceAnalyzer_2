@@ -1,0 +1,14 @@
+{
+  "result": "PASS",
+  "checks": [
+    "corporate standard palette, Light/Dark/System, canvas colours and compact signal properties",
+    "alias, units, color, line width, Y assignment and validated manual axes",
+    "independent duplicate and nondestructive layout presets",
+    "navigator jump, edge resize, keyboard pan and synchronized freeze",
+    "draggable synchronized markers and collapsible analysis",
+    "resize/reset, grid divider, sidebar and fullscreen Escape",
+    "durable theme, axes, aliases, hidden signals, paused snapshot and panels",
+    "recording viewer independent signal DND"
+  ],
+  "files": []
+}

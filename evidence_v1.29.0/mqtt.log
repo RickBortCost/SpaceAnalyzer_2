@@ -1,0 +1,7 @@
+....Executing <Task finished name='Task-8' coro=<Wire.asyncTearDown() done, defined at /workspace/SpaceAnalizer/source/tests/test_mqtt.py:65> result=None created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.101 seconds
+....Executing <Task pending name='Task-27' coro=<Wire.test_tls_verified_ca_hostname_and_client_cert() running at /workspace/SpaceAnalizer/source/tests/test_mqtt.py:170> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/futures.py:389, Task.task_wakeup()] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:448> cb=[_run_until_complete_cb() at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/base_events.py:181] created at /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/runners.py:100> took 0.290 seconds
+..
+----------------------------------------------------------------------
+Ran 10 tests in 3.197s
+
+OK

@@ -1,0 +1,49 @@
+{
+  "version": "1.27.0",
+  "tested_at": "2026-10-22T14:36:32.870128+00:00",
+  "platform": "linux",
+  "packaged_exe_executed": false,
+  "formats": {
+    "csv": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "parquet": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "das": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "rbf": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "pda3": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 31
+    },
+    "dat": {
+      "result": "NOT_TESTED",
+      "reason": "Requires an actual iba write license; no license emulation"
+    }
+  },
+  "hardware_tested": false,
+  "licensed_iba_writer_tested": false,
+  "result": "PASS",
+  "interval_formula_controls_bundled": true,
+  "live_zoom_control_bundled": true,
+  "http_startup_verified": true,
+  "four_sessions_and_isolated_connection_errors_verified": true,
+  "original_full_session_markers_verified": true,
+  "interval_formula_after_fifo_eviction_verified": true,
+  "single_instance_verified": true,
+  "shutdown_verified": true,
+  "temporary_history_cleanup_verified": true
+}

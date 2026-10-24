@@ -1,0 +1,243 @@
+{
+  "result": "PASS",
+  "measured_wall_seconds": 26.291489598000226,
+  "requested_seconds": 20.0,
+  "completed_simulated_seconds": 20.0,
+  "segments": [
+    {
+      "result": "PASS",
+      "channels": 1000,
+      "period_ms": 10,
+      "requested_seconds": 20.0,
+      "requested_values_per_second": 100000.0,
+      "produced": 2000000,
+      "saved": 2000000,
+      "missing": 0,
+      "sequence_mismatches": 0,
+      "all_channels_complete": true,
+      "produced_seconds": 19.991936266000266,
+      "producer_values_per_second": 100040.334932507,
+      "total_seconds": 20.028148285000043,
+      "parent_cpu_seconds": 15.236104811999999,
+      "parent_cpu_percent_of_one_core": 76.07345719230062,
+      "parent_rss_peak_observed": 19054592,
+      "writer_usage": {
+        "cpu_seconds": 0.77,
+        "rss_bytes": 11546624
+      },
+      "producer_lateness_ms": {
+        "p95": 0.15990200017768075,
+        "p99": 1.0218530001111503,
+        "max": 3.510190999804763
+      },
+      "max_backlog_samples_observed": 1000,
+      "primary": {
+        "state": "stopped",
+        "pid": 14834,
+        "path": "/tmp/tmpwcofow2n/a86d08df831e4442abad1dead9994e82.sac",
+        "samples": 2000000,
+        "blocks": 2026,
+        "durable_samples": 2000000,
+        "bytes_written": 7635239,
+        "last_flush_ns": "1792826361185204255",
+        "error": "",
+        "integrity": "complete",
+        "usage": {
+          "cpu_seconds": 0.77,
+          "rss_bytes": 11546624
+        },
+        "recording_id": "a86d08df831e4442abad1dead9994e82",
+        "active": false,
+        "busy": false,
+        "received_samples": 2000000,
+        "lost_samples": 0,
+        "inflight_samples": 0,
+        "queue_samples": 0,
+        "queue_bytes": 0,
+        "queue_capacity_samples": 65536,
+        "queue_capacity_bytes": 33554432,
+        "queue_high_water": 2250,
+        "uncommitted_at_failure": 0,
+        "latency_measurement": "sample-weighted batch upper bound: ingress to durable fsync acknowledgement",
+        "latency_ms": {
+          "p95": 105.416664,
+          "p99": 106.617614,
+          "receipt_window": 2025
+        },
+        "samples_per_second": 99695.15181584486,
+        "bytes_per_second": 380598.1556276297
+      },
+      "acquisition": {
+        "connections": {
+          "ads": {
+            "connection_id": "e33b7ec242a44598b9d03b3844a3e261",
+            "protocol": "ads",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19046.291511668314,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 2.180646,
+              "p99": 3.559224
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 250
+            }
+          },
+          "opcua": {
+            "connection_id": "dea6cb325f6b49bbbf994404aa0b1ef8",
+            "protocol": "opcua",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19047.926479700913,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 2.804898,
+              "p99": 4.198751
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 250
+            }
+          },
+          "mqtt": {
+            "connection_id": "ca3ae7d1bf264d02845af21b3eacbc95",
+            "protocol": "mqtt",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19048.045178875618,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 3.270029,
+              "p99": 4.212354
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 250
+            }
+          },
+          "s7": {
+            "connection_id": "7feecb644c564a3e9b6f4fa7b410bc94",
+            "protocol": "s7",
+            "received": 500000,
+            "dispatched": 500000,
+            "lost": 0,
+            "receive_clock_backwards": 0,
+            "receive_reordered": 0,
+            "backpressure_waits": 0,
+            "backpressure_ms": 0,
+            "recording_rejected_samples": 0,
+            "rejected_after_failure": 0,
+            "display_skipped": 0,
+            "received_per_second": 19048.255559047302,
+            "clock_backwards": 0,
+            "duplicates": 0,
+            "sequence_gaps": 0,
+            "backlog": 0,
+            "backlog_bytes": 0,
+            "high_water": 0,
+            "error": "",
+            "queue_latency_ms": {
+              "p95": 4.073802,
+              "p99": 5.627498
+            },
+            "buffer": {
+              "samples": 0,
+              "bytes": 0,
+              "capacity_samples": 32768,
+              "capacity_bytes": 33554432,
+              "capacity_batches": 4096,
+              "accepted_batches": 2000,
+              "completed_batches": 2000,
+              "lost_samples": 0,
+              "failed": false,
+              "high_water": 500
+            }
+          }
+        },
+        "live": {
+          "backlog_samples": 0,
+          "backlog_bytes": 0,
+          "skipped_samples": 0,
+          "error": "",
+          "policy": "skip display only; originals already submitted to recorder"
+        },
+        "policy": "bounded; stop recording on original overflow; recorder before calculations and display"
+      },
+      "ui_stress": false,
+      "live_calls": 8000,
+      "limits": "Synthetic adapters; actual PLC, ADS DLL, network and disk require on-site qualification"
+    }
+  ],
+  "platform": "linux",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "cpu_count": 3,
+  "run_at_ns": "1792826367421714659"
+}

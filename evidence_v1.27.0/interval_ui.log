@@ -1,0 +1,16 @@
+{"result":"PASS","checks":["Intera acquisizione: old markers work after raw FIFO eviction, using the actual paused chart and original samples","Two original OPC UA/ADS variables, custom formula before aggregation, selected metric/unit and marker interval produce the backend result without altering acquisition","Shared full editor preserves the draft; save registers a mixed-protocol calculated signal, adds it to the chart and reloads it from saved formulas","Five languages, bindings, formula, metric, unit and explicit-calculation preference persist across a real page reload"],"files":[]}
+PASS configuration loaded
+PASS four sources connected
+PASS catalog opcua
+PASS selected opcua
+PASS catalog ads
+PASS selected ads
+PASS two protocols graphed
+PASS old marker interval evicted from recent raw FIFO
+PASS full-session original snapshot
+PASS old marker resolves from original history
+PASS multi-variable formula calculated
+PASS full editor opens
+PASS interval formula saved and graphed
+PASS mixed-protocol formula continues acquiring after save
+PASS configuration loaded

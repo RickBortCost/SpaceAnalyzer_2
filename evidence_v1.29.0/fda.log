@@ -1,0 +1,32 @@
+....ERROR:root:FDA DAS4 conversion failure
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/converted_recording.py", line 94, in _run
+    result=self._export(self.directory/part['name'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/SpaceAnalizer/source/converted_recording.py", line 70, in _export
+    return self.exporter(path,self.nodes,self.original.max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/SpaceAnalizer/source/fda_recording.py", line 8, in <lambda>
+    exporter=lambda *args:export_parquet(*args),fmt='das',title='FDA DAS4',suffix='_FDA0001.das',phase_key='fda_phase')
+                          ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+OSError: disco pieno
+....ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.
+ERROR:root:FDA DAS4 conversion failure
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/converted_recording.py", line 98, in _run
+    if state['state']=='error':raise ValueError('Acquisizione originale incompleta: '+state['error']+'; file parziale conservato')
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Acquisizione originale incompleta: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.; file parziale conservato
+....
+----------------------------------------------------------------------
+Ran 12 tests in 1.091s
+
+OK

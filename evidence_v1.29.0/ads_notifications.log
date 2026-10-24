@@ -1,0 +1,32 @@
+..INFO:root:Application start V1.29.0
+INFO:root:Data source disconnected
+INFO:root:ADS connected: device=Native fake PLC state=RUN
+INFO:root:Data source disconnected
+.INFO:root:Application start V1.29.0
+INFO:root:Data source disconnected
+INFO:root:ADS connected: device=Native fake PLC state=RUN
+ERROR:root:Acquisizione ADS ciclica interrotta
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/app.py", line 1438, in ads_notification_loop
+    if worker.error:raise RuntimeError(worker.error)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Dimensione notifica ADS incoerente: ads:MAIN.Running
+INFO:root:ADS connected: device=Native fake PLC state=RUN
+INFO:root:Data source disconnected
+...INFO:root:Recording started: format=csv signals=2
+INFO:root:Recording stopped: OPCUA_20261024_071713_333998_e2a7c34e rows=2000 parts=1
+INFO:root:Recording started: format=parquet signals=2
+INFO:root:Recording stopped: OPCUA_20261024_071713_617642_a87a9760 rows=2000 parts=1
+....WARNING:root:ADS controllo in timeout; consumo notifiche attivo: TwinCAT locale: Timeout ADS (0x00000745)
+INFO:root:ADS controllo ripristinato
+..INFO:root:Application start V1.29.0
+INFO:root:Data source disconnected
+INFO:root:ADS connected: device=Native fake PLC state=RUN
+INFO:root:Recording started: format=csv signals=2
+ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.
+INFO:root:Data source disconnected
+..
+----------------------------------------------------------------------
+Ran 14 tests in 17.954s
+
+OK

@@ -1,0 +1,112 @@
+SPACE ANALYZER V1.17.0 - REGISTRAZIONE IBA DAT
+==========================================
+
+AVVIO E UTILIZZO
+1. Estrarre TUTTO lo ZIP in una cartella locale scrivibile.
+2. Chiudere eventuali versioni precedenti dal pulsante Chiudi applicazione.
+3. Avviare Space_Analyzer_V1.17.0.exe (Windows x64).
+   Non sono richiesti Python, pip, Go o una registrazione COM manuale.
+4. Configurare OPC UA, ADS o S7 e selezionare i segnali.
+5. Record -> iba DAT -> Verifica DLL e licenza.
+6. Se la verifica riesce, scegliere nome sessione, macchina, operatore,
+   descrizione e limiti; poi Avvia registrazione.
+7. Stop chiude il Parquet originale e avvia conversione e rilettura del DAT.
+   Attendere lo stato finale prima di chiudere l'applicazione.
+8. I file si trovano nella cartella Recordings accanto all'EXE.
+
+LICENZA E COMPATIBILITA
+La DLL 3.2.0 fornita dall'utente e il bridge sono inclusi senza modifiche alla
+protezione/licenza della DLL. Non e incluso alcun emulatore di dongle, crack,
+chiave o simulatore di licenza. Licensed deve risultare true nel processo
+nativo. Avere ibaPDA installato o possedere la DLL non garantisce una licenza
+di scrittura per questa API. Il diritto d'uso resta a carico del titolare.
+
+La verifica esegue una scrittura/rilettura reale di 512 valori sintetici
+Float32 a 1 ms, in una cartella temporanea. Non misura l'acquisizione del PLC.
+Non dimostra compatibilita con tutte le versioni ibaPDA/ibaAnalyzer, ne che la
+licenza consenta ogni numero di canali. Ogni DAT finale viene a sua volta
+riletto dalla DLL; conteggi, valori Float32, timebase e offset devono coincidere.
+Aprire un primo DAT nel proprio software iba per verificarne la compatibilita.
+La DLL e legacy: non si dichiara equivalenza a un formato PDA3 recente.
+
+PRECISIONE, QUALITA E TEMPO
+Il formato nativo usato dalla DLL salva valori Float32. LREAL/Double e grandi
+interi possono perdere precisione nella COPIA DAT. I valori non rappresentabili
+in Float32 interrompono la conversione e lasciano intatto l'originale.
+
+Ogni variabile usa tre canali analogici:
+  001_Nome       valore Float32 (zero segnaposto se non numerico/qualita cattiva)
+  001_Nome_Q     0=non numerico/assente; 1=Bad; 2=Uncertain; 3=Good
+  001_Nome_T     tempo effettivo in secondi rispetto all'inizio della parte
+I prefissi numerici rendono univoci nomi finali uguali di percorsi differenti.
+Nome completo, unita e mappa canali restano nei metadati.
+
+L'asse nativo e nominale, per canale: mediana degli incrementi positivi dei
+primi 4096 intervalli, con offset del primo campione rispetto all'inizio parte.
+Il canale _T espone il tempo relativo effettivo, anch'esso Float32. Nessun
+campione viene ricampionato, interpolato, cancellato per duplicazione o tenuto
+artificialmente costante. Un segnale lento mantiene il proprio numero di punti.
+In caso di jitter, dati mancanti o tempi ripetuti, la sola ascissa nominale
+del DAT NON descrive tutta l'informazione temporale: usare _T e l'originale.
+L'intestazione riporta l'inizio in UTC; l'interpretazione nel software iba
+deve essere controllata sul PC di destinazione.
+
+Il Parquet ZSTD associato rimane l'archivio autorevole: Float64, valore testuale
+originale (anche ULINT), qualita e codici, timestamp source/server/local e
+FILETIME ADS quando disponibili. Non cambiano campioni o frequenza acquisita.
+
+RIAPERTURA, FFT E CALCOLI
+Registrazioni elenca anche i DAT generati da Space Analyzer. Selezionando un
+DAT, grafici, marker, FFT, export intervallo e formule leggono il PARQUET
+ORIGINALE ASSOCIATO, limitato esattamente alla parte corrispondente del DAT.
+Questa scelta e esplicitata nell'interfaccia. Non e un lettore universale
+di DAT esterni, ne un'analisi dei valori Float32 decodificati dal DAT.
+Per ogni DAT conservare nella stessa cartella:
+  - file .dat;
+  - relativo .metadata.json;
+  - Parquet indicato in original_archive (e preferibilmente i suoi metadati).
+Il checksum SHA256 del Parquet viene controllato prima dell'analisi.
+Rinominare/spostare solo il Parquet o modificare la sidecar rompe l'associazione.
+L'import esterno resta CSV, Parquet e FDA DAS4.
+L'FFT richiede tempi strettamente crescenti e campionamento adeguato; duplicati
+o dati invalidi non vengono nascosti per far riuscire il calcolo.
+
+LIMITI E ROTAZIONE
+Massimo 64 variabili per sessione DAT (192 canali nativi). La propria licenza
+puo imporre limiti inferiori. La verifica preliminare usa un solo canale.
+Il Parquet ruota secondo durata/dimensione configurate e conserva cicli interi.
+La conversione suddivide ulteriormente il DAT al piu piccolo fra:
+  - dimensione massima configurata (se diversa da zero);
+  - 128 MiB di protezione per file nativo.
+Inoltre: massimo 8 milioni di righe originali e 2 milioni di campioni per
+segnale in una parte, per limitare memoria e limiti della DLL x86.
+La dimensione viene misurata DOPO chiusura del file e rilettura; se supera il
+limite, la parte viene suddivisa e rigenerata mantenendo cicli interi.
+Se un singolo ciclo supera il limite, viene segnalato errore. L'originale resta.
+Il limite di dimensione non si riferisce al totale della sessione o alla somma
+DAT + Parquet + metadati. Il buffer Record e quello gia configurabile.
+
+ARCHITETTURA E GUASTI
+Acquisizione -> coda Recorder -> Parquet originale asincrono.
+Dopo Stop -> processo Python dedicato -> staging SQLite su disco -> bridge
+Windows x86 dedicato -> DLL COM -> DAT compresso -> rilettura e confronto.
+Il processo x64 principale non carica direttamente la DLL x86. Nessuna
+DllRegisterServer, modifica del registro o elevazione automatica.
+Il controllo DLL ha un timeout di 30 s; ogni job nativo ha un timeout di 900 s.
+Lo staging di un archivio grande puo richiedere piu tempo e spazio su disco.
+Le credenziali/licenze non vengono salvate o simulate dal programma.
+Se la verifica preliminare fallisce, Record DAT non parte. Parquet e CSV
+restano disponibili. Se conversione, memoria, disco o licenza falliscono dopo
+Stop, l'errore e visibile e il Parquet resta conservato; eventuali parti DAT
+gia completate possono rimanere valide. Non si promette recupero dei campioni
+gia persi dall'acquisizione originale. Overflow originale -> nessun DAT completo.
+L'ultima verifica esplicita e in iba_last_check.json nella cartella impostazioni;
+gli errori applicativi continuano nel log ruotato gia presente.
+
+VERIFICHE DI QUESTA CONSEGNA
+Vedere VERIFICA.txt e Verifiche/V1.17.0: test backend, test bridge con mock,
+controlli statici ABI della DLL/PE e workflow DOM dell'interfaccia.
+I test mock sono solo nei sorgenti di test, non nel runtime dell'EXE.
+Non e stata eseguita la DLL su Windows in questo ambiente Linux, non e stata
+verificata la licenza dell'utente e non e stato usato un PLC fisico. Nessuna
+garanzia di 1/10 ms con un dato numero di variabili deriva da questi test.

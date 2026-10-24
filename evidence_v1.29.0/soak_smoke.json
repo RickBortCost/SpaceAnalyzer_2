@@ -1,0 +1,63 @@
+{
+  "result": "PASS",
+  "requested_seconds": 3.0,
+  "measured_wall_seconds": 3.573719638000057,
+  "channels": 1000,
+  "period_ms": 10,
+  "produced": 300000,
+  "verified_samples": 300000,
+  "verified_files": 3,
+  "missing": 0,
+  "errors": [],
+  "parent_cpu_seconds": 3.001945433,
+  "parent_rss_peak_observed": 22605824,
+  "producer_lateness_max_ms": 25.429267000617983,
+  "acquisition": {
+    "connections": {
+      "soak": {
+        "connection_id": "eab046e2769a4c2abb604c2b17918eb9",
+        "protocol": "ads",
+        "received": 300000,
+        "dispatched": 300000,
+        "lost": 0,
+        "recording_rejected_samples": 0,
+        "rejected_after_failure": 0,
+        "display_skipped": 0,
+        "received_per_second": 83954.28515891789,
+        "clock_backwards": 0,
+        "duplicates": 0,
+        "sequence_gaps": 0,
+        "backlog": 0,
+        "backlog_bytes": 0,
+        "high_water": 0,
+        "error": "",
+        "queue_latency_ms": {
+          "p95": 77.008213,
+          "p99": 97.10228
+        },
+        "buffer": {
+          "samples": 0,
+          "bytes": 0,
+          "capacity_samples": 32768,
+          "capacity_bytes": 33554432,
+          "capacity_batches": 4096,
+          "accepted_batches": 300,
+          "completed_batches": 300,
+          "lost_samples": 0,
+          "failed": false,
+          "high_water": 10000
+        }
+      }
+    },
+    "live": {
+      "backlog_samples": 0,
+      "backlog_bytes": 0,
+      "skipped_samples": 0,
+      "error": "",
+      "policy": "skip display only; originals already submitted to recorder"
+    },
+    "policy": "bounded; stop recording on original overflow; recorder before calculations and display"
+  },
+  "hardware_tested": false,
+  "continuous_generator": true
+}

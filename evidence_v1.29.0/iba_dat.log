@@ -1,0 +1,22 @@
+..........ERROR:root:iba DAT conversion failure
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/converted_recording.py", line 94, in _run
+    result=self._export(self.directory/part['name'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/SpaceAnalizer/source/converted_recording.py", line 70, in _export
+    return self.exporter(path,self.nodes,self.original.max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+ValueError: Licensed = false
+...
+----------------------------------------------------------------------
+Ran 13 tests in 0.829s
+
+OK

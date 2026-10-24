@@ -1,0 +1,36 @@
+SPACE ANALYZER V1.23.0 — LINGUA DELL’INTERFACCIA
+
+Nella barra superiore, accanto a Impostazioni, è disponibile il menu con
+il simbolo del globo. Selezionare English, Italiano, Deutsch, Français
+oppure Español. Il cambio è immediato e non ricarica la pagina.
+
+La lingua viene salvata nelle preferenze dell’applicazione e riportata
+nelle impostazioni e nel workspace. All’avvio viene ripristinata anche
+se il browser non consente l’uso di localStorage. Per configurazioni
+precedenti a questa versione la lingua iniziale è Italiano.
+
+Il cambio comprende navigazione, finestre, etichette e suggerimenti,
+strumenti dei grafici, proprietà dei segnali/assi, registrazioni, formule,
+FFT, connessioni OPC UA/ADS/S7/MQTT e controlli SSH. Anche finestre già
+aperte vengono aggiornate senza perdere i valori modificati nei campi.
+I pulsanti del grafico vengono rimisurati nella nuova lingua: quelli
+che non entrano nella barra restano accessibili nel menu a tre puntini.
+
+Il cambio lingua non interrompe acquisizione o Record. Nomi assegnati
+dall’operatore, alias, formule, NodeId, topic, unità personalizzate, nomi
+dei file, percorsi e output del target SSH conservano il contenuto
+originale. Le colonne e i valori nei file registrati non vengono tradotti.
+Date e numeri visualizzati seguono la lingua scelta; i timestamp e i valori
+numerici negli archivi mantengono il formato e la precisione esistenti.
+Codici di stato dei protocolli e dettagli diagnostici ricevuti da driver,
+PLC o sistemi remoti mantengono la propria forma tecnica originale.
+
+Non è necessaria una connessione Internet: tutte le traduzioni sono
+incluse nell’eseguibile. Se un errore impedisce di salvare la preferenza,
+l’interfaccia lo segnala e la scelta corrente rimane visibile.
+
+INSTALLAZIONE
+Chiudere la versione precedente, estrarre l’intero ZIP e avviare
+Space_Analyzer_V1.23.0.exe. Le funzioni della V1.22.0, compresa
+l’acquisizione MQTT, sono incluse. Le configurazioni locali esistenti
+rimangono utilizzabili.

@@ -1,0 +1,360 @@
+V1.28.0 — 2026-10-23
+- Registrazione attiva separata dalle sessioni in finalizzazione per tutti i sei formati: nuovo Record durante il salvataggio precedente, con identità e configurazioni indipendenti.
+- Stop libera i comandi dopo lo scarico dei campioni; pannello Salvataggi in background con stato, errori e apertura dei file pronti.
+- FDA/RBF in processi isolati; conversione delle parti già chiuse durante l’acquisizione, esportazioni controllate e archivio originale Parquet Rapido.
+- CSV scritto per blocchi; Parquet evita doppia compressione lontano dal limite di rotazione; conteggio dei cicli senza un insieme crescente in memoria.
+- Lettura FDA a blocchi e accesso diretto agli intervalli dei nuovi file; letture Parquet con colonne mirate e selezione dei gruppi temporali.
+- Cache limitate di descrizioni, viste e marker, invalidate dalle modifiche ai file; panoramiche con estremi/qualità e memoria limitata; originali separati da FFT, formule ed export.
+- Stop con ID protegge da richieste ritardate; risposte UI precedenti ignorate; cambio segnali/formule consentito dopo Stop senza modificare i salvataggi precedenti.
+- Chiusura dell’interfaccia attende i file ancora in salvataggio; regressioni su errori, sei formati, protocolli, replay, browser reale e benchmark riproducibile.
+
+V1.27.0 — 2026-10-22
+- Marker X1/X2 e statistiche in Intera acquisizione leggono gli originali della sessione anche dopo l'uscita dal FIFO recente.
+- Storico temporaneo SQLite con scrittura separata, letture progressive, limiti espliciti e snapshot congelati per sessione e sequenza.
+- Nuovo editor sotto il grafico: più variabili, riferimenti A/B, formule condivise con Dati calcolati, allineamento, tolleranza e statistiche della serie risultante.
+- Formule salvate richiamabili; salvataggio e aggiunta al grafico o trasferimento all'editor completo; workspace e cinque lingue.
+- Formule Live con ingressi di protocolli diversi durante l'acquisizione simultanea.
+- Test oltre il FIFO, qualità, revisione dei calcoli, snapshot e limiti; regressione DOM e Chromium con quattro protocolli; test del vero EXE inclusi nel rilascio.
+
+V1.26.0 — 2026-10-22
+- Nuovo pulsante Zoom live accanto a Pausa, applicato ai grafici LIVE e salvato nel workspace.
+- Zoom rettangolare e navigatore mantengono Play: la durata X resta fissa e la finestra segue gli ultimi dati; i limiti Y1/Y2 selezionati rimangono fissi.
+- Attivazione su uno zoom in pausa e successivo Pausa/Play conservano lo zoom XY; ripristino zoom torna all'autoscale.
+- Grafici sincronizzati seguono la stessa finestra; grafici indipendenti mantengono durate diverse. I nuovi grafici ereditano la modalità.
+- Comando e stato tradotti nelle cinque lingue; esclusione delle registrazioni storiche.
+- Verifiche DOM e prova in Chromium con rendering reale, quattro peer locali e registrazione CSV.
+- La correzione del menu Catalogo della V1.25.1 resta inclusa.
+
+V1.25.1 — 2026-10-22
+- Corretto il caricamento del codice che gestisce Catalogo: ora rispetta l'ordine dei componenti dell'interfaccia.
+- Il cambio ADS → OPC UA aggiorna realmente protocollo, campo radice e scansione, mantenendo segnali, grafici e registrazione comuni.
+- Test di regressione tramite gli script dichiarati nell'HTML e il menu Catalogo reale, con scansione e selezione di tutti e quattro i protocolli.
+- Verifica della navigazione OPC UA mentre ADS e registrazione CSV sono attivi, con rilettura dei quattro segnali registrati.
+- Build Windows con regressione DOM obbligatoria prima della compilazione e verifica del vero EXE prima della pubblicazione.
+
+V1.25.0 — 2026-10-22
+- Acquisizione simultanea estesa a OPC UA, ADS, MQTT e S7, in ogni sottoinsieme.
+- Sessioni, task, worker, errori e riconnessioni indipendenti; nessuna sorgente primaria obbligatoria.
+- Interfaccia per protocolli abilitati, periodi, cataloghi, stato e controllo di ogni sorgente; cinque lingue.
+- Registrazioni miste CSV, Parquet, FDA/DAS4, RBF, DAT/PDA3 e DAT/iba con originali conservati.
+- Colonne esplicite per protocollo, timestamp di acquisizione originale e origine del campione.
+- PDA3 misto: griglia 10 ms, mantenimento causale limitato, vuoti/Bad = NaN, contesto tra finestre e metadati corretti nei segmenti.
+- Snapshot OPC UA allineati per preservare formule e segnali costanti, oltre alle notifiche archiviate.
+- Stop serializzato, drenaggio UDP/MQTT/ADS, controllo di Start duplicato e conservazione dei file incompleti.
+- Bootstrap sicuro del certificato client quando il pacchetto sorgenti non contiene certificati seed.
+- Nuovi test multi-protocollo, formati, qualità, code, finalizzazione e DOM. Build Windows aggiornata con i nuovi moduli; nessun nuovo EXE prodotto in questa consegna.
+- Vedere GUIDA_ACQUISIZIONE_SIMULTANEA.md e VERIFICHE_V1.25.0.md per politiche, risultati e limiti delle verifiche.
+
+V1.24.0 — 22/10/2026
+- Autoscan MQTT: controllo catalogo ogni secondo, aggiornamento incrementale, nessun reset dei dati.
+- Marker Live relativi alla schermata durante Play; timestamp fissi in Pausa.
+- FFT riservata a vista in Pausa con X1/X2; snapshot originali conservati.
+- Sessioni OPC UA + MQTT simultanee, cataloghi selezionabili, riconnessione indipendente.
+- Record misto CSV/Parquet con timestamp originali asincroni.
+- Dati calcolati: misure scalari originali, ×K + offset, senza creare variabili.
+- Diagnostica spostata nel popup Connessione; nuove etichette nelle cinque lingue.
+
+V1.23.0 - 22/10/2026 - Lingue interfaccia
+- Menu lingua nella barra superiore accanto a Impostazioni.
+- Inglese, italiano, tedesco, francese e spagnolo disponibili senza Internet.
+- Cambio immediato di testi, finestre, strumenti e formattazione numeri/date.
+- Scelta persistente nelle preferenze, nelle impostazioni e nel workspace.
+- Finestre aperte e modifiche non salvate conservate durante il cambio lingua.
+- Strumenti grafico rimisurati, con overflow nel menu a tre puntini.
+- Acquisizione, Record, identità e valori dei segnali indipendenti dalla lingua.
+
+V1.22.0 - 21/10/2026 - MQTT
+- Quarta fonte live: MQTT 3.1.1 e 5 TCP/TLS, QoS 0/1/2, sola sottoscrizione.
+- Broker/auth/CA/certificato client, filtri +/# e test CONNACK/SUBACK dalla UI.
+- Payload semplici e JSON Pointer annidati/array, catalogo dei campi osservati.
+- Acquisizione a pubblicazioni, timestamp ricezione o payload e qualità JSON.
+- Retained esclusi da Record per default; inclusione esplicita come Uncertain.
+- Worker e coda limitati, overflow esplicito con originali parziali conservati.
+- Grafici, formule e registrazioni esistenti integrati; Stop drena le code.
+- Reconnect pulito con gap Bad e risottoscrizione; password solo sessione.
+- Profili indipendenti, diagnostica e guida MQTT inclusi.
+
+V1.21.0 - 21/10/2026
+- RBF v3: importazione, lettura, filtri e registrazione da OPC UA, ADS e S7.
+- RBF: timestamp propri, qualità per segnale, Parquet originale e rotazione completa.
+- Limiti iniziali della vista RBF arrotondati verso l'esterno: ultimo campione incluso.
+- FDA DAS4: lettura mista Float32/Int16 verificata su TEST DAS 2.DAS.
+- Pulsanti dedicati sopra ciascun grafico Live e Registrazioni.
+- Overflow automatico nel menu a tre puntini in base alla larghezza effettiva.
+- Controlli e listener conservati nei ridimensionamenti; osservatori liberati alla rimozione.
+- 63 test backend e 10 flussi interfaccia passati; verifica completa dei due allegati.
+
+V1.10.0 - 2 ottobre 2026 - Registrazioni binarie Parquet/ZSTD
+- Quattro profili: ZSTD 3/9/19 e Snappy; Parquet/ZSTD 9 predefinito.
+- Compressione senza perdita, Float64 byte-stream split e dizionari per etichette.
+- Blocchi piu' grandi nel recorder dedicato; nessuna decimazione dei campioni.
+- Tutti i timestamp, ADS FILETIME, valori originali e qualita' conservati.
+- Opzioni e formato nel workspace, codec e righe in memoria nello stato Record.
+- Stima dimensione e rotazione con lo stesso codec del file effettivo.
+- CRC delle pagine binarie e verifica in lettura; profilo anche nel footer.
+- Replay/grafici/FFT invariati; export e dataset calcolati Parquet usano ZSTD 9.
+- Nuovi test lossless/rotazione/codec e benchmark riproducibile inclusi.
+
+V1.9.0 - 2 ottobre 2026 - Formula Engine e Dati calcolati
+- Parser AST controllato, senza eval: aritmetica, funzioni autorizzate e confronti.
+- CRUD, duplicazione, stato, unita, modalita, revisione, anteprima e validazione.
+- Riferimenti tramite ID, dipendenze ordinate, rilevamento cicli e cancellazioni protette.
+- Acquisizione Live OPC UA/ADS con calcoli in un processo separato e coda limitata.
+- Allineamento causale, tolleranza, timestamp identici o clock di una sorgente.
+- Propagazione qualita e gap per missing/null/scadenza/divisione per zero/errori.
+- Elaborazione registrazioni originali prima della decimazione, con warm-up delle dipendenze.
+- Applicazione dinamica o nuovo dataset CSV/Parquet, conservando originali e versioni salvate.
+- Serie calcolate negli stessi grafici, Record, marker, FFT, export e workspace.
+- Stop attende i risultati calcolati fino all'ultimo timestamp acquisito.
+- Registrazioni in corso proteggono le definizioni; diagnostica coda, perdite e latenze.
+- EXE Windows x64 completo con tutti i nuovi componenti e il logo esistente.
+
+V1.8.2 - 1 ottobre 2026 - Parametri ADS modificabili
+- Rimossi i blocchi dei cinque campi manuali nella modalita TwinCAT locale.
+- Salvataggio/ripristino dei parametri nel profilo e nel workspace.
+- Etichette ADS/TCP e descrizione dell'utilizzo effettivo per ogni trasporto.
+- Blocco temporaneo solo durante sessione attiva, connessione e Record,
+  con indicazione Disconnetti/Stop.
+- Cambio esplicito a ADS/TCP da notifiche: selezione SumRead annunciata.
+- Diagnostica ADS/TCP: porta client effettiva, inclusa la porta di test + 1.
+- Corretti i testi del popup sulle notifiche e sui timestamp originali.
+
+Space Analyzer V1.8.1
+- Palette Danieli su pagine, controlli, popup, grafici e FFT.
+- Stati selected/disabled/error e tema Standard chiaro predefinito.
+- Canvas e marcatori coordinati; colori personalizzati conservati.
+
+Space Analyzer V1.8.0
+- Spettro in frequenza in primo piano, parametri FFT richiudibili.
+- Assi espliciti, curve o righe spettrali, vista estesa, focus armoniche e PNG.
+- Parametri di visualizzazione salvati; FFT live/pausa e file originali conservati.
+
+Space Analyzer V1.7.1
+- Corretta FFT/export di viste live congelate dopo l'espulsione dal buffer.
+- Catture originali limitate e separate da acquisizione e punti del browser.
+- Zoom sincronizzato, pulizia Play e diagnosi campioni/intervallo disponibili.
+
+Space Analyzer V1.7.0
+- Identificazione picchi in banda delle armoniche fino alla quinta.
+- Fondamentale automatica/manuale, riferimenti su spettro, tabella e CSV.
+- Stati oltre Nyquist/risoluzione insufficiente/nessun picco espliciti.
+- Opzioni armoniche nel workspace; calcolo live e su file registrati.
+
+Space Analyzer V1.6.2
+- Rinomina applicativo, header e titolo pagina; logo e favicon Danieli.
+- Icona Danieli integrata nelle risorse Windows dell'EXE.
+- Nomi finali nel pannello segnali live con tooltip completo e alias preservati.
+
+V1.6.1
+- Albero ADS: ultimo elemento come etichetta, percorso completo nel tooltip.
+- Rimossa la ripetizione visibile del percorso ADS completo sulla stessa riga.
+- Identita segnali, array, espansione e acquisizione conservano il percorso.
+
+V1.6.0
+- FFT a blocchi senza ricampionamento temporale.
+- Quattro finestre, medie energetiche/esponenziali/Max Hold.
+- Peak/RMS/Power/PSD/ASD, RMS in banda e diagnostica campioni esclusi.
+- Live FFT, processo isolato, export CSV spettro, workspace e strumenti grafico.
+- Preservata acquisizione ADS ciclica con timestamp originali.
+
+V1.5.0 - ADS notifiche cicliche con timestamp originali
+
+ATTIVAZIONE
+1. Chiudere la vecchia versione ed estrarre tutto lo ZIP in una nuova cartella.
+2. Avviare OPCUA_Web_Client_V1.5.0.exe.
+3. Connessione > fonte ADS > Usa TwinCAT locale + notifiche cicliche.
+4. Impostare AMS Net ID e porta del target, quindi Connetti.
+5. Selezionare i segnali ed impostare il periodo richiesto, per esempio 10 ms.
+Le impostazioni precedenti vengono conservate: una configurazione SumRead salvata
+non viene cambiata automaticamente. Il pulsante dedicato attiva la nuova modalita.
+
+ARCHITETTURA E DIAGNOSTICA
+Notifiche SERVERCYCLE mediante TcAdsDll x64 installata sul PC. Il worker di
+acquisizione usa un thread, un event loop e una porta ADS propri. Le callback
+copiano dati e timestamp in una FIFO limitata a 32768 campioni / 16 MiB; non
+eseguono chiamate ADS, grafica o scritture su disco. Il worker decodifica e passa
+ogni campione al buffer grafico e alla coda del recorder gia esistente.
+Il browser aggiorna la visualizzazione indipendentemente dall'acquisizione.
+ReadState e controllo versione simboli sono esterni alle callback. Le notifiche
+continuano ad essere accodate durante tali controlli. MaxDelay = periodo richiesto.
+
+REALE indica il periodo medio tra timestamp PLC sul primo segnale selezionato.
+Diagnostica acquisizione distingue min/medio/max/P95 del periodo PLC, periodo
+medio di arrivo al PC, coda e campioni persi per overflow, attesa nella coda,
+riavvii delle subscription e differenza fra orologio PC e timestamp PLC.
+PC - PLC include il disallineamento degli orologi: non e una misura affidabile
+della sola latenza di rete senza sincronizzazione dei clock.
+
+TIMESTAMP E FILE
+Il grafico e la colonna timestamp_ms usano il timestamp originale ADS.
+source_timestamp contiene UTC con sette cifre frazionarie (100 ns).
+ads_filetime conserva esattamente il contatore FILETIME come stringa decimale,
+anche in CSV/Parquet ed export X1-X2, evitando arrotondamenti JavaScript.
+local_timestamp conserva l'ora locale UTC di ricezione della callback.
+server_timestamp resta vuoto: ADS non fornisce un secondo timestamp separato.
+La qualita indica l'esito della comunicazione e lo stato RUN/STOP osservato;
+non e un QualityCode nativo OPC UA del valore PLC.
+
+CONTINUITA
+Cambio segnali/periodo e online change ricreano le subscription. Il watchdog
+rileva flusso assente su ciascun segnale (minimo 5 s); errori e overflow vengono
+segnalati e producono un'interruzione Bad, con riconnessione se abilitata.
+Il conteggio overflow riguarda perdite locali note, non tutte le possibili
+perdite sul PLC/rete. Durante riconnessione non e possibile recuperare dati
+non ricevuti: servirebbe un buffer storico sul PLC. Nessun campione viene
+inventato tramite ripetizione/interpolazione per riempire i buchi.
+La FIFO viene drenata prima del rilascio normale delle subscription.
+
+COMPATIBILITA
+Questa modalita richiede TwinCAT locale e TcAdsDll a 64 bit. Il trasporto ADS/TCP
+diretto mantiene SumRead/Read: non supporta le nuove notifiche. Nessun fallback
+silenzioso. Nessuna modifica del programma PLC o delle route. La cadenza effettiva
+dipende dalla task/runtime PLC e dal carico; non e garantito un arrivo Windows
+puntuale ogni 10 ms. Callback FIFO e timestamp originali separano questi aspetti.
+
+VERIFICHE
+9 test specifici con DLL simulata: ABI packed, callback in blocco, timestamp
+100 ns, CSV/Parquet, cambio selezione/periodo, online change, stati PLC, errori,
+overflow, watchdog, API Flask, export live e riconnessione automatica.
+Regressioni: 11 ADS/TCP, 6 native ADS, 4 datatype, 17 OPC UA, 6 recorder,
+5 analisi/export; test interfaccia JSDOM con servizio reale e canvas simulato.
+Verifica statica Windows PE x64, runtime incorporato e corrispondenza sorgenti.
+Non eseguito su Windows/TcAdsDll reali ne su un PAC fisico in questo ambiente.
+
+
+--- Note versioni precedenti ---
+V1.4.3 - Pacchetto Windows rigenerato dopo archivio V1.4.2 troncato.
+Estrarre tutto lo ZIP prima di avviare OPCUA_Web_Client_V1.4.3.exe.
+Il runtime Python e i servizi sono inclusi dentro EXE; non richiedono installazione separata.
+In caso di errore del servizio: %LOCALAPPDATA%\OPCUA_Web_Client\launcher-v143.log.
+Eseguibile cross-compilato: non collaudato su Windows o PAC fisico.
+
+V1.4.2 - Espansione datatype ADS
+
+Aprire Esplora rami ed espandere PlcSlow > fbEntryPoint: vengono letti i datatype ADS per mostrare i membri di FB, strutture e array. Gli array sono paginati con Carica altri. La scansione include i membri fino al limite configurato. Se il PLC non pubblica un datatype viene mostrato un errore esplicito. Pointer e reference non vengono dereferenziati. La lettura dei valori usa sempre handle simbolici. Compatibile con TwinCAT locale e ADS/TCP.
+
+Verifica: peer ADS simulato e DLL simulata; nessuna prova su Windows o PAC reale.
+
+V1.4.1 — Modalita ADS tramite router TwinCAT locale
+- TcAdsDll x64: identita e porta assegnate dal router, route esistenti.
+- Selettore trasporto, ricerca DLL/percorso manuale e diagnostica.
+- Chiusura porta coordinata con richieste native e cancellazione.
+- Errore TCP chiuso reso comprensibile. Nessuna modifica delle route.
+
+V1.4.0 — OPC UA + Beckhoff ADS, 30 settembre 2026
+- Connessione sempre visibile nella barra, popup centrale responsive.
+- Selettore fonte OPC UA / ADS, profili segnali/grafici separati e persistenti.
+- ADS/TCP diretto senza librerie native TwinCAT sul PC client.
+- Parametri IP/AMS/porte, scheda locale, timeout, codifica, Read/SumRead.
+- Test route/device, scansione tabella simboli, browse e array, simbolo manuale.
+- Handle per nome, release, invalidazione/versione simboli e riconnessione.
+- Tipi scalari/stringhe/array, diagnostica errori, qualita' e timestamp locali.
+- Recordings CSV/Parquet con protocollo nei metadata, grafici e analisi comuni.
+- Nuovi test ADS su peer TCP locale e percorso UI cambio fonte/ripristino.
+- Limiti ADS e procedura route documentati in GUIDA_ADS.txt.
+
+V1.3.1 — CORREZIONE ACCESSO CONNESSIONE — 30 settembre 2026
+- Ripristinato Connessione nella navigazione principale, accanto a Live OPC UA
+  e Registrazioni: non occorre aprire il menu Impostazioni.
+- Il pulsante apre il pannello centrale completo: endpoint, autenticazione,
+  sicurezza, certificati, campionamento, buffer, Connetti e Disconnetti.
+- Stato accessibile aria-expanded e accesso da entrambe le pagine.
+- Toolbar compatta sulle larghezze ridotte; servizi OPC UA invariati.
+
+V1.3.0 — STUDIO UI — 30 settembre 2026
+- Toolbar fissa, stato, comandi del grafico attivo e menu Impostazioni.
+- Palette industriale Light/Dark/System, sidebar compatta e filtro segnali.
+- Card grafici, menu azioni, duplicazione indipendente, PNG e fullscreen.
+- Preset 1/2 verticali/2 orizzontali/4/libero senza eliminare grafici esistenti.
+- Navigator con jump, pan, resize estremi e sincronizzazione temporale.
+- X1/X2 trascinabili; pannello analisi compatto, collassabile e ridimensionabile.
+- Alias, unita', colore, spessore, visibilita', Y1/Y2 per singolo grafico.
+- Assi auto/manuali validati e unità; gain/offset predisposti ma non applicati.
+- Resize con divisori e reset; sidebar collassabile; persistenza UI completa.
+- Drag segnali anche nelle registrazioni, protezione da drop fra file diversi.
+- Legenda aggiornata solo quando cambia; navigator con budget limitato.
+- Acquisizione e moduli record/file/FFT/export invariati rispetto a V1.2.0.
+- Test di regressione e nuovo flusso UI; EXE Windows x64 standalone.
+- Limiti: browser reale e Windows nativo non collaudati in questo ambiente.
+
+V1.2.0 - 30 settembre 2026
+Base: V1.1.15 RESIZABLE DND WINDOWS
+
+- Workspace completo persistente per Live e Registrazioni, con autosave.
+- Ripristino pannelli, segnali, colori, zoom, viste ferme e file esterni.
+- Sincronizzazione temporale dello zoom/pan e crosshair comune, disattivabili.
+- Buffer live fino a un'ora o limite campioni; coda Record configurabile.
+- Rotazione automatica CSV/Parquet per durata e dimensione massima del file.
+- Qualita' Good/Uncertain/Bad nel grafico, senza collegare campioni non validi.
+- Codice StatusCode e timestamp locali/source/server nei file.
+- Sessione, macchina, descrizione, operatore e parti nel repository.
+- FFT su campioni originali tra X1/X2 con Hann/rettangolare e controllo qualita'.
+- Export esatto X1-X2 in CSV/Parquet, comprensivo di qualita' e timestamp.
+- Log backend/OPC UA/Record/frontend con rotazione e visualizzatore web.
+- Mantenuti EXE standalone, certificati, drag & drop, grafici vuoti indipendenti,
+  ridimensionamento, doppia Y, marker e scanner OPC UA.
+
+V1.1.15 - 29 settembre 2026
+- Ridimensionamento orizzontale dei pannelli Live e Registrazioni con splitter trascinabile, adattivo alla risoluzione, tastiera e doppio clic di reset.
+- Liste laterali ridimensionabili verticalmente.
+- Nuovi grafici Live vuoti: ogni grafico parte con una selezione segnali indipendente.
+- Drag & drop dei segnali dalla lista Live a qualsiasi grafico, senza modificare la selezione di acquisizione/Record.
+- Nuovi grafici Registrazioni indipendenti e senza copia automatica del file/segnali del grafico precedente.
+
+V1.1.14 - 29 settembre 2026
+Base: OPCUA_Web_Client_V1.1.13_WINDOWS
+
+- Connessione e certificati spostati in una pagina dedicata, aperta come popup centrale.
+- Segnali acquisiti e navigazione Address Space nella colonna sinistra del Live.
+- Layout adattivo alla risoluzione, viste in colonna o affiancate e schede ingrandibili.
+- Fino a 8 grafici indipendenti per pagina, con nome e selezione segnali propri.
+- Pausa/Play, zoom X/Y, scorrimento X, autoscale e pulizia indipendenti per grafico Live.
+- Marker X1/X2 sincronizzati per timestamp assoluto su tutti i grafici della stessa pagina.
+- Registrazioni: file CSV/Parquet, filtri e intervalli indipendenti per ogni grafico.
+- Marker degli storici letti dai file originali e conservati correttamente dopo ridisegno.
+- Salvataggio e ripristino del layout Live insieme alle impostazioni esistenti.
+- Record/Stop rimangono indipendenti dalla disposizione dei grafici.
+- Conservati certificati, acquisizione, import locale, Recordings e funzioni V1.1.13.
+- Identificatori e controlli distinti per ogni grafico, anche dopo creazione/rimozione.
+
+V1.1.13 - 10 settembre 2026
+Base: OPC UA Web Client V1.1.12
+
+- Scrollbar temporale sotto l'asse X nei grafici Live e Registrazioni.
+- Lo scrollbar si abilita dopo lo zoom e trasla la finestra X mantenendo la durata dello zoom.
+- Allineamento automatico dello scrollbar con l'area utile del grafico, inclusa la doppia scala Y.
+- Nuovo comando "Apri file dal PC..." nella pagina Registrazioni.
+- Import temporaneo read-only di CSV/Parquet esterni al repository Recordings.
+- Il file esterno viene aperto automaticamente e resta separato dal repository applicativo.
+- Cache dei file esterni in %LOCALAPPDATA%\OPCUA_Web_Client\recording_imports, ripulita ad avvio/arresto.
+- Limite upload locale elevato per consentire registrazioni di grandi dimensioni.
+- Conservate doppia scala Y, zoom, marker X1/X2, decimazione min/max, Record/Stop e certificati.
+
+V1.1.12 - 10 settembre 2026
+Base: OPCUA_Web_Client_V1.1.11_RECORD_WINDOWS
+
+- Nuova pagina "Registrazioni" accessibile dall'header senza interrompere il live.
+- Elenco automatico dei file CSV e Apache Parquet nella cartella Recordings.
+- Apertura e grafico degli storici direttamente nella stessa interfaccia.
+- Selezione/filtraggio segnali e intervallo temporale Da/A.
+- Risoluzione selezionabile da 5.000 a 100.000 punti per segnale.
+- Decimazione min/max server-side per file estesi, con conservazione dei picchi.
+- Doppia scala Y automatica, zoom X/Y a trascinamento e tooltip anche sugli storici.
+- Marker X1/X2 con Delta t, valori e Delta valore; lettura esatta dal file originale.
+- Parser read-only con protezione path traversal e supporto file di versioni precedenti.
+- Conservate tutte le funzioni Live/Record/Stop/certificati della V1.1.11.
+
+V1.1.11 - base registrazione
+- Pulsante Pausa/Play del grafico, indipendente da acquisizione e Record.
+- Pulsanti Record e Stop con popup di scelta CSV / Apache Parquet.
+- Registrazione dal ciclo di acquisizione, prima della decimazione grafica.
+- Thread di scrittura separato, buffer limitato, conteggi e errori visibili.
+- Timestamp UTC, qualita', tipi, nomi, NodeId e metadati della sessione.
+- Chiusura corretta CSV/Parquet su Stop, disconnessione e arresto applicazione.
+- Cartella Recordings individuata rispetto all'EXE originale, non al runtime
+  temporaneo e non alla cartella di lavoro del collegamento.
+- Selezione fissa durante Record; ripristino dopo ricaricamento della pagina.
+- Impedito il salvataggio di una selezione diversa mentre Record e' attivo.
+- Conservati marker X1/X2, doppia scala Y, zoom, scansione, certificati,
+  impostazioni, Subscription OPC UA e fallback Read della V1.1.10.
+- Singolo launcher Windows x64 con Python e PyArrow incorporati.

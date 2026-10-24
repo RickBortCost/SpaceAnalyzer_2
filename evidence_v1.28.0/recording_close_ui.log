@@ -1,0 +1,12 @@
+{
+  "result": "PASS",
+  "checks": [
+    "navigation stays LIVE for ADS, Siemens S7 and OPC UA",
+    "opening a recording on another day clears both manual and synchronized zoom without pressing Reset",
+    "a range arriving during file loading cannot hide the new data",
+    "close active file clears all of its traces and settings; another recording and its zoom stay intact",
+    "closing during a pending read prevents the late response from reopening the file",
+    "close all returns one blank chart, preserves repository/live charts, and restores blank after workspace reload"
+  ],
+  "files": []
+}

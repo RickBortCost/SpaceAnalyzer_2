@@ -1,0 +1,20 @@
+....ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.
+.ERROR:root:Recording write failure
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/recordings.py", line 475, in _run
+    self._flush(batch)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1139, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1143, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/mock.py", line 1198, in _execute_mock_call
+    raise effect
+OSError: disk full
+ERROR:root:Recording error: Errore di scrittura: disk full
+.
+----------------------------------------------------------------------
+Ran 6 tests in 0.280s
+
+OK

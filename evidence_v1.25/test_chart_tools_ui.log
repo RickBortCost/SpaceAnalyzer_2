@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Wide chart exposes every menu function as a dedicated button in the header",
+    "Shrink moves remaining controls into the overflow menu, preserving identity, listeners and disabled states",
+    "All controls remain accessible in narrow charts and return to the toolbar when enlarged",
+    "Each chart owns its commands; duplicate, rename, close and observer cleanup work independently"
+  ],
+  "files": []
+}

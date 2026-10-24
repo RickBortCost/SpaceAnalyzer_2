@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "checks": [
+    "Intera acquisizione: old markers work after raw FIFO eviction, using the actual paused chart and original samples",
+    "Two original OPC UA/ADS variables, custom formula before aggregation, selected metric/unit and marker interval produce the backend result without altering acquisition",
+    "Shared full editor preserves the draft; save registers a mixed-protocol calculated signal, adds it to the chart and reloads it from saved formulas",
+    "Five languages, bindings, formula, metric, unit and explicit-calculation preference persist across a real page reload"
+  ],
+  "files": []
+}

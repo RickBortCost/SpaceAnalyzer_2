@@ -1,0 +1,12 @@
+test_all_profiles_preserve_numeric_bits_original_values_and_timestamps (test_binary_recordings.BinaryRecordings.test_all_profiles_preserve_numeric_bits_original_values_and_timestamps) ... ok
+test_binary_overflow_drains_accepted_cycles_without_silent_loss (test_binary_recordings.BinaryRecordings.test_binary_overflow_drains_accepted_cycles_without_silent_loss) ... ERROR:root:Recording error: Disco troppo lento: buffer di registrazione pieno. Registrazione interrotta; controllare il file parziale.
+ok
+test_binary_recording_fft_export_and_original_timestamp_grid (test_binary_recordings.BinaryRecordings.test_binary_recording_fft_export_and_original_timestamp_grid) ... ok
+test_empty_binary_and_footer_profile_without_sidecar (test_binary_recordings.BinaryRecordings.test_empty_binary_and_footer_profile_without_sidecar) ... ok
+test_invalid_profile_and_unavailable_codec_are_explicit (test_binary_recordings.BinaryRecordings.test_invalid_profile_and_unavailable_codec_are_explicit) ... ok
+test_rotation_uses_compressed_size_and_never_splits_a_cycle (test_binary_recordings.BinaryRecordings.test_rotation_uses_compressed_size_and_never_splits_a_cycle) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.929s
+
+OK

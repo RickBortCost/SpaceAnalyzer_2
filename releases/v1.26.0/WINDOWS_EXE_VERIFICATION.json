@@ -1,0 +1,48 @@
+{
+  "version": "1.26.0",
+  "tested_at": "2026-10-22T14:07:37.067275+00:00",
+  "platform": "win32",
+  "packaged_exe_executed": true,
+  "formats": {
+    "csv": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "parquet": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "das": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "rbf": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "pda3": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 33
+    },
+    "dat": {
+      "result": "NOT_TESTED",
+      "reason": "Requires an actual iba write license; no license emulation"
+    }
+  },
+  "hardware_tested": false,
+  "licensed_iba_writer_tested": false,
+  "result": "PASS",
+  "exe": "Space_Analyzer_V1.26.0.exe",
+  "sha256": "a818db0eee220b78b610409cb873046fcd134f6e7cdba454f2d2aedfd37704fa",
+  "embedded_payload_verified": true,
+  "live_zoom_control_bundled": true,
+  "http_startup_verified": true,
+  "four_sessions_and_isolated_connection_errors_verified": true,
+  "single_instance_verified": true,
+  "shutdown_verified": true
+}

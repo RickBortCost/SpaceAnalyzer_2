@@ -1,0 +1,15 @@
+test_bad_source_clock_fails_record_without_fabricated_timestamps (test_mqtt_api.Integrated.test_bad_source_clock_fails_record_without_fabricated_timestamps) ... ok
+test_catalog_manual_signals_scan_and_source_guard (test_mqtt_api.Integrated.test_catalog_manual_signals_scan_and_source_guard) ... ok
+test_clearing_live_does_not_discard_queued_original_record_samples (test_mqtt_api.Integrated.test_clearing_live_does_not_discard_queued_original_record_samples) ... ok
+test_csv_parquet_and_rbf_all_publications_no_holding (test_mqtt_api.Integrated.test_csv_parquet_and_rbf_all_publications_no_holding) ... ok
+test_mqtt_calculated_signals_and_record_stop_drain (test_mqtt_api.Integrated.test_mqtt_calculated_signals_and_record_stop_drain) ... ok
+test_reconnect_marks_gap_and_resubscribes (test_mqtt_api.Integrated.test_reconnect_marks_gap_and_resubscribes) ... ok
+test_source_time_late_samples_preserved_and_metadata_bounds (test_mqtt_api.Integrated.test_source_time_late_samples_preserved_and_metadata_bounds) ... ok
+test_stop_drains_pending_messages_and_keeps_exact_integer_text (test_mqtt_api.Integrated.test_stop_drains_pending_messages_and_keeps_exact_integer_text) ... ok
+test_test_connection_and_password_never_saved (test_mqtt_api.Integrated.test_test_connection_and_password_never_saved) ... ok
+test_upstream_overflow_keeps_partial_instead_of_complete_file (test_mqtt_api.Integrated.test_upstream_overflow_keeps_partial_instead_of_complete_file) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 6.370s
+
+OK

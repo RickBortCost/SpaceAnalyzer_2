@@ -1,0 +1,86 @@
+SPACE ANALYZER V1.21.0 - RBF, FDA E STRUMENTI GRAFICO
+
+RBF: APRIRE REGISTRAZIONI
+In Registrazioni usare Apri file dal PC e selezionare .RBF. Il formato è
+presente anche nel filtro Formato. Repository e file importati persistono
+nel workspace. È supportata la variante v3 osservata in TEST_RBF.rbf:
+Float32, tipo intero a 16 bit, Boolean a 1 byte e stringhe di 81 byte.
+Il campione ha 384 segnali e 26.304 frame. È possibile scegliere fino a
+64 segnali per grafico e distribuirne altri su grafici indipendenti.
+I timestamp originali secondi/nanosecondi vengono letti senza ricampionare;
+lo stesso file partecipa a marker, FFT, formule e confronti con altri formati.
+I limiti temporali iniziali della vista vengono arrotondati verso l'esterno
+al millisecondo per includere anche primo e ultimo campione frazionari.
+L'esportazione CSV conserva anche il timestamp originale come stringa.
+I canali stringa sono disponibili come dati testuali; non hanno una curva
+numerica. Per i file esterni privi di qualità, valori numerici finiti sono
+considerati utilizzabili; non viene ricostruita una qualità PLC assente.
+
+RBF: REGISTRARE
+Collegare la sorgente OPC UA, ADS o S7, selezionare i segnali, premere Record
+e scegliere RBF. Sono ammessi fino a 64 segnali originali/calcolati insieme.
+L'acquisizione salva prima tutti gli aggiornamenti in Parquet. Pausa, zoom
+ed operazioni sul grafico non interrompono Record. Dopo Stop vengono
+prodotti i file *_RBF0001.rbf, *_RBF0002.rbf, ecc., con metadati associati.
+Attendere la fine della generazione prima di avviare un'altra registrazione.
+Ogni file contiene al massimo 57.600 frame, mantenendo l'impostazione
+del profilo di riferimento: ad esempio circa 57,6 s a 1 ms o 9,6 min a
+10 ms con segnali simultanei. Il numero effettivo dipende dagli aggiornamenti.
+Anche i limiti di dimensione e durata impostati possono generare più file.
+La suddivisione avviene soltanto tra frame completi; non elimina campioni.
+Un file breve è valido anche se Stop viene premuto subito.
+
+I valori numerici nel RBF sono Float32. La precisione Float64, i contatori
+a 64 bit come testo e le informazioni originali di qualità e timestamp
+rimangono nel Parquet: conservare l'archivio originale insieme ai RBF/JSON.
+I Boolean sono 0/1; le stringhe devono essere codificabili in Windows-1252
+ed occupare al massimo 80 byte più terminatore. Overflow Float32, stringhe
+non rappresentabili o altri errori vengono segnalati; il Parquet resta salvo.
+Ogni segnale ha un canale fisico _Q: 0=assente nel frame, 1=Bad,
+2=Uncertain, 3=Good. Gli aggiornamenti assenti non vengono interpolati o
+riempiti con valori precedenti. Aggiornamenti distinti dello stesso segnale
+allo stesso istante restano distinti. I frame sono ordinati per timestamp.
+Riaprendo un RBF/JSON Space Analyzer recupera nomi, identificativi e unità;
+anche il solo RBF rimane leggibile, con nomi fisici e riconoscimento _Q.
+
+COMPATIBILITÀ RBF
+Il lettore e lo scrittore sono derivati dal file fornito e non costituiscono
+un SDK ufficiale. Versioni, tipi o metadati diversi dal profilo verificato
+sono rifiutati esplicitamente. Il significato dei 12 byte aggiuntivi per
+canale e dell'ultimo campo dell'header non è documentato: lo scrittore usa
+i valori osservati, zero e 57600, e non estende la capacità dei singoli file.
+Il campione non consente di validare il segno del tipo intero oltre i valori
+non negativi presenti; lo scrittore lo usa solo per le qualità da 0 a 3.
+L'apertura dei nuovi RBF nel software originale NON è ancora verificata.
+
+FDA: CORREZIONE TEST DAS 2.DAS
+L'errore "solo tempo UInt32 e canali Int16 scalati" dipendeva dai canali
+Float32 del file. Il lettore accetta ora DAS4/CDasChan schema 2 con tempo
+UInt32 in millisecondi e canali Int16 e/o Float32, anche nello stesso frame.
+La scala gain/offset e l'offset di ogni canale vengono rispettati. Il file
+allegato contiene 17 segnali: 11 Float32 e 6 Int16, con 289.198 frame.
+I valori non finiti vengono mostrati come non validi, senza inviare NaN
+al grafico. Il profilo di scrittura FDA esistente rimane Int16 scalato con
+Parquet originale, come indicato nella finestra Record.
+
+PULSANTI SOPRA I GRAFICI
+Ogni grafico Live e Registrazioni presenta i propri comandi nella barra
+superiore: assi Y1/Y2, segnali, FFT/Export, ripristino zoom, sincronizzazione,
+PNG, rinomina, duplica, chiusura file (Registrazioni), pulizia e rimozione.
+I pulsanti compaiono in ordine secondo lo spazio realmente disponibile.
+Quando il riquadro si riduce, i rimanenti passano nel menu a tre puntini;
+quando si allarga, ritornano nella barra. Non occupano una seconda riga.
+I pulsanti disabilitati restano tali in entrambe le posizioni. Le azioni
+operano sul grafico che le contiene, anche se un altro grafico è attivo.
+Il ridimensionamento dei pannelli, le griglie e il fullscreen ricalcolano
+lo spazio. La rimozione di un grafico libera anche il relativo osservatore.
+
+VERIFICHE
+Test su file reali: tutti i 10.100.736 valori RBF e tutti i 4.916.366 valori
+FDA sono confrontati con una decodifica binaria indipendente. Record/Stop,
+qualità, rotazione, originali, importazione, marker/FFT/export, confronti
+misti e comandi adattivi sono verificati nei test inclusi.
+I test di interfaccia usano il servizio HTTP reale e un DOM con canvas
+simulati e misure controllate: non sono una verifica pixel per pixel.
+L'EXE viene compilato con runtime incluso ma non è eseguito nativamente su
+Windows in questo ambiente. Non è stato utilizzato un PLC fisico.

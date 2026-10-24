@@ -1,0 +1,57 @@
+{
+  "version": "1.28.0",
+  "tested_at": "2026-10-23T17:10:28.565707+00:00",
+  "platform": "win32",
+  "packaged_exe_executed": true,
+  "formats": {
+    "csv": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "parquet": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "das": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "rbf": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "pda3": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 33
+    },
+    "dat": {
+      "result": "NOT_TESTED",
+      "reason": "Requires an actual iba write license; no license emulation"
+    }
+  },
+  "hardware_tested": false,
+  "licensed_iba_writer_tested": false,
+  "result": "PASS",
+  "exe": "Space_Analyzer_V1.28.0.exe",
+  "sha256": "99352ab720516d60720a26041c64aedd83b5e30afcb90e9bc3db456f45de680c",
+  "embedded_payload_verified": true,
+  "interval_formula_controls_bundled": true,
+  "live_zoom_control_bundled": true,
+  "http_startup_verified": true,
+  "four_sessions_and_isolated_connection_errors_verified": true,
+  "original_full_session_markers_verified": true,
+  "interval_formula_after_fifo_eviction_verified": true,
+  "overlapping_fda_save_and_new_csv_recording_verified": true,
+  "overlapping_recordings_rows": {
+    "fda": 128000,
+    "csv": 640
+  },
+  "single_instance_verified": true,
+  "shutdown_verified": true,
+  "temporary_history_cleanup_verified": true
+}

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "mode": "udp",
+  "length": 24,
+  "module_index": 200,
+  "timestamp_payload_offset": 0,
+  "payload_endian": "big",
+  "tags": [
+    {"nodeid": "s7:udp:8:REAL", "display_name": "CaricoA", "data_type": "REAL"},
+    {"nodeid": "s7:udp:12:REAL", "display_name": "CaricoB", "data_type": "REAL"},
+    {"nodeid": "s7:udp:16.0:BOOL", "display_name": "Enabled", "data_type": "BOOL"}
+  ]
+}

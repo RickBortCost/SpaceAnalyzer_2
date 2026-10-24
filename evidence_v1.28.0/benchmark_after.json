@@ -1,0 +1,16 @@
+{
+  "frames": 60000,
+  "signals": 4,
+  "rows": 240000,
+  "source": "source",
+  "seconds": {
+    "fda_conversion": 1.43539,
+    "fda_cold_full": 0.367735,
+    "fda_repeat_full": 0.002231,
+    "fda_narrow_interval": 0.001765,
+    "parquet_cold_full": 0.696894,
+    "parquet_repeat_full": 0.003475,
+    "parquet_narrow_interval": 0.004482
+  },
+  "result": "PASS"
+}

@@ -1,0 +1,22 @@
+# Local runtimes and caches
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Generated application data and private installation material
+source/certificates/
+source/settings/
+source/config.json
+source/workspace.json
+source/formulas.json
+source/Recordings/
+source/recording_imports/
+source/calculation_cache/
+source/*.log
+source/instance.lock
+source/build/
+source/dist/
+source/live_analysis_cache/

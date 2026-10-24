@@ -1,0 +1,123 @@
+{
+  "id": 120547215808,
+  "run_id": 39992407560,
+  "html_url": "https://github.com/RickBortCost/SpaceAnalizer/actions/runs/39992407560/job/120547215808",
+  "status": "completed",
+  "conclusion": "success",
+  "started_at": "2026-10-23T17:06:59Z",
+  "completed_at": "2026-10-23T17:11:29Z",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:07:00Z",
+      "completed_at": "2026-10-23T17:07:02Z"
+    },
+    {
+      "name": "Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:07:02Z",
+      "completed_at": "2026-10-23T17:07:14Z"
+    },
+    {
+      "name": "Run actions/setup-python@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:07:14Z",
+      "completed_at": "2026-10-23T17:07:14Z"
+    },
+    {
+      "name": "Run actions/setup-go@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:07:14Z",
+      "completed_at": "2026-10-23T17:07:22Z"
+    },
+    {
+      "name": "Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:07:22Z",
+      "completed_at": "2026-10-23T17:07:32Z"
+    },
+    {
+      "name": "Verify overlapping recordings, original intervals and catalog navigation",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:07:32Z",
+      "completed_at": "2026-10-23T17:09:31Z"
+    },
+    {
+      "name": "Build standalone EXE with current sources",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:09:31Z",
+      "completed_at": "2026-10-23T17:10:28Z"
+    },
+    {
+      "name": "Execute the packaged Windows application and verify recordings",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:10:28Z",
+      "completed_at": "2026-10-23T17:11:02Z"
+    },
+    {
+      "name": "Create portable Windows ZIP and checksums",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:02Z",
+      "completed_at": "2026-10-23T17:11:05Z"
+    },
+    {
+      "name": "Preserve build evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:05Z",
+      "completed_at": "2026-10-23T17:11:10Z"
+    },
+    {
+      "name": "Publish verified Windows files",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:10Z",
+      "completed_at": "2026-10-23T17:11:25Z"
+    },
+    {
+      "name": "Post Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:25Z",
+      "completed_at": "2026-10-23T17:11:25Z"
+    },
+    {
+      "name": "Post Run actions/setup-go@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:25Z",
+      "completed_at": "2026-10-23T17:11:25Z"
+    },
+    {
+      "name": "Post Run actions/setup-python@v5",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:25Z",
+      "completed_at": "2026-10-23T17:11:26Z"
+    },
+    {
+      "name": "Post Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:26Z",
+      "completed_at": "2026-10-23T17:11:27Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-10-23T17:11:27Z",
+      "completed_at": "2026-10-23T17:11:27Z"
+    }
+  ]
+}

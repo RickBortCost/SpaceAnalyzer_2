@@ -1,0 +1,8 @@
+test_long_constant_and_steps_exact_fixed_capacity (test_pda3_codec.Codec.test_long_constant_and_steps_exact_fixed_capacity) ... ok
+test_random_uncompressible_refused_instead_of_approximated (test_pda3_codec.Codec.test_random_uncompressible_refused_instead_of_approximated) ... ok
+test_small_exhaustive_bit_exact_and_representable_budgets (test_pda3_codec.Codec.test_small_exhaustive_bit_exact_and_representable_budgets) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.030s
+
+OK

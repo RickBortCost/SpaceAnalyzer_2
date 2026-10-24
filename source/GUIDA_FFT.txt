@@ -1,0 +1,134 @@
+V1.24.0 — MODALITÀ ATTUALE
+FFT richiede un grafico Live in Pausa e due marker X1/X2 distinti.
+Su registrazioni statiche servono i due marker. La FFT continua durante Play
+non è disponibile. Le indicazioni relative alla FFT live scorrevole nei
+paragrafi storici sottostanti sono sostituite da questa regola.
+Parametri DSP, finestre, spettro e armoniche rimangono disponibili.
+Guida corrente: GUIDA_LIVE_V1.24.txt.
+
+RIFERIMENTI TECNICI DELLE VERSIONI PRECEDENTI
+
+SPETTRO IN FREQUENZA - SPACE ANALYZER V1.8.0
+Dopo Calcola FFT, i parametri si richiudono e viene mostrato il pannello
+Spettro in frequenza: X e la frequenza in Hz; Y e il livello nella grandezza
+selezionata (Peak, RMS, Power, PSD o ASD). I campioni originali e il motore di
+calcolo sono gli stessi della versione precedente.
+Vista: Curva oppure Righe spettrali (una riga verticale per ogni bin FFT).
+Trascinamento e rotella fanno zoom; Autoscale ripristina 0..Fs/2. Con X log
+la DC (0 Hz) e esclusa dalla vista perche il logaritmo di zero non e definito.
+Vista F1-H5 limita X a 5.5 volte la fondamentale, entro Nyquist, per leggere
+le armoniche. Il calcolo non cambia: restano disponibili tutti i bin originali.
+Ingrandisci spettro usa la finestra di analisi estesa; Ripristina dimensione
+riapre la vista completa con statistiche e tabella armoniche. Ricalcola FFT e
+Ferma FFT live restano accessibili dal pannello dello spettro.
+Salva spettro PNG esporta il grafico corrente con assi, curve, zoom e riferimenti.
+L'export CSV conserva tutti i bin; l'export armoniche mantiene la tabella.
+La scelta Curva/Righe spettrali e salvata nel workspace. Finestra, medie e
+parametri di campionamento rimangono in Parametri FFT, riapribile in ogni momento.
+Disponibile sia nel Live (anche in pausa) sia su registrazioni CSV/Parquet.
+
+FFT LIVE IN PAUSA - V1.7.1
+Pausa e primo zoom di un grafico live catturano i campioni originali del suo
+intervallo visualizzato ancora presenti nel servizio. La FFT aspetta il
+completamento della cattura e usa tale vista per X1-X2; lo stesso vale per
+export CSV/Parquet. Il plot non viene ricampionato ne usato come sorgente FFT.
+Live a finestra scorrevole e disponibile sui grafici in Play; un grafico in
+pausa usa X1-X2 sulla cattura congelata. Play/ripristino zoom/rimozione grafico
+rilasciano la cattura. Zoom sincronizzato cattura anche gli altri grafici.
+Limite complessivo: 8 catture / 2 milioni di campioni originali. Al limite
+vengono eliminate le catture piu vecchie, con errore esplicito se si cerca di
+analizzarle. Un riavvio non conserva questi dati in memoria; il workspace
+conserva solo la vista disegnata. Per lo storico durevole usare Record.
+Se i dati erano gia usciti dal buffer prima di Pausa, non sono recuperabili
+tramite la cattura: usare la registrazione oppure Play e un nuovo intervallo.
+L'errore meno di 16 campioni ora riporta il conteggio reale selezionato e
+l'intervallo dei dati originali disponibili, invece di un generico avviso.
+
+SPACE ANALYZER V1.7.0 - ARMONICHE F1..H5
+Dopo aver scelto segnale e intervallo X1-X2 (o Live), impostare Fondamentale:
+- Auto: F1 e il picco AC dominante; se H2 e maggiore di F1 puo scegliere H2.
+- Manuale: inserire la frequenza fondamentale nota in Hz e ricalcolare.
+Sono mostrati F1 e armoniche H2, H3, H4, H5 ai multipli 2,3,4,5 di F1.
+Le linee tratteggiate indicano le frequenze attese; i punti i picchi trovati.
+La tabella distingue frequenza attesa e misurata, ampiezza/livello, scarto e
+stato. Le ampiezze seguono la grandezza FFT scelta (Peak/RMS/Power/PSD/ASD).
+Frequenze misurate sui bin originali: nessuna interpolazione sub-bin o
+promessa di una precisione migliore di delta-f. Aumentare la durata del
+blocco per separare picchi vicini; F1 inferiore a 2 delta-f e indicata come
+risoluzione insufficiente. Non viene modificata la frequenza di campionamento.
+La ricerca seleziona il maggiore picco locale nella banda attorno a ogni
+multiplo: semilarghezza max(2 delta-f, percentuale della frequenza attesa),
+limitata al 40% di F1 per evitare sovrapposizione delle bande. La percentuale
+predefinita e 3%, configurabile 0..20. Se non c'e un picco, non viene inventato
+un valore zero; oltre Fs/2 compare Oltre Nyquist. L'assenza riguarda la banda
+ricercata, non dimostra che un armonico sia fisicamente assente.
+Il pavimento numerico per i picchi e 1e-12 della massima potenza AC; non e una
+stima statistica del rumore. Picco in banda e un candidato: rumore o un tono
+indipendente possono essere vicini a un multiplo senza essere una vera armonica.
+Esporta armoniche CSV salva tabella, unita, modo, delta-f e bande di ricerca.
+Il workspace conserva le nuove opzioni. Funzione disponibile su Live e file
+registrati CSV/Parquet usando il medesimo motore sui campioni originali.
+Le medie e Max Hold sono quelle dell'intervallo corrente come nella V1.6.0.
+
+V1.6.0 - Analizzatore FFT a blocchi
+
+AVVIO
+Estrarre tutto lo ZIP in una nuova cartella e avviare OPCUA_Web_Client_V1.6.0.exe.
+Non occorrono Python o pip sul PC di destinazione. Per ADS cicliche occorre
+TwinCAT locale con TcAdsDll x64 e route configurata come nella V1.5.0.
+
+FFT / ANALISI FREQUENZA
+Dal grafico aprire "FFT / Export X1-X2" e scegliere il segnale.
+Su registrazioni si analizza X1-X2; nel Live si puo scegliere anche una finestra
+mobile in secondi e avviare/fermare l'aggiornamento. Il calcolo si ripete dopo
+il completamento del precedente, con una pausa di un secondo. Fermare la FFT
+non interrompe acquisizione o Record. Medie e Max Hold riguardano i blocchi
+nell'intervallo corrente, non tutta la sessione live trascorsa.
+
+Risoluzione: scegliere campioni (0 = automatico), Hz o durata del blocco.
+Il numero di punti e una potenza di due tra 16 e 65536: Hz/durata vengono
+arrotondati alla potenza di due superiore. Sono sempre mostrati i valori
+realmente utilizzati: Fs, N, delta-f = Fs/N, durata N/Fs e banda equivalente
+di rumore ENBW. Overlap 0..90% aumenta il numero di blocchi, non la risoluzione.
+Finestre periodiche: rettangolare, Hann, Blackman-Harris e Flat-top.
+Flat-top e utile per ampiezze tonali fuori bin; Hann per analisi generale.
+
+Medie: energetica, esponenziale energetica (costante temporale in secondi),
+ultimo blocco, Max Hold. Numero medie 0 = tutti i blocchi validi; altrimenti
+usa i piu recenti. Le medie sono eseguite sulle potenze, non sui dB.
+Output monolaterale: Peak, RMS, Power, PSD (unita^2/Hz), ASD (unita/sqrt(Hz)).
+Ampiezze tonali corrette per guadagno coerente; PSD per energia della finestra.
+DC e Nyquist non vengono raddoppiati. Con rimozione media disattivata la DC e
+calcolata separatamente. L'unita inserita e solo un'etichetta: non scala i dati.
+RMS totale/in banda deriva dall'integrale PSD sui bin inclusi. Nel Max Hold e
+l'RMS dell'inviluppo spettrale, non l'RMS temporale di una singola misura.
+Picchi individuati sui bin, senza interpolazione della frequenza del picco.
+
+Grafico FFT: zoom con rotella/trascinamento, cursore, doppio clic o Autoscale,
+limiti frequenza, assi logaritmici, sovrapposizione ultimo blocco e Max Hold.
+Esporta spettro CSV scarica tutti i bin, incluse le curve sovrapposte.
+Le impostazioni FFT vengono salvate nel workspace. Export X1-X2 dei campioni
+originali in CSV/Parquet rimane distinto dall'export dello spettro.
+
+INTEGRITA TEMPORALE E LIMITI
+Si usano i campioni originali, senza interpolazione o riduzione temporale.
+Fs e stimata dalla mediana degli intervalli originali. Per ADS si conservano
+le differenze FILETIME intere a 100 ns; altrimenti si usa timestamp_ms.
+La tolleranza temporale predefinita e 5%, configurabile: non certifica una
+misura sincrona. Bad/Uncertain, valori non numerici e discontinuita possono
+far rifiutare l'intervallo oppure escludere interi blocchi, secondo la scelta.
+Timestamp non crescenti vengono rifiutati. Il riepilogo mostra esclusioni,
+jitter e campioni non utilizzati, compresa la coda che non completa un blocco.
+Almeno 16 e massimo 262144 campioni sorgente; massimo 512 blocchi, con limite
+di lavoro proporzionale a N log2(N). Il calcolo e in un processo dedicato,
+uno alla volta, con timeout di 30 secondi, separato dal worker ADS.
+Carico CPU/I/O e caratteristiche PLC restano rilevanti: nessuna garanzia hard
+real-time a 10 ms. La qualita della FFT dipende dalla regolarita del segnale
+acquisito, non dalla sola velocita di aggiornamento del browser.
+
+RIFERIMENTI
+Implementazione DSP originale ispirata alle logiche pubblicamente documentate;
+non utilizza codice Dewesoft e non e certificata equivalente al suo software.
+https://manual.dewesoft.com/x/setupmodule/modules/freqdomain/fftapplication
+https://dewesoft.com/blog/guide-to-fft-analysis
+https://manual.dewesoft.com/x/measure/viscontrol/freqdom/fftanalysis

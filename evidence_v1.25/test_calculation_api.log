@@ -1,0 +1,8 @@
+test_actual_live_acquisition_preview_record_stop_quality_and_snapshot (test_calculation_api.CalculationAPI.test_actual_live_acquisition_preview_record_stop_quality_and_snapshot) ... ok
+test_historical_preview_graph_markers_fft_interval_export_and_materialization (test_calculation_api.CalculationAPI.test_historical_preview_graph_markers_fft_interval_export_and_materialization) ... ok
+test_validation_crud_modes_cycle_and_workspace_persistence (test_calculation_api.CalculationAPI.test_validation_crud_modes_cycle_and_workspace_persistence) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 13.311s
+
+OK

@@ -1,0 +1,14 @@
+.quick-calculations{border:1px solid var(--line,#71809655);border-radius:10px;margin-top:10px;padding:10px}
+.quick-calculations summary{font-weight:600;cursor:pointer}.quick-calculations .toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:10px}
+.quick-calculations label{display:flex;align-items:center;gap:6px}.quick-calculations input{width:90px}.quick-calculations select{max-width:240px}
+.quick-bindings{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.quick-binding{display:flex;align-items:center;gap:5px;max-width:100%}.quick-binding label{margin:0;max-width:calc(100% - 70px)}.quick-binding select{width:260px;max-width:100%}
+.quick-calculations textarea{display:block;width:100%;box-sizing:border-box;min-height:60px;font-family:Consolas,monospace}.quick-calculations #quick-name{width:180px}.quick-calculations #quick-tools{margin:6px 0}.quick-calculations output{font-size:18px;font-weight:650;padding:5px 10px}.quick-calculations .checkline input{width:auto}.quick-calculations #quick-status{overflow-wrap:anywhere}
+#quick-value{font-size:1.3rem;font-weight:700;min-width:90px}#quick-range{margin-bottom:0}#mqtt-autoscan.active{background:#006eff;color:white}
+#browse-source-wrap{display:inline-flex;align-items:center;gap:6px}#browse-source-wrap[hidden]{display:none}#parallel-status{white-space:pre-wrap}
+
+.multi-source-row{display:grid;grid-template-columns:90px 80px minmax(100px,1fr) auto auto;gap:8px;align-items:center;margin:8px 0}.multi-source-row input[type=number]{width:100%;min-width:0}.multi-source-row [role=status]{font-size:12px;overflow-wrap:anywhere}.multi-source-row .checkline{margin:0}.multi-source-row .ghost{font-size:12px;padding:6px}
+@media(max-width:750px){.multi-source-row{grid-template-columns:1fr 80px}.multi-source-row [role=status]{grid-column:1/-1}}
+
+.recording-jobs{border:1px solid var(--line,#71809655);border-radius:8px;padding:8px;margin:6px 0}.recording-jobs summary{cursor:pointer;font-weight:600}.recording-job{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:8px 0;border-top:1px solid var(--line,#71809655)}.recording-job .small{grid-column:1/-1;overflow-wrap:anywhere}.recording-job.error{color:#c94747}
+
+.recording-jobs summary span{float:none;color:inherit;font-size:inherit}#recording-jobs-list{max-height:280px;overflow:auto}

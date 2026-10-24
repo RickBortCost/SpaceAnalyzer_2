@@ -1,0 +1,14 @@
+test_32715_values_9_channels_36_35_seconds_split_and_rejoin_exactly (test_pda3_capacity.Capacity.test_32715_values_9_channels_36_35_seconds_split_and_rejoin_exactly) ... Noise regression: 32715 exact values / 9 channels / 4 native DATs, seconds= 40.893
+ok
+test_all_64_arbitrary_signals_fit_safe_segment_bit_exact (test_pda3_capacity.Capacity.test_all_64_arbitrary_signals_fit_safe_segment_bit_exact) ... ok
+test_disk_or_generic_writer_errors_never_trigger_capacity_fallback (test_pda3_capacity.Capacity.test_disk_or_generic_writer_errors_never_trigger_capacity_fallback) ... ok
+test_insufficient_split_space_publishes_no_native_file (test_pda3_capacity.Capacity.test_insufficient_split_space_publishes_no_native_file) ... ok
+test_interval_export_packages_all_parts_and_manifests (test_pda3_capacity.Capacity.test_interval_export_packages_all_parts_and_manifests) ... ok
+test_old_failed_capacity_job_is_recovered_from_original_archive (test_pda3_capacity.Capacity.test_old_failed_capacity_job_is_recovered_from_original_archive) ... ok
+test_recorder_normal_stop_with_9_noisy_signals_publishes_full_timeline (test_pda3_capacity.Capacity.test_recorder_normal_stop_with_9_noisy_signals_publishes_full_timeline) ... ok
+test_strict_option_and_genuine_data_errors_still_preserve_original (test_pda3_capacity.Capacity.test_strict_option_and_genuine_data_errors_still_preserve_original) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 134.100s
+
+OK

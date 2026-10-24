@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "checks": [
+    "format/name/duration filters preserve the selected files",
+    "CSV plus Parquet; independent identities, manual clock offset, common time interval and exact markers",
+    "comparison and filters survive workspace reload",
+    "multiple external imports with unequal sample rates and durations; other chart remains independent"
+  ],
+  "files": []
+}

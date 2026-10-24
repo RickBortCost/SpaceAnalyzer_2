@@ -1,0 +1,14 @@
+..........ERROR:root:Errore processo calcoli
+Traceback (most recent call last):
+  File "/workspace/SpaceAnalizer/source/calculation_service.py", line 171, in _loop
+    if events and self.process: self._deliver(self._request({'op': 'batch', 'events': events}), generation, sample_ms)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/SpaceAnalizer/source/calculation_service.py", line 114, in _request
+    self.process.stdin.write(json.dumps(message, ensure_ascii=False, allow_nan=False)+'\n')
+BrokenPipeError: [Errno 32] Broken pipe
+...ERROR:root:Formule non caricate: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+.
+----------------------------------------------------------------------
+Ran 14 tests in 1.915s
+
+OK

@@ -1,0 +1,85 @@
+SPACE ANALYZER V1.9.0 - DATI CALCOLATI
+
+1. Collegare OPC UA o ADS, selezionare/scansionare le variabili.
+2. Aprire Dati calcolati. Inserire nome, eventuale unita e cliccare le sorgenti.
+3. Costruire la formula con i pulsanti o digitando i nomi tra parentesi quadre.
+   [Carico Live 1] - [Carico Live 2]
+   ([Delta Carico] / [Carico Live 1]) * 100
+4. Scegliere Live, Registrazioni o entrambe. Valida controlla sintassi e riferimenti.
+   Test e anteprima mostra valori, qualita e una curva; non salva ne abilita la formula.
+5. Salva formula. In Live le sorgenti della fonte corrente vengono selezionate;
+   la nuova serie compare a sinistra e puo essere assegnata/trascinata ai grafici.
+6. Per uno storico scegliere Registrazione e il file. Applica alla registrazione
+   mostra il risultato con gli originali. Il caricamento opera sui campioni del file,
+   poi usa la stessa decimazione e gli stessi strumenti dei grafici esistenti.
+7. Per un intervallo aprire il file nel grafico Registrazioni, impostare X1/X2
+   o il filtro Da/A e spuntare Usa intervallo nel Formula Builder. Se entrambi i
+   marker sono presenti hanno precedenza. Senza spunta si elabora l'intero file.
+8. Salva con dati calcolati genera un nuovo CSV o Parquet in Recordings, includendo
+   segnali originali, risultato, qualita, timestamp e metadata delle formule.
+
+OPERATORI E FUNZIONI
++ - * / ( ) **; abs(x), sqrt(x), min(a,b,...), max(a,b,...), mean(a,b,...),
+pow(x,n), ifelse(condizione,vero,falso); confronti < <= > >= == !=.
+mean e' la media degli argomenti all'istante corrente, non una media mobile.
+Esempio: ifelse([Carico Live 1] > 0, [Delta Carico]/[Carico Live 1]*100, 0).
+La divisione nel ramo non scelto di ifelse non viene eseguita. Le sorgenti della
+formula sono comunque soggette ai controlli di disponibilita e qualita.
+Potenze: esponente compreso tra -16 e 16. Le funzioni temporali (filtri, derivate,
+integrali, smoothing) sono estensioni future del motore e non sono presenti qui.
+L'unita suggerita e' una deduzione conservativa dalle etichette delle sorgenti:
+non effettua conversioni automatiche o controlli fisici delle dimensioni.
+I calcoli sono numerici in doppia precisione; contatori interi molto grandi
+mantengono nei file sorgente il testo originale, ma la formula usa il valore numerico.
+
+SINCRONIZZAZIONE
+Ultimo valore precedente: usa solo campioni contemporanei o gia ricevuti, entro
+la tolleranza in ms di ogni formula. Con 10 ms e sorgenti piu lente impostare una
+tolleranza compatibile con il periodo reale. Timestamp identici richiede che tutte
+le sorgenti abbiano lo stesso timestamp. Il clock opzionale limita il calcolo agli
+aggiornamenti della sorgente scelta. Di default si aggiorna a ogni sorgente.
+ADS cicliche conserva il tempo PLC; gli altri flussi mantengono il tempo del trend
+esistente. Le notifiche vengono riordinate in una finestra di 20 ms. I campioni
+oltre questa finestra e gia superati vengono scartati e contati nella diagnostica.
+Il grafico continua a usare il buffer e i limiti della connessione.
+
+QUALITA ED ERRORI
+Missing, null, non numerico, Bad, Uncertain, sorgente scaduta, divisione per zero
+e dominio matematico non valido producono un punto vuoto e una spiegazione.
+Uncertain viene propagato, senza produrre un valore numerico valido.
+Le formule dipendenti di una formula disattivata producono Bad fino al ripristino.
+La cancellazione di una formula usata da altre viene rifiutata e indica i nomi.
+Le formule attive Live possono usare una sola fonte, OPC UA oppure ADS.
+Una serie storica salvata, scelta come sorgente, e' utilizzabile in Recorded.
+
+REGISTRAZIONE, PERSISTENZA E VERSIONI
+Record registra i segnali acquisiti e le formule attive Live della fonte corrente,
+indipendentemente dalla visibilita nei grafici. La finestra indica il totale.
+Massimo 64 segnali complessivi nel file; Stop attende i risultati gia accodati.
+Durante Record non si modificano le formule, per conservare una definizione precisa.
+Il timestamp della serie calcolata e' il tempo di valutazione sul timeline sorgente;
+SourceTimestamp riflette tale tempo, LocalTimestamp il momento del calcolo,
+ServerTimestamp resta assente. I timestamp originali delle sorgenti sono conservati.
+Le nuove formule sono in formulas.json nella cartella impostazioni visualizzata
+in Connessione; il workspace ne contiene una copia. Se formulas.json esiste,
+ha precedenza sul backup. I campioni Live non vengono archiviati dal salvataggio
+formule: usare Record. Le viste congelate conservano il comportamento esistente.
+Modificare una formula conserva l'ID e incrementa la revisione; duplicarla crea
+un nuovo ID, inizialmente disattivato. Rinominarla conserva i riferimenti dipendenti.
+Un file contenente gia una serie calc: conserva il valore/versione salvati,
+anche dopo modifica o eliminazione della formula. Per confrontare un nuovo calcolo
+duplicare la formula, attivarla in Recorded e applicarla agli originali.
+
+LIMITI E DIAGNOSTICA
+64 formule; 32 riferimenti, 200 nodi espressione, 24 livelli, 2000 caratteri/formula.
+Anteprima Live: ultimi 5000 campioni per sorgente, visualizza gli ultimi 200 risultati.
+Storici: massimo 2 milioni di campioni sorgente e 2 milioni di righe risultato
+per operazione. Per file piu grandi ridurre segnali/intervallo nel grafico.
+Il calcolo avviene in processi separati. La coda Live ha 512 batch: in caso di
+saturazione la serie calcolata segnala Bad e le perdite vengono contate; i dati
+originali continuano l'acquisizione. Un errore del worker genera un gap e riavvio.
+Vedi diagnostica Dati calcolati e log applicativo per errori o campioni tardivi.
+Lo storico usa una cache temporanea nella cartella impostazioni; i risultati
+materializzati sono file autonomi in Recordings accanto all'EXE.
+FFT, autoscale, zoom, crosshair, X1/X2, statistiche ed export sono gli strumenti
+esistenti dei grafici; gli export e la FFT leggono campioni originali calcolati.

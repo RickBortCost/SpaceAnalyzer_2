@@ -1,0 +1,10 @@
+{
+  "archive": "/workspace/output/Space_Analyzer_V1.25.0_SORGENTI.zip",
+  "bytes": 4042890,
+  "sha256": "c33ad31e8fb0de5f0e02d477110f11a88bb844cf5cae47c53d493e0d6547a01c",
+  "files": 293,
+  "backend_tests": 180,
+  "backend_suites": 23,
+  "ui_workflows": 7,
+  "all_passed": true
+}

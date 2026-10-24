@@ -1,0 +1,80 @@
+SPACE ANALYZER V1.19.0 - CONFRONTO DI REGISTRAZIONI
+
+AVVIO
+Chiudere la versione precedente, estrarre tutto lo ZIP e avviare
+Space_Analyzer_V1.19.0.exe. Runtime e servizi sono inclusi.
+
+APERTURA E SELEZIONE
+Aprire Registrazioni. E possibile aprire un singolo file come prima oppure
+spuntare da 2 a 32 file nell'elenco e premere Confronta nel grafico.
+Apri file dal PC accetta anche una selezione multipla di formati differenti:
+i file selezionati vengono importati e confrontati automaticamente.
+I file selezionati rimangono visibili nel riquadro Confronto anche quando
+un filtro li nasconde nell'elenco. Svuota selezione non elimina alcun file.
+
+FILTRI
+Cerca per nome, macchina o sessione; scegli CSV, Parquet, FDA DAS4 oppure
+DAT/PDA3. Durata minima e massima sono espresse in secondi (anche decimali).
+Durate non disponibili non soddisfano un filtro numerico di durata.
+I file senza metadati CSV/Parquet vengono esaminati per ricavare segnali,
+inizio e fine dei campioni; la prima lettura puo richiedere tempo.
+I CSV supportati sono quelli di Space Analyzer, con colonne timestamp_ms,
+node_id, value_numeric e le altre colonne di registrazione. Questa funzione
+non introduce un importatore universale di qualsiasi tabella CSV/Parquet.
+
+SINCRONIZZAZIONE
+- Data e ora effettive (UTC), predefinita: i timestamp_ms dei campioni
+  stabiliscono la posizione sullo stesso asse X. Il browser visualizza
+  date e orari nel fuso del PC. Un cambio di formato non sposta i campioni.
+- Correzione orario (ms), per ciascun file: valore positivo sposta il file
+  in avanti; valore negativo lo anticipa. Esempio: clock avanti di un secondo,
+  correzione -1000 ms. L'originale non viene modificato.
+- Allinea gli inizi al primo file: modalita di confronto tra eventi registrati
+  in momenti diversi. Lo zero relativo di ogni file e traslato all'orario del
+  primo file selezionato; l'asse conserva quella data come riferimento.
+  Non indica che le acquisizioni siano avvenute simultaneamente.
+- Intera estensione: conserva le durate diverse e gli intervalli senza dati.
+- Solo intervallo comune: legge soltanto la sovrapposizione dei periodi,
+  dopo gli eventuali spostamenti. Se non esiste, mostra un errore esplicito.
+Nessuna funzione corregge la deriva tra clock, interpola o ricampiona i dati.
+Una base 1 ms puo essere confrontata con una base 10 ms mantenendo ciascuna
+serie originale; la sincronizzazione riguarda la posizione temporale.
+
+GRAFICI E ANALISI
+Nomi e identificativi uguali in file diversi restano segnali distinti.
+Il nome visualizzato include il file di provenienza. Un diagramma temporale
+nel selettore mostra posizione ed estensione relative dei file.
+Il grafico apre fino a 64 segnali; si possono scegliere gli altri nell'elenco
+o distribuire i segnali tra fino a 8 grafici. Il confronto conserva fino a
+2048 segnali complessivi. La selezione iniziale e distribuita tra i file.
+Zoom, crosshair e marker sincronizzati continuano a funzionare. I marker
+non riportano un valore fuori dalla copertura del segnale e non riempiono
+i gap con il campione buono piu distante. Le vere interruzioni, per segnali
+con sample_ms noto, interrompono la traccia nella vista di confronto.
+FFT, formule e export X1-X2 usano i campioni originali prima della riduzione
+grafica min/max. La FFT continua a controllare regolarita e qualita.
+
+DAT E FDA
+Sono utilizzati i lettori gia disponibili nell'applicazione: FDA DAS4 del
+profilo supportato; DAT PDA3 del modello validato con manifest JSON associato
+quando necessario; DAT legacy con il proprio Parquet originale associato.
+Questa funzione non estende il supporto a ogni variante di DAT o FDA e non
+corregge i metadati interni dei DAT esportati dal writer sperimentale.
+Per i PDA3 con orario reale conservato nel manifest, selezionare DAT e JSON
+insieme. Senza manifest viene usato il calendario interno e l'offset UTC
+specificato: verificare questo riferimento prima del confronto.
+
+CONSERVAZIONE E RISORSE
+La preparazione avviene in un processo separato dall'acquisizione, con
+avanzamento. Viene creata una copia di confronto Parquet compressa nella
+cartella persistente delle importazioni, senza cambiare i file sorgente.
+La copia conserva i valori Float64 delle registrazioni Space Analyzer,
+qualita, campionamenti, FILETIME ADS e timestamp sorgente/server/locali.
+Le colonne original_timestamp_ms, original_node_id e source_file conservano
+la provenienza; timestamp_ms rappresenta l'asse usato per il confronto.
+Il confronto occupa spazio su disco aggiuntivo. Conservare insieme Parquet e
+.metadata.json; il workspace salva selezioni, filtri, correzioni e grafici e
+li ripristina all'avvio. Un file sorgente cambiato durante la preparazione
+annulla il confronto e viene segnalato, mantenendo gli originali.
+Un solo confronto viene preparato alla volta. Le registrazioni ancora
+attive devono essere chiuse con Stop prima di usarle nel confronto.

@@ -1,0 +1,222 @@
+{
+  "version": "1.29.0",
+  "tested_at": "2026-10-24T07:43:32.134816+00:00",
+  "platform": "win32",
+  "packaged_exe_executed": true,
+  "formats": {
+    "csv": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "parquet": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "das": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "rbf": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 30
+    },
+    "pda3": {
+      "result": "PASS",
+      "rows_recorded": 30,
+      "numeric_rows_replayed": 32
+    },
+    "dat": {
+      "result": "NOT_TESTED",
+      "reason": "Requires an actual iba write license; no license emulation"
+    }
+  },
+  "hardware_tested": false,
+  "licensed_iba_writer_tested": false,
+  "result": "PASS",
+  "exe": "Space_Analyzer_V1.29.0.exe",
+  "sha256": "fd55712558d1174471630b647a2b6a4397ee9c95dc17590c592da7abb4896580",
+  "embedded_payload_verified": true,
+  "interval_formula_controls_bundled": true,
+  "live_zoom_control_bundled": true,
+  "http_startup_verified": true,
+  "four_sessions_and_isolated_connection_errors_verified": true,
+  "primary_capture_and_original_sequence_verified": true,
+  "original_full_session_markers_verified": true,
+  "interval_formula_after_fifo_eviction_verified": true,
+  "overlap_acquisition_health": {
+    "connections": {
+      "ads": {
+        "backlog": 0,
+        "backlog_bytes": 0,
+        "backpressure_ms": 0,
+        "backpressure_waits": 0,
+        "buffer": {
+          "accepted_batches": 0,
+          "bytes": 0,
+          "capacity_batches": 4096,
+          "capacity_bytes": 33554432,
+          "capacity_samples": 32768,
+          "completed_batches": 0,
+          "failed": false,
+          "high_water": 0,
+          "lost_samples": 0,
+          "samples": 0
+        },
+        "clock_backwards": 0,
+        "connection_id": "2211e0b7d8c14046bea29c0fccf2211a",
+        "dispatched": 0,
+        "display_skipped": 0,
+        "duplicates": 0,
+        "error": "",
+        "high_water": 0,
+        "lost": 0,
+        "protocol": "ads",
+        "queue_latency_ms": {
+          "p95": null,
+          "p99": null
+        },
+        "receive_clock_backwards": 0,
+        "receive_reordered": 0,
+        "received": 0,
+        "received_per_second": 0.0,
+        "recording_rejected_samples": 0,
+        "rejected_after_failure": 0,
+        "sequence_gaps": 0
+      },
+      "mqtt": {
+        "backlog": 0,
+        "backlog_bytes": 0,
+        "backpressure_ms": 0,
+        "backpressure_waits": 0,
+        "buffer": {
+          "accepted_batches": 2166,
+          "bytes": 0,
+          "capacity_batches": 4096,
+          "capacity_bytes": 33554432,
+          "capacity_samples": 32768,
+          "completed_batches": 2166,
+          "failed": false,
+          "high_water": 1408,
+          "lost_samples": 0,
+          "samples": 0
+        },
+        "clock_backwards": 0,
+        "connection_id": "b9fdabba120741d8879640ef928042dc",
+        "dispatched": 128796,
+        "display_skipped": 0,
+        "duplicates": 0,
+        "error": "",
+        "high_water": 0,
+        "lost": 0,
+        "protocol": "mqtt",
+        "queue_latency_ms": {
+          "p95": 26.0977,
+          "p99": 37.1817
+        },
+        "receive_clock_backwards": 0,
+        "receive_reordered": 0,
+        "received": 128796,
+        "received_per_second": 5838.236092980389,
+        "recording_rejected_samples": 6,
+        "rejected_after_failure": 0,
+        "sequence_gaps": 0
+      },
+      "opcua": {
+        "backlog": 0,
+        "backlog_bytes": 0,
+        "backpressure_ms": 0,
+        "backpressure_waits": 0,
+        "buffer": {
+          "accepted_batches": 0,
+          "bytes": 0,
+          "capacity_batches": 4096,
+          "capacity_bytes": 33554432,
+          "capacity_samples": 32768,
+          "completed_batches": 0,
+          "failed": false,
+          "high_water": 0,
+          "lost_samples": 0,
+          "samples": 0
+        },
+        "clock_backwards": 0,
+        "connection_id": "995fd2e8a6fb49b09e2e2150d717a64f",
+        "dispatched": 0,
+        "display_skipped": 0,
+        "duplicates": 0,
+        "error": "",
+        "high_water": 0,
+        "lost": 0,
+        "protocol": "opcua",
+        "queue_latency_ms": {
+          "p95": null,
+          "p99": null
+        },
+        "receive_clock_backwards": 0,
+        "receive_reordered": 0,
+        "received": 0,
+        "received_per_second": 0.0,
+        "recording_rejected_samples": 0,
+        "rejected_after_failure": 0,
+        "sequence_gaps": 0
+      },
+      "s7": {
+        "backlog": 0,
+        "backlog_bytes": 0,
+        "backpressure_ms": 0,
+        "backpressure_waits": 0,
+        "buffer": {
+          "accepted_batches": 0,
+          "bytes": 0,
+          "capacity_batches": 4096,
+          "capacity_bytes": 33554432,
+          "capacity_samples": 32768,
+          "completed_batches": 0,
+          "failed": false,
+          "high_water": 0,
+          "lost_samples": 0,
+          "samples": 0
+        },
+        "clock_backwards": 0,
+        "connection_id": "fab81d7c400e4c56ad246248547c5eaf",
+        "dispatched": 0,
+        "display_skipped": 0,
+        "duplicates": 0,
+        "error": "",
+        "high_water": 0,
+        "lost": 0,
+        "protocol": "s7",
+        "queue_latency_ms": {
+          "p95": null,
+          "p99": null
+        },
+        "receive_clock_backwards": 0,
+        "receive_reordered": 0,
+        "received": 0,
+        "received_per_second": 0.0,
+        "recording_rejected_samples": 0,
+        "rejected_after_failure": 0,
+        "sequence_gaps": 0
+      }
+    },
+    "live": {
+      "backlog_bytes": 0,
+      "backlog_samples": 0,
+      "error": "",
+      "policy": "skip display only; originals already submitted to recorder",
+      "skipped_samples": 0
+    },
+    "policy": "bounded; stop recording on original overflow; recorder before calculations and display"
+  },
+  "overlapping_fda_save_and_new_csv_recording_verified": true,
+  "overlapping_recordings_rows": {
+    "fda": 128000,
+    "csv": 640
+  },
+  "single_instance_verified": true,
+  "shutdown_verified": true,
+  "temporary_history_cleanup_verified": true
+}

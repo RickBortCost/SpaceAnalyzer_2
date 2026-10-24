@@ -1,0 +1,35 @@
+test_http_import_and_replay (test_rbf.Format.test_http_import_and_replay) ... ok
+test_invalid_variants_and_truncated_data_are_rejected (test_rbf.Format.test_invalid_variants_and_truncated_data_are_rejected) ... ok
+test_mixed_comparison_keeps_rbf_fda_csv_samples_and_aligns_starts (test_rbf.Format.test_mixed_comparison_keeps_rbf_fda_csv_samples_and_aligns_starts) ... ok
+test_native_types_timestamps_filter_and_library (test_rbf.Format.test_native_types_timestamps_filter_and_library) ... ok
+test_boolean_string_and_bad_null_updates (test_rbf.Record.test_boolean_string_and_bad_null_updates) ... ok
+test_fft_uses_recorded_grid_without_interpolation (test_rbf.Record.test_fft_uses_recorded_grid_without_interpolation) ... ok
+test_original_precision_quality_lifecycle_and_standalone_replay (test_rbf.Record.test_original_precision_quality_lifecycle_and_standalone_replay) ... ok
+test_out_of_order_notifications_and_duplicates_are_preserved (test_rbf.Record.test_out_of_order_notifications_and_duplicates_are_preserved) ... ok
+test_overflow_failure_keeps_original_archive (test_rbf.Record.test_overflow_failure_keeps_original_archive) ... ERROR:root:RBF v3 conversion failure
+Traceback (most recent call last):
+  File "/workspace/work/Space_Analyzer_Codex/source/rbf.py", line 340, in export_parquet
+    raw = frame.pack(*divmod(ticks, 1_000_000_000), *values)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OverflowError: float too large to pack with f format
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/work/Space_Analyzer_Codex/source/converted_recording.py", line 67, in _run
+    result=self.exporter(self.directory/part['name'],self.nodes,self.original.max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/Space_Analyzer_Codex/source/rbf_recording.py", line 9, in <lambda>
+    exporter=lambda *args: export_parquet(*args), fmt='rbf',
+                           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/work/Space_Analyzer_Codex/source/rbf.py", line 342, in export_parquet
+    raise ValueError('RBF: valore oltre i limiti Float32; archivio originale conservato') from exc
+ValueError: RBF: valore oltre i limiti Float32; archivio originale conservato
+ok
+test_reference_frame_limit_rotates_without_losing_updates (test_rbf.Record.test_reference_frame_limit_rotates_without_losing_updates) ... ok
+test_rotation_keeps_complete_frames (test_rbf.Record.test_rotation_keeps_complete_frames) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.769s
+
+OK

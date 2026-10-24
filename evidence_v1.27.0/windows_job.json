@@ -1,0 +1,88 @@
+{
+  "id": 119889952704,
+  "run_id": 39797894663,
+  "status": "completed",
+  "conclusion": "success",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-python@v5",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-go@v5",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify original interval calculations, live zoom and catalog navigation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Build standalone EXE with current sources",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Execute the packaged Windows application and verify recordings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Create portable Windows ZIP and checksums",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Preserve build evidence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Publish verified Windows files",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-go@v5",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-python@v5",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

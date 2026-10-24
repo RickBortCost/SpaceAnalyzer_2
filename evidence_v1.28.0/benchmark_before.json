@@ -1,0 +1,16 @@
+{
+  "frames": 60000,
+  "signals": 4,
+  "rows": 240000,
+  "source": "/workspace/work/v128-baseline/source",
+  "seconds": {
+    "fda_conversion": 1.59018,
+    "fda_cold_full": 1.010405,
+    "fda_repeat_full": 1.047144,
+    "fda_narrow_interval": 0.027586,
+    "parquet_cold_full": 1.099189,
+    "parquet_repeat_full": 0.919055,
+    "parquet_narrow_interval": 0.363271
+  },
+  "result": "PASS"
+}
