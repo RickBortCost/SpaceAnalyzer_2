@@ -196,6 +196,13 @@ public static class Values
         return text + "+00:00";
     }
 
+    /// <summary>datetime.fromtimestamp(ms/1000, utc).isoformat(): microseconds only when non-zero.</summary>
+    public static string IsoFromMs(double ms) => PythonIso(Recording.TableRecorder.PythonFromTimestamp(ms));
+
+    /// <summary>isoformat(timespec='microseconds') of a UTC instant.</summary>
+    public static string IsoMicro(DateTime utc) =>
+        utc.ToString("yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture) + "." + (utc.Ticks % TimeSpan.TicksPerSecond / 10).ToString("000000", CultureInfo.InvariantCulture) + "+00:00";
+
     /// <summary>Reads a JSON value produced by Python (rows sent over IPC) into an engine value.</summary>
     public static object? FromJson(JsonElement e) => e.ValueKind switch
     {

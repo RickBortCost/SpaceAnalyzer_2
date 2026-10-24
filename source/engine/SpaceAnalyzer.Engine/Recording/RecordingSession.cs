@@ -26,6 +26,8 @@ public sealed class RecordingSession
     (string format, List<NodeSpec> nodes, string endpoint, int sampleMs, JsonElement options) spec;
     string externalError = "";
     long externalLost, logicalRows, logicalCycles;
+    bool primaryOnly;
+    JsonElement? finalDiagnostics;
     bool stopRequested, starting, rebuildRunning;
     string rebuildFailed = "";
     string stopReason = "user";
@@ -101,6 +103,14 @@ public sealed class RecordingSession
             throw;
         }
         finally { lock (gate) starting = false; }
+    }
+
+    /// <summary>Notifications kept only in the primary capture (the format receives periodic snapshots).</summary>
+    public bool EnqueuePrimary(double t, IReadOnlyList<Sample> rows, int period)
+    {
+        lock (gate) primaryOnly = true;
+        var p = primary;
+        return p is { Accepting: true } && p.Enqueue(t, rows, period, backpressureSeconds: .5);
     }
 
     /// <summary>Primary first (bounded backpressure); the selected format is best effort.</summary>
@@ -211,6 +221,9 @@ public sealed class RecordingSession
         Event("external_rebuild_started", w => { w.WriteString("format", spec.format); w.WriteNumber("samples", logicalRows); });
         var writer = FormatRecorders.Create(spec.format, directory, version);
         writer.Start(spec.format, spec.nodes, spec.endpoint, spec.sampleMs, spec.options);
+        bool excludeNotifications;
+        lock (gate) excludeNotifications = primaryOnly;
+        if (finalDiagnostics is JsonElement diagnostics) writer.SourceDiagnostics(diagnostics);
         long rows = 0;
         using (var reader = new SacReader(primary.FinalPath))
         {
@@ -230,6 +243,7 @@ public sealed class RecordingSession
             }
             foreach (var (t, samplePeriod, sample) in reader.Samples())
             {
+                if (excludeNotifications && sample.AcquisitionOrigin == "notification") continue;
                 if (current != t) { FlushGroup(); current = t; period = samplePeriod; }
                 group.Add(sample);
             }
@@ -250,7 +264,11 @@ public sealed class RecordingSession
         signal.Release();
     }
 
-    public void SourceDiagnostics(JsonElement diagnostics) => external?.SourceDiagnostics(diagnostics);
+    public void SourceDiagnostics(JsonElement diagnostics)
+    {
+        finalDiagnostics = diagnostics.Clone();
+        external?.SourceDiagnostics(diagnostics);
+    }
 
     public bool Annotate(string kind, Action<Utf8JsonWriter> details) => primary is { Accepting: true } p && p.Annotate(kind, details);
 

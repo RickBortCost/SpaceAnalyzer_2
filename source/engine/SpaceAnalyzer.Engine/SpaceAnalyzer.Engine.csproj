@@ -22,5 +22,6 @@
   <ItemGroup>
     <PackageReference Include="ParquetSharp" Version="25.0.1.1" />
     <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
+    <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
   </ItemGroup>
 </Project>
