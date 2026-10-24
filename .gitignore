@@ -24,3 +24,4 @@ source/live_analysis_cache/
 # .NET build output
 source/engine/**/bin/
 source/engine/**/obj/
+source/engine/**/TestResults/

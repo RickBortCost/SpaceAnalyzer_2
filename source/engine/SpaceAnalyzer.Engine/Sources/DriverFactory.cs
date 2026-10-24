@@ -14,7 +14,7 @@ public static class DriverFactory
         "s7" => Mode(cfg, "s7_mode", "classic") switch
         {
             "udp" => new S7UdpDriver(cfg),
-            "symbolic" => throw new SourceException("S7 simbolico: driver non ancora disponibile"),
+            "symbolic" => new S7SymbolicDriver(cfg),
             _ => new S7ClassicDriver(cfg),
         },
         _ => throw new SourceException("Protocollo non supportato dal motore: " + protocol),
