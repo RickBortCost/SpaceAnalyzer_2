@@ -34,6 +34,7 @@ public sealed class MqttDriver : SourceDriver
     StreamSink? sink;
     readonly Dictionary<string, Dictionary<string, object?>> catalog = new();
     long catalogRevision;
+    readonly string catalogSession = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
     long queueBytes, serial, processedSerial;
     double? lastArrival;
     long? lastReceivedMono;
@@ -459,6 +460,17 @@ public sealed class MqttDriver : SourceDriver
         var values = samplePeriods.OrderBy(v => v).ToList();
         var value = values.Count > 0 ? values[values.Count / 2] : fallback;
         return (int)Math.Max(1, Math.Min(60000, PyJson.Round(value)));
+    }
+
+    /// <summary>Observed catalog: revision token and a copy of the nodes (never changes selection or samples).</summary>
+    public (string revision, List<Dictionary<string, object?>>? nodes) CatalogSnapshot(string? known)
+    {
+        lock (guard)
+        {
+            var revision = catalogSession + ":" + catalogRevision;
+            if (known == revision) return (revision, null);
+            return (revision, catalog.Values.Select(v => new Dictionary<string, object?>(v)).ToList());
+        }
     }
 
     public override Task<object?> InspectAsync(string nodeId, CancellationToken ct)

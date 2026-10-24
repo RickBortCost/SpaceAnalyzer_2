@@ -73,6 +73,8 @@ public sealed class LiveArchive : IDisposable
 
     void Fail(string message) { lock (gate) if (Error.Length == 0) Error = message; }
 
+    public void SetError(string message) => Fail(message);
+
     public void Append(long generation, string nid, LivePoint point)
     {
         lock (gate)
@@ -344,13 +346,13 @@ public sealed class Snapshots(int maxItems = 8, long maxPoints = 2000000)
 /// <summary>live_archive.point_rows: Live points as recording-like rows for analysis and export.</summary>
 public static class PointRows
 {
-    public static IEnumerable<Dictionary<string, object?>> Rows(IEnumerable<(string nid, LivePoint p)> points, double defaultPeriod, IReadOnlyDictionary<string, string>? names = null)
+    public static IEnumerable<Recordings.Row> Rows(IEnumerable<(string nid, LivePoint p)> points, double defaultPeriod, IReadOnlyDictionary<string, string>? names = null)
     {
         foreach (var (nid, p) in points)
         {
             var stamp = Engine.Core.Values.IsoMicro(Engine.Recording.TableRecorder.PythonFromTimestamp(p.T));
             var quality = p.Quality is { Length: > 0 } q ? q : p.Value != null ? "Good" : "Bad";
-            yield return new Dictionary<string, object?>
+            yield return new Recordings.Row
             {
                 ["timestamp_ms"] = p.T, ["timestamp_utc"] = stamp, ["node_id"] = nid, ["signal_name"] = names?.GetValueOrDefault(nid) ?? nid,
                 ["value_numeric"] = p.Value, ["value_text"] = p.Text, ["data_type"] = p.DataType, ["good"] = quality == "Good", ["quality"] = quality,
