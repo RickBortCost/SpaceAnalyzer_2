@@ -1,10 +1,12 @@
-# Avvio di Space Analyzer V1.29.0 su Windows
+# Avvio di Space Analyzer 2 su Windows
 
-1. Apri la sezione **Releases** del repository e scarica `Space_Analyzer_V1.29.0_WINDOWS.zip`.
+1. Apri la sezione **Releases** del repository e scarica dall’ultima release il file `Space_Analyzer_V<versione>_WINDOWS.zip` (ad esempio `Space_Analyzer_V2.0.0_WINDOWS.zip`).
 2. Clic destro sullo ZIP → **Estrai tutto**. Scegli una cartella scrivibile, ad esempio `Documenti\Space Analyzer`.
-3. Apri la cartella estratta e fai doppio clic su **Space_Analyzer_V1.29.0.exe**.
+3. Apri la cartella estratta e fai doppio clic su **Space_Analyzer_V<versione>.exe**.
 4. Attendi l’apertura del browser: quella pagina è l’interfaccia del software. Se il browser non si apre, visita `http://127.0.0.1:5000`; in caso di porta occupata il software sceglie una delle successive.
 5. Nel popup **Connessione** configura i collegamenti. Attiva **Acquisizione simultanea** per usare insieme OPC UA, ADS, MQTT e S7, quindi premi **Connetti e leggi**.
+
+**Novità della 2.0 (rispetto alla V1.29.0).** Registrazione FDA/.das: i campioni dello stesso istante finiscono nello stesso frame (file molto più piccoli), la scala Int16 usa passi 1-2-5 (risoluzione fino a 5 volte migliore), i valori Uncertain non vengono più azzerati, le registrazioni oltre 49,7 giorni proseguono in una nuova parte, i salti dell'orologio sono riportati nei metadati e lo spazio disco viene controllato. Acquisizione ADS: la coda delle notifiche cresce con canali e frequenza, un PLC in STOP non interrompe più l'acquisizione, su Windows il polling usa timer da 1 ms e i cicli saltati vengono contati. Dettagli in `CHANGELOG.md` nel repository. Il numero di versione è assegnato automaticamente a ogni rilascio (vedi `VERSIONI.md`).
 
 La V1.29.0 aggiunge un archivio primario recuperabile in `Recordings/.primary/`, code separate per sorgente, priorità alla registrazione e diagnostica backend. Il formato scelto continua a essere salvato separatamente. Consultare `FASE1_ACQUISIZIONE_REGISTRAZIONE.md` per risultati misurati, recovery, API e limiti: il target ADS 1.000 canali a 10 ms non è qualificato su PLC reali.
 
@@ -18,13 +20,13 @@ Il nuovo pulsante **Zoom live**, accanto a **Pausa**, mantiene il grafico in Pla
 
 In **Intera acquisizione** i marker e i calcoli leggono gli originali anche oltre il buffer recente. Sotto il grafico, in **Dati calcolati**, assegna le variabili A, B… con **Aggiungi variabile**, scrivi ad esempio `[A]-[B]`, scegli il risultato e premi **Calcola**. Con entrambi i marker il calcolo usa X1–X2; altrimenti usa la finestra visibile. **Salva e aggiungi al grafico** crea o aggiorna un segnale nella sezione generale Dati calcolati. Vedere `GUIDA_CALCOLI_INTERVALLO.md`.
 
-Lo storico originale Live è temporaneo (massimo 8 GiB), viene azzerato a ogni nuova acquisizione o cancellazione dati ed eliminato alla chiusura. Per conservare i dati usa Record. I campioni già eliminati dalle vecchie versioni non sono recuperabili: avvia una nuova acquisizione con la V1.29.0 o apri la registrazione originale.
+Lo storico originale Live è temporaneo (massimo 8 GiB), viene azzerato a ogni nuova acquisizione o cancellazione dati ed eliminato alla chiusura. Per conservare i dati usa Record. I campioni già eliminati dalle vecchie versioni non sono recuperabili: avvia una nuova acquisizione con la V1.29.0 o successiva oppure apri la registrazione originale.
 
 Non occorre installare Python, pip o Go sul PC di utilizzo. L’EXE contiene il runtime e i moduli aggiornati. Puoi anche scaricare il solo EXE dalla stessa Release.
 
 Le registrazioni vengono salvate nella cartella `Recordings` accanto all’EXE. Le impostazioni sono in `%LOCALAPPDATA%\OPCUA_Web_Client`. Per chiudere il software usa **Chiudi applicazione** nell’interfaccia; chiudere soltanto la scheda del browser lascia attivi i servizi. Prima di avviare la nuova versione chiudi l’eventuale versione precedente.
 
-Se non si avvia, consulta `%LOCALAPPDATA%\OPCUA_Web_Client\launcher-v1.29.0.log` e `opcua-client.log` nella stessa cartella.
+Se non si avvia, consulta `%LOCALAPPDATA%\OPCUA_Web_Client\launcher-v<versione>.log` e `opcua-client.log` nella stessa cartella.
 
 ## Verifiche e componenti esterni
 

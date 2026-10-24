@@ -1,4 +1,4 @@
-name: Build and publish Windows EXE
+name: Build and publish Space Analyzer (Windows EXE)
 
 on:
   push:
@@ -7,15 +7,19 @@ on:
       - source/**
       - tools/windows/**
       - LEGGIMI_AVVIO_WINDOWS.md
+      - VERSION
       - .github/workflows/windows-exe.yml
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# Un solo rilascio alla volta su main: due esecuzioni non possono calcolare la stessa versione.
 concurrency:
-  group: windows-exe-${{ github.ref }}
-  cancel-in-progress: true
+  group: windows-exe-${{ github.event_name == 'pull_request' && github.ref || 'main-release' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   windows:
@@ -25,6 +29,17 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # servono tutti i tag per calcolare la versione
+      - name: Determine version (tag Git + messaggi di commit)
+        shell: pwsh
+        run: |
+          $version = python tools/versioning.py next
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python tools/versioning.py apply $version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Add-Content -Path $env:GITHUB_ENV -Value "SA_VERSION=$version"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## Versione calcolata: $version"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -46,6 +61,10 @@ jobs:
           python -m unittest discover -s source/tests -p test_live_interval_calculations.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m unittest discover -s source/tests -p test_acquisition_hardening.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest discover -s source/tests -p test_patch_v1291.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest discover -s source/tests -p test_versioning.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m unittest discover -s source/tests -p test_mqtt_api.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -78,7 +97,7 @@ jobs:
       - name: Execute the packaged Windows application and verify recordings
         shell: pwsh
         run: |
-          python tools/windows/smoke_exe.py --exe source/dist/Space_Analyzer_V1.29.0.exe --report source/dist/WINDOWS_EXE_VERIFICATION.json
+          python tools/windows/smoke_exe.py --exe "source/dist/Space_Analyzer_V$($env:SA_VERSION).exe" --report source/dist/WINDOWS_EXE_VERIFICATION.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Create portable Windows ZIP and checksums
         shell: pwsh
@@ -89,7 +108,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Space-Analyzer-Windows-build-${{ github.run_number }}
+          name: Space-Analyzer-${{ env.SA_VERSION }}-Windows-build-${{ github.run_number }}
           if-no-files-found: warn
           path: |
             windows-build.log
@@ -103,16 +122,18 @@ jobs:
             source/dist/*.json
             source/dist/SHA256SUMS.txt
       - name: Publish verified Windows files
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = 'v1.29.0'
-          $files = @('source/dist/Space_Analyzer_V1.29.0.exe', 'source/dist/Space_Analyzer_V1.29.0_WINDOWS.zip', 'source/dist/BUILD_MANIFEST.json', 'source/dist/WINDOWS_EXE_VERIFICATION.json', 'source/dist/SHA256SUMS.txt')
+          $v = $env:SA_VERSION
+          $tag = "v$v"
+          $files = @("source/dist/Space_Analyzer_V$($v).exe", "source/dist/Space_Analyzer_V$($v)_WINDOWS.zip", 'source/dist/BUILD_MANIFEST.json', 'source/dist/WINDOWS_EXE_VERIFICATION.json', 'source/dist/SHA256SUMS.txt')
           gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag @files --clobber --repo $env:GITHUB_REPOSITORY
           } else {
-            gh release create $tag @files --target $env:GITHUB_SHA --title 'Space Analyzer V1.29.0 — Windows x64' --notes-file LEGGIMI_AVVIO_WINDOWS.md --repo $env:GITHUB_REPOSITORY
+            gh release create $tag @files --target $env:GITHUB_SHA --title "Space Analyzer V$($v) — Windows x64" --notes-file LEGGIMI_AVVIO_WINDOWS.md --repo $env:GITHUB_REPOSITORY
           }
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
