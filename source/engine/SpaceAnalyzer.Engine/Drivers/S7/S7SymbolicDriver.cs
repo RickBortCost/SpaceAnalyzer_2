@@ -93,6 +93,13 @@ public sealed class S7SymbolicDriver : SourceDriver
 
     public static string TypeName(uint softdatatype) => TypeNames.TryGetValue(softdatatype, out var name) ? name : "UNKNOWN";
 
+    /// <summary>Reload the CPU symbol table (ensure_catalog(refresh=True)); returns the symbol count.</summary>
+    public async Task<int> RefreshCatalogAsync(CancellationToken ct)
+    {
+        await Locked(() => EnsureCatalog(ct, true), ct);
+        return tree!.Catalog.Count;
+    }
+
     async Task EnsureCatalog(CancellationToken ct, bool refresh = false)
     {
         if (tree != null && !refresh) return;
