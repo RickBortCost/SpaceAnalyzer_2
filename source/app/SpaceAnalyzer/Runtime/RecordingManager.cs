@@ -20,6 +20,10 @@ public sealed class RecordingManager(string directory, string version, Action<st
     bool starting, closed;
     long revision;
     const int MaxPending = 32;
+    readonly HashSet<RecordingSession> held = new();
+
+    /// <summary>Test hook (SPACE_TEST_HOOKS=1): sessions named "Slow previous" keep their save pending until released.</summary>
+    public ManualResetEventSlim? TestFinalizerGate { get; set; }
 
     public string Directory { get; } = Path.GetFullPath(directory);
 
@@ -32,7 +36,7 @@ public sealed class RecordingManager(string directory, string version, Action<st
     {
         get
         {
-            lock (sync) return starting || sessions.Any(s => s.record is RecordingSession r && r.Busy);
+            lock (sync) return starting || sessions.Any(s => s.record is RecordingSession r && (r.Busy || held.Contains(r)));
         }
     }
 
@@ -55,6 +59,12 @@ public sealed class RecordingManager(string directory, string version, Action<st
             catch (ArgumentException exc) { throw new UserError(exc.Message); }
             catch (InvalidOperationException exc) { throw new UserError(exc.Message); }
             var ident = Guid.NewGuid().ToString("N");
+            if (TestFinalizerGate is { } testGate && options.ValueKind == JsonValueKind.Object && options.TryGetProperty("session_name", out var label)
+                && label.ValueKind == JsonValueKind.String && label.GetString() == "Slow previous")
+            {
+                lock (sync) held.Add(session);
+                new Thread(() => { testGate.Wait(); lock (sync) held.Remove(session); }) { IsBackground = true }.Start();
+            }
             lock (sync)
             {
                 sessions.Add((ident, session));
@@ -124,8 +134,18 @@ public sealed class RecordingManager(string directory, string version, Action<st
         return Status();
     }
 
-    static Dictionary<string, object?> SessionStatus(RecordingSession session) =>
-        (Dictionary<string, object?>)Py.Plain(JsonNode.Parse(SacFormat.Json(session.WriteStatus)))!;
+    Dictionary<string, object?> SessionStatus(RecordingSession session)
+    {
+        var state = (Dictionary<string, object?>)Py.Plain(JsonNode.Parse(SacFormat.Json(session.WriteStatus)))!;
+        bool isHeld;
+        lock (sync) isHeld = held.Contains(session);
+        if (isHeld)
+        {
+            state["busy"] = true;
+            if (!session.Acquiring) state["state"] = "stopping";
+        }
+        return state;
+    }
 
     public Dictionary<string, object?> Status()
     {

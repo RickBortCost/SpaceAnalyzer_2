@@ -106,6 +106,11 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             Log.Error("Frontend: " + text);
             return Ok();
         });
+        if (Environment.GetEnvironmentVariable("SPACE_TEST_HOOKS") == "1")
+        {
+            rt.Recording.TestFinalizerGate = new ManualResetEventSlim(false);
+            Post(app, "/test/finalizers/release", _ => { rt.Recording.TestFinalizerGate.Set(); return Task.FromResult<object?>(Ok()); });
+        }
         Post(app, "/api/shutdown", _ =>
         {
             ThreadPool.QueueUserWorkItem(_ => shutdown());
@@ -477,7 +482,7 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         Get(app, "/api/status", _ => Task.FromResult<object?>(new Dictionary<string, object?>
         {
             ["app"] = Defaults.AppName, ["version"] = Defaults.Version, ["state"] = rt.State, ["connected"] = rt.Connected, ["error"] = rt.LastError,
-            ["sources"] = rt.Sources.Status(),
+            ["sources"] = rt.SourceStatus(),
         }));
         Get(app, "/api/browse", async ctx =>
         {

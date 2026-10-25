@@ -130,6 +130,7 @@ public static class Program
         Directory.CreateDirectory(paths.DataDir);
         Log.Configure(paths.LogFile);
         Log.Info("Application start V" + Defaults.Version);
+        Engine.Core.EngineLog.Sink = Log.Info;
         Directory.CreateDirectory(paths.ImportedRecordingsDir);
         var runtime = new AppRuntime(paths);
         runtime.Certs.RestoreSaved();

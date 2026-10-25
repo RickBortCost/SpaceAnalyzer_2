@@ -79,6 +79,15 @@ public sealed class AppRuntime : IDisposable
         ["id"] = "", ["state"] = "idle", ["nodes"] = new List<object?>(), ["visited"] = 0L, ["pending"] = 0L, ["errors"] = new List<object?>(), ["error_count"] = 0L, ["root"] = "",
     };
     CancellationTokenSource? scanCancel;
+    volatile Tuple<Dictionary<string, object?>, Dictionary<string, object?>>? closingState;
+    (Dictionary<string, object?> status, Dictionary<string, object?> summary)? closing
+    {
+        get => closingState is { } c ? (c.Item1, c.Item2) : null;
+        set => closingState = value is { } v ? Tuple.Create(v.status, v.summary) : null;
+    }
+
+    public Dictionary<string, object?> SourceStatus() => closing?.status ?? Sources.Status();
+    public Dictionary<string, object?> SourceSummary() => closing?.summary ?? Sources.Summary();
     Task? scanTask;
 
     public AppRuntime(AppPaths paths)
@@ -327,14 +336,15 @@ public sealed class AppRuntime : IDisposable
     {
         get
         {
+            if (closing is { } c) return (string)c.summary["state"]!;
             if (!Sources.Enabled) return "disconnected";
             return (string)Sources.Summary()["state"]!;
         }
     }
 
-    public bool Connected => Sources.Enabled && (bool)Sources.Summary()["connected"]!;
+    public bool Connected => closing is { } c ? (bool)c.summary["connected"]! : Sources.Enabled && (bool)Sources.Summary()["connected"]!;
 
-    public string LastError => Sources.Enabled ? (string)Sources.Summary()["error"]! : lastError;
+    public string LastError => closing is { } c ? (string)c.summary["error"]! : Sources.Enabled ? (string)Sources.Summary()["error"]! : lastError;
 
     JsonElement EngineConfig(JsonObject cfg)
     {
@@ -410,9 +420,16 @@ public sealed class AppRuntime : IDisposable
     async Task DisconnectCore()
     {
         WantConnected = false;
-        await Task.Run(() => FinishRecording("disconnect", 5));
-        await Sources.Stop();
-        await StopScan();
+        // Fence and drain only a recording that exists; an idle disconnect returns at once.
+        if (Recording.Active != null) await Task.Run(() => FinishRecording("disconnect", 5));
+        if (Sources.Enabled)
+        {
+            // Until every session is closed the UI keeps seeing the previous state (2.x semantics).
+            closing = (Sources.Status(), Sources.Summary());
+            try { await Sources.Stop(); }
+            finally { closing = null; }
+        }
+        if (scanTask != null) await StopScan();
         lastError = "";
         Log.Info("Data source disconnected");
     }
@@ -517,8 +534,8 @@ public sealed class AppRuntime : IDisposable
     public Action<Utf8JsonWriter> Values(string view)
     {
         if (view is not ("all" or "window")) throw new UserError("Vista Live non valida");
-        var sessions = Sources.Status();
-        var summary = Sources.Summary();
+        var sessions = SourceStatus();
+        var summary = SourceSummary();
         Dictionary<string, List<LivePoint>> points;
         List<Sample> values;
         Dictionary<string, object?> diag;
@@ -558,7 +575,7 @@ public sealed class AppRuntime : IDisposable
         var calculations = Calculations.Status();
         var state = (string)summary["state"]!;
         var connectedNow = (bool)summary["connected"]!;
-        var error = Sources.Enabled ? (string)summary["error"]! : lastError;
+        var error = closing != null || Sources.Enabled ? (string)summary["error"]! : lastError;
         return w =>
         {
             w.WriteStartObject();
@@ -603,8 +620,11 @@ public sealed class AppRuntime : IDisposable
             if (Recording.Acquiring) throw new UserError("Una registrazione è già in corso o in fase di chiusura");
             var format = data.Get("format").Str();
             var options = data.Get("options") as JsonObject ?? new JsonObject();
-            try { StorageProfile.For(format?.ToLowerInvariant() ?? "", JsonDocument.Parse(options.ToJsonString()).RootElement); }
-            catch (ArgumentException exc) when (format is not ("das" or "rbf")) { throw new UserError(exc.Message); }
+            if (format?.ToLowerInvariant() is not ("das" or "rbf"))
+            {
+                try { StorageProfile.For(format?.ToLowerInvariant() ?? "", JsonDocument.Parse(options.ToJsonString()).RootElement); }
+                catch (ArgumentException exc) { throw new UserError(exc.Message); }
+            }
             if (data.Get("selected_nodes") is not JsonArray supplied || supplied.Count > 64) throw new UserError("Record: massimo 64 segnali acquisiti e calcolati complessivi");
             var derived = supplied.Where(n => n is JsonObject o && (o["nodeid"].Str() ?? "").StartsWith("calc:", StringComparison.Ordinal)).ToList();
             var nodes = Validation.Nodes(new JsonArray(supplied.Where(n => !derived.Contains(n)).Select(n => n?.DeepClone()).ToArray()));
@@ -704,6 +724,11 @@ public sealed class AppRuntime : IDisposable
 
     public SourceDriver RequireConnection(string protocol)
     {
+        // A session still opening (OPC UA discovery and session take longer than MQTT) is awaited briefly.
+        var deadline = DateTime.UtcNow.AddSeconds(10);
+        while (DateTime.UtcNow < deadline && Sources.Sessions.TryGetValue(protocol, out var session) && session.Enabled
+               && session.State is "connecting" or "reconnecting" && !session.EverOpened)
+            Thread.Sleep(50);
         try { return Sources.Client(protocol); }
         catch (SourceException exc) { throw new UserError(Sources.Enabled ? exc.Message : "Client non connesso"); }
     }

@@ -116,7 +116,139 @@ def fft_fixture(recordings, nodeid, fmt):
     return json.loads(output.stdout)[0]['name']
 
 
+class Service:
+    """The C# service in an isolated data/application folder."""
+
+    def __init__(self, work, extra=None):
+        self.work = work
+        self.data, self.application = work / 'data', work / 'application'
+        (self.application / 'Recordings').mkdir(parents=True, exist_ok=True)
+        port = free_port()
+        env = dict(os.environ, OPCUA_DATA_DIR=str(self.data), OPCUA_APP_DIR=str(self.application), OPCUA_NO_BROWSER='1', OPCUA_WEB_PORT=str(port),
+                   SPACE_BASE_DIR=str(SOURCE), SPACE_TEST_HOOKS='1', **(extra or {}))
+        self.log = (work / 'service.log').open('w')
+        self.process = subprocess.Popen(app_command(), env=env, stdout=self.log, stderr=subprocess.STDOUT)
+        self.base = f'http://127.0.0.1:{port}'
+        deadline = time.monotonic() + 60
+        while True:
+            try:
+                with urllib.request.urlopen(self.base + '/api/status', timeout=1) as response:
+                    if json.load(response).get('app') == 'Space Analyzer':
+                        break
+            except OSError:
+                pass
+            if self.process.poll() is not None or time.monotonic() > deadline:
+                raise RuntimeError('Servizio C# non avviato:\n' + (work / 'service.log').read_text())
+            time.sleep(.1)
+
+    def log_tail(self):
+        path = self.data / 'opcua-client.log'
+        return path.read_text(errors='replace')[-6000:] if path.is_file() else ''
+
+    def defaults(self):
+        with urllib.request.urlopen(self.base + '/api/config', timeout=5) as response:
+            cfg = json.load(response)
+        for key in ('client_cert_abs', 'client_key_abs', 'server_cert_abs', 'server_cert_present', 'server_cert_sha256', 'version', 'max_selected',
+                    'saved_settings_present', 'saved_at', 'selected_nodes', 'saved_server_data', 'data_dir', 'recordings_dir', 'workspace',
+                    'calculations', 'recording_busy'):
+            cfg.pop(key, None)
+        return cfg
+
+    def stop(self):
+        try:
+            html = urllib.request.urlopen(self.base, timeout=2).read().decode()
+            token = re.search(r'content="([^"]+)" name="opcua-token"', html).group(1)
+            request = urllib.request.Request(self.base + '/api/shutdown', data=b'{}', method='POST', headers={'X-OPCUA-Token': token, 'Content-Type': 'application/json'})
+            urllib.request.urlopen(request, timeout=5).read()
+            self.process.wait(60)
+        except Exception:
+            self.process.kill()
+            self.process.wait(10)
+        self.log.close()
+
+
+def run_node(service, args, env=None):
+    result = subprocess.run(['node', str(HERE / SCRIPT), service.base, *args], env=env or os.environ, capture_output=True, text=True,
+                            timeout=int(os.environ.get('UI_TIMEOUT', '150')))
+    if result.returncode:
+        raise RuntimeError(result.stdout + '\n' + result.stderr + '\n--- service log ---\n' + service.log_tail())
+    return result
+
+
+MULTI = ('test_source_sessions_ui.cjs', 'test_live_interval_ui.cjs', 'test_recording_overlap_ui.cjs')
+
+
+def multi():
+    """Four protocols against local peers (test_source_sessions_ui_harness of 2.x)."""
+    from s7_test_server import start_server
+    from ads_simulator import Peer as ADSPeer
+    from mqtt_peer import Peer as MQTTPeer
+    work = Path(tempfile.mkdtemp(prefix='space-ui-cs-'))
+    loop = Loop()
+    server, endpoint, root, nodes = loop.run(make_server())
+    s7_server, s7_port = start_server()
+    ads = loop.run(ADSPeer().start())
+    mqtt = MQTTPeer()
+
+    async def vary():
+        i = 0
+        while True:
+            i += 1
+            await nodes[0].write_value(float(i))
+            await asyncio.sleep(.02)
+    task = asyncio.run_coroutine_threadsafe(vary(), loop.loop)
+    stop = threading.Event()
+
+    def publish():
+        i = 0
+        while not stop.wait(.02):
+            i += 1
+            mqtt.publish('plant/motor', dict(load=i, **{'field' + str(i // 30): i}), qos=1)
+    threading.Thread(target=publish, daemon=True).start()
+    service = Service(work)
+    try:
+        ids = {'opcua': nodes[0].nodeid.to_string(), 'ads': 'ads:MAIN.Wave', 'mqtt': 'mqtt:plant/motor#/load', 's7': 's7:DB1.DBD0:REAL'}
+        cfg = {**service.defaults(), 'source': 'opcua', 'enabled_sources': ['opcua', 'ads', 'mqtt', 's7'], 'endpoint': endpoint, 'security': 'None',
+               'security_mode': 'None', 'sample_ms': 20, 'source_intervals': {'opcua': 20, 'ads': 30, 'mqtt': 40, 's7': 50},
+               'ads_tcp_port': ads.port, 'mqtt_port': mqtt.port, 'mqtt_topics': 'plant/#', 's7_host': '127.0.0.1', 's7_tcp_port': s7_port,
+               's7_tags': [{'address': 'DB1.DBD0', 'data_type': 'REAL'}]}
+        env = {**os.environ, 'TEST_MULTI_CONFIG': json.dumps(cfg), 'TEST_MULTI_SIGNALS': json.dumps(ids)}
+        result = run_node(service, [endpoint, root.nodeid.to_string(), ids['opcua']], env)
+        print(result.stdout, end='')
+    finally:
+        task.cancel()
+        stop.set()
+        service.stop()
+        loop.run(ads.close())
+        mqtt.close()
+        s7_server.stop()
+        s7_server.destroy()
+        loop.run(server.stop())
+        if not os.environ.get('UI_KEEP'):
+            shutil.rmtree(work, ignore_errors=True)
+
+
+def s7():
+    """Classic S7 against the Snap7 simulator (test_s7_ui_harness of 2.x)."""
+    from s7_test_server import start_server
+    work = Path(tempfile.mkdtemp(prefix='space-ui-cs-'))
+    peer, port = start_server()
+    service = Service(work)
+    try:
+        print(run_node(service, [str(port)]).stdout)
+    finally:
+        service.stop()
+        peer.stop()
+        peer.destroy()
+        if not os.environ.get('UI_KEEP'):
+            shutil.rmtree(work, ignore_errors=True)
+
+
 def main():
+    if SCRIPT in MULTI:
+        return multi()
+    if SCRIPT == 'test_s7_ui.cjs':
+        return s7()
     work = Path(tempfile.mkdtemp(prefix='space-ui-cs-'))
     data, application = work / 'data', work / 'application'
     recordings = application / 'Recordings'
@@ -171,28 +303,10 @@ def main():
         peers['ads'] = loop.run(Peer().start())
         os.environ['TEST_ADS_PORT'] = str(peers['ads'].port)
 
-    port = free_port()
-    env = dict(os.environ, OPCUA_DATA_DIR=str(data), OPCUA_APP_DIR=str(application), OPCUA_NO_BROWSER='1', OPCUA_WEB_PORT=str(port),
-               SPACE_BASE_DIR=str(SOURCE))
-    log = (work / 'service.log').open('w')
-    service = subprocess.Popen(app_command(), env=env, stdout=log, stderr=subprocess.STDOUT)
-    base = f'http://127.0.0.1:{port}'
+    service = Service(work)
+    base = service.base
     try:
-        deadline = time.monotonic() + 60
-        while True:
-            try:
-                with urllib.request.urlopen(base + '/api/status', timeout=1) as response:
-                    if json.load(response).get('app') == 'Space Analyzer':
-                        break
-            except OSError:
-                pass
-            if service.poll() is not None or time.monotonic() > deadline:
-                raise RuntimeError('Servizio C# non avviato:\n' + (work / 'service.log').read_text())
-            time.sleep(.1)
-        result = subprocess.run(['node', str(HERE / SCRIPT), base, endpoint, root.nodeid.to_string(), nodes[0].nodeid.to_string(), power.nodeid.to_string()],
-                                env=os.environ, capture_output=True, text=True, timeout=int(os.environ.get('UI_TIMEOUT', '120')))
-        if result.returncode:
-            raise RuntimeError(result.stdout + '\n' + result.stderr + '\n--- service log ---\n' + (data / 'opcua-client.log').read_text(errors='replace')[-6000:])
+        result = run_node(service, [endpoint, root.nodeid.to_string(), nodes[0].nodeid.to_string(), power.nodeid.to_string()])
         report = json.loads(result.stdout)
         for info in report.get('files', []):
             path = Path(info['path'])
@@ -211,15 +325,7 @@ def main():
         print(json.dumps(report, indent=2))
     finally:
         task.cancel()
-        try:
-            html = urllib.request.urlopen(base, timeout=2).read().decode()
-            token = re.search(r'content="([^"]+)" name="opcua-token"', html).group(1)
-            request = urllib.request.Request(base + '/api/shutdown', data=b'{}', method='POST', headers={'X-OPCUA-Token': token, 'Content-Type': 'application/json'})
-            urllib.request.urlopen(request, timeout=5).read()
-            service.wait(60)
-        except Exception:
-            service.kill()
-            service.wait(10)
+        service.stop()
         publisher_stop.set()
         if 'mqtt' in peers:
             peers['mqtt'].close()
@@ -228,7 +334,6 @@ def main():
         if 'ads' in peers:
             loop.run(peers['ads'].close())
         loop.run(server.stop())
-        log.close()
         if not os.environ.get('UI_KEEP'):
             shutil.rmtree(work, ignore_errors=True)
         else:

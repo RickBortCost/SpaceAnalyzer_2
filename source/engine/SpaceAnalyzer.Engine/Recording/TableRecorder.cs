@@ -106,6 +106,7 @@ public sealed partial class TableRecorder : IFormatRecorder, IDisposable
         sessionBase = (prefix.Length > 0 ? prefix + "_" : "") + name;
         segment = 1;
         OpenPart();
+        EngineLog.Info($"Recording started: format={fmt} signals={selected.Count}");
         started = Stopwatch.GetTimestamp();
         currentPeriod = sampleMs;
         state = new()
@@ -320,6 +321,7 @@ public sealed partial class TableRecorder : IFormatRecorder, IDisposable
                 {
                     File.Move(partialPath, finalPath, overwrite: true);
                     partFiles.Add(new() { ["name"] = Path.GetFileName(finalPath), ["rows"] = segmentRows, ["bytes"] = new FileInfo(finalPath).Length, ["part"] = segment });
+                    EngineLog.Info($"Record part finalized: {Path.GetFileName(finalPath)} rows={segmentRows}");
                 }
                 catch (IOException exc) { state["error"] = "Impossibile finalizzare il nome del file: " + exc.Message; }
             }
@@ -482,6 +484,7 @@ public sealed partial class TableRecorder : IFormatRecorder, IDisposable
             throw new InvalidDataException("Limite file superato durante la finalizzazione; file parziale conservato");
         File.Move(partialPath, finalPath);
         SaveMetadata(true);
+        EngineLog.Info($"Record part finalized: {Path.GetFileName(finalPath)} rows={segmentRows}");
         partFiles.Add(new() { ["name"] = Path.GetFileName(finalPath), ["rows"] = segmentRows, ["bytes"] = new FileInfo(finalPath).Length, ["part"] = segment });
     }
 
