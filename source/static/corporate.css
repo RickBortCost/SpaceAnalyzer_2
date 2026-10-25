@@ -24,8 +24,17 @@ input[type=checkbox],input[type=radio],input[type=range],progress{accent-color:v
 .workspace-chart.active-chart{border-color:var(--brand-primary)}
 .selected-row:hover,.node:hover,tr:hover td,.history-signal-row:hover{background:var(--hover)}
 .record-button{background:var(--brand-orange);color:#000000;border-color:var(--brand-orange)}
-body.is-recording #record{background:var(--brand-orange-soft);color:#000000;border-color:var(--brand-orange)}
-@keyframes record-pulse{50%{box-shadow:0 0 0 3px #F58C3A44;filter:brightness(1.05)}}
+/* Registrazione in corso: pulsante rosso lampeggiante con il tempo trascorso, barra di stato compatta. */
+body.is-recording #record,body.is-recording #record:disabled{background:var(--brand-error);color:#FFFFFF;border-color:var(--brand-error);opacity:1;font-variant-numeric:tabular-nums;min-width:108px;animation:record-pulse 1.2s ease-in-out infinite}
+@keyframes record-pulse{0%,100%{box-shadow:0 0 0 0 #E53C1400;filter:none}50%{box-shadow:0 0 0 5px #E53C1440;filter:brightness(1.15)}}
+.record-status.recording{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;height:auto;min-height:26px;padding:3px 6px;background:var(--brand-error-soft);color:#000000;border:1px solid var(--brand-error);border-radius:6px;font-size:11px;white-space:nowrap;overflow:hidden}
+.rec-chip{display:inline-flex;align-items:center;gap:3px;padding:1px 7px;border-radius:10px;background:#FFFFFFB0;color:#3A3A3A;flex:none}.rec-chip b{color:#000000;font-variant-numeric:tabular-nums}
+.rec-live{background:var(--brand-error);color:#FFFFFF;font-weight:700}.rec-live b{color:#FFFFFF}
+.rec-dot{width:8px;height:8px;border-radius:50%;background:#FFFFFF;animation:rec-blink 1s steps(1) infinite}
+@keyframes rec-blink{50%{opacity:0}}
+.rec-ok b{color:#00705F}.rec-warn{background:var(--brand-orange-soft)}.rec-bad{background:var(--brand-error);color:#FFFFFF}.rec-bad b{color:#FFFFFF}
+.rec-file{flex:1 1 auto;min-width:0;overflow:hidden}.rec-file b{font-weight:400;overflow:hidden;text-overflow:ellipsis}
+@media (prefers-reduced-motion:reduce){body.is-recording #record,body.is-recording #record:disabled,.rec-dot{animation:none}}
 .status.ok,.autoscale{background:var(--brand-teal-soft);color:#000000;border-color:var(--brand-teal)}
 .status.pending,.autoscale.zoomed,button.paused{background:var(--brand-orange-soft);color:#000000;border-color:var(--brand-orange)}
 .status.bad,.record-error,.message.error,.quality-summary.has-bad{background:var(--brand-error-soft);color:#000000;border-color:var(--brand-error)}

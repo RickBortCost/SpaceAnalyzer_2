@@ -2,6 +2,10 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.0.2
+
+- **Registrazione in evidenza**: durante Record il pulsante diventa rosso e lampeggia con il tempo trascorso (`● REC 04:47`, aggiornato ogni secondo); lo stesso tempo compare nel titolo della finestra. La lunga riga di stato è sostituita da una barra compatta: formato, righe scritte, velocità (righe/s), parte, occupazione della coda (verde sotto 50%, ambra fino a 80%, rossa oltre) e nome del file. Percorso completo, righe in memoria, cicli in coda e note restano nel tooltip. Animazioni disattivate se il sistema chiede movimento ridotto.
+
 ## 3.0.1
 
 - **Finestra applicazione**: l'interfaccia si apre in una finestra dedicata (Microsoft Edge o Chrome in modalità applicazione, con un profilo proprio), senza schede né barra degli indirizzi. Chiudere la finestra arresta l'applicazione come **Chiudi applicazione**: le registrazioni in corso vengono finalizzate. Durante una registrazione la chiusura chiede conferma. Se Edge e Chrome non sono disponibili si usa il browser predefinito; `SPACE_WINDOW=browser` mantiene la pagina nel browser.

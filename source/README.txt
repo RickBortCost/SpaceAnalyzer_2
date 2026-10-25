@@ -1,18 +1,20 @@
-SPACE ANALYZER V3.0.1 WINDOWS x64
+SPACE ANALYZER V3.0.2 WINDOWS x64
 
-Estrarre lo ZIP e avviare Space_Analyzer_V3.0.1.exe.
+Estrarre lo ZIP e avviare Space_Analyzer_V3.0.2.exe.
 Chiudere la versione precedente con Chiudi applicazione prima dell'avvio.
 L'interfaccia si apre in una finestra applicazione dedicata (Microsoft Edge
 in modalità app). Chiudere la finestra chiude l'applicazione e finalizza le
 registrazioni in corso.
 I file aperti in Registrazioni sono mostrati a piena risoluzione: tutti i
 campioni del file, fino a 80 milioni per grafico.
+Durante Record il pulsante lampeggia con il tempo trascorso e una barra
+compatta mostra righe scritte, velocità, parte e occupazione della coda.
 Applicazione interamente in C# (.NET 8 incluso nell'EXE): non serve
 installare Python, .NET o altri componenti.
 
 Registrazione: CSV, Parquet, FDA (.das), RBF. I file .dat si aprono e si
 visualizzano; la registrazione .dat non è più disponibile.
-Strumenti: Space_Analyzer_V3.0.1.exe --tool inspect|recover|export-fda|export-rbf.
+Strumenti: Space_Analyzer_V3.0.2.exe --tool inspect|recover|export-fda|export-rbf.
 Dettagli: CHANGELOG.md, VERSIONE_3.0.md e LEGGIMI_AVVIO_WINDOWS.md.
 
 --- Note delle versioni precedenti ---

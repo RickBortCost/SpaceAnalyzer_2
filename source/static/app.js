@@ -163,14 +163,44 @@ function renderRecording(info){
   if(info.revision!==undefined&&recordState.revision!==undefined&&info.revision<recordState.revision)return;
   recordState=info;recordDirectory=info.directory||recordDirectory;
   const box=$('record-status'),seconds=Number(info.duration_seconds||0).toFixed(1),rows=Number(info.rows_written||0).toLocaleString(I18N.locale());
-  box.className='record-status'+(info.busy?' active':'')+(info.error?' error':'');
+  box.className='record-status'+(info.busy?' active':'')+(info.error?' error':'')+(info.state==='recording'&&!info.error?' recording':'');box.title='';
   if(info.error)I18N.bind(box,"textContent",()=>(I18N.join([{text:"Errore registrazione: "},{value:(info.error)},{text:" · "},{value:(info.path||'')}])),true);
-  else if(info.state==='recording')I18N.bind(box,"textContent",()=>(I18N.join([{text:"● REC "},{value:(info.format_label||String(info.format).toUpperCase())},{text:" · "},{value:(seconds)},{text:" s · "},{value:(rows)},{text:" righe scritte · "},{value:(info.pending_rows||0)},{text:" righe in memoria · Parte "},{value:(info.part||1)},{text:" · Coda "},{value:(info.queue_cycles||0)},{text:"/"},{value:(info.queue_capacity_cycles||0)},{text:" cicli · "},{value:(info.path)}])),true);
+  else if(info.state==='recording')renderRecordingBar(box,info);
   else if(info.state==='stopping')I18N.bind(box,"textContent",()=>(I18N.join([{value:(((info.conversion_phase||info.fda_phase)==='converting'?I18N.join([{text:"Generazione dei file "},{value:(info.format==='rbf'?'RBF':'FDA')},{text:" in corso… "}]):I18N.t("Chiusura del file in corso… "))+info.path)}])),true);
   else if(info.state==='stopped')I18N.bind(box,"textContent",()=>(I18N.join([{text:"Registrazione salvata · "},{value:(seconds)},{text:" s · "},{value:(rows)},{text:" righe · Parte "},{value:(info.part||1)},{text:" · Coda "},{value:(info.queue_cycles||0)},{text:"/"},{value:(info.queue_capacity_cycles||0)},{text:" cicli · "},{value:(info.path)}])),true);
   else I18N.bind(box,"textContent",()=>(I18N.join([{text:"Registrazione non avviata. Cartella: "},{value:(recordDirectory)}])),true);
-  if(['das','rbf'].includes(info.format)&&info.status_note)box.textContent+=' · '+info.status_note;
-  window.renderRecordingJobs?.(info);applyRecordingControls();
+  if(['das','rbf'].includes(info.format)&&info.status_note&&info.state!=='recording')box.textContent+=' · '+info.status_note;
+  syncRecordingClock(info);window.renderRecordingJobs?.(info);applyRecordingControls();
+}
+// Recording in evidence: blinking Record button with the elapsed time, compact live figures, time in the window title.
+let recordClock=null,recordClockTimer=null;const baseTitle=document.title;
+function recordElapsed(){return recordClock?recordClock.seconds+(Date.now()-recordClock.at)/1000:0;}
+function formatElapsed(seconds){const s=Math.max(0,Math.floor(seconds)),h=Math.floor(s/3600),m=Math.floor(s%3600/60),pad=v=>String(v).padStart(2,'0');return (h?h+':'+pad(m):pad(m))+':'+pad(s%60);}
+function syncRecordingClock(info){
+  const recording=info.state==='recording'&&!info.error;document.body.classList.toggle('is-recording',recording);
+  if(!recording){recordClock=null;clearInterval(recordClockTimer);recordClockTimer=null;I18N.bind($('record'),"textContent",()=>(I18N.t("● Record")),true);document.title=baseTitle;return;}
+  recordClock={seconds:Number(info.duration_seconds||0),at:Date.now()};
+  if(!recordClockTimer)recordClockTimer=setInterval(tickRecordingClock,1000);tickRecordingClock();
+}
+function tickRecordingClock(){
+  if(!recordClock)return;const elapsed=formatElapsed(recordElapsed());
+  $('record').textContent='● REC '+elapsed;document.title='● REC '+elapsed+' · '+baseTitle;
+  const clock=$('record-status').querySelector('[data-rec=clock]');if(clock)clock.textContent=elapsed;
+}
+function renderRecordingBar(box,info){
+  const locale=I18N.locale(),seconds=Number(info.duration_seconds||0),rows=Number(info.rows_written||0);
+  const capacity=Number(info.queue_capacity_cycles||0),queued=Number(info.queue_cycles||0),load=capacity?queued/capacity:0;
+  const name=String(info.path||'').split(/[\\/]/).pop();
+  const chip=(label,value,extra='')=>{const span=document.createElement('span'),b=document.createElement('b');span.className='rec-chip'+(extra?' '+extra:'');if(label){span.append(document.createTextNode(label+' '));}b.textContent=value;span.append(b);return span;};
+  const live=document.createElement('span');live.className='rec-chip rec-live';const dot=document.createElement('i');dot.className='rec-dot';const time=document.createElement('b');time.dataset.rec='clock';time.textContent=formatElapsed(recordElapsed()||seconds);live.append(dot,document.createTextNode('REC '),time);
+  const parts=[live,chip('',info.format_label||String(info.format||'').toUpperCase()),
+    chip(I18N.t("Righe"),rows.toLocaleString(locale)),
+    chip(I18N.t("Velocità"),(seconds>0?Math.round(rows/seconds):0).toLocaleString(locale)+' '+I18N.t("righe/s")),
+    chip(I18N.t("Parte"),String(info.part||1)),
+    chip(I18N.t("Coda"),Math.round(load*100)+'%',load>=.8?'rec-bad':load>=.5?'rec-warn':'rec-ok')];
+  if(name)parts.push(chip('',name,'rec-file'));
+  box.replaceChildren(...parts);
+  box.title=I18N.join([{text:"Registrazione in corso · "},{value:(seconds.toFixed(1))},{text:" s · "},{value:(rows.toLocaleString(locale))},{text:" righe scritte · "},{value:(info.pending_rows||0)},{text:" righe in memoria · Coda "},{value:(queued)},{text:"/"},{value:(capacity)},{text:" cicli · "},{value:(info.path||'')}])+(info.status_note?' · '+info.status_note:'');
 }
 async function openRecordDialog(){
   if(!connected)throw new Error(I18N.t("Connetti il client prima di avviare Record."));
