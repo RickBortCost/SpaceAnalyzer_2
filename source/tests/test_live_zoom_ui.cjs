@@ -75,7 +75,7 @@ const close=(a,b)=>assert(Math.abs(a-b)<1e-6,`${a} != ${b}`);
   frame(end+120000,true);
   assert(a.zoom);assert.equal(a.frozen,false);close(a.domain.xmax,end);
   close(a.domain.xmax-a.domain.xmin,width);assert.equal(JSON.stringify(a.domain.axes),axes);
-  assert.equal(a.axisPlan.axisById.get(ids[1]),'right');
+  assert.equal(a.axisPlan.side.get(a.axisPlan.axisById.get(ids[1])),'right');
   zoom(w,g);
   assert.equal(a.frozen,false);const narrower=a.domain.xmax-a.domain.xmin,newAxes=JSON.stringify(a.domain.axes);
   close(narrower,width/2);frame(end+2000,true);

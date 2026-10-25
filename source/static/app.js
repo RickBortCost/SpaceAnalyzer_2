@@ -49,7 +49,7 @@ function setLiveViewMode(mode){const next=mode==='window'?'window':'all';if(next
 $('live-time-view').addEventListener('change',event=>{setLiveViewMode(event.target.value);clearRevision++;liveCharts.timeRange=null;liveCharts.resetViews();scheduleWorkspaceSave();if(!polling)updateValues();});
 const pageSize=250;
 const liveCharts=new ChartWorkspace({scope:'live',root:'live-charts',selector:'live-active-chart',add:'live-add-chart',layout:'live-layout',allowSignalDrop:true,copySignalsOnAdd:false,
-  onActive:()=>renderSelected(),onAssignment:()=>renderSelected(),onSignalDrop:(graph,id)=>notice(I18N.join([{text:"Segnale aggiunto a "},{value:(graph.name)},{text:"."}])),onChange:()=>{I18N.bind($('savestatus'),"textContent",()=>(I18N.t("Layout modificato. Usa “Salva impostazione” per conservarlo.")),true);}});
+  onActive:()=>renderSelected(),onAssignment:()=>renderSelected(),onScaleChange:()=>renderSelected(),onSignalDrop:(graph,id)=>notice(I18N.join([{text:"Segnale aggiunto a "},{value:(graph.name)},{text:"."}])),onChange:()=>{I18N.bind($('savestatus'),"textContent",()=>(I18N.t("Layout modificato. Usa “Salva impostazione” per conservarlo.")),true);}});
 const livePageLayout=new ResizablePageLayout('live-page','live-page-splitter','opcua.live.sidebar.width',()=>liveCharts.draw());
 const trend=liveCharts.charts[0].trend; // First-chart compatibility for existing diagnostics.
 
@@ -117,6 +117,7 @@ function renderSelected(){
     const row=document.createElement('div');row.className='selected-row';row.dataset.id=id;row.draggable=true;I18N.bind(row,"title",()=>(I18N.t("Trascina questo segnale su un grafico")),true);
     row.addEventListener('dragstart',event=>{if(!event.dataTransfer)return;event.dataTransfer.effectAllowed='copy';event.dataTransfer.setData('application/x-opcua-signal',id);event.dataTransfer.setData('text/plain',id);row.classList.add('dragging-signal');});
     row.addEventListener('dragend',()=>row.classList.remove('dragging-signal'));
+    row.addEventListener('dblclick',event=>{if(event.target.closest('input,button,select'))return;event.preventDefault();liveCharts.addWithSignal(id);});
     const grip=document.createElement('span');grip.className='signal-drag-handle';I18N.bind(grip,"textContent",()=>('⋮⋮'),false);grip.setAttribute('aria-hidden','true');
     const visible=document.createElement('input');visible.type='checkbox';visible.className='chart-assignment';visible.dataset.signalId=id;
     visible.checked=liveCharts.active.ids.has(id);I18N.attr(visible,'aria-label',()=>(I18N.join([{text:"Mostra "},{value:(node.display_name||id)},{text:" in "},{value:(liveCharts.active.name)}])));

@@ -305,7 +305,7 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             foreach (var scope in new[] { "live", "history" })
             {
                 var charts = data[scope].Get("charts") ?? new JsonArray();
-                if (charts is not JsonArray list || list.Count > 8) throw new UserError("Massimo 8 grafici per pagina");
+                if (charts is not JsonArray list || list.Count > 24) throw new UserError("Massimo 24 grafici per pagina");
             }
             data["saved_at"] = Py.NowIso();
             data["calculations"] = rt.Formulas.Snapshot();

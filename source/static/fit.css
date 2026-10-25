@@ -2,7 +2,7 @@
    Barra superiore e barra di stato restano fisse; ogni pagina scorre al proprio interno solo se il contenuto non entra. */
 html,body{height:100%;overflow:hidden}
 body{display:flex;flex-direction:column;height:100dvh;padding-bottom:25px;min-width:0}
-.app-bar{position:relative;flex:none;max-height:45dvh;overflow:auto}
+.app-bar{position:relative;flex:none;height:auto;min-height:54px;max-height:45dvh;overflow:auto;flex-wrap:wrap;row-gap:4px}
 body>main.live-page,body>main.recordings-page,body>main.calculations-page,body>main.ssh-page{flex:1 1 auto;min-height:0!important;overflow:hidden}
 body>main[hidden]{display:none!important}
 main.calculations-page,main.ssh-page{overflow:auto}

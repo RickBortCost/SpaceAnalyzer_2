@@ -221,7 +221,7 @@ class Trend {
     this.canvas=canvas;this.crosshairEl=document.createElement('div');this.crosshairEl.className='synchronized-crosshair';this.crosshairEl.hidden=true;canvas.parentElement.append(this.crosshairEl);this.legend=legend;this.tooltip=tooltip;this.colors=new Map();this.series={};this.latestSeries={};this.nodes=new Map();this.types={};
     this.presentation={};this.axisSettings={};this.emptyMessage=options.emptyMessage||I18N.t("Seleziona una variabile numerica per avviare il trend");this.zoom=null;this.drag=null;this.fullDomain=null;this.nodeSignature='';this.frozen=false;this.frozenAt=null;this.manualPaused=false;
     this.markers={x1:null,x2:null};this.markerFractions={x1:null,x2:null};this.markerMode=null;
-    this.axisPlan={dual:false,axisById:new Map(),left:[],right:[],ratio:1};this.axisSignature='';
+    this.axisPlan={groups:false,dual:false,axisById:new Map(),left:[],right:[],keys:['left'],members:new Map(),side:new Map([['left','left']]),ratio:1};this.axisSignature='';this.scaleState={mode:'legacy'};
     if(typeof ResizeObserver!=='undefined'){this._resizeObserver=new ResizeObserver(()=>this.draw());this._resizeObserver.observe(canvas.parentElement);}
     else listen(window,'resize',()=>this.draw());
     if('PointerEvent' in window){
@@ -374,7 +374,7 @@ class Trend {
       const v1=p1?.[1],v2=p2?.[1],delta=typeof v1==='number'&&Number.isFinite(v1)&&typeof v2==='number'&&Number.isFinite(v2)?v2-v1:null;
       const tr=document.createElement('tr');
       const name=document.createElement('td'),nameWrap=document.createElement('span'),dot=document.createElement('i');dot.className='dot';dot.style.color=this.color(id);nameWrap.className='marker-signal';nameWrap.title=node.display_name||id;nameWrap.append(dot,document.createTextNode(signalShortName(id,node,this.presentation[id])));name.append(nameWrap);
-      const axis=document.createElement('td');I18N.bind(axis,"textContent",()=>(this.axisPlan.axisById.get(id)==='right'?'Y2':'Y1'),false);axis.className='marker-axis';
+      const axis=document.createElement('td');I18N.bind(axis,"textContent",()=>(this.axisTag(id)),false);axis.className='marker-axis';
       const makeValueCell=data=>{const td=document.createElement('td'),strong=document.createElement('strong'),small=document.createElement('small');I18N.bind(strong,"textContent",()=>(data.value),false);I18N.bind(small,"textContent",()=>(data.detail),false);td.className='marker-reading';td.append(strong,small);return td;};
       const deltaCell=document.createElement('td');deltaCell.className='marker-reading marker-delta';const deltaStrong=document.createElement('strong');I18N.bind(deltaStrong,"textContent",()=>(delta===null?'—':valueText(delta)),false);deltaCell.append(deltaStrong);
       tr.append(name,axis,makeValueCell(c1),makeValueCell(c2),deltaCell);body.append(tr);
@@ -422,30 +422,154 @@ class Trend {
     let decimals=0;for(let s=step;decimals<6&&Math.abs(s-Math.round(s))>1e-9*Math.max(1,Math.abs(s));s*=10)decimals++;
     return v.toLocaleString(I18N.locale(),{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
   }
+  // ---- Gruppi di scale Y: solo livello di visualizzazione, i campioni e i buffer non vengono mai toccati ----
+  groupsMode(){return this.scaleState?.mode==='groups';}
+  unitOf(id){return String(this.presentation[id]?.unit??this.nodes.get(id)?.unit??'').trim();}
+  axisTag(id){const plan=this.axisPlan,key=plan.axisById.get(id);if(!plan.groups)return key==='right'?'Y2':'Y1';return 'Y'+(Math.max(0,plan.keys.indexOf(key))+1);}
+  groupColor(plan,key){return 'hsl('+((Math.max(0,plan.keys.indexOf(key))*67+205)%360)+',68%,'+(trendDark()?'62%':'42%')+')';}
   planAxes(){
+    const ids=[...this.nodes.keys()];
+    if(this.groupsMode()){
+      const axisById=new Map(),members=new Map(),side=new Map();
+      for(const id of ids){const sc=this.presentation[id]?.scale,key=typeof sc==='string'&&sc?sc:'s:'+id;axisById.set(id,key);if(!members.has(key))members.set(key,[]);members.get(key).push(id);}
+      let auto=0;
+      for(const [key,list] of members){const explicit=list.map(id=>this.presentation[id]?.axis).find(a=>a==='left'||a==='right');side.set(key,explicit||(key==='right'?'right':key==='left'?'left':(auto++%2?'right':'left')));}
+      const leftIds=ids.filter(id=>side.get(axisById.get(id))!=='right'),rightIds=ids.filter(id=>side.get(axisById.get(id))==='right');
+      return {groups:true,dual:rightIds.length>0,axisById,members,side,keys:[...members.keys()],left:leftIds,right:rightIds,ratio:1};
+    }
     // Keep each signal on its chosen Y scale while a live zoom fixes those limits.
     const plan=(this.liveZoom||this.frozen)&&this.zoom&&this.axisSignature?{...this.axisPlan,axisById:new Map(this.axisPlan.axisById)}:axisAssignment(this.series,this.nodes);
-    for(const id of this.nodes.keys()){const axis=this.presentation[id]?.axis;if(axis==='left'||axis==='right')plan.axisById.set(id,axis);}
-    plan.left=[...this.nodes.keys()].filter(id=>plan.axisById.get(id)!=='right');plan.right=[...this.nodes.keys()].filter(id=>plan.axisById.get(id)==='right');plan.dual=plan.right.length>0;return plan;
+    for(const id of ids){const axis=this.presentation[id]?.axis;if(axis==='left'||axis==='right')plan.axisById.set(id,axis);}
+    plan.left=ids.filter(id=>plan.axisById.get(id)!=='right');plan.right=ids.filter(id=>plan.axisById.get(id)==='right');plan.dual=plan.right.length>0;
+    plan.groups=false;plan.keys=plan.dual?['left','right']:['left'];plan.members=new Map([['left',plan.left],['right',plan.right]]);plan.side=new Map([['left','left'],['right','right']]);
+    return plan;
   }
-  axisLabel(axis){const units=[...new Set([...this.nodes.keys()].filter(id=>(this.axisPlan.axisById.get(id)||'left')===axis).map(id=>this.presentation[id]?.unit).filter(Boolean))];const a=this.axisSettings[axis]||{};return I18N.join([{value:(axis==='left'?'Y1':'Y2')},{text:" "},{value:((a.unit||units.join(' / ')).slice(0,26))},{text:" · "},{value:(a.mode==='manual'?I18N.t("Manuale"):'Auto')}]);}
+  axisLabel(key){const plan=this.axisPlan,list=plan.members.get(key)||[],units=[...new Set(list.map(id=>this.presentation[id]?.unit).filter(Boolean))];const a=this.axisSettings[key]||{};return I18N.join([{value:(plan.groups?'Y'+(plan.keys.indexOf(key)+1):key==='left'?'Y1':'Y2')},{text:" "},{value:((a.unit||units.join(' / ')).slice(0,26))},{text:" · "},{value:(a.mode==='manual'?I18N.t("Manuale"):'Auto')}]);}
+  // Passa dalla modalità storica (Y1/Y2 automatici) ai gruppi di scala congelando l'assegnazione corrente.
+  ensureGroupMode(){
+    if(this.groupsMode())return;
+    const plan=this.axisPlan;this.scaleState=this.scaleState||{};this.scaleState.mode='groups';
+    for(const id of this.nodes.keys()){const cur=this.presentation[id]||{},key=plan.axisById.get(id)||'left';this.presentation[id]={...cur,scale:key,axis:cur.axis==='left'||cur.axis==='right'?cur.axis:key};}
+  }
+  nextScaleId(){let n=0;for(const v of Object.values(this.presentation)){const m=/^g(\d+)$/.exec(v?.scale||'');if(m)n=Math.max(n,+m[1]);}return 'g'+(n+1);}
+  freezeSides(plan){for(const id of this.nodes.keys())this.presentation[id]={...(this.presentation[id]||{}),axis:plan.side.get(plan.axisById.get(id))||'left'};}
+  pruneScaleSettings(){const used=new Set(Object.values(this.presentation).map(v=>v?.scale).filter(Boolean));for(const key of Object.keys(this.axisSettings))if(/^g\d+$/.test(key)&&!used.has(key))delete this.axisSettings[key];}
+  scaleChanged(){this.tooltip.hidden=true;this.draw();this.onScaleChanged?.();}
+  // Il segnale trascinato passa al gruppo del bersaglio; gli altri membri del gruppo d'origine restano invariati.
+  async joinScale(dragId,targetId,options={}){
+    if(!dragId||!targetId||dragId===targetId||!this.nodes.has(dragId)||!this.nodes.has(targetId))return false;
+    const before=this.groupsMode()?this.planAxes():this.axisPlan;
+    if(before.axisById.get(dragId)===before.axisById.get(targetId))return false;
+    const unitsOf=key=>new Set((before.members.get(key)||[]).map(id=>this.unitOf(id).toLowerCase()).filter(Boolean)),dragUnits=unitsOf(before.axisById.get(dragId)),targetUnits=unitsOf(before.axisById.get(targetId));
+    // Si chiede conferma solo quando il gruppo di destinazione riceve un'unità che non ha ancora.
+    const added=[...dragUnits].filter(u=>!targetUnits.has(u));
+    if(targetUnits.size>0&&added.length>0&&!options.force&&!(await Trend.askMixedUnits([...new Set([...targetUnits,...dragUnits])])))return false;
+    if(!this.nodes.has(dragId)||!this.nodes.has(targetId))return false;
+    this.ensureGroupMode();const plan=this.planAxes();
+    if(plan.axisById.get(dragId)===plan.axisById.get(targetId))return false;
+    this.freezeSides(plan);
+    const targetKey=plan.axisById.get(targetId),side=plan.side.get(targetKey)||'left',gid=targetKey.startsWith('s:')?this.nextScaleId():targetKey;
+    const set=(id,patch)=>{this.presentation[id]={...(this.presentation[id]||{}),...patch};};
+    for(const id of plan.members.get(targetKey)||[])set(id,{scale:gid,axis:side});
+    set(dragId,{scale:gid,axis:side});
+    this.pruneScaleSettings();this.scaleChanged();return true;
+  }
+  separateScale(id){
+    if(!this.nodes.has(id))return false;
+    const before=this.groupsMode()?this.planAxes():this.axisPlan;
+    if((before.members.get(before.axisById.get(id))||[]).length<2)return false;
+    this.ensureGroupMode();const plan=this.planAxes();this.freezeSides(plan);
+    const {scale,...rest}=this.presentation[id]||{};this.presentation[id]=rest;
+    this.pruneScaleSettings();this.scaleChanged();return true;
+  }
+  async mergeAllScales(options={}){
+    const ids=[...this.nodes.keys()];if(ids.length<2)return false;
+    const units=new Set(ids.map(id=>this.unitOf(id).toLowerCase()).filter(Boolean));
+    if(units.size>1&&!options.force&&!(await Trend.askMixedUnits([...units])))return false;
+    this.ensureGroupMode();const plan=this.planAxes();this.freezeSides(plan);const gid=this.nextScaleId(),side=plan.side.get(plan.axisById.get(ids[0]))||'left';
+    for(const id of ids)this.presentation[id]={...(this.presentation[id]||{}),scale:gid,axis:side};
+    this.pruneScaleSettings();this.scaleChanged();return true;
+  }
+  separateAllScales(){
+    if(this.groupsMode()?this.planAxes().keys.length===this.nodes.size:false)return false;
+    this.ensureGroupMode();const plan=this.planAxes();this.freezeSides(plan);
+    for(const id of this.nodes.keys()){const {scale,...rest}=this.presentation[id]||{};this.presentation[id]=rest;}
+    this.pruneScaleSettings();this.scaleChanged();return true;
+  }
+  renderLegend(plan){
+    const legendKey=JSON.stringify([trendDark(),plan.groups,...[...this.nodes].map(([id,n])=>[id,n.display_name,this.color(id),plan.axisById.get(id),plan.keys.indexOf(plan.axisById.get(id)),(plan.members.get(plan.axisById.get(id))||[]).length,this.presentation[id]?.unit,this.presentation[id]?.alias])]);
+    if(this.legendKey===legendKey)return;this.legendKey=legendKey;this.legend.replaceChildren();
+    for(const [id,n] of this.nodes){
+      const key=plan.axisById.get(id),shared=plan.groups&&(plan.members.get(key)||[]).length>1;
+      const s=document.createElement('span'),dot=document.createElement('i'),tag=document.createElement('b');
+      s.style.color=this.color(id);dot.className='dot';tag.className='axis-tag'+(shared?' shared':'');
+      if(shared){const gc=this.groupColor(plan,key);tag.style.color=gc;tag.style.borderColor=gc;}
+      I18N.bind(tag,"textContent",()=>this.axisTag(id),false);
+      s.title=(n.display_name||id)+(shared?'\n'+I18N.t("Scala condivisa: trascina su un altro canale per unire, tasto destro per separare"):'\n'+I18N.t("Trascina su un altro canale per condividere la scala"));
+      s.draggable=true;s.tabIndex=0;s.dataset.signalId=id;s.dataset.scaleKey=key;s.dataset.scaleShared=shared?'1':'0';
+      s.append(dot,document.createTextNode(signalShortName(id,n,this.presentation[id])+(this.presentation[id]?.unit?' ['+this.presentation[id].unit+']':'')),tag);
+      this.bindLegendEntry(s,id);this.legend.append(s);
+    }
+  }
+  legendEntries(){return [...this.legend.querySelectorAll('span[data-signal-id]')];}
+  clearLegendDrag(){Trend.legendDrag=null;for(const e of this.legendEntries())e.classList.remove('legend-dragging','legend-drop-target','legend-drop-group');}
+  bindLegendEntry(s,id){
+    s.addEventListener('dragstart',e=>{Trend.legendDrag={trend:this,id};try{e.dataTransfer.effectAllowed='link';e.dataTransfer.setData('application/x-sa-scale',id);}catch{}s.classList.add('legend-dragging');this.tooltip.hidden=true;});
+    s.addEventListener('dragend',()=>this.clearLegendDrag());
+    const over=e=>{const d=Trend.legendDrag;if(!d||d.trend!==this||d.id===id)return;e.preventDefault();try{e.dataTransfer.dropEffect='link';}catch{}
+      s.classList.add('legend-drop-target');for(const o of this.legendEntries())if(o!==s)o.classList.toggle('legend-drop-group',o.dataset.scaleKey===s.dataset.scaleKey&&o.dataset.signalId!==d.id);};
+    s.addEventListener('dragenter',over);s.addEventListener('dragover',over);
+    s.addEventListener('dragleave',e=>{if(!s.contains(e.relatedTarget)){s.classList.remove('legend-drop-target');for(const o of this.legendEntries())o.classList.remove('legend-drop-group');}});
+    s.addEventListener('drop',e=>{const d=Trend.legendDrag;this.clearLegendDrag();if(!d||d.trend!==this||d.id===id)return;e.preventDefault();e.stopPropagation();this.joinScale(d.id,id).catch(()=>{});});
+    s.addEventListener('contextmenu',e=>this.showScaleMenu(e,id,s));
+  }
+  showScaleMenu(event,id,anchor){
+    event.preventDefault();Trend.closeScaleMenu();
+    const plan=this.axisPlan,key=plan.axisById.get(id),shared=(plan.members.get(key)||[]).length>1;
+    const menu=document.createElement('div');menu.className='scale-menu';menu.setAttribute('role','menu');
+    const add=(label,enabled,run)=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','menuitem');b.dataset.scaleAction=label;I18N.bind(b,"textContent",()=>I18N.t(label),true);b.disabled=!enabled;b.onclick=()=>{Trend.closeScaleMenu();Promise.resolve(run()).catch(()=>{});};menu.append(b);};
+    add("Separa scala",shared,()=>this.separateScale(id));
+    add("Unisci tutte le scale",plan.keys.length>1,()=>this.mergeAllScales());
+    add("Separa tutte le scale",plan.keys.some(k=>(plan.members.get(k)||[]).length>1),()=>this.separateAllScales());
+    const r=anchor?.getBoundingClientRect?.()||{left:0,bottom:0};const x=Number.isFinite(event.clientX)&&event.clientX>0?event.clientX:r.left,y=Number.isFinite(event.clientY)&&event.clientY>0?event.clientY:r.bottom;
+    menu.style.left=Math.max(4,Math.min(x,(window.innerWidth||1200)-190))+'px';menu.style.top=Math.max(4,Math.min(y,(window.innerHeight||800)-130))+'px';
+    document.body.append(menu);Trend.scaleMenu=menu;
+    const away=e=>{if(!menu.contains(e.target))Trend.closeScaleMenu();},key2=e=>{if(e.key==='Escape')Trend.closeScaleMenu();};
+    menu.cleanup=()=>{document.removeEventListener('pointerdown',away,true);document.removeEventListener('keydown',key2,true);};
+    setTimeout(()=>{if(Trend.scaleMenu===menu){document.addEventListener('pointerdown',away,true);document.addEventListener('keydown',key2,true);}},0);
+    menu.querySelector('button:not(:disabled)')?.focus?.();
+  }
+  static closeScaleMenu(){const m=Trend.scaleMenu;Trend.scaleMenu=null;if(m){m.cleanup?.();m.remove();}}
+  // Unità fisiche diverse si uniscono solo con una scelta esplicita: la scala numerica sarà condivisa senza equivalenza fisica.
+  static askMixedUnits(units){
+    return new Promise(resolve=>{
+      Trend.closeScaleMenu();
+      const overlay=document.createElement('div'),box=document.createElement('div'),text=document.createElement('p'),row=document.createElement('div'),ok=document.createElement('button'),cancel=document.createElement('button');
+      overlay.className='scale-confirm';overlay.setAttribute('role','alertdialog');overlay.setAttribute('aria-modal','true');ok.type=cancel.type='button';ok.className='primary';cancel.className='ghost';ok.dataset.scaleConfirm='ok';cancel.dataset.scaleConfirm='cancel';
+      I18N.bind(text,"textContent",()=>(I18N.join([{text:"I segnali hanno unità diverse ("},{value:(units.join(', '))},{text:"). Condividere una scala numerica senza equivalenza fisica? I valori non vengono modificati."}])),true);
+      I18N.bind(ok,"textContent",()=>(I18N.t("Unisci comunque")),true);I18N.bind(cancel,"textContent",()=>(I18N.t("Annulla")),true);
+      const key=e=>{if(e.key==='Escape'){e.preventDefault();close(false);}};
+      const close=v=>{document.removeEventListener('keydown',key,true);overlay.remove();resolve(v);};
+      ok.onclick=()=>close(true);cancel.onclick=()=>close(false);overlay.addEventListener('pointerdown',e=>{if(e.target===overlay)close(false);});document.addEventListener('keydown',key,true);
+      row.append(cancel,ok);box.append(text,row);overlay.append(box);document.body.append(overlay);cancel.focus?.();
+    });
+  }
   draw(){
     const c=this.canvas,r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;if(r.width<1||r.height<1)return;
     this.theme=window.studioTheme||{text:'#707E86',grid:'#E5E5E5',surface:'#FFFFFF'};c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);const ctx=c.getContext('2d');if(!ctx)return;ctx.scale(dpr,dpr);
-    const plan=this.planAxes(),axisSignature=[plan.dual?'2':'1',...[...plan.axisById.entries()].map(([id,a])=>id+':'+a)].join('|');
+    const plan=this.planAxes(),axisSignature=[plan.dual?'2':'1',...[...plan.axisById.entries()].map(([id,a])=>id+':'+a),...plan.keys.map(k=>k+'@'+plan.side.get(k))].join('|');
     if(this.axisSignature&&axisSignature!==this.axisSignature&&this.zoom){this.zoom=null;this.frozen=false;this.series=this.latestSeries;}
     this.axisSignature=axisSignature;this.axisPlan=plan;
-    const w=r.width,h=r.height,p={l:78,r:82,t:22,b:42};this.layout={p,w,h};
+    const w=r.width,h=r.height,leftKeys=plan.keys.filter(k=>plan.side.get(k)!=='right'),rightKeys=plan.keys.filter(k=>plan.side.get(k)==='right'),p={l:78+Trend.AXIS_COLUMN*(Math.min(Trend.AXIS_COLUMNS,Math.max(1,leftKeys.length))-1),r:82+Trend.AXIS_COLUMN*(Math.min(Trend.AXIS_COLUMNS,Math.max(1,rightKeys.length))-1),t:22,b:42};this.layout={p,w,h};
     const scrollBar=this.el('timeScroll')?.closest?.('.time-scrollbar');if(scrollBar){scrollBar.style.marginLeft=p.l+'px';scrollBar.style.marginRight=p.r+'px';}
-    const legendKey=JSON.stringify([trendDark(),...[...this.nodes].map(([id,n])=>[id,n.display_name,this.color(id),plan.axisById.get(id),this.presentation[id]?.unit,this.presentation[id]?.alias])]);
-    if(this.legendKey!==legendKey){this.legendKey=legendKey;this.legend.replaceChildren();for(const [id,n] of this.nodes){const s=document.createElement('span'),dot=document.createElement('i'),tag=document.createElement('b');s.style.color=this.color(id);dot.className='dot';tag.className='axis-tag';I18N.bind(tag,"textContent",()=>(plan.axisById.get(id)==='right'?'Y2':'Y1'),false);s.title=n.display_name||id;s.append(dot,document.createTextNode(signalShortName(id,n,this.presentation[id])+(this.presentation[id]?.unit?' ['+this.presentation[id].unit+']':'')),tag);this.legend.append(s);}}
+    this.renderLegend(plan);
     ctx.fillStyle=this.theme.text;ctx.font='12px Segoe UI';const all=bounds(this.series);
     if(!all){this.crosshairEl.hidden=true;this.domain=null;this.fullDomain=null;this.syncZoomControls();this.syncTimeScroll();ctx.textAlign='center';ctx.fillText(I18N.message(this.emptyMessage),w/2,h/2);this.drawSelection(ctx);this.updateMarkerTable();return;}
-    const leftB=bounds(this.series,plan.left)||all,rightB=plan.dual?(bounds(this.series,plan.right)||all):null;const asDomain=b=>b?{ymin:b.low*b.unit,ymax:b.high*b.unit}:null;
-    const fullDomain={xmin:all.xmin,xmax:all.xmax,axes:{left:asDomain(leftB),right:asDomain(rightB)}};for(const axis of ['left','right']){const a=this.axisSettings[axis];if(a?.mode==='manual'&&Number.isFinite(a.min)&&Number.isFinite(a.max)&&a.max>a.min&&fullDomain.axes[axis])fullDomain.axes[axis]={ymin:a.min,ymax:a.max};}if(!this.frozen)this.lastDisplayRange=this.displayRange?{...this.displayRange}:null;const extent=this.frozen?this.lastDisplayRange:this.displayRange;if(extent&&extent.xmax>extent.xmin){fullDomain.xmin=extent.xmin;fullDomain.xmax=extent.xmax;}this.fullDomain=fullDomain;
+    const asDomain=b=>b?{ymin:b.low*b.unit,ymax:b.high*b.unit}:null,axesFull={};for(const key of plan.keys)axesFull[key]=asDomain(bounds(this.series,plan.members.get(key)||[])||all);
+    const fullDomain={xmin:all.xmin,xmax:all.xmax,axes:axesFull};for(const axis of plan.keys){const a=this.axisSettings[axis];if(a?.mode==='manual'&&Number.isFinite(a.min)&&Number.isFinite(a.max)&&a.max>a.min&&fullDomain.axes[axis])fullDomain.axes[axis]={ymin:a.min,ymax:a.max};}if(!this.frozen)this.lastDisplayRange=this.displayRange?{...this.displayRange}:null;const extent=this.frozen?this.lastDisplayRange:this.displayRange;if(extent&&extent.xmax>extent.xmin){fullDomain.xmin=extent.xmin;fullDomain.xmax=extent.xmax;}this.fullDomain=fullDomain;
     this.followLiveZoom(fullDomain);
     if(this.zoom&&!this.linkedRange&&(this.zoom.xmax<fullDomain.xmin||this.zoom.xmin>fullDomain.xmax)){this.zoom=null;this.frozen=false;this.series=this.latestSeries;}
-    if(this.zoom&&plan.dual&&!this.zoom.axes?.right){this.zoom=null;this.frozen=false;this.series=this.latestSeries;}
+    if(this.zoom&&plan.keys.some(k=>!this.zoom.axes?.[k])){this.zoom=null;this.frozen=false;this.series=this.latestSeries;}
     const b=this.drag?.domain?{...this.drag.domain}:this.zoom?{xmin:this.zoom.xmin,xmax:this.zoom.xmax,axes:this.zoom.axes}:{...fullDomain};if(this.linkedRange&&!this.drag){b.xmin=this.linkedRange.xmin;b.xmax=this.linkedRange.xmax;}this.domain=b;
     if(!this.staticMode&&!this.frozen){
       for(const key of ['x1','x2']){
@@ -456,14 +580,22 @@ class Trend {
       this.onMarkerFrame?.(this.markers);
     }
     this.syncZoomControls();this.syncTimeScroll();
-    const X=t=>p.l+(t-b.xmin)/(b.xmax-b.xmin)*(w-p.l-p.r);const Y=(v,axis)=>{const d=b.axes[axis]||b.axes.left;return p.t+(d.ymax-v)/(d.ymax-d.ymin)*(h-p.t-p.b);};
+    const X=t=>p.l+(t-b.xmin)/(b.xmax-b.xmin)*(w-p.l-p.r);const Y=(v,axis)=>{const d=b.axes[axis]||b.axes[plan.keys[0]];return p.t+(d.ymax-v)/(d.ymax-d.ymin)*(h-p.t-p.b);};
     ctx.lineWidth=1;ctx.strokeStyle=this.theme.grid;
     // Tacche Y su valori tondi (1, 2, 2,5, 5 × 10^n); l'asse Y2 usa le proprie.
     const plotH=h-p.t-p.b,yAt=(v,d)=>p.t+(d.ymax-v)/(d.ymax-d.ymin)*plotH;
-    {const d=b.axes.left,{ticks,step}=niceTicks(d.ymin,d.ymax,Math.max(3,Math.round(plotH/60)));
-     for(const v of ticks){const y=yAt(v,d);ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillStyle=this.theme.text;ctx.textAlign='right';ctx.fillText(this.formatAxis(v,step),p.l-9,y+4);}}
-    if(plan.dual&&b.axes.right){const d=b.axes.right,{ticks,step}=niceTicks(d.ymin,d.ymax,Math.max(3,Math.round(plotH/60)));ctx.fillStyle=this.theme.text;ctx.textAlign='left';for(const v of ticks)ctx.fillText(this.formatAxis(v,step),w-p.r+9,yAt(v,d)+4);}
-    ctx.font='600 10px Segoe UI';ctx.fillStyle=this.theme.text;ctx.textAlign='left';ctx.fillText(this.axisLabel('left'),p.l,p.t-8);if(plan.dual){ctx.textAlign='right';ctx.fillText(this.axisLabel('right'),w-p.r,p.t-8);}
+    {const COL=Trend.AXIS_COLUMN,MAXC=Trend.AXIS_COLUMNS,primary=plan.keys[0],steps=Math.max(3,Math.round(plotH/60)),sideKeys=side=>plan.keys.filter(k=>(plan.side.get(k)==='right'?'right':'left')===side).slice(0,MAXC);
+     ctx.font='12px Segoe UI';
+     for(const side of ['left','right']){const right=side==='right';
+       sideKeys(side).forEach((key,i)=>{const d=b.axes[key];if(!d)return;const {ticks,step}=niceTicks(d.ymin,d.ymax,steps),members=plan.members.get(key)||[],x=right?w-p.r+9+COL*i:p.l-9-COL*i;
+         for(const v of ticks){const y=yAt(v,d);if(key===primary){ctx.strokeStyle=this.theme.grid;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();}ctx.fillStyle=plan.groups&&members.length===1?this.color(members[0]):this.theme.text;ctx.textAlign=right?'left':'right';ctx.fillText(this.formatAxis(v,step),x,y+4);}});}
+     ctx.font='600 10px Segoe UI';
+     if(!plan.groups){ctx.fillStyle=this.theme.text;ctx.textAlign='left';ctx.fillText(this.axisLabel('left'),p.l,p.t-8);if(plan.dual){ctx.textAlign='right';ctx.fillText(this.axisLabel('right'),w-p.r,p.t-8);}}
+     else for(const side of ['left','right']){const right=side==='right';
+       sideKeys(side).forEach((key,i)=>{const members=plan.members.get(key)||[],a=this.axisSettings[key]||{},unit=(a.unit||[...new Set(members.map(id=>this.presentation[id]?.unit).filter(Boolean))].join('/')).slice(0,5);
+         ctx.fillStyle=members.length===1?this.color(members[0]):this.theme.text;ctx.textAlign=right?'left':'right';
+         ctx.fillText('Y'+(plan.keys.indexOf(key)+1)+(members.length>1?'*':'')+(a.mode==='manual'?'M':'')+(unit?' '+unit:''),right?w-p.r+9+COL*i:p.l-9-COL*i,p.t-8);});}
+    }
     ctx.save();ctx.beginPath();ctx.rect(p.l,p.t,w-p.l-p.r,h-p.t-p.b);ctx.clip();
     this.drawSeriesLayer(ctx,plan,X,Y,b,p,w,h,dpr);
     this.drawMarkers(ctx,X,p,w,h);ctx.restore();ctx.fillStyle=this.theme.text;ctx.font='11px Segoe UI';
@@ -558,6 +690,7 @@ class Trend {
   showHover(t){
     if(!Number.isFinite(t)){this.tooltip.hidden=true;return;}
     this.tooltip.replaceChildren();const title=document.createElement('strong');I18N.bind(title,"textContent",()=>(new Date(t).toLocaleTimeString(I18N.locale(),{fractionalSecondDigits:3})),true);this.tooltip.append(title);
-    let count=0;for(const [id,points] of Object.entries(this.series)){if(count++>=12)break;const point=nearest(points,t),pp=document.createElement('p'),axis=this.axisPlan.axisById.get(id)==='right'?'Y2':'Y1';I18N.bind(pp,"textContent",()=>(I18N.join([{value:(signalShortName(id,this.nodes.get(id),this.presentation[id]))},{text:" ["},{value:(axis)},{text:"]: "},{value:(valueText(point?.[1]))},{value:(this.presentation[id]?.unit?' '+this.presentation[id].unit:'')},{text:" · "},{value:(point?.[2]||'Good')},{value:(point&&Math.abs(point[0]-t)>1000?I18N.t(" (campione distante dal cursore)"):'')}])),true);this.tooltip.append(pp);}this.tooltip.hidden=false;
+    let count=0;for(const [id,points] of Object.entries(this.series)){if(count++>=12)break;const point=nearest(points,t),pp=document.createElement('p'),axis=this.axisTag(id);I18N.bind(pp,"textContent",()=>(I18N.join([{value:(signalShortName(id,this.nodes.get(id),this.presentation[id]))},{text:" ["},{value:(axis)},{text:"]: "},{value:(valueText(point?.[1]))},{value:(this.presentation[id]?.unit?' '+this.presentation[id].unit:'')},{text:" · "},{value:(point?.[2]||'Good')},{value:(point&&Math.abs(point[0]-t)>1000?I18N.t(" (campione distante dal cursore)"):'')}])),true);this.tooltip.append(pp);}this.tooltip.hidden=false;
   }
 }
+Trend.AXIS_COLUMN=58;Trend.AXIS_COLUMNS=4;Trend.legendDrag=null;Trend.scaleMenu=null;

@@ -8,7 +8,7 @@ function chartSnapshot(workspace){
   return {...workspace.serialize(),syncZoom:workspace.syncZoom,syncHover:workspace.syncHover,liveZoom:workspace.liveZoom,timeRange:workspace.timeRange,markers:{...workspace.markers},colors:[...workspace.colors],charts:workspace.charts.map(g=>({name:g.name,ids:[...g.ids],height:g.element.querySelector('.chartwrap').style.height,expanded:g.element.classList.contains('expanded-chart'),cleared:g.cleared,cutoff:g.cutoff,
     markerFractions:{...g.trend.markerFractions},types:g.trend.types,zoom:g.trend.zoom,linkedRange:g.trend.linkedRange,paused:g.trend.frozen,manualPaused:g.trend.manualPaused,
     snapshot:!workspace.staticMode&&g.trend.frozen?g.trend.series:null,
-    signalSettings:g.signalSettings||{},axisSettings:g.axisSettings||{},markerOpen:g.element.querySelector('.marker-analysis')?.open,markerHeight:g.element.querySelector('.marker-panel')?.style.height,
+    signalSettings:g.signalSettings||{},axisSettings:g.axisSettings||{},scaleState:{mode:g.scaleState?.mode==='groups'?'groups':'legacy'},markerOpen:g.element.querySelector('.marker-analysis')?.open,markerHeight:g.element.querySelector('.marker-panel')?.style.height,
     context:workspace.staticMode&&g.context?{file:g.context.file,chosen:[...g.context.chosen],from:g.context.from,to:g.context.to,resolution:g.context.resolution,loaded:g.context.loaded,
       compareFiles:(g.context.compareFiles||[]).map(f=>({...f})),compareMode:g.context.compareMode||'absolute',compareCoverage:g.context.compareCoverage||'union',compareStatus:g.context.comparing?'':g.context.compareStatus||''}:null}))};
 }
@@ -37,7 +37,7 @@ async function saveWorkspace(force=false){
   finally{workspaceSaving=false;if(workspaceDirty)scheduleWorkspaceSave();}
 }
 function restoreView(graph,item,workspace){
-  if(!item)return;const t=graph.trend;if(item.markerFractions)t.markerFractions={...item.markerFractions};graph.signalSettings=item.signalSettings||{};graph.axisSettings=item.axisSettings||{};t.presentation=graph.signalSettings;t.axisSettings=graph.axisSettings;workspace.updateGraph(graph);for(const [id,n] of t.nodes){if(graph.signalSettings[id]?.alias)t.nodes.set(id,{...n,display_name:graph.signalSettings[id].alias});}const panel=graph.element.querySelector('.marker-analysis');if(panel)panel.open=!!item.markerOpen;const mp=graph.element.querySelector('.marker-panel');if(mp&&/^\d+(\.\d+)?px$/.test(item.markerHeight||''))mp.style.height=item.markerHeight;
+  if(!item)return;const t=graph.trend;if(item.markerFractions)t.markerFractions={...item.markerFractions};graph.signalSettings=item.signalSettings||{};graph.axisSettings=item.axisSettings||{};graph.scaleState={mode:item.scaleState?.mode==='groups'?'groups':'legacy'};t.presentation=graph.signalSettings;t.axisSettings=graph.axisSettings;t.scaleState=graph.scaleState;workspace.updateGraph(graph);for(const [id,n] of t.nodes){if(graph.signalSettings[id]?.alias)t.nodes.set(id,{...n,display_name:graph.signalSettings[id].alias});}const panel=graph.element.querySelector('.marker-analysis');if(panel)panel.open=!!item.markerOpen;const mp=graph.element.querySelector('.marker-panel');if(mp&&/^\d+(\.\d+)?px$/.test(item.markerHeight||''))mp.style.height=item.markerHeight;
   if(/^\d+(\.\d+)?px$/.test(item.height||''))graph.element.querySelector('.chartwrap').style.height=item.height;
   graph.element.classList.toggle('expanded-chart',!!item.expanded);
   graph.element.querySelector('[data-chart-role="expand"]').setAttribute('aria-pressed',String(!!item.expanded));
@@ -76,7 +76,7 @@ async function restoreWorkspace(){
   if(saved.history?.charts?.length){
     for(const g of historyCharts.charts){g.trend.destroy();g.element.remove();}
     historyCharts.charts=[];historyCharts.counter=0;historyCharts.active=null;
-    for(const item of saved.history.charts.slice(0,8)){
+    for(const item of saved.history.charts.slice(0,ChartWorkspace.MAX_CHARTS)){
       const graph=historyCharts.create(historyCharts.template.cloneNode(true),String(item.name||I18N.t("Grafico")),[],false),ctx=item.context;
       graph.context=ctx?{...emptyHistory(),...ctx,chosen:new Set(ctx.chosen||[]),loaded:false}:emptyHistory();
     }

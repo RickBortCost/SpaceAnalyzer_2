@@ -1,13 +1,16 @@
 # Space Analyzer 3
 
-**Versione 3.0.8.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.1.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.0.8
+## Novità della versione 3.1.0
 
-- Pulsante dedicato «Spegni» (simbolo di accensione) accanto a Impostazioni per chiudere l'applicazione. Motivo: con l'avvio a schermo intero la chiusura va raggiunta subito, senza aprire il menu.
-- Dalla 3.0.7: schermata a tutta altezza e avvio a schermo intero, layout adattivo a ogni dimensione della finestra senza tagliare i contenuti, storico Live non più bloccato dalla coda di scrittura (3.0.6).
+- Doppio clic su un segnale (LIVE e Registrazioni) apre un nuovo grafico con il solo segnale; il drag & drop su un grafico evidenzia la destinazione e non crea doppioni. Motivo: creare grafici in un solo gesto.
+- Scale Y indipendenti per segnale e scale condivise: si trascina un canale della legenda su un altro per condividere la scala (gruppi di qualsiasi dimensione); tasto destro sulla legenda per separare. Autoscale, zoom e limiti manuali valgono per tutto il gruppo, i valori non cambiano mai e unità diverse chiedono conferma. Motivo: confrontare canali molto diversi senza schiacciarne altri, come in ibaAnalyzer.
+- Gruppi salvati nel workspace; i workspace precedenti si caricano come prima. Fino a 24 grafici per pagina (erano 8).
+- Intestazione su due righe invece di controlli tagliati sotto circa 1730 px. Motivo: tutti gli elementi sempre visibili.
+- Dalla 3.0.8: pulsante «Spegni», schermata a tutta altezza e avvio a schermo intero, storico Live non più bloccato dalla coda di scrittura.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

@@ -54,7 +54,7 @@ class ChartWorkspace {
     }
     element.dataset.chartId=id;element.classList.add('workspace-chart');
     if(!element.parentElement)this.root.append(element);
-    const graph={id,name,element,ids:new Set(ids),series:{},nodes:new Map(),types:{},cutoff:null,cleared:false,context:null,loadRevision:0};
+    const graph={id,name,element,ids:new Set(ids),series:{},nodes:new Map(),types:{},cutoff:null,cleared:false,context:null,loadRevision:0,scaleState:{mode:'groups'}};
     const get=role=>element.querySelector('[data-chart-role="'+role+'"]');
     const ui={};for(const role of ['zoomState','resetZoom','pausePlay','timeScroll','timeScrollStatus','markerX1','markerX2','resetMarkers','markerHint','markerX1Time','markerX2Time','markerDeltaTime','markerDataBody']){
       const control=get(role);ui[role]=control?.id||null;
@@ -63,6 +63,7 @@ class ChartWorkspace {
       onLiveRange:range=>{if(this.syncZoom)this.timeRange={...range};},
       exactMarkerMode:this.staticMode,onMarkersChanged:markers=>this.setMarkers(markers,graph),onViewChanged:range=>this.syncRange(graph,range),onHover:t=>this.hoverAt(graph,t),
       emptyMessage:this.staticMode?I18N.t("Apri una registrazione"):I18N.t("Trascina qui i segnali oppure selezionali dalla lista")});
+    graph.trend.scaleState=graph.scaleState;graph.trend.onScaleChanged=()=>{this.changed();this.options.onScaleChange?.(graph);};
     if(!this.staticMode){graph.trend.onFreeze=()=>window.captureFrozenAnalysis?.(graph);graph.trend.onResume=()=>window.releaseFrozenAnalysis?.(graph);}
     graph.trend.onMarkerFrame=markers=>{if(this.active===graph)this.markers={...markers};};
     graph.trend.colors=this.colors;graph.trend.markers={...this.markers};
@@ -82,7 +83,7 @@ class ChartWorkspace {
     return graph;
   }
   add(){
-    if(this.charts.length>=8){notice(I18N.t("Sono disponibili fino a 8 grafici per pagina."),true);return;}
+    if(this.charts.length>=ChartWorkspace.MAX_CHARTS){notice(I18N.join([{text:"Sono disponibili fino a "},{value:(ChartWorkspace.MAX_CHARTS)},{text:" grafici per pagina."}]),true);return null;}
     const previous=this.active,copy=!!this.options.copySignalsOnAdd;
     const graph=this.create(this.template.cloneNode(true),I18N.join([{text:"Grafico "},{value:(this.counter+1)}]),copy&&previous?[...previous.ids]:[],false);
     if(this.staticMode&&copy&&previous){
@@ -91,7 +92,15 @@ class ChartWorkspace {
     }else if(this.staticMode){
       graph.context=null;this.updateGraph(graph);this.options.onNew?.(graph,previous);
     }else this.update(this.series,this.nodes,this.types);
-    this.options.onActive?.(graph,previous);this.changed();this.options.onMarkers?.(this.markers);
+    this.options.onActive?.(graph,previous);this.changed();this.options.onMarkers?.(this.markers);return graph;
+  }
+  /** Doppio clic su un segnale: nuovo grafico indipendente con il solo segnale (live). Ignora doppioni ravvicinati. */
+  addWithSignal(id){
+    if(this.staticMode||!this.nodes.has(id))return null;
+    const now=Date.now(),last=this.lastSignalChart;if(last&&last.id===id&&now-last.at<700)return null;
+    if(this.charts.length>=ChartWorkspace.MAX_CHARTS){notice(I18N.join([{text:"Sono disponibili fino a "},{value:(ChartWorkspace.MAX_CHARTS)},{text:" grafici per pagina."}]),true);return null;}
+    this.lastSignalChart={id,at:now};
+    this.add();const graph=this.active;this.assignTo(graph,id,true);this.options.onSignalChart?.(graph,id);return graph;
   }
   remove(graph){
     if(this.charts.length===1){notice(I18N.t("Mantieni almeno un grafico nella pagina."),true);return;}
@@ -111,7 +120,7 @@ class ChartWorkspace {
       const active=graph.element.querySelector('[data-chart-role="activate"]');I18N.bind(active,"textContent",()=>(graph===this.active?I18N.t("Grafico attivo"):I18N.t("Seleziona")),true);active.setAttribute('aria-pressed',String(graph===this.active));
       graph.element.querySelector('[data-chart-role="remove"]').disabled=this.charts.length===1;
     }
-    this.selector.value=this.active?.id||'';this.addButton.disabled=this.charts.length>=8;
+    this.selector.value=this.active?.id||'';this.addButton.disabled=this.charts.length>=ChartWorkspace.MAX_CHARTS;
     this.root.classList.toggle('multiple-charts',this.charts.length>1);
   }
   setLayout(mode){const allowed=['single','vertical','horizontal','quad','stack','grid'];mode=allowed.includes(mode)?mode:'stack';this.layoutSelect.value=mode;this.root.classList.toggle('chart-grid',mode==='grid');for(const m of allowed)this.root.classList.toggle('layout-'+m,m===mode);this.draw();this.changed();}
@@ -132,7 +141,7 @@ class ChartWorkspace {
   updateGraph(graph){
     const nodes=new Map([...graph.nodes].filter(([id])=>graph.ids.has(id))),data={};
     for(const id of nodes.keys()){const points=graph.series[id]||[];data[id]=graph.cleared?[]:graph.cutoff===null?points:isSampleSeries(points)?points.after(graph.cutoff):points.filter(p=>p[0]>graph.cutoff);}
-    graph.signalSettings=graph.signalSettings||{};graph.axisSettings=graph.axisSettings||{};graph.trend.presentation=graph.signalSettings;graph.trend.axisSettings=graph.axisSettings;
+    graph.signalSettings=graph.signalSettings||{};graph.axisSettings=graph.axisSettings||{};graph.scaleState=graph.scaleState||{mode:'groups'};graph.trend.presentation=graph.signalSettings;graph.trend.axisSettings=graph.axisSettings;graph.trend.scaleState=graph.scaleState;
     for(const [id,node] of nodes)if(node.calculated&&node.unit&&graph.signalSettings[id]?.unit===undefined)graph.signalSettings[id]={...(graph.signalSettings[id]||{}),unit:node.unit};
     for(const [id,node] of nodes){const prefs=graph.signalSettings[id];if(prefs?.visible===false){nodes.delete(id);delete data[id];}else if(prefs?.alias)nodes.set(id,{...node,display_name:prefs.alias});}
     graph.trend.displayRange=!this.staticMode&&this.displayRange?{...this.displayRange,xmin:Math.max(this.displayRange.xmin,graph.cutoff??-Infinity)}:null;
@@ -199,7 +208,7 @@ class ChartWorkspace {
     if(!config||!Array.isArray(config.charts)||!config.charts.length)return;
     for(const graph of this.charts){graph.actionToolbar?.destroy();graph.trend.destroy();graph.element.remove();}
     this.charts=[];this.counter=0;this.active=null;this.knownIds=new Set(nodes.keys());
-    for(const item of config.charts.slice(0,8))this.create(this.template.cloneNode(true),String(item.name||I18N.t("Grafico")).slice(0,80),Array.isArray(item.ids)?item.ids.filter(id=>nodes.has(id)):[],false);
+    for(const item of config.charts.slice(0,ChartWorkspace.MAX_CHARTS))this.create(this.template.cloneNode(true),String(item.name||I18N.t("Grafico")).slice(0,80),Array.isArray(item.ids)?item.ids.filter(id=>nodes.has(id)):[],false);
     this.active=this.charts[Math.max(0,Math.min(this.charts.length-1,Number(config.active)||0))];
     this.setLayout(config.layout);this.renderSelectors();
   }
@@ -222,3 +231,4 @@ class ChartWorkspace {
   }
   changed(){this.options.onChange?.();window.scheduleWorkspaceSave?.();}
 }
+ChartWorkspace.MAX_CHARTS=24;

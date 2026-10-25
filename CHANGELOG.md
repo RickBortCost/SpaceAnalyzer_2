@@ -2,6 +2,20 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.1.0
+
+- **Doppio clic su un segnale crea un grafico**: nella lista dei segnali LIVE e della pagina Registrazioni il doppio clic apre un nuovo grafico indipendente con il solo segnale (stessa registrazione in Registrazioni); i doppioni da doppio clic ripetuto sono ignorati. Motivo: prima servivano "+ Grafico" e l'assegnazione manuale del segnale.
+- **Drag & drop su un grafico**: il grafico di destinazione resta evidenziato durante il trascinamento, il segnale viene aggiunto una sola volta e non nascono nuovi grafici (invariato, ora coperto da test).
+- **Scale Y indipendenti per segnale**: nei nuovi grafici ogni segnale ha la propria scala Y; gli assi sono colorati come il segnale, fino a 4 colonne per lato, numerati Y1, Y2, … (oltre il limite la scala resta calcolata ma senza colonna). Motivo: confrontare canali di ordini di grandezza diversi senza che uno schiacci gli altri.
+- **Scale condivise dalla legenda**: si trascina il nome di un canale sopra un altro nello stesso grafico per condividere una sola scala, ripetibile senza limiti di canali; il segnale trascinato passa al gruppo di destinazione e gli altri membri del gruppo d'origine restano invariati. Evidenziati il canale trascinato, il canale e il gruppo di destinazione e i canali che condividono la scala (etichetta Yn colorata); il rilascio fuori da una destinazione valida non cambia nulla. Il trascinamento della legenda non sposta il grafico né attiva lo zoom.
+- **Menu contestuale della legenda** (tasto destro): "Separa scala" (il canale torna indipendente), "Unisci tutte le scale", "Separa tutte le scale".
+- **Unità diverse**: l'unione di canali con unità fisiche diverse chiede una conferma esplicita ("scala numerica senza equivalenza fisica"); senza conferma nulla cambia. I valori non vengono mai modificati.
+- **Comportamento del gruppo**: autoscale sul minimo e massimo complessivi dei campioni validi di tutti i canali del gruppo (NaN, infiniti e campioni non validi ignorati; valori costanti o senza campioni validi danno comunque una scala finita), zoom verticale e limiti manuali (Impostazioni assi, ora uno per gruppo) condivisi, Y1/Y2 delle proprietà del segnale applicato a tutto il gruppo.
+- **Workspace**: i gruppi di scala, l'asse di ciascun canale e i limiti manuali sono salvati e ripristinati per grafico. I workspace salvati prima della 3.1.0 si caricano senza errori in modalità Y1/Y2 automatica e passano ai gruppi alla prima unione o separazione.
+- **Fino a 24 grafici per pagina** (erano 8; limite anche nel salvataggio del workspace). Motivo: gestione dei grafici senza limite pratico per l'operatore.
+- **Intestazione su due righe invece di controlli tagliati**: tra circa 1280 e 1730 px di larghezza i controlli andavano oltre il bordo della finestra; ora la barra va a capo. Motivo: tutti gli elementi sempre visibili.
+- Test: nuovo `test_scale_groups_ui.cjs` (creazione grafico, drop, unione/separazione, 12 canali in un gruppo, autoscale, grafici indipendenti, persistenza e compatibilità, 60 modifiche rapide durante nuovi frame LIVE senza richieste di rete verso acquisizione o registrazione, pagina Registrazioni, cinque lingue); aggiornati i test sul numero massimo di grafici e sugli assi.
+
 ## 3.0.8
 
 - **Pulsante «Spegni»**: "Chiudi applicazione" esce dal menu Impostazioni e diventa un pulsante dedicato con il simbolo di accensione/spegnimento, accanto a Impostazioni e sempre visibile a ogni dimensione della finestra; l'azione è invariata. Motivo: con l'avvio a schermo intero la chiusura va trovata subito, senza aprire un menu.
