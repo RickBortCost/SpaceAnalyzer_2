@@ -9,6 +9,7 @@
 ## Novità della 3.0.1
 
 - L’interfaccia si apre in una finestra applicazione dedicata. Chiudere la finestra chiude l’applicazione; durante una registrazione viene chiesta conferma e la registrazione viene finalizzata.
+- Anche il **Live** è a piena risoluzione: in "Intera acquisizione" il grafico contiene ogni campione della sessione, in "Ultima finestra" ogni campione del buffer recente.
 - I file aperti nella pagina **Registrazioni** sono mostrati a piena risoluzione: tutti i campioni del file, con i valori originali. Con lo zoom compaiono i singoli campioni. Il limite è di 80 milioni di campioni per grafico; oltre, riduci l’intervallo o il numero di segnali.
 
 ## Novità della 3.0

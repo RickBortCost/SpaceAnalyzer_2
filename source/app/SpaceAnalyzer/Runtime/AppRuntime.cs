@@ -551,7 +551,62 @@ public sealed class AppRuntime : IDisposable
         return output;
     }
 
-    public Action<Utf8JsonWriter> Values(string view)
+    /// <summary>Upper bound of Live originals returned by one history request (the browser keeps them as typed arrays).</summary>
+    public const int LiveHistoryBudget = 20_000_000;
+
+    /// <summary>
+    /// Full-resolution Live stream: for each displayed signal the samples after the client's cursor
+    /// ({nid: {buffer, seq}}), with the FIFO identity and its oldest sequence so the client can mirror it.
+    /// </summary>
+    public Recordings.SamplePayload LiveSamples(JsonObject cursors)
+    {
+        var signals = new List<object?>();
+        var columns = new List<Recordings.SampleColumns>();
+        lock (Lock)
+        {
+            foreach (var (nid, buffer) in samples)
+            {
+                var cursor = cursors[nid] as JsonObject;
+                var same = cursor?["buffer"].Num() is double id && (long)id == buffer.Id;
+                var points = buffer.After(same ? (long)(cursor!["seq"].Num() ?? 0) : 0, out var dropLast, out var gap);
+                var column = new Recordings.SampleColumns(nid);
+                foreach (var p in points)
+                    column.Add(p.T, p.Value, Recordings.SampleColumns.Code(p.Quality ?? (p.Value == null ? "Bad" : "Good")), p.Seq);
+                signals.Add(new Dictionary<string, object?>
+                {
+                    ["nodeid"] = nid, ["buffer"] = buffer.Id, ["reset"] = !same, ["drop_last"] = dropLast, ["gap"] = gap,
+                    ["first_seq"] = buffer.First?.Seq ?? 0L, ["points_returned"] = (long)column.Count,
+                    ["archived"] = buffer.ArchiveGeneration == Archive.Generation && Archive.Error.Length == 0,
+                });
+                columns.Add(column);
+            }
+        }
+        return new(new() { ["with_seq"] = true, ["signals"] = signals }, columns);
+    }
+
+    /// <summary>Live originals of the session archived before each signal's sequence ({nid: seq}), for a view started late.</summary>
+    public Recordings.SamplePayload LiveHistory(JsonObject before)
+    {
+        var wanted = new List<(string nid, long seq)>();
+        lock (Lock)
+            foreach (var (nid, node) in before)
+                if (samples.ContainsKey(nid) && node.Num() is double seq && seq > 0) wanted.Add((nid, (long)seq));
+        var limit = Math.Max(1000, LiveHistoryBudget / Math.Max(1, wanted.Count));
+        var signals = new List<object?>();
+        var columns = new List<Recordings.SampleColumns>();
+        foreach (var (nid, seq) in wanted)
+        {
+            var points = Archive.Before(nid, seq, limit, out var truncated);
+            var column = new Recordings.SampleColumns(nid);
+            foreach (var p in points)
+                column.Add(p.T, p.Value, Recordings.SampleColumns.Code(p.Quality ?? (p.Value == null ? "Bad" : "Good")), p.Seq);
+            signals.Add(new Dictionary<string, object?> { ["nodeid"] = nid, ["truncated"] = truncated, ["points_returned"] = (long)column.Count });
+            columns.Add(column);
+        }
+        return new(new() { ["with_seq"] = true, ["signals"] = signals }, columns);
+    }
+
+    public Action<Utf8JsonWriter> Values(string view, bool withSamples = true)
     {
         if (view is not ("all" or "window")) throw new UserError("Vista Live non valida");
         var sessions = SourceStatus();
@@ -607,7 +662,7 @@ public sealed class AppRuntime : IDisposable
             foreach (var row in values) row.WriteDisplay(w);
             w.WriteEndArray();
             w.WriteStartObject("samples");
-            foreach (var (nid, list) in points)
+            foreach (var (nid, list) in withSamples ? points : new())
             {
                 w.WriteStartArray(nid);
                 foreach (var p in Compress(list)) p.Write(w, 3);

@@ -131,7 +131,7 @@ class ChartWorkspace {
   }
   updateGraph(graph){
     const nodes=new Map([...graph.nodes].filter(([id])=>graph.ids.has(id))),data={};
-    for(const id of nodes.keys())data[id]=graph.cleared?[]:graph.cutoff===null?(graph.series[id]||[]):(graph.series[id]||[]).filter(p=>p[0]>graph.cutoff);
+    for(const id of nodes.keys()){const points=graph.series[id]||[];data[id]=graph.cleared?[]:graph.cutoff===null?points:isSampleSeries(points)?points.after(graph.cutoff):points.filter(p=>p[0]>graph.cutoff);}
     graph.signalSettings=graph.signalSettings||{};graph.axisSettings=graph.axisSettings||{};graph.trend.presentation=graph.signalSettings;graph.trend.axisSettings=graph.axisSettings;
     for(const [id,node] of nodes)if(node.calculated&&node.unit&&graph.signalSettings[id]?.unit===undefined)graph.signalSettings[id]={...(graph.signalSettings[id]||{}),unit:node.unit};
     for(const [id,node] of nodes){const prefs=graph.signalSettings[id];if(prefs?.visible===false){nodes.delete(id);delete data[id];}else if(prefs?.alias)nodes.set(id,{...node,display_name:prefs.alias});}

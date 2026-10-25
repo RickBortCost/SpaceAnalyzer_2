@@ -2,6 +2,7 @@
 
 - Indicatore di registrazione: pulsante Record rosso lampeggiante con tempo trascorso, tempo nel titolo della finestra, barra compatta (formato, righe, velocità, parte, coda, file). Verificato in Chromium reale e nel test UI `test_advanced_ui.cjs`; suite UI 22/22.
 - Cartella delle registrazioni a scelta (finestra nativa di Windows o percorso), memorizzata e usata anche da export e pagina Registrazioni. Verificato in `test_advanced_ui.cjs` (registrazione nella cartella scelta, percorso relativo rifiutato, ritorno alla predefinita) e in `test_launcher.py` (cartella conservata al riavvio). La finestra di Windows non è eseguibile nei test automatici.
+- Live a piena risoluzione: delta binari per sequenza, storico originale per "Intera acquisizione", stesso disegno min–max per pixel dei file. Verificato in `test_live_full_ui.cjs` (ogni campione della sessione nel grafico, anche dopo la riapertura della pagina, in ordine e senza duplicati) e in `test_full_resolution_ui.cjs` (operazioni di LiveSeries). In Chromium reale: circa 50 ms per aggiornamento con 2 milioni di campioni (tetto del buffer), circa 500 ms con 23 milioni (ridisegno diradato).
 - Prova su impianto: con la 3.0.1 i buchi di acquisizione ADS osservati nella 1.29 non si presentano più (verifica dell'utente).
 
 ## Consegna precedente 3.0.1

@@ -64,10 +64,16 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   await wait(()=>g1.trend.domain.xmin>first+300,'recent mode');
   $('live-time-view').value='all';$('live-time-view').dispatchEvent(new w.Event('change'));
   await wait(()=>g1.trend.domain.xmin===first,'full mode restored');
-  assert($('live-session-status').textContent.includes('Panoramica'));
+  assert($('live-session-status').textContent.includes('piena risoluzione'));
+  // Full resolution: the whole session is in the chart, sample by sample, including the part read back from the Live archive.
+  {const id=Object.keys(g1.trend.series)[0],session=(await api('/api/values?view=all&samples=0')).diagnostics.session_samples[id];
+   await wait(()=>g1.trend.series[id].length>=session,'every session sample in the full view');assert(w.isSampleSeries(g1.trend.series[id]));
+   const seq=g1.trend.series[id].seq;for(let i=1;i<seq.length;i++)assert(seq[i]>seq[i-1],'samples in stream order without duplicates');}
   await t.saveWorkspace(true);const saved=(await api('/api/config')).workspace;assert.equal(saved.live.viewMode,'all');
   t.stopPolling();({w,$,t}=await page());
   assert.equal(t.liveViewMode,'all');await wait(()=>t.trend.domain?.xmin===first,'workspace reload preserves display preference and current session');
+  {const id=Object.keys(t.trend.series)[0],session=(await api('/api/values?view=all&samples=0')).diagnostics.session_samples[id];
+   await wait(()=>t.trend.series[id]?.length>=session,'reopened page reads the earlier session from the Live archive');}
   checks.push('Recent/full selector, visible summary disclosure and workspace reload verified');
   assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks,files:[]},null,2));
  }finally{for(const dom of pages){dom.window.uiTest?.stopPolling();dom.window.close();}}

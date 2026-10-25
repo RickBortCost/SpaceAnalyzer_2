@@ -2,18 +2,22 @@
  * Script classico: nessuna dipendenza ES-module/.mjs o CDN.
  * Trend con doppia scala Y automatica quando i segnali hanno ordini di grandezza molto diversi.
  */
-/* Serie a piena risoluzione dei file: colonne tipizzate (tempo, valore, qualità) con tutti i campioni.
+/* Serie a piena risoluzione (file e Live): colonne tipizzate (tempo, valore, qualità) con tutti i campioni.
  * Quando i campioni visibili superano i pixel, ogni colonna di pixel mostra l'intervallo minimo–massimo di tutti
  * i suoi campioni (la stessa copertura della linea completa); con lo zoom compaiono i singoli campioni.
  * Nessun campione viene scartato. */
 const SAMPLE_QUALITIES=['Good','Uncertain','Bad'];
+function sampleStats(t,v,q){
+  let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity,count=0;const counts=[0,0,0];
+  for(let i=0;i<t.length;i++){const time=t[i],value=v[i];counts[q[i]]=(counts[q[i]]||0)+1;if(!Number.isFinite(time))continue;if(time<xmin)xmin=time;if(time>xmax)xmax=time;if(value===value&&value!==Infinity&&value!==-Infinity){if(value<ymin)ymin=value;if(value>ymax)ymax=value;count++;}}
+  return {xmin,xmax,ymin,ymax,count,good:counts[0],uncertain:counts[1],bad:counts[2]};
+}
 class SampleSeries{
-  constructor(t,v,q){
-    this.t=t;this.v=v;this.q=q;
-    let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity,count=0;const counts=[0,0,0];
-    for(let i=0;i<t.length;i++){const time=t[i],value=v[i];counts[q[i]]=(counts[q[i]]||0)+1;if(!Number.isFinite(time))continue;if(time<xmin)xmin=time;if(time>xmax)xmax=time;if(value===value&&value!==Infinity&&value!==-Infinity){if(value<ymin)ymin=value;if(value>ymax)ymax=value;count++;}}
-    this.stats={xmin,xmax,ymin,ymax,count,good:counts[0],uncertain:counts[1],bad:counts[2]};
-  }
+  constructor(t,v,q){this._t=t;this._v=v;this._q=q;this._stats=null;this.version=0;}
+  get t(){return this._t;}
+  get v(){return this._v;}
+  get q(){return this._q;}
+  get stats(){if(!this._stats)this._stats=sampleStats(this.t,this.v,this.q);return this._stats;}
   get length(){return this.t.length;}
   value(i){const v=this.v[i];return Number.isFinite(v)?v:null;}
   quality(i){return SAMPLE_QUALITIES[this.q[i]]||'Bad';}
@@ -26,22 +30,59 @@ class SampleSeries{
   lowerBound(t){let l=0,r=this.t.length;while(l<r){const m=(l+r)>>1;if(this.t[m]<t)l=m+1;else r=m;}return l;}
   /** Primo indice con tempo > t. */
   upperBound(t){let l=0,r=this.t.length;while(l<r){const m=(l+r)>>1;if(this.t[m]<=t)l=m+1;else r=m;}return l;}
+  /** Vista immutabile dei campioni con tempo > t (grafico Live "Pulisci"). */
+  after(t){const i=this.upperBound(t);return new SampleSeries(this.t.subarray(i),this.v.subarray(i),this.q.subarray(i));}
+  /** Copia di sola lettura per la pausa: i campioni successivi non la modificano. */
+  snapshot(){return this;}
+}
+/* Serie Live che cresce a ogni aggiornamento: ogni campione porta la sequenza del flusso del suo segnale. */
+class LiveSeries extends SampleSeries{
+  constructor(){super(null,null,null);this.cap=0;this.start=0;this.end=0;this.buffer=null;this.views=null;this.bt=this.bv=this.bs=new Float64Array(0);this.bq=new Uint8Array(0);}
+  view(){if(!this.views)this.views={t:this.bt.subarray(this.start,this.end),v:this.bv.subarray(this.start,this.end),q:this.bq.subarray(this.start,this.end),s:this.bs.subarray(this.start,this.end)};return this.views;}
+  get t(){return this.view().t;}
+  get v(){return this.view().v;}
+  get q(){return this.view().q;}
+  get seq(){return this.view().s;}
+  get lastSeq(){return this.end>this.start?this.bs[this.end-1]:0;}
+  get firstSeq(){return this.end>this.start?this.bs[this.start]:0;}
+  touch(){this.views=null;this._stats=null;this.version++;}
+  clear(){this.start=this.end=0;this.touch();}
+  // Fresh arrays when growing or compacting: snapshots (pause) keep their own view untouched.
+  reserve(extra){
+    const used=this.end-this.start,need=used+extra;if(this.end+extra<=this.cap)return;
+    const cap=Math.max(1024,need*2),copy=(Type,from)=>{const to=new Type(cap);to.set(from.subarray(this.start,this.end));return to;};
+    this.bt=copy(Float64Array,this.bt);this.bv=copy(Float64Array,this.bv);this.bq=copy(Uint8Array,this.bq);this.bs=copy(Float64Array,this.bs);this.cap=cap;this.start=0;this.end=used;
+  }
+  append(s,t,v,q){const n=t.length;if(!n)return;if(this.revised){this.cap=0;this.revised=false;}this.reserve(n);this.bs.set(s,this.end);this.bt.set(t,this.end);this.bv.set(v,this.end);this.bq.set(q,this.end);this.end+=n;this.touch();}
+  prepend(s,t,v,q){
+    const n=t.length;if(!n)return;const used=this.end-this.start,cap=Math.max(1024,(n+used)*2),join=(Type,head,tail)=>{const to=new Type(cap);to.set(head);to.set(tail.subarray(this.start,this.end),n);return to;};
+    this.bs=join(Float64Array,s,this.bs);this.bt=join(Float64Array,t,this.bt);this.bv=join(Float64Array,v,this.bv);this.bq=join(Uint8Array,q,this.bq);this.cap=cap;this.start=0;this.end=n+used;this.touch();
+  }
+  // The revision is written into fresh arrays, so a paused chart keeps the value it showed.
+  dropLast(){if(this.end>this.start){this.end--;this.revised=true;this.touch();}}
+  /** Rimuove i campioni con sequenza < seq (finestra Live: rispecchia il FIFO del servizio). */
+  dropBefore(seq){let l=this.start,r=this.end;while(l<r){const m=(l+r)>>1;if(this.bs[m]<seq)l=m+1;else r=m;}if(l!==this.start){this.start=l;this.touch();}}
+  keepLast(count){if(this.end-this.start>count){this.start=this.end-count;this.touch();}}
+  snapshot(){const v=this.view();return new SampleSeries(v.t,v.v,v.q);}
 }
 function isSampleSeries(points){return points instanceof SampleSeries;}
-/** Risposta binaria di /api/recordings/samples: intestazione JSON e colonne Float64/Float64/Uint8 per segnale. */
+window.SampleSeries=SampleSeries;window.LiveSeries=LiveSeries;
+/** Risposta binaria di /api/recordings/samples e /api/live/*: intestazione JSON e, per segnale, colonne
+ * Float64 sequenza (solo Live), Float64 tempo, Float64 valore, Uint8 qualità. */
 function decodeSampleBuffer(buffer){
   const view=new DataView(buffer),magic=String.fromCharCode(view.getUint8(0),view.getUint8(1),view.getUint8(2),view.getUint8(3));
   if(magic!=='SAS1')throw new Error(I18N.t("Risposta del servizio locale non valida"));
   const length=view.getUint32(4,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,8,length)));
-  const align=n=>n+((8-n%8)%8);let offset=align(8+length);const series={};
+  const align=n=>n+((8-n%8)%8);let offset=align(8+length);const series={},columns={};
   for(const signal of header.signals||[]){
-    const n=Number(signal.points_returned||0);
+    const n=Number(signal.points_returned||0);let s=null;
+    if(header.with_seq){s=new Float64Array(buffer,offset,n);offset=align(offset+n*8);}
     const t=new Float64Array(buffer,offset,n);offset=align(offset+n*8);
     const v=new Float64Array(buffer,offset,n);offset=align(offset+n*8);
     const q=new Uint8Array(buffer,offset,n);offset=align(offset+n);
-    series[signal.nodeid]=new SampleSeries(t,v,q);
+    series[signal.nodeid]=new SampleSeries(t,v,q);columns[signal.nodeid]={s,t,v,q};
   }
-  header.series=series;return header;
+  header.series=series;header.columns=columns;return header;
 }
 function bounds(series, ids=null) {
   let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity,count=0;
@@ -161,7 +202,7 @@ class Trend {
   el(name){const id=this.ui[name];return id?document.getElementById(id):null;}
   destroy(){this.onResume?.();for(const remove of this.listeners)remove();this.listeners=[];this._resizeObserver?.disconnect();this.crosshairEl?.remove();}
   color(id){if(this.presentation?.[id]?.color)return this.presentation[id].color;if(!this.colors.has(id)){const palette=['#006EFF','#F58C3A','#0AAF96','#707E86','#004299','#A14C12','#006B5C','#505A60'];const i=this.colors.size;this.colors.set(id,palette[i]||`hsl(${(i*137.5)%360} 65% 38%)`);}return this.colors.get(id);}
-  cloneSeries(series){return Object.fromEntries(Object.entries(series).map(([id,points])=>[id,isSampleSeries(points)?points:(points||[]).map(p=>[...p])]));}
+  cloneSeries(series){return Object.fromEntries(Object.entries(series).map(([id,points])=>[id,isSampleSeries(points)?points.snapshot():(points||[]).map(p=>[...p])]));}
   update(series,nodes,types={}){
     const signature=[...nodes.keys()].join('\u001f');
     if(this.nodeSignature&&signature!==this.nodeSignature){this.zoom=null;this.manualPaused=false;this.frozen=false;this.frozenAt=null;if(!this.preserveMarkers)this.resetMarkers(false);}
@@ -373,10 +414,10 @@ class Trend {
   /** Segnali e fascia qualità. Con dati di file lo strato resta in cache finché vista, dimensioni e dati non cambiano
    * (selezione zoom, marker e cursore non ridisegnano milioni di campioni). */
   drawSeriesLayer(ctx,plan,X,Y,b,p,w,h,dpr){
-    const packed=this.staticMode&&Object.values(this.series).some(isSampleSeries);
+    const packed=Object.values(this.series).some(isSampleSeries);
     if(!packed){this.seriesLayer=null;this.paintSeries(ctx,plan,X,Y,b,p,w,h,dpr);return;}
     Trend.layerIds=Trend.layerIds||new WeakMap();Trend.layerCounter=Trend.layerCounter||0;
-    const identity=points=>{if(!points||typeof points!=='object')return '0';if(!Trend.layerIds.has(points))Trend.layerIds.set(points,++Trend.layerCounter);return Trend.layerIds.get(points)+':'+points.length;};
+    const identity=points=>{if(!points||typeof points!=='object')return '0';if(!Trend.layerIds.has(points))Trend.layerIds.set(points,++Trend.layerCounter);return Trend.layerIds.get(points)+':'+points.length+':'+(points.version||0);};
     const key=JSON.stringify([w,h,dpr,b.xmin,b.xmax,b.axes,Object.entries(this.series).map(([id,points])=>[id,identity(points),this.color(id),this.presentation[id]?.width,this.types[id],plan.axisById.get(id)])]);
     if(this.seriesLayer?.key!==key){
       const layer=document.createElement('canvas');layer.width=Math.round(w*dpr);layer.height=Math.round(h*dpr);const lctx=layer.getContext('2d');

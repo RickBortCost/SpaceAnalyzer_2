@@ -17,6 +17,7 @@ public sealed class SampleColumns(string nodeId)
     double[] t = new double[1024];
     double[] v = new double[1024];
     byte[] q = new byte[1024];
+    double[]? s;
     bool ordered = true;
     public int Count { get; private set; }
 
@@ -26,6 +27,16 @@ public sealed class SampleColumns(string nodeId)
     internal ReadOnlyMemory<double> TMemory => t.AsMemory(0, Count);
     internal ReadOnlyMemory<double> VMemory => v.AsMemory(0, Count);
     internal ReadOnlyMemory<byte> QMemory => q.AsMemory(0, Count);
+    /// <summary>Live stream sequence of each sample (written before the timestamps when present).</summary>
+    internal ReadOnlyMemory<double>? SMemory => s?.AsMemory(0, Count);
+
+    public void Add(double time, double? value, byte quality, long sequence)
+    {
+        Add(time, value, quality);
+        s ??= new double[t.Length];
+        if (s.Length < t.Length) Array.Resize(ref s, t.Length);
+        s[Count - 1] = sequence;
+    }
 
     public static byte Code(string quality) => quality == "Good" ? Good : quality.StartsWith("Uncertain", StringComparison.Ordinal) ? Uncertain : Bad;
 
@@ -179,7 +190,8 @@ public sealed partial class RecordingLibrary
 
 /// <summary>
 /// Binary full-resolution response: "SAS1", uint32 header length, UTF-8 JSON header, zero padding to 8 bytes,
-/// then for each header signal (in order) Float64 timestamps, Float64 values, uint8 qualities, each block padded to 8 bytes.
+/// then for each header signal (in order) Float64 sequences (Live only, header with_seq), Float64 timestamps, Float64 values,
+/// uint8 qualities, each block padded to 8 bytes.
 /// All numbers little-endian.
 /// </summary>
 public sealed record SamplePayload(Dictionary<string, object?> Header, List<SampleColumns> Series)
@@ -200,6 +212,7 @@ public sealed record SamplePayload(Dictionary<string, object?> Header, List<Samp
         var buffer = new byte[1 << 20];
         foreach (var s in Series)
         {
+            if (s.SMemory is { } sequence) await WriteBlock(output, sequence, buffer, cancel);
             await WriteBlock(output, s.TMemory, buffer, cancel);
             await WriteBlock(output, s.VMemory, buffer, cancel);
             await WriteBlock(output, s.QMemory, buffer, cancel);

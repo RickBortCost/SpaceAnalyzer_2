@@ -532,7 +532,10 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             return Ok(("selected", rt.Selected.ToList()));
         });
         Post(app, "/api/samples/clear", _ => { rt.ClearSamples(); return Task.FromResult<object?>(Ok()); });
-        Get(app, "/api/values", ctx => Task.FromResult<object?>(rt.Values(Http.Query(ctx, "view", "all"))));
+        Get(app, "/api/values", ctx => Task.FromResult<object?>(rt.Values(Http.Query(ctx, "view", "all"), Http.Query(ctx, "samples", "1") != "0")));
+        // Full-resolution Live: new samples since the client's cursors, and session originals from the Live archive.
+        Post(app, "/api/live/samples", async ctx => rt.LiveSamples((await Http.Object(ctx, silent: true))["cursors"] as JsonObject ?? new JsonObject()));
+        Post(app, "/api/live/history", async ctx => rt.LiveHistory((await Http.Object(ctx, silent: true))["before"] as JsonObject ?? new JsonObject()));
         Get(app, "/api/acquisition/health", _ => Task.FromResult<object?>(Ok(
             ("acquisition", rt.Acquisition.Status()), ("recording", rt.Recording.Status()), ("calculations", rt.Calculations.Status()),
             ("recovery", rt.Recovery.Status()), ("protocols", rt.Sources.Status()),

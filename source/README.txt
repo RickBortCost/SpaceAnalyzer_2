@@ -11,6 +11,7 @@ Durante Record il pulsante lampeggia con il tempo trascorso e una barra
 compatta mostra righe scritte, velocità, parte e occupazione della coda.
 La cartella delle registrazioni si sceglie nella finestra di Record
 (Sfoglia…) e resta memorizzata.
+Anche il Live è a piena risoluzione: ogni campione acquisito è nel grafico.
 Applicazione interamente in C# (.NET 8 incluso nell'EXE): non serve
 installare Python, .NET o altri componenti.
 
