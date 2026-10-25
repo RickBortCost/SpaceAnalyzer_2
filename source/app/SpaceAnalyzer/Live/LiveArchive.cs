@@ -56,7 +56,7 @@ public sealed class LiveArchive : IDisposable
         return freed;
     }
 
-    public LiveArchive(string directory, int maxPending = 32768, long maxBytes = 8L * 1024 * 1024 * 1024, long maxPendingBytes = 32L * 1024 * 1024)
+    public LiveArchive(string directory, int maxPending = 131072, long maxBytes = 8L * 1024 * 1024 * 1024, long maxPendingBytes = 128L * 1024 * 1024)
     {
         this.directory = directory; this.maxBytes = maxBytes; this.maxPendingBytes = maxPendingBytes;
         queue = new BlockingCollection<Item>(maxPending);
@@ -249,6 +249,7 @@ public sealed class LiveArchive : IDisposable
             c = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path, Mode = SqliteOpenMode.ReadWriteCreate }.ToString());
             c.Open();
             Exec(c, "PRAGMA journal_mode=WAL"); Exec(c, "PRAGMA synchronous=NORMAL");
+            Exec(c, "PRAGMA cache_size=-65536"); Exec(c, "PRAGMA temp_store=MEMORY"); Exec(c, "PRAGMA wal_autocheckpoint=8192");
             Exec(c, "CREATE TABLE points(generation INTEGER,seq INTEGER,stamp REAL,nid TEXT,point TEXT)");
             Exec(c, "CREATE INDEX source_time ON points(nid,stamp,seq)");
             Exec(c, "CREATE INDEX time_order ON points(stamp,seq)");
@@ -266,7 +267,7 @@ public sealed class LiveArchive : IDisposable
                 if (item is Barrier barrier) { barrier.Done.Set(); continue; }
                 var batch = new List<Point> { (Point)item };
                 // Control messages keep their FIFO position.
-                while (batch.Count < 1024 && queue.TryTake(out var next))
+                while (batch.Count < 8192 && queue.TryTake(out var next))
                 {
                     if (next is Point p) { batch.Add(p); continue; }
                     WriteBatch(c, batch); batch.Clear();
