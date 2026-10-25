@@ -2,7 +2,21 @@
    Barra superiore e barra di stato restano fisse; ogni pagina scorre al proprio interno solo se il contenuto non entra. */
 html,body{height:100%;overflow:hidden}
 body{display:flex;flex-direction:column;height:100dvh;padding-bottom:25px;min-width:0}
-.app-bar{position:relative;flex:none;height:auto;min-height:54px;max-height:45dvh;overflow:auto;flex-wrap:wrap;row-gap:4px}
+.app-bar{position:relative;flex:none;height:54px;overflow:hidden;flex-wrap:nowrap}
+/* Barra unica su un solo livello: nessun a capo; sotto la larghezza minima dei controlli scorre in orizzontale. */
+@media(min-width:761px){
+html[lang] .app-bar,.app-bar{flex-wrap:nowrap!important;height:54px!important;min-height:54px;max-height:54px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.app-bar>*{flex-shrink:0}
+.app-bar .preferences-controls{margin-left:auto}
+.app-bar .theme-control select{width:82px;padding-inline:6px}
+}
+@media(min-width:761px) and (max-width:1640px){.app-bar .brand strong,.app-bar .brand small{display:none}}
+@media(min-width:761px) and (max-width:1380px){.app-bar .toolbar-sampling{display:none}}
+@media(min-width:761px) and (max-width:1240px){.app-bar .brand{display:none}}
+@media(min-width:761px) and (max-width:1200px){.app-bar{font-size:11px}.app-bar button,.app-bar select,.app-bar .app-clock{font-size:11px}.app-bar select{max-width:84px;padding-inline:5px}.app-bar .language-control .language-icon{display:none}}
+@media(min-width:761px) and (max-width:1200px){.app-bar{gap:4px;padding-inline:6px}.app-bar .page-tab{padding-inline:7px}.app-bar .global-controls button{padding-inline:5px}.app-bar .app-clock{min-width:0;padding-inline:6px}}
+/* Stato e indirizzo della connessione non stanno più nell'intestazione (restano nella barra di stato in basso e in Connessione). */
+.app-bar>#status,.app-bar>#toolbar-endpoint{display:none}
 body>main.live-page,body>main.recordings-page,body>main.calculations-page,body>main.ssh-page{flex:1 1 auto;min-height:0!important;overflow:hidden}
 body>main[hidden]{display:none!important}
 main.calculations-page,main.ssh-page{overflow:auto}

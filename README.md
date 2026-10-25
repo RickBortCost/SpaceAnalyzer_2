@@ -1,15 +1,14 @@
 # Space Analyzer 3
 
-**Versione 3.2.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.2.1.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.2.0
+## Novità della versione 3.2.1
 
-- Data e ora del PC (fino al secondo, aggiornate ogni secondo) nell'intestazione, accanto a Impostazioni. Motivo: confrontare l'orario del PC con timestamp di grafici, registrazioni e log.
-- Intestazione riordinata: lingua, tema, data e ora, Impostazioni e Spegni (in fondo a destra). Motivo: i comandi di uso raro e la chiusura restano all'estremità destra.
-- Pulsanti X1 e X2 rimossi dalla barra strumenti dell'intestazione; i marker restano nel pannello "Analisi X1↔X2" di ogni grafico. Motivo: barra essenziale.
-- Dalla 3.1.0: doppio clic su un segnale per creare un grafico, scale Y indipendenti o condivise trascinando i canali della legenda (tasto destro per separare), fino a 24 grafici per pagina.
+- Intestazione sempre su un solo livello: stato della connessione e indirizzo del server tolti dalla barra (restano nella barra di stato in basso e in Connessione), compattazione progressiva delle voci a larghezze ridotte e scorrimento orizzontale sotto circa 1170 px. Motivo: nessun controllo tagliato e nessuna barra su due righe.
+- Selettore del tema più largo, senza testo tagliato.
+- Dalla 3.2.0: data e ora del PC (fino al secondo) accanto a Impostazioni, intestazione riordinata (lingua, tema, data e ora, Impostazioni, Spegni) e senza X1/X2; dalla 3.1.0: doppio clic su un segnale per creare un grafico e scale Y condivise dalla legenda.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 
