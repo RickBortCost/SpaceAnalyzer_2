@@ -84,6 +84,51 @@ function decodeSampleBuffer(buffer){
   }
   header.series=series;header.columns=columns;return header;
 }
+/* Palette dei segnali: tinte ben distinte; nel tema scuro versioni più luminose per il contrasto con lo sfondo. */
+const TREND_PALETTE_LIGHT=['#006EFF','#F58C3A','#0AAF96','#8A4FD8','#D6336C','#4E9A06','#B8860B','#505A60'];
+const TREND_PALETTE_DARK=['#5AA9FF','#FFA552','#2ED3B7','#B48CFF','#FF6B8B','#9BE15D','#FFD43B','#C9D1D9'];
+const TREND_PALETTE_LEGACY=['#006EFF','#F58C3A','#0AAF96','#707E86','#004299','#A14C12','#006B5C','#505A60'];
+function trendDark(){return typeof document!=='undefined'&&document.documentElement?.dataset?.theme==='dark';}
+function trendColor(stored){
+  let index=-1;
+  if(typeof stored==='string'&&stored.startsWith('palette:'))index=Number(stored.slice(8));
+  else{const legacy=TREND_PALETTE_LEGACY.indexOf(String(stored).toUpperCase());if(legacy<0)return stored;index=legacy;}
+  const palette=trendDark()?TREND_PALETTE_DARK:TREND_PALETTE_LIGHT;
+  return palette[index]||`hsl(${(index*137.5)%360} 70% ${trendDark()?'64%':'40%'})`;
+}
+/** Nome breve di un segnale per legenda e tooltip: alias, oppure l'ultimo elemento del percorso dei simboli PLC. */
+function signalShortName(id,node,presentation){
+  if(presentation?.alias)return presentation.alias;
+  const name=String(node?.display_name||id||'');
+  if(/^(ads|s7sym|s7symbolic):/.test(String(id))||(name.split('.').length>2&&!/\s/.test(name))){const tail=name.slice(name.lastIndexOf('.')+1);return tail||name;}
+  return name;
+}
+/** Passo "tondo" (1, 2, 2,5, 5 × 10^n) per circa target intervalli. */
+function niceStep(span,target){
+  if(!(span>0)||!Number.isFinite(span))return 1;
+  const raw=span/Math.max(1,target),power=Math.pow(10,Math.floor(Math.log10(raw))),unit=raw/power;
+  return (unit<=1?1:unit<=2?2:unit<=2.5?2.5:unit<=5?5:10)*power;
+}
+function niceTicks(min,max,target=5){
+  const step=niceStep(max-min,target),first=Math.ceil(min/step-1e-9)*step,ticks=[];
+  for(let v=first;v<=max+step*1e-9&&ticks.length<50;v+=step)ticks.push(Math.abs(v)<step*1e-9?0:v);
+  return {ticks,step};
+}
+/** Tacche dell'asse del tempo allineate all'ora locale; i millisecondi compaiono quando il passo è sotto il secondo. */
+const TIME_STEPS=[1,2,5,10,20,50,100,200,500,1e3,2e3,5e3,1e4,15e3,3e4,6e4,12e4,3e5,6e5,9e5,18e5,36e5,72e5,108e5,216e5,432e5,864e5];
+function timeTicks(xmin,xmax,width){
+  const span=xmax-xmin,target=Math.max(2,Math.floor(width/120));
+  const step=TIME_STEPS.find(s=>span/s<=target)||TIME_STEPS[TIME_STEPS.length-1];
+  const offset=-new Date(xmin).getTimezoneOffset()*60000,ticks=[];
+  for(let t=Math.ceil((xmin+offset)/step)*step-offset;t<=xmax&&ticks.length<200;t+=step)ticks.push(t);
+  return {ticks,step};
+}
+function timeLabel(t,step){
+  const d=new Date(t),pad=(v,n=2)=>String(v).padStart(n,'0'),hm=pad(d.getHours())+':'+pad(d.getMinutes());
+  if(step>=6e4)return step>=864e5?d.toLocaleDateString(I18N.locale(),{day:'2-digit',month:'2-digit'}):hm;
+  const hms=hm+':'+pad(d.getSeconds());
+  return step>=1e3?hms:hms+'.'+pad(d.getMilliseconds(),3);
+}
 function bounds(series, ids=null) {
   let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity,count=0;
   const filter=ids?new Set(ids):null;
@@ -201,7 +246,12 @@ class Trend {
   }
   el(name){const id=this.ui[name];return id?document.getElementById(id):null;}
   destroy(){this.onResume?.();for(const remove of this.listeners)remove();this.listeners=[];this._resizeObserver?.disconnect();this.crosshairEl?.remove();}
-  color(id){if(this.presentation?.[id]?.color)return this.presentation[id].color;if(!this.colors.has(id)){const palette=['#006EFF','#F58C3A','#0AAF96','#707E86','#004299','#A14C12','#006B5C','#505A60'];const i=this.colors.size;this.colors.set(id,palette[i]||`hsl(${(i*137.5)%360} 65% 38%)`);}return this.colors.get(id);}
+  // Colors are stored as palette positions, so each theme draws its own readable, well separated hues.
+  color(id){
+    if(this.presentation?.[id]?.color)return this.presentation[id].color;
+    if(!this.colors.has(id))this.colors.set(id,'palette:'+this.colors.size);
+    return trendColor(this.colors.get(id));
+  }
   cloneSeries(series){return Object.fromEntries(Object.entries(series).map(([id,points])=>[id,isSampleSeries(points)?points.snapshot():(points||[]).map(p=>[...p])]));}
   update(series,nodes,types={}){
     const signature=[...nodes.keys()].join('\u001f');
@@ -323,7 +373,7 @@ class Trend {
       if(this.markerError)c1.detail=c2.detail=I18N.message(this.markerError);
       const v1=p1?.[1],v2=p2?.[1],delta=typeof v1==='number'&&Number.isFinite(v1)&&typeof v2==='number'&&Number.isFinite(v2)?v2-v1:null;
       const tr=document.createElement('tr');
-      const name=document.createElement('td'),nameWrap=document.createElement('span'),dot=document.createElement('i');dot.className='dot';dot.style.color=this.color(id);nameWrap.className='marker-signal';nameWrap.append(dot,document.createTextNode(node.display_name||id));name.append(nameWrap);
+      const name=document.createElement('td'),nameWrap=document.createElement('span'),dot=document.createElement('i');dot.className='dot';dot.style.color=this.color(id);nameWrap.className='marker-signal';nameWrap.title=node.display_name||id;nameWrap.append(dot,document.createTextNode(signalShortName(id,node,this.presentation[id])));name.append(nameWrap);
       const axis=document.createElement('td');I18N.bind(axis,"textContent",()=>(this.axisPlan.axisById.get(id)==='right'?'Y2':'Y1'),false);axis.className='marker-axis';
       const makeValueCell=data=>{const td=document.createElement('td'),strong=document.createElement('strong'),small=document.createElement('small');I18N.bind(strong,"textContent",()=>(data.value),false);I18N.bind(small,"textContent",()=>(data.detail),false);td.className='marker-reading';td.append(strong,small);return td;};
       const deltaCell=document.createElement('td');deltaCell.className='marker-reading marker-delta';const deltaStrong=document.createElement('strong');I18N.bind(deltaStrong,"textContent",()=>(delta===null?'—':valueText(delta)),false);deltaCell.append(deltaStrong);
@@ -366,7 +416,12 @@ class Trend {
     this.draw();if(this.zoom)this.onViewChanged?.({xmin:this.zoom.xmin,xmax:this.zoom.xmax});
   }
   zoomCancel(event){this.markerDrag=null;if(!this.drag)return;this.drag=null;if(event.pointerId!==undefined&&this.canvas.releasePointerCapture){try{this.canvas.releasePointerCapture(event.pointerId);}catch{}}this.draw();}
-  formatAxis(v){return Math.abs(v)>=1e6||(Math.abs(v)>0&&Math.abs(v)<.001)?v.toExponential(2):Number(v.toPrecision(5)).toLocaleString(I18N.locale());}
+  formatAxis(v,step){
+    if(Math.abs(v)>=1e7||(Math.abs(v)>0&&Math.abs(v)<1e-4))return v.toExponential(2);
+    if(!(step>0))return Number(v.toPrecision(5)).toLocaleString(I18N.locale());
+    let decimals=0;for(let s=step;decimals<6&&Math.abs(s-Math.round(s))>1e-9*Math.max(1,Math.abs(s));s*=10)decimals++;
+    return v.toLocaleString(I18N.locale(),{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+  }
   planAxes(){
     // Keep each signal on its chosen Y scale while a live zoom fixes those limits.
     const plan=(this.liveZoom||this.frozen)&&this.zoom&&this.axisSignature?{...this.axisPlan,axisById:new Map(this.axisPlan.axisById)}:axisAssignment(this.series,this.nodes);
@@ -382,8 +437,8 @@ class Trend {
     this.axisSignature=axisSignature;this.axisPlan=plan;
     const w=r.width,h=r.height,p={l:78,r:82,t:22,b:42};this.layout={p,w,h};
     const scrollBar=this.el('timeScroll')?.closest?.('.time-scrollbar');if(scrollBar){scrollBar.style.marginLeft=p.l+'px';scrollBar.style.marginRight=p.r+'px';}
-    const legendKey=JSON.stringify([...this.nodes].map(([id,n])=>[id,n.display_name,this.color(id),plan.axisById.get(id),this.presentation[id]?.unit]));
-    if(this.legendKey!==legendKey){this.legendKey=legendKey;this.legend.replaceChildren();for(const [id,n] of this.nodes){const s=document.createElement('span'),dot=document.createElement('i'),tag=document.createElement('b');s.style.color=this.color(id);dot.className='dot';tag.className='axis-tag';I18N.bind(tag,"textContent",()=>(plan.axisById.get(id)==='right'?'Y2':'Y1'),false);s.append(dot,document.createTextNode((n.display_name||id)+(this.presentation[id]?.unit?' ['+this.presentation[id].unit+']':'')),tag);this.legend.append(s);}}
+    const legendKey=JSON.stringify([trendDark(),...[...this.nodes].map(([id,n])=>[id,n.display_name,this.color(id),plan.axisById.get(id),this.presentation[id]?.unit,this.presentation[id]?.alias])]);
+    if(this.legendKey!==legendKey){this.legendKey=legendKey;this.legend.replaceChildren();for(const [id,n] of this.nodes){const s=document.createElement('span'),dot=document.createElement('i'),tag=document.createElement('b');s.style.color=this.color(id);dot.className='dot';tag.className='axis-tag';I18N.bind(tag,"textContent",()=>(plan.axisById.get(id)==='right'?'Y2':'Y1'),false);s.title=n.display_name||id;s.append(dot,document.createTextNode(signalShortName(id,n,this.presentation[id])+(this.presentation[id]?.unit?' ['+this.presentation[id].unit+']':'')),tag);this.legend.append(s);}}
     ctx.fillStyle=this.theme.text;ctx.font='12px Segoe UI';const all=bounds(this.series);
     if(!all){this.crosshairEl.hidden=true;this.domain=null;this.fullDomain=null;this.syncZoomControls();this.syncTimeScroll();ctx.textAlign='center';ctx.fillText(I18N.message(this.emptyMessage),w/2,h/2);this.drawSelection(ctx);this.updateMarkerTable();return;}
     const leftB=bounds(this.series,plan.left)||all,rightB=plan.dual?(bounds(this.series,plan.right)||all):null;const asDomain=b=>b?{ymin:b.low*b.unit,ymax:b.high*b.unit}:null;
@@ -403,12 +458,18 @@ class Trend {
     this.syncZoomControls();this.syncTimeScroll();
     const X=t=>p.l+(t-b.xmin)/(b.xmax-b.xmin)*(w-p.l-p.r);const Y=(v,axis)=>{const d=b.axes[axis]||b.axes.left;return p.t+(d.ymax-v)/(d.ymax-d.ymin)*(h-p.t-p.b);};
     ctx.lineWidth=1;ctx.strokeStyle=this.theme.grid;
-    for(let i=0;i<=5;i++){const y=p.t+i*(h-p.t-p.b)/5;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();const lv=b.axes.left.ymax-i*(b.axes.left.ymax-b.axes.left.ymin)/5;ctx.fillStyle=this.theme.text;ctx.textAlign='right';ctx.fillText(this.formatAxis(lv),p.l-9,y+4);if(plan.dual&&b.axes.right){const rv=b.axes.right.ymax-i*(b.axes.right.ymax-b.axes.right.ymin)/5;ctx.textAlign='left';ctx.fillText(this.formatAxis(rv),w-p.r+9,y+4);}}
+    // Tacche Y su valori tondi (1, 2, 2,5, 5 × 10^n); l'asse Y2 usa le proprie.
+    const plotH=h-p.t-p.b,yAt=(v,d)=>p.t+(d.ymax-v)/(d.ymax-d.ymin)*plotH;
+    {const d=b.axes.left,{ticks,step}=niceTicks(d.ymin,d.ymax,Math.max(3,Math.round(plotH/60)));
+     for(const v of ticks){const y=yAt(v,d);ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();ctx.fillStyle=this.theme.text;ctx.textAlign='right';ctx.fillText(this.formatAxis(v,step),p.l-9,y+4);}}
+    if(plan.dual&&b.axes.right){const d=b.axes.right,{ticks,step}=niceTicks(d.ymin,d.ymax,Math.max(3,Math.round(plotH/60)));ctx.fillStyle=this.theme.text;ctx.textAlign='left';for(const v of ticks)ctx.fillText(this.formatAxis(v,step),w-p.r+9,yAt(v,d)+4);}
     ctx.font='600 10px Segoe UI';ctx.fillStyle=this.theme.text;ctx.textAlign='left';ctx.fillText(this.axisLabel('left'),p.l,p.t-8);if(plan.dual){ctx.textAlign='right';ctx.fillText(this.axisLabel('right'),w-p.r,p.t-8);}
     ctx.save();ctx.beginPath();ctx.rect(p.l,p.t,w-p.l-p.r,h-p.t-p.b);ctx.clip();
     this.drawSeriesLayer(ctx,plan,X,Y,b,p,w,h,dpr);
     this.drawMarkers(ctx,X,p,w,h);ctx.restore();ctx.fillStyle=this.theme.text;ctx.font='11px Segoe UI';
-    for(let i=0;i<=4;i++){const t=b.xmin+i*(b.xmax-b.xmin)/4;ctx.textAlign=i===0?'left':i===4?'right':'center';const dt=new Date(t);ctx.fillText(dt.toLocaleTimeString(I18N.locale(),{hour:'2-digit',minute:'2-digit',second:'2-digit'}),X(t),h-14);}
+    // Asse del tempo: passo adattivo allineato all'ora; con zoom sotto il secondo compaiono i millisecondi.
+    {const {ticks,step}=timeTicks(b.xmin,b.xmax,w-p.l-p.r);ctx.strokeStyle=this.theme.grid;ctx.textAlign='center';
+     for(const t of ticks){const x=X(t);ctx.beginPath();ctx.moveTo(x,h-p.b);ctx.lineTo(x,h-p.b+4);ctx.stroke();const label=timeLabel(t,step),half=(ctx.measureText?ctx.measureText(label).width:60)/2;ctx.fillText(label,Math.max(p.l+half,Math.min(w-p.r-half,x)),h-14);}}
     this.drawSelection(ctx);this.updateMarkerTable();this.renderCrosshair();
   }
   /** Segnali e fascia qualità. Con dati di file lo strato resta in cache finché vista, dimensioni e dati non cambiano
@@ -497,6 +558,6 @@ class Trend {
   showHover(t){
     if(!Number.isFinite(t)){this.tooltip.hidden=true;return;}
     this.tooltip.replaceChildren();const title=document.createElement('strong');I18N.bind(title,"textContent",()=>(new Date(t).toLocaleTimeString(I18N.locale(),{fractionalSecondDigits:3})),true);this.tooltip.append(title);
-    let count=0;for(const [id,points] of Object.entries(this.series)){if(count++>=12)break;const point=nearest(points,t),pp=document.createElement('p'),axis=this.axisPlan.axisById.get(id)==='right'?'Y2':'Y1';I18N.bind(pp,"textContent",()=>(I18N.join([{value:(this.nodes.get(id)?.display_name||id)},{text:" ["},{value:(axis)},{text:"]: "},{value:(valueText(point?.[1]))},{value:(this.presentation[id]?.unit?' '+this.presentation[id].unit:'')},{text:" · "},{value:(point?.[2]||'Good')},{value:(point&&Math.abs(point[0]-t)>1000?I18N.t(" (campione distante dal cursore)"):'')}])),true);this.tooltip.append(pp);}this.tooltip.hidden=false;
+    let count=0;for(const [id,points] of Object.entries(this.series)){if(count++>=12)break;const point=nearest(points,t),pp=document.createElement('p'),axis=this.axisPlan.axisById.get(id)==='right'?'Y2':'Y1';I18N.bind(pp,"textContent",()=>(I18N.join([{value:(signalShortName(id,this.nodes.get(id),this.presentation[id]))},{text:" ["},{value:(axis)},{text:"]: "},{value:(valueText(point?.[1]))},{value:(this.presentation[id]?.unit?' '+this.presentation[id].unit:'')},{text:" · "},{value:(point?.[2]||'Good')},{value:(point&&Math.abs(point[0]-t)>1000?I18N.t(" (campione distante dal cursore)"):'')}])),true);this.tooltip.append(pp);}this.tooltip.hidden=false;
   }
 }

@@ -2,6 +2,19 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.0.5
+
+- **Asse Y su valori tondi**: le tacche dell'asse verticale cadono su passi 1-2-5 (ad esempio 0, 20, 40…) invece che su frazioni arbitrarie dell'intervallo; i decimali delle etichette dipendono dal passo.
+- **Asse dei tempi adattivo**: le tacche sono allineate all'ora locale (ms, s, min, h, giorni) con segni di riferimento; con zoom sotto il secondo l'etichetta mostra i millisecondi (`hh:mm:ss.mmm`).
+- **Palette per tema**: otto colori distinti per il tema chiaro e otto per il tema scuro, scelti in base al tema attivo; i colori salvati da versioni precedenti vengono convertiti per posizione.
+- **Legenda compatta**: nella legenda, nel tooltip e nella tabella dei marker compare il nome breve del segnale (alias, oppure l'ultimo elemento del percorso ADS/simbolico); il percorso completo resta nel tooltip della legenda.
+- **Barra strumenti del grafico essenziale**: restano visibili solo Analisi X1↔X2, Vista completa e Chiudi file; le altre azioni sono nel menu ⋮.
+- **Indicatore di qualità**: il riepilogo della qualità compare solo se ci sono campioni Uncertain o Bad.
+- **Stato Live compatto**: la riga mostra "modalità · N s · piena risoluzione"; l'intervallo completo è nel tooltip.
+- **Sovrapposizioni risolte**: la barra di scorrimento sotto il grafico è nascosta (resta utilizzabile da tastiera) e il navigatore è più basso; "Vista completa" non si sovrappone più ad "Analisi X1↔X2".
+- **Unità di misura** accanto ai valori nell'elenco dei segnali.
+- **Cicli persi in registrazione**: la barra di Record mostra il chip "Persi" con i cicli scartati e i buchi di campionamento ADS dall'inizio della registrazione.
+
 ## 3.0.4
 
 - **Modifiche in ogni pubblicazione**: la pagina della release e il nuovo `README.txt` nello ZIP iniziano con l'elenco delle modifiche della versione, preso dalla sezione corrispondente di `CHANGELOG.md` (`tools/release_notes.py`). Se la sezione manca, l'elenco viene ricavato dai commit dall'ultima release. Per una release già esistente la pipeline aggiorna anche il testo.

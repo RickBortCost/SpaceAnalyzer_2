@@ -79,7 +79,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
    assert.deepEqual([...toolbar.rail.children,...toolbar.items.children],originals);
    assert.equal(t.selected.get(ids[0]).display_name,'Nome');assert.equal(graph.name,'Impostazioni');
   }
-  budget=3000;toolbar.layout();assert.equal(toolbar.rail.children.length,toolbar.actions.length);
+  budget=3000;toolbar.layout();assert.equal(toolbar.rail.children.length,toolbar.actions.filter(a=>toolbar.primary.has(a.key)).length);assert.deepEqual([...toolbar.rail.children,...toolbar.items.children],originals);
   checks.push('Live data and raw signal/chart names survive all languages; translated toolbar measures overflow and preserves the same controls/listeners');
   await language('en');$('record').click();await wait(()=>!$('record-modal').hidden,'record popup');
   const radio=$('record-form').querySelector('input[name="record-format"][value="parquet"]');radio.checked=true;

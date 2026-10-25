@@ -1,15 +1,15 @@
 # Space Analyzer 3
 
-**Versione 3.0.4.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.0.5.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.0.4
+## Novità della versione 3.0.5
 
-- La pagina di ogni release e il `README.txt` dello ZIP iniziano con l'elenco delle modifiche della versione (da `CHANGELOG.md`, o dai commit se la sezione manca).
-- Guida di avvio ripulita dalle sezioni di versioni precedenti.
-
-Versione 3.0.3: Live a piena risoluzione, cartella delle registrazioni a scelta, callback ADS nativo protetto con registro degli errori fatali, tutto sul disco dell'EXE (nessuna scrittura su C:), pulizia dello storico Live dopo un crash. Versione 3.0.2: registrazione in evidenza. Storia completa in [CHANGELOG.md](CHANGELOG.md).
+- Grafici più leggibili: asse Y su valori tondi, asse dei tempi adattivo con millisecondi, palette distinta per tema chiaro e scuro, legenda con nomi brevi.
+- Barra strumenti del grafico ridotta alle azioni frequenti (le altre nel menu ⋮); indicatore di qualità solo con campioni Uncertain/Bad; stato Live compatto.
+- Corretta la sovrapposizione di "Vista completa" con "Analisi X1↔X2".
+- Unità di misura nell'elenco dei segnali e chip "Persi" con i cicli persi durante la registrazione.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche, e questa sezione "Novità" viene aggiornata; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

@@ -35,9 +35,11 @@ const sharedZoom=(ws,g,a,b)=>{g.trend.zoom={xmin:a,xmax:b,axes:g.trend.fullDomai
    }
    b.layout();
   }
-  width(bar,2000);assert.equal(bar.rail.children.length,bar.actions.length);assert.equal(bar.menu.hidden,true);
-  assert.deepEqual([...bar.rail.children],originals);assert.equal(bar.items.children.length,0);
-  checks.push('Wide chart exposes every menu function as a dedicated button in the header');
+  // Wide chart: only the frequent actions are buttons in the header; the others stay in the ⋮ menu.
+  const primary=bar.actions.filter(a=>bar.primary.has(a.key)).length;assert(primary>0&&primary<bar.actions.length);
+  width(bar,2000);assert.equal(bar.rail.children.length,primary);assert.equal(bar.menu.hidden,false);
+  assert.deepEqual([...bar.rail.children,...bar.items.children],originals);assert.equal(bar.items.children.length,bar.actions.length-primary);
+  checks.push('Wide chart shows the frequent actions in the header and keeps the others in the menu');
   width(bar,330);const count=bar.rail.children.length;
   assert(count>0&&count<bar.actions.length);assert.equal(bar.menu.hidden,false);
   assert.equal(bar.items.children.length,bar.actions.length-count);
@@ -49,8 +51,8 @@ const sharedZoom=(ws,g,a,b)=>{g.trend.zoom={xmin:a,xmax:b,axes:g.trend.fullDomai
   width(bar,70);assert.equal(bar.rail.children.length,0);assert.equal(bar.items.children.length,bar.actions.length);
   bar.menu.open=true;bar.actions.find(a=>a.key==='axes').button.click();assert.equal(bar.menu.open,false);
   assert.equal($('properties-title').textContent,'Assi · '+g.name);$('properties-close').click();
-  width(bar,2000);assert.equal(bar.rail.children.length,bar.actions.length);assert.equal(bar.menu.hidden,true);
-  assert.deepEqual([...bar.rail.children],originals);
+  width(bar,2000);assert.equal(bar.rail.children.length,primary);
+  assert.deepEqual([...bar.rail.children,...bar.items.children],originals);
   checks.push('All controls remain accessible in narrow charts and return to the toolbar when enlarged');
   const other=w.duplicateStudioChart(hist,g);other.name='Grafico indipendente';role(other,'title').value=other.name;
   width(other.actionToolbar,270);assert(other.actionToolbar.items.children.length>0);
@@ -62,7 +64,7 @@ const sharedZoom=(ws,g,a,b)=>{g.trend.zoom={xmin:a,xmax:b,axes:g.trend.fullDomai
   o.actions.find(a=>a.key==='closeFile').button.click();assert.equal(other.context.file,null);assert(g.context.file);
   const removed=copy.actionToolbar;hist.remove(copy);assert(removed.destroyed);
   checks.push('Each chart owns its commands; duplicate, rename, close and observer cleanup work independently');
-  const live=t.liveCharts.active;width(live.actionToolbar,2000);assert(live.actionToolbar.rail.contains(role(live,'clear')));
+  const live=t.liveCharts.active;width(live.actionToolbar,2000);assert(live.actionToolbar.rail.contains(role(live,'resetZoom')));assert(live.actionToolbar.items.contains(role(live,'clear')));
   assert(live.element.querySelector('[data-chart-role=pausePlay]'));
   const allIds=[...w.document.querySelectorAll('[id]')].map(e=>e.id);assert.equal(new Set(allIds).size,allIds.length);
   assert.equal(errors.length,0,errors.join('; '));console.log(JSON.stringify({result:'PASS',checks,files:[]}));
