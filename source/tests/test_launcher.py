@@ -25,7 +25,7 @@ with tempfile.TemporaryDirectory(prefix='opcua-launcher-') as directory:
     with socket.socket() as busy:
         busy.bind(('127.0.0.1',0));busy.listen();first_port=busy.getsockname()[1]
         env={**os.environ,'OPCUA_DATA_DIR':directory,'OPCUA_APP_DIR':directory,'OPCUA_NO_BROWSER':'1','OPCUA_WEB_PORT':str(first_port),'SPACE_BASE_DIR':str(root)}
-        process=subprocess.Popen(COMMAND,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+        process=subprocess.Popen(COMMAND,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace')
         try:
             path=Path(directory)/'instance.json';deadline=time.monotonic()+30
             while not path.exists() and time.monotonic()<deadline:
@@ -37,7 +37,7 @@ with tempfile.TemporaryDirectory(prefix='opcua-launcher-') as directory:
             parser=TokenParser();parser.feed(html);token=parser.token
             assert token, 'Missing local API token in page metadata'
             with opener.open(url+'/api/status') as response:assert json.load(response)['app']=='Space Analyzer'
-            second=subprocess.run(COMMAND,env=env,capture_output=True,text=True,timeout=30)
+            second=subprocess.run(COMMAND,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=30)
             assert second.returncode==0,(second.stdout,second.stderr)
             assert 'già avviata' in second.stdout
             workspace={'schema':1,'config':{'window_seconds':3600,'max_samples':10000,'buffer_mode':'samples'},'selected_nodes':[], 'live':{'charts':[{'name':'Saved','ids':[]}]},'history':{'charts':[]}}
@@ -51,7 +51,7 @@ with tempfile.TemporaryDirectory(prefix='opcua-launcher-') as directory:
             assert (Path(directory)/'certificates/client.der').exists()
             assert (Path(directory)/'config.json').exists()
             path.unlink(missing_ok=True)
-            process=subprocess.Popen(COMMAND,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+            process=subprocess.Popen(COMMAND,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace')
             deadline=time.monotonic()+30
             while not path.exists() and time.monotonic()<deadline:
                 if process.poll() is not None:raise RuntimeError(process.communicate())

@@ -38,6 +38,8 @@ public static class Program
 
     public static int Main(string[] args)
     {
+        // Redirected output (launcher log, tools) is UTF-8 whatever the console code page.
+        Console.OutputEncoding = new System.Text.UTF8Encoding(false);
         if (args.Length > 0 && args[0] == "--tool") return Tool(args[1..]);
         try { return Run(args); }
         catch (Exception exc)

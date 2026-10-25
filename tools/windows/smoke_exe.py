@@ -148,7 +148,7 @@ def main():
                     if primary.get('integrity')!='complete' or primary.get('durable_samples')!=recording['rows_written']:
                         raise RuntimeError('Primary integrity differs from selected format: '+str(primary))
                     # The capture is verified with the packaged service's own offline reader.
-                    tool=subprocess.run(command+['--tool','inspect',primary['path']],env=env,capture_output=True,text=True,timeout=120)
+                    tool=subprocess.run(command+['--tool','inspect',primary['path']],env=env,capture_output=True,text=True,encoding='utf-8',timeout=120)
                     if tool.returncode:raise RuntimeError('Primary inspection failed: '+tool.stderr)
                     inspected=json.loads(tool.stdout)
                     if inspected['error'] or inspected['samples']!=30:raise RuntimeError('Primary packaged-reader verification failed')

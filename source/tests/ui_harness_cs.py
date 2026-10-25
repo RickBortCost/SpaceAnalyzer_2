@@ -109,7 +109,7 @@ def fft_fixture(recordings, nodeid, fmt):
                                                                    'started_at': iso(base), 'state': 'stopped'}))
     nodes = recordings / 'fft_nodes.json'
     nodes.write_text(json.dumps([{'nodeid': nodeid, 'display_name': 'FFT 125 Hz'}]))
-    output = subprocess.run(app_command() + ['--tool', 'export-' + fmt, str(original), str(nodes)], capture_output=True, text=True, timeout=120)
+    output = subprocess.run(app_command() + ['--tool', 'export-' + fmt, str(original), str(nodes)], capture_output=True, text=True, encoding='utf-8', timeout=120)
     if output.returncode:
         raise RuntimeError(output.stdout + output.stderr)
     nodes.unlink()
@@ -168,7 +168,7 @@ class Service:
 
 
 def run_node(service, args, env=None):
-    result = subprocess.run(['node', str(HERE / SCRIPT), service.base, *args], env=env or os.environ, capture_output=True, text=True,
+    result = subprocess.run(['node', str(HERE / SCRIPT), service.base, *args], env=env or os.environ, capture_output=True, text=True, encoding='utf-8', errors='replace',
                             timeout=int(os.environ.get('UI_TIMEOUT', '150')))
     if result.returncode:
         raise RuntimeError(result.stdout + '\n' + result.stderr + '\n--- service log ---\n' + service.log_tail())
