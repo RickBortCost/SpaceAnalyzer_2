@@ -2,6 +2,10 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.0.8
+
+- **Pulsante «Spegni»**: "Chiudi applicazione" esce dal menu Impostazioni e diventa un pulsante dedicato con il simbolo di accensione/spegnimento, accanto a Impostazioni e sempre visibile a ogni dimensione della finestra; l'azione è invariata. Motivo: con l'avvio a schermo intero la chiusura va trovata subito, senza aprire un menu.
+
 ## 3.0.7
 
 - **Schermata sempre a tutta altezza**: la pagina non scorre più. Barra superiore e barra di stato restano fisse e l'area centrale occupa esattamente lo spazio della finestra, perché prima con più grafici la pagina cresceva oltre lo schermo e parti dell'interfaccia (Dati calcolati, messaggi, barra di stato) finivano fuori vista.

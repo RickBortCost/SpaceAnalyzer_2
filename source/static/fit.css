@@ -31,3 +31,8 @@ main.live-page,main.recordings-page{display:block;overflow-y:auto;overflow-x:hid
 .graph-main>.quick-calculations{max-height:none}
 .charts-workspace>.workspace-chart .chartwrap{height:min(380px,60dvh)!important}
 }
+
+/* Pulsante "Spegni" accanto a Impostazioni: chiude l'applicazione. */
+.power-button{flex:none;display:inline-flex;align-items:center;justify-content:center;width:34px;min-height:30px;padding:0;color:var(--brand-error,#E53C14);background:var(--surface2);border:1px solid var(--line);border-radius:6px;cursor:pointer}
+.power-button:hover:not(:disabled){background:var(--brand-error,#E53C14);color:#fff;border-color:var(--brand-error,#E53C14)}
+.power-button:focus-visible{outline:2px solid var(--brand-error,#E53C14);outline-offset:2px}
