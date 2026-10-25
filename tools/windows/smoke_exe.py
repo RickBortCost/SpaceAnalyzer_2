@@ -1,7 +1,8 @@
 """Exercise the actual standalone Windows EXE through its local HTTP service.
 
-The optional --python mode validates this harness against source on Linux; it
-does not claim a Windows executable test. All peers and data are local fixtures.
+The optional --app mode validates this harness against a development build of the
+C# service (any OS); it does not claim a Windows executable test. All peers and
+data are local fixtures.
 """
 import argparse
 from datetime import datetime, timezone
@@ -20,7 +21,6 @@ from urllib.request import Request, ProxyHandler, build_opener
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'source/tests'))
-sys.path.insert(0, str(ROOT/'source'))
 from mqtt_peer import Peer
 
 
@@ -50,7 +50,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     launch=parser.add_mutually_exclusive_group(required=True)
     launch.add_argument('--exe',type=Path)
-    launch.add_argument('--python',type=Path)
+    launch.add_argument('--app',type=Path,help='SpaceAnalyzer service executable (or .dll run through dotnet)')
     parser.add_argument('--report',type=Path,required=True)
     args=parser.parse_args()
     packaged=args.exe is not None
@@ -60,8 +60,9 @@ def main():
         if executable.read_bytes()[:2]!=b'MZ':raise RuntimeError('Not a Windows PE executable')
         command=[str(executable)]
     else:
-        command=[str(args.python.absolute()),str(ROOT/'source/app.py')]
-    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'2.0.0'}
+        app=args.app.absolute()
+        command=[os.environ.get('DOTNET','dotnet'),str(app)] if app.suffix=='.dll' else [str(app)]
+    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'3.0.0'}
     report={'version':build['version'],'tested_at':datetime.now(timezone.utc).isoformat(),
             'platform':sys.platform,'packaged_exe_executed':packaged,'formats':{},
             'hardware_tested':False,'result':'FAIL'}
@@ -81,10 +82,12 @@ def main():
             env={**os.environ,'OPCUA_DATA_DIR':str(data/'settings'),
                 'OPCUA_APP_DIR':str(data/'application'),'OPCUA_NO_BROWSER':'1','OPCUA_WEB_PORT':str(port)}
             if packaged:
-                # The child receives no installed Python/Go path. Its runtime
-                # and all Python dependencies must come from the embedded ZIP.
+                # The child receives no installed Python/.NET/Go path: the service and
+                # its self-contained .NET runtime must come from the embedded ZIP.
                 env['PATH']=os.pathsep.join([str(Path(os.environ['SystemRoot'])/'System32'),os.environ['SystemRoot']])
-                env.pop('PYTHONPATH',None);env.pop('PYTHONHOME',None)
+                for key in ('PYTHONPATH','PYTHONHOME','DOTNET_ROOT','DOTNET_ROOT_X64'):env.pop(key,None)
+            else:
+                env['SPACE_BASE_DIR']=str(ROOT/'source')
             with (data/'test-process.log').open('wb') as log:
                 process=subprocess.Popen(command,env=env,stdout=log,stderr=log)
                 instance=data/'settings/instance.json'
@@ -144,10 +147,12 @@ def main():
                     primary=recording.get('primary',{})
                     if primary.get('integrity')!='complete' or primary.get('durable_samples')!=recording['rows_written']:
                         raise RuntimeError('Primary integrity differs from selected format: '+str(primary))
-                    from primary_format import inspect,iter_samples
-                    captured=list(iter_samples(primary['path']))
-                    if inspect(primary['path'])['error'] or len(captured)!=30:raise RuntimeError('Primary packaged-reader verification failed')
-                    if [r['source_value'] for r in captured]!=[i+.25 for i in range(30)]:raise RuntimeError('Primary original sequence differs')
+                    # The capture is verified with the packaged service's own offline reader.
+                    tool=subprocess.run(command+['--tool','inspect',primary['path']],env=env,capture_output=True,text=True,timeout=120)
+                    if tool.returncode:raise RuntimeError('Primary inspection failed: '+tool.stderr)
+                    inspected=json.loads(tool.stdout)
+                    if inspected['error'] or inspected['samples']!=30:raise RuntimeError('Primary packaged-reader verification failed')
+                    if inspected['source_values']!=[i+.25 for i in range(30)]:raise RuntimeError('Primary original sequence differs')
                     if health['events']['persistence_error']:raise RuntimeError('Critical events persistence failed')
                     report['primary_capture_and_original_sequence_verified']=True
                     report['formats'][fmt]={'result':'PASS','rows_recorded':recording['rows_written'],'numeric_rows_replayed':replay['numeric_rows']}

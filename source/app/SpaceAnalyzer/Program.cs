@@ -56,8 +56,9 @@ public static class Program
             object? result = args.FirstOrDefault() switch
             {
                 "recover" when args.Length >= 2 => Recordings.PrimaryRecovery.Recover(args[1], args.Length > 2 ? args[2] : null),
+                "inspect" when args.Length >= 2 => Recordings.PrimaryRecovery.InspectReport(args[1]),
                 "export-fda" or "export-rbf" when args.Length >= 3 => Export(args[0], args[1], args[2]),
-                _ => throw new UserError("Uso: --tool recover <file.sac.part> [output] | export-fda|export-rbf <originale.parquet> <nodi.json> [max_bytes]"),
+                _ => throw new UserError("Uso: --tool inspect <file.sac> | recover <file.sac.part> [output] | export-fda|export-rbf <originale.parquet> <nodi.json> [max_bytes]"),
             };
             Console.WriteLine(Py.DumpsPlain(result, indent: true));
             return 0;

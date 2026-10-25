@@ -19,8 +19,10 @@ ROOT = Path(__file__).resolve().parents[1]
 SEMVER = re.compile(r'^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$')
 # File, espressione (con un gruppo per la versione) e numero di occorrenze attese.
 TARGETS = [
-    ('source/app.py', r'^(APP_VERSION = ")([^"]+)(")', 1),
-    ('source/build_windows.py', r"^(VERSION = ')([^']+)(')", 1),
+    ('source/app/SpaceAnalyzer/Config/Defaults.cs', r'(public const string Version = ")([^"]+)(")', 1),
+    ('source/app/SpaceAnalyzer/SpaceAnalyzer.csproj', r'(<Version>)([^<]+)(</Version>)', 1),
+    ('source/engine/SpaceAnalyzer.Engine/SpaceAnalyzer.Engine.csproj', r'(<Version>)([^<]+)(</Version>)', 1),
+    ('tools/windows/build_windows.py', r"^(VERSION = ')([^']+)(')", 1),
     ('source/launcher/launcher_windows.go', r'^(const version = ")([^"]+)(")', 1),
     ('tools/windows/smoke_exe.py', r"(\{'version':')([^']+)('\})", 1),
 ]

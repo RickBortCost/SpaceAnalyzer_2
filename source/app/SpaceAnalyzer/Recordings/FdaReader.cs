@@ -128,8 +128,8 @@ public static class FdaReader
             {
                 var vc = item.Get("value_channel");
                 var qc = item.Get("quality_channel");
-                int? value = vc.IsNumber() && !vc.IsBool() && vc!.GetValue<double>() % 1 == 0 ? (int)vc.GetValue<double>() : null;
-                int? quality = qc.IsNull() ? null : qc.IsNumber() && qc!.GetValue<double>() % 1 == 0 ? (int)qc.GetValue<double>() : -1;
+                int? value = vc.IsNumber() && !vc.IsBool() && vc!.AsDouble() % 1 == 0 ? (int)vc.AsDouble() : null;
+                int? quality = qc.IsNull() ? null : qc.IsNumber() && qc!.AsDouble() % 1 == 0 ? (int)qc.AsDouble() : -1;
                 list.Add(new Mapping(item.Get("nodeid").Str() ?? "", item.Get("display_name").Str() ?? "", "", value ?? -1, quality));
             }
             return list;

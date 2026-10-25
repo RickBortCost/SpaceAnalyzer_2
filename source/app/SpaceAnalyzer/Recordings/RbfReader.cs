@@ -112,13 +112,13 @@ public static class RbfReader
                 var vc = o["value_channel"];
                 var qc = o["quality_channel"];
                 if (!IsInt(vc) || !o["nodeid"].Truthy()) throw new UserError("Mappa canali RBF non valida");
-                var i = (int)vc!.GetValue<double>();
+                var i = (int)vc!.AsDouble();
                 if (i < 0 || i >= h.Channels.Count) throw new UserError("Mappa canali RBF non valida");
                 int? q = null;
                 if (!qc.IsNull())
                 {
                     if (!IsInt(qc)) throw new UserError("Mappa qualita RBF non valida");
-                    q = (int)qc!.GetValue<double>();
+                    q = (int)qc!.AsDouble();
                     if (q < 0 || q >= h.Channels.Count || h.Channels[q.Value].Type != 2) throw new UserError("Mappa qualita RBF non valida");
                 }
                 result.Add(new Mapping(RowValues.Str(Py.Plain(o["nodeid"])), o["display_name"].Str() ?? "", o["unit"].Str() ?? "", i, q, o["data_type"].Str() ?? ""));

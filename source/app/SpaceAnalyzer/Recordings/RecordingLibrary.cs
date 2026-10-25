@@ -342,9 +342,9 @@ public sealed class RecordingLibrary
         var keys = new double[2][];
         for (var i = 0; i < 2; i++)
         {
-            if (bounds[i] is not JsonArray k || k.Count != 3 || k.Any(v => !v.IsNumber() || !double.IsFinite(v!.GetValue<double>())))
+            if (bounds[i] is not JsonArray k || k.Count != 3 || k.Any(v => !v.IsNumber() || !double.IsFinite(v!.AsDouble())))
                 throw new UserError("DAT: intervallo originale non valido");
-            keys[i] = k.Select(v => v!.GetValue<double>()).ToArray();
+            keys[i] = k.Select(v => v!.AsDouble()).ToArray();
         }
         if (Compare(keys[0], keys[1]) > 0) throw new UserError("DAT: intervallo invertito");
         var ids = new HashSet<string>();
@@ -417,7 +417,7 @@ public sealed class RecordingLibrary
         var end = endMs.IsNull() ? null : FiniteParam(endMs);
         if (start != null && end != null && end < start) throw new UserError("L'intervallo temporale deve avere una fine non precedente all'inizio");
         int limit;
-        var requested = maxPoints == null ? 25000 : maxPoints.IsNumber() ? maxPoints!.GetValue<double>() : maxPoints.IsString() && double.TryParse(maxPoints.Str(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) ? parsed : double.NaN;
+        var requested = maxPoints == null ? 25000 : maxPoints.IsNumber() ? maxPoints!.AsDouble() : maxPoints.IsString() && double.TryParse(maxPoints.Str(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) ? parsed : double.NaN;
         limit = double.IsFinite(requested) ? (int)Math.Max(1000, Math.Min(MaxPointsPerSignal, Math.Truncate(requested))) : 25000;
         var meta = Metadata(path);
         var selected = ids?.Count ?? (meta["signals"] as JsonArray)?.Count ?? 0;

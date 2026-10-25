@@ -127,7 +127,7 @@ public sealed class PrimaryRecovery(string directory, EventStore events)
                     foreach (var row in rows)
                     {
                         var channel = row is JsonArray r && r.Count > 2 ? r[2] : null;
-                        if (channel == null || !channel.IsNumber() || channel.ToJsonString().Contains('.') || channel.GetValue<double>() < 0 || channel.GetValue<double>() >= channels.Count)
+                        if (channel == null || !channel.IsNumber() || channel.ToJsonString().Contains('.') || channel.AsDouble() < 0 || channel.AsDouble() >= channels.Count)
                             throw new UserError("Canale primario non valido");
                     }
                 }
@@ -143,6 +143,28 @@ public sealed class PrimaryRecovery(string directory, EventStore events)
         catch (Exception exc) when (exc is UserError or InvalidDataException or System.Text.Json.JsonException) { error = exc.Message; }
         var length = new FileInfo(path).Length;
         return new Report(count, blocks, valid, length, error, events, finished, footer, footerOffset);
+    }
+
+    /// <summary>primary_tools inspect: integrity report plus the original source values (bounded).</summary>
+    public static Dictionary<string, object?> InspectReport(string path, int maxValues = 100000)
+    {
+        var report = Inspect(path);
+        var values = new List<object?>();
+        if (report.Error.Length == 0)
+        {
+            using var reader = new SacReader(path);
+            foreach (var (_, _, sample) in reader.Samples())
+            {
+                if (values.Count >= maxValues) break;
+                values.Add(sample.HasSourceValue ? sample.SourceValue : sample.Value);
+            }
+        }
+        return new()
+        {
+            ["samples"] = report.Samples, ["blocks"] = report.Blocks, ["valid_bytes"] = report.ValidBytes, ["file_bytes"] = report.FileBytes,
+            ["discarded_bytes"] = report.FileBytes - report.ValidBytes, ["error"] = report.Error, ["events_count"] = report.EventsCount,
+            ["finalized"] = report.Finalized, ["footer"] = report.Footer?.DeepClone(), ["source_values"] = values,
+        };
     }
 
     public static Dictionary<string, object?> Recover(string path, string? output = null)

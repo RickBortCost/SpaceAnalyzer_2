@@ -177,4 +177,9 @@ public static class Py
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
+
+    /// <summary>Numeric value of a node whatever its .NET backing type (int, long, double or JSON text).</summary>
+    public static double AsDouble(this JsonNode node) => node.Num() ?? throw new UserError("Valore numerico atteso");
+
+    public static long AsLong(this JsonNode node) => (long)node.AsDouble();
 }

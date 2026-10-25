@@ -167,8 +167,8 @@ public static class Pda3
         foreach (var page in reader.Pages) index.Write(reader.Raw, page.Offset, page.End - page.Offset);
         if (Hex(prefix) != p["metadata_sha256"].Str() || Hex(index.ToArray()) != p["index_sha256"].Str())
             throw new UserError("PDA3: metadati/indice non corrispondono al modello 64 canali validato; variante non supportata");
-        var sizes = p["block_sizes"]!.AsArray().Select(n => n!.GetValue<long>()).ToList();
-        var samples = p["block_samples"]!.AsArray().Select(n => n!.GetValue<long>()).ToList();
+        var sizes = p["block_sizes"]!.AsArray().Select(n => n!.AsLong()).ToList();
+        var samples = p["block_samples"]!.AsArray().Select(n => n!.AsLong()).ToList();
         if (!reader.Blocks.Select(b => (long)b.Size).SequenceEqual(sizes) || !reader.Blocks.Select(b => b.Samples).SequenceEqual(samples))
             throw new UserError("PDA3: blocchi o campioni diversi dal modello validato");
     }
@@ -217,7 +217,7 @@ public static class Pda3
             {
                 var index = n.Get("template_index");
                 var nid = n.Get("nodeid");
-                if (!index.IsNumber() || index!.ToJsonString().Contains('.') || index.GetValue<double>() is var ix && (ix < 0 || ix >= 64) || seen.Contains((long)ix)
+                if (!index.IsNumber() || index!.ToJsonString().Contains('.') || index.AsDouble() is var ix && (ix < 0 || ix >= 64) || seen.Contains((long)ix)
                     || !nid.IsString() || string.IsNullOrEmpty(nid.Str()) || ids.Contains(nid.Str()!))
                     throw new UserError("PDA3: canali manifest duplicati/non validi");
                 seen.Add((long)ix);
@@ -280,20 +280,20 @@ public static class Pda3
     {
         var r = Reader(path);
         var info = Details(path, meta);
-        var start = info["real_start_ms"]!.GetValue<double>();
+        var start = info["real_start_ms"]!.AsDouble();
         var p = Profile;
-        var count = info["valid_samples_per_channel"]!.GetValue<long>();
+        var count = info["valid_samples_per_channel"]!.AsLong();
         foreach (var signal in info["signals"]!.AsArray())
         {
             var nid = signal.Get("nodeid").Str()!;
             if (signalIds != null && !signalIds.Contains(nid)) continue;
             var name = RowValues.Str(Py.Plain(signal.Get("display_name")));
-            var channel = p["channels"]![(int)signal.Get("template_index")!.GetValue<double>()]!;
+            var channel = p["channels"]![(int)signal.Get("template_index")!.AsDouble()]!;
             long position = 0;
             foreach (var bi in channel["blocks"]!.AsArray())
             {
                 if (position >= count) break;
-                var block = r.Blocks[(int)bi!.GetValue<long>()];
+                var block = r.Blocks[(int)bi!.AsLong()];
                 if (startMs != null && start + (position + block.Samples - 1) * 10 < startMs || endMs != null && start + position * 10 > endMs)
                 {
                     position += block.Samples;
@@ -344,14 +344,14 @@ public static class Pda3
             }
             parts.Add((name, info));
         }
-        parts = parts.OrderBy(x => x.info["real_start_ms"]!.GetValue<double>()).ToList();
+        parts = parts.OrderBy(x => x.info["real_start_ms"]!.AsDouble()).ToList();
         var ids = parts[0].info["signals"]!.AsArray().Select(s => s.Get("nodeid").Str()).ToList();
         for (var i = 0; i + 1 < parts.Count; i++)
         {
             var (a, pa) = parts[i];
             var (b, pb) = parts[i + 1];
             if (!pb["signals"]!.AsArray().Select(s => s.Get("nodeid").Str()).SequenceEqual(ids)) throw new UserError("PDA3: segnali differenti nella sequenza");
-            var delta = pb["real_start_ms"]!.GetValue<double>() - pa["real_end_exclusive_ms"]!.GetValue<double>();
+            var delta = pb["real_start_ms"]!.AsDouble() - pa["real_end_exclusive_ms"]!.AsDouble();
             if (Math.Abs(delta) > .001) throw new UserError($"PDA3: sequenza non continua; gap/sovrapposizione di {PyG(delta).TrimStart('+')} ms tra {a} e {b}");
         }
         var first = parts[0].info;
@@ -361,8 +361,8 @@ public static class Pda3
         merged["format"] = "dat";
         merged["ended_at"] = last["ended_at"]!.DeepClone();
         merged["real_end_exclusive_ms"] = last["real_end_exclusive_ms"]!.DeepClone();
-        merged["duration_seconds"] = parts.Sum(p => p.info["duration_seconds"]!.GetValue<double>());
-        merged["rows_written"] = parts.Sum(p => p.info["rows_written"]!.GetValue<long>());
+        merged["duration_seconds"] = parts.Sum(p => p.info["duration_seconds"]!.AsDouble());
+        merged["rows_written"] = parts.Sum(p => p.info["rows_written"]!.AsLong());
         merged["view_source_note"] = "Sequenza PDA3 con continuita verificata. " + first["view_source_note"].Str();
         return (parts, merged);
     }

@@ -127,7 +127,7 @@ def main():
     async def add_signal():
         return await root.add_variable(ua.NodeId('Power', 2), 'Potenza', 1000000.)
     power = loop.run(add_signal())
-    if os.environ.get('MULTICHART_TEST'):
+    if os.environ.get('MULTICHART_TEST') or 'fixture_A' in (HERE / SCRIPT).read_text(encoding='utf-8'):
         multichart_fixtures(recordings)
     if SCRIPT == 'test_rbf_ui.cjs':
         references = Path(os.environ.get('SPACE_ANALYZER_REFERENCE_DIR', Path(__file__).resolve().parents[4] / 'upload'))
