@@ -1,4 +1,4 @@
-"""Run a jsdom UI script against the C# Space Analyzer service and a local asyncua test server.
+"""Run a jsdom UI script against the C# Space Fieldbus Analyzer service and a local asyncua test server.
 
 Test tooling only (Python is not part of the 3.0 product). Usage:
   UI_SCRIPT=test_ui.cjs python3 ui_harness_cs.py
@@ -133,7 +133,7 @@ class Service:
         while True:
             try:
                 with urllib.request.urlopen(self.base + '/api/status', timeout=1) as response:
-                    if json.load(response).get('app') == 'Space Analyzer':
+                    if json.load(response).get('app') == 'Space Fieldbus Analyzer':
                         break
             except OSError:
                 pass

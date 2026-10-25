@@ -1,4 +1,4 @@
-"""Versionamento automatico di Space Analyzer (Semantic Versioning, tag Git vX.Y.Z).
+"""Versionamento automatico di Space Fieldbus Analyzer (Semantic Versioning, tag Git vX.Y.Z).
 
     python tools/versioning.py next          # prossima versione da tag e messaggi di commit
     python tools/versioning.py apply X.Y.Z   # scrive la versione nei file di build

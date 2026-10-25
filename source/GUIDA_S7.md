@@ -1,4 +1,4 @@
-# Space Analyzer 1.13.0 — Siemens S7 classico
+# Space Fieldbus Analyzer 1.13.0 — Siemens S7 classico
 
 Questa guida riguarda la modalità **S7 classico**. Per la lettura simbolica dei DB e il ricevitore UDP Direct vedere [GUIDA_S7_SIMBOLICO_UDP.md](GUIDA_S7_SIMBOLICO_UDP.md), con catalogo JSON ed esempi TIA inclusi.
 

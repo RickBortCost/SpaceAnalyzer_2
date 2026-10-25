@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.22.0 — ACQUISIZIONE MQTT
+SPACE FIELDBUS ANALYZER V1.22.0 — ACQUISIZIONE MQTT
 
 AVVIO RAPIDO
 1. Aprire Connessione, scegliere MQTT come fonte dati live.
@@ -16,7 +16,7 @@ AVVIO RAPIDO
 Dalla V1.24.0 è disponibile OPC UA + MQTT simultaneo nel popup Connessione.
 Le sorgenti singole restano disponibili. Vedere GUIDA_LIVE_V1.24.txt.
 Disconnettere prima di cambiare il profilo di connessione.
-Il broker è un servizio esterno: Space Analyzer è un client di sola lettura.
+Il broker è un servizio esterno: Space Fieldbus Analyzer è un client di sola lettura.
 Invia CONNECT/SUBSCRIBE, ACK e keep-alive; non invia PUBLISH né comandi PLC.
 Non è necessario installare Python o Paho sul PC che esegue l'EXE completo.
 
@@ -113,7 +113,7 @@ TLS verifica sempre catena e nome/IP del certificato del broker. Minimo
 TLS 1.2. CA vuota usa le autorità del sistema; per una CA privata indicare
 il file PEM, ad esempio C:\Certificati\broker-ca.pem. Per autenticazione
 reciproca indicare sia certificato client PEM sia chiave privata PEM.
-I percorsi si riferiscono al PC Windows che esegue Space Analyzer.
+I percorsi si riferiscono al PC Windows che esegue Space Fieldbus Analyzer.
 Non è presente un'opzione per disabilitare la verifica del certificato.
 Per chiavi private cifrate serve una gestione password non inclusa in questa
 versione: non usare una chiave che richieda una richiesta interattiva.

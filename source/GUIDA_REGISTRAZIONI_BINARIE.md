@@ -1,4 +1,4 @@
-# Space Analyzer V1.10.0 — Registrazioni binarie
+# Space Fieldbus Analyzer V1.10.0 — Registrazioni binarie
 
 Nel popup **Record**, scegliere **Binario Parquet** e il livello di compressione.
 Il formato predefinito è **Compatto (ZSTD 9)**. I file mantengono l'estensione

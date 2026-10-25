@@ -10,7 +10,7 @@ html[lang] .app-bar,.app-bar{flex-wrap:nowrap!important;height:54px!important;mi
 .app-bar .preferences-controls{margin-left:auto}
 .app-bar .theme-control select{width:82px;padding-inline:6px}
 }
-@media(min-width:761px) and (max-width:1640px){.app-bar .brand strong,.app-bar .brand small{display:none}}
+@media(min-width:761px) and (max-width:1760px){.app-bar .brand strong,.app-bar .brand small{display:none}}
 @media(min-width:761px) and (max-width:1380px){.app-bar .toolbar-sampling{display:none}}
 @media(min-width:761px) and (max-width:1240px){.app-bar .brand{display:none}}
 @media(min-width:761px) and (max-width:1200px){.app-bar{font-size:11px}.app-bar button,.app-bar select,.app-bar .app-clock{font-size:11px}.app-bar select{max-width:84px;padding-inline:5px}.app-bar .language-control .language-icon{display:none}}

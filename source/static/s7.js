@@ -34,7 +34,7 @@ bind('s7-tag-add',async()=>{
 bind('s7-tag-cancel',async()=>{s7Editing=null;$('s7-tag-cancel').hidden=true;$('s7-tag-name').value='';$('s7-tag-address').value='';});
 bind('s7-tags-export',async()=>{
   const url=URL.createObjectURL(new Blob([JSON.stringify({schema:1,tags:window.s7Tags},null,2)],{type:'application/json'}));
-  const a=document.createElement('a');a.href=url;a.download='Space_Analyzer_S7_Tags.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const a=document.createElement('a');a.href=url;a.download='Space_Fieldbus_Analyzer_S7_Tags.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 $('s7-tags-import').addEventListener('change',async event=>{
   try{const file=event.target.files[0];if(!file)return;if(file.size>2*1024*1024)throw new Error(I18N.t("Catalogo JSON: massimo 2 MiB."));const data=JSON.parse(await file.text());const tags=Array.isArray(data)?data:data.tags;if(!Array.isArray(tags))throw new Error(I18N.t("JSON: serve un elenco tags."));await commitS7Tags([...window.s7Tags,...tags]);}
@@ -128,7 +128,7 @@ bind('s7-udp-tag-add',async()=>{
 bind('s7-udp-tag-cancel',async()=>{s7UDPEditing=null;$('s7-udp-tag-cancel').hidden=true;});
 bind('s7-udp-tags-export',async()=>{
   const blob=new Blob([JSON.stringify({schema:1,mode:'udp',length:Number($('s7_udp_length').value),module_index:Number($('s7_udp_module').value),tags:window.s7UDPTags},null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Space_Analyzer_S7_UDP_Tags.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Space_Fieldbus_Analyzer_S7_UDP_Tags.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
 $('s7-udp-tags-import').addEventListener('change',async e=>{
   try{const file=e.target.files[0];if(!file)return;if(file.size>2*1024*1024)throw new Error(I18N.t("JSON UDP: massimo 2 MiB."));const data=JSON.parse(await file.text());const tags=Array.isArray(data)?data:data.tags;if(!Array.isArray(tags))throw new Error(I18N.t("JSON UDP: serve un elenco tags."));await commitS7UDP([...window.s7UDPTags,...tags]);}

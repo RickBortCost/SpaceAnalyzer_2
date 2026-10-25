@@ -62,7 +62,7 @@ window.FFTAnalyzer=(()=>{
  $('fft-spectrum-recalculate').onclick=()=>calculate();
  $('fft-spectrum-stop').onclick=()=>{$('fft-stop').click();};
  $('fft-harmonic-focus').onclick=()=>{const f=fftResult?.harmonics?.fundamental_hz;if(!f){I18N.bind($('analysis-status'),"textContent",()=>(I18N.t("Imposta o calcola una fondamentale per la vista F1–H5.")),true);return;}$('fft-min-hz').value=0;$('fft-max-hz').value=Math.min(fftResult.nyquist_hz,5.5*f);draw();};
- $('fft-spectrum-png').onclick=()=>{if(!fftResult)return;draw();const a=document.createElement('a');a.href=$('fft-canvas').toDataURL('image/png');a.download='Space_Analyzer_FFT_spectrum.png';a.click();};
+ $('fft-spectrum-png').onclick=()=>{if(!fftResult)return;draw();const a=document.createElement('a');a.href=$('fft-canvas').toDataURL('image/png');a.download='Space_Fieldbus_Analyzer_FFT_spectrum.png';a.click();};
  function autoscale(){if(!fftResult)return;$('fft-min-hz').value=0;$('fft-max-hz').value=fftResult.nyquist_hz;draw();}
  for(const id of fields)$(id).addEventListener('change',()=>{if(!['fft-log','fft-x-log','fft-show-current','fft-show-max','fft-show-harmonics','fft-render-mode'].includes(id))stop();state();window.scheduleWorkspaceSave?.();draw();});
  $('fft-signal').addEventListener('change',stop);

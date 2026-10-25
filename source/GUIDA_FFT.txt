@@ -8,7 +8,7 @@ Guida corrente: GUIDA_LIVE_V1.24.txt.
 
 RIFERIMENTI TECNICI DELLE VERSIONI PRECEDENTI
 
-SPETTRO IN FREQUENZA - SPACE ANALYZER V1.8.0
+SPETTRO IN FREQUENZA - SPACE FIELDBUS ANALYZER V1.8.0
 Dopo Calcola FFT, i parametri si richiudono e viene mostrato il pannello
 Spettro in frequenza: X e la frequenza in Hz; Y e il livello nella grandezza
 selezionata (Peak, RMS, Power, PSD o ASD). I campioni originali e il motore di
@@ -44,7 +44,7 @@ tramite la cattura: usare la registrazione oppure Play e un nuovo intervallo.
 L'errore meno di 16 campioni ora riporta il conteggio reale selezionato e
 l'intervallo dei dati originali disponibili, invece di un generico avviso.
 
-SPACE ANALYZER V1.7.0 - ARMONICHE F1..H5
+SPACE FIELDBUS ANALYZER V1.7.0 - ARMONICHE F1..H5
 Dopo aver scelto segnale e intervallo X1-X2 (o Live), impostare Fondamentale:
 - Auto: F1 e il picco AC dominante; se H2 e maggiore di F1 puo scegliere H2.
 - Manuale: inserire la frequenza fondamentale nota in Hz e ricalcolare.

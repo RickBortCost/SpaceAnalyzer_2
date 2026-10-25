@@ -49,7 +49,7 @@ public sealed class OpcUaDriver : SourceDriver, IAcquisitionLoop
         var pki = Path.Combine(Path.GetTempPath(), "SpaceAnalyzer-opcua-pki");
         var config = new ApplicationConfiguration
         {
-            ApplicationName = "Space Analyzer",
+            ApplicationName = "Space Fieldbus Analyzer",
             ApplicationUri = Text("application_uri"),
             ApplicationType = ApplicationType.Client,
             SecurityConfiguration = new SecurityConfiguration
@@ -111,7 +111,7 @@ public sealed class OpcUaDriver : SourceDriver, IAcquisitionLoop
             description.EndpointUrl = url;
             var endpoint = new ConfiguredEndpoint(null, description, EndpointConfiguration.Create(config));
             IUserIdentity identity = Text("username").Length > 0 ? new UserIdentity(Text("username"), System.Text.Encoding.UTF8.GetBytes(Text("password"))) : new UserIdentity(new AnonymousIdentityToken());
-            session = await DefaultSessionFactory.Instance.CreateAsync(config, endpoint, false, false, "Space Analyzer", 3600000, identity, null, ct);
+            session = await DefaultSessionFactory.Instance.CreateAsync(config, endpoint, false, false, "Space Fieldbus Analyzer", 3600000, identity, null, ct);
             session.KeepAlive += (s, e) =>
             {
                 if (ServiceResult.IsBad(e.Status)) keepAliveError = "OPC UA: collegamento interrotto (" + e.Status + ")";
@@ -211,7 +211,7 @@ public sealed class OpcUaDriver : SourceDriver, IAcquisitionLoop
         var sub = new Subscription(Active.DefaultSubscription)
         {
             PublishingInterval = selection.Period, KeepAliveCount = 10, LifetimeCount = 10000, MaxNotificationsPerPublish = 10000,
-            PublishingEnabled = true, Priority = 0, TimestampsToReturn = TimestampsToReturn.Both, DisplayName = "Space Analyzer",
+            PublishingEnabled = true, Priority = 0, TimestampsToReturn = TimestampsToReturn.Both, DisplayName = "Space Fieldbus Analyzer",
         };
         var token = session.Token;
         var generation = selection.Generation;

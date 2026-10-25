@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.19.0 - CONFRONTO DI REGISTRAZIONI
+SPACE FIELDBUS ANALYZER V1.19.0 - CONFRONTO DI REGISTRAZIONI
 
 AVVIO
 Chiudere la versione precedente, estrarre tutto lo ZIP e avviare
@@ -18,7 +18,7 @@ DAT/PDA3. Durata minima e massima sono espresse in secondi (anche decimali).
 Durate non disponibili non soddisfano un filtro numerico di durata.
 I file senza metadati CSV/Parquet vengono esaminati per ricavare segnali,
 inizio e fine dei campioni; la prima lettura puo richiedere tempo.
-I CSV supportati sono quelli di Space Analyzer, con colonne timestamp_ms,
+I CSV supportati sono quelli di Space Fieldbus Analyzer, con colonne timestamp_ms,
 node_id, value_numeric e le altre colonne di registrazione. Questa funzione
 non introduce un importatore universale di qualsiasi tabella CSV/Parquet.
 
@@ -68,7 +68,7 @@ CONSERVAZIONE E RISORSE
 La preparazione avviene in un processo separato dall'acquisizione, con
 avanzamento. Viene creata una copia di confronto Parquet compressa nella
 cartella persistente delle importazioni, senza cambiare i file sorgente.
-La copia conserva i valori Float64 delle registrazioni Space Analyzer,
+La copia conserva i valori Float64 delle registrazioni Space Fieldbus Analyzer,
 qualita, campionamenti, FILETIME ADS e timestamp sorgente/server/locali.
 Le colonne original_timestamp_ms, original_node_id e source_file conservano
 la provenienza; timestamp_ms rappresenta l'asse usato per il confronto.

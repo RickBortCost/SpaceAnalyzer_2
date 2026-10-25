@@ -38,7 +38,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
  const manualFields=['ads_host','ads_tcp_port','ads_source_netid','ads_source_port','ads_bind_ip'];
  const savedManual={ads_host:'192.168.5.221',ads_tcp_port:48899,ads_source_netid:'192.168.92.36.1.1',ads_source_port:33011,ads_bind_ip:'192.168.92.36'};
  try{
-  assert(w.document.title.startsWith('Space Analyzer'));assert(w.document.querySelector('.brand .company-logo').src.endsWith('/static/space-analyzer-logo.png'));assert(w.document.querySelector('link[rel="icon"]').href.endsWith('/static/space-analyzer.ico'));
+  assert(w.document.title.startsWith('Space Fieldbus Analyzer'));assert(w.document.querySelector('.brand .company-logo').src.endsWith('/static/space-analyzer-logo.png'));assert(w.document.querySelector('link[rel="icon"]').href.endsWith('/static/space-analyzer.ico'));
   assert($('nav-connection').closest('.page-tabs'));assert(!$('nav-connection').closest('details'));
   $('nav-connection').click();assert($('connection-dialog').open);assert(!$('opcua-connection-fields').hidden);assert($('ads-connection-fields').hidden);
   $('endpoint').value=endpoint;$('security').value='None';$('sample_ms').value='10';$('root_nodeid').value=rootNode;
@@ -85,7 +85,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   t.liveCharts.active.signalSettings={[fixture.nodeid]:{alias:'Drive alias'}};w.renderSelected();
   assert.equal([...$('selected').children].find(row=>row.dataset.id===fixture.nodeid).querySelector('.signal-name').textContent,'Drive alias');
   t.selected.delete(fixture.nodeid);delete t.liveCharts.active.signalSettings[fixture.nodeid];w.renderSelected();
-  checks.push('Space Analyzer identity/logo/favicon; selected ADS signals show leaf names, full-path tooltips and preserved custom aliases');
+  checks.push('Space Fieldbus Analyzer identity/logo/favicon; selected ADS signals show leaf names, full-path tooltips and preserved custom aliases');
   const folder=w.treeNode({nodeid:'ads:PlcSlow.fbEntryPoint._aData[1]',display_name:'PlcSlow.fbEntryPoint._aData[1]',node_class:'Object'},new Set());
   assert.equal(folder.querySelector('.name').textContent,'_aData[1]');
   assert.equal(w.treeLabel({nodeid:'ads:Other.eLeftDriveStatus'}),'eLeftDriveStatus');

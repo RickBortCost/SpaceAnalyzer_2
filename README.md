@@ -1,14 +1,16 @@
-# Space Analyzer 3
+# Space Fieldbus Analyzer 3
 
-**Versione 3.3.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.4.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.3.0
+## Novità della versione 3.4.0
 
-- Rotella sull'area di un grafico LIVE: riduce (su) o aumenta (giù) il periodo visualizzato sull'asse X, da un minimo di 10 secondi fino a tutti i dati dall'inizio della connessione; doppio clic per tornare all'intera sessione. Motivo: passare dal dettaglio degli ultimi secondi all'intera acquisizione senza menu. Non agisce a grafico fermo né sugli assi Y (dove la rotella zooma la singola scala).
-- La riga di stato del Live indica il periodo visualizzato quando è ridotto. Motivo: rendere evidente che il grafico non mostra l'intera sessione.
-- Dalla 3.2.2: zoom per singola scala Y, legenda da tastiera, pallino di connessione, storico Live più veloce con diagnosi del sovraccarico; dalla 3.2.1: intestazione su un solo livello e salvataggio JSON robusto; dalla 3.2.0: data e ora del PC e pulsante Spegni; dalla 3.1.0: doppio clic per nuovo grafico e scale condivise.
+- Nuovo nome: **SPACE FIELDBUS ANALYZER**, in interfaccia (cinque lingue), launcher, messaggi, file generati e documentazione. Motivo: nome richiesto per l'applicazione.
+- EXE e ZIP della release si chiamano `Space_Fieldbus_Analyzer_V<versione>`. Motivo: il nome del file corrisponde al nome dell'applicazione.
+- Intestazione: il nome esteso compare sopra 1760 px; la barra resta su una riga. Motivo: il nome più lungo non deve tagliare i controlli.
+- Invariati gli identificatori tecnici (progetti, cartella dati `SpaceAnalyzer_Data`, variabili d'ambiente, chiavi del browser, formato di cattura). Motivo: non perdere impostazioni, workspace e file già registrati.
+- Dalla 3.3.0: rotella sul grafico LIVE per il periodo visualizzato (da 10 s a tutta la sessione); dalla 3.2.2: zoom per singola scala Y, legenda da tastiera, pallino di connessione, storico Live più veloce.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 
@@ -47,7 +49,7 @@ La registrazione mista supporta i sei formati esistenti: **CSV, Parquet, FDA/DAS
 
 ## Avvio su Windows
 
-Apri l’[ultima release](https://github.com/RickBortCost/SpaceAnalyzer_2/releases/latest), scarica **Space_Analyzer_V<versione>_WINDOWS.zip**, estrai tutto in una cartella scrivibile e avvia **Space_Analyzer_V<versione>.exe**.
+Apri l’[ultima release](https://github.com/RickBortCost/SpaceAnalyzer_2/releases/latest), scarica **Space_Fieldbus_Analyzer_V<versione>_WINDOWS.zip**, estrai tutto in una cartella scrivibile e avvia **Space_Fieldbus_Analyzer_V<versione>.exe**.
 
 [Istruzioni complete](LEGGIMI_AVVIO_WINDOWS.md). Ogni release contiene anche `WINDOWS_EXE_VERIFICATION.json` con l’esito delle prove dell’EXE reale e `SHA256SUMS.txt` con gli hash.
 

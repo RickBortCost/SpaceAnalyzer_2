@@ -161,7 +161,7 @@ func (s *Splash) run(ready chan<- bool) {
 		area = rect{0, 0, 1024, 768}
 	}
 	s.origin = point{(area.left + area.right - splashWidth) / 2, (area.top + area.bottom - splashHeight) / 2}
-	title, _ := syscall.UTF16PtrFromString("Space Analyzer")
+	title, _ := syscall.UTF16PtrFromString("Space Fieldbus Analyzer")
 	s.hwnd, _, _ = procCreateWindowEx.Call(wsExLayered|wsExTopmost|wsExToolWindow|wsExNoActivate,
 		uintptr(unsafe.Pointer(className)), uintptr(unsafe.Pointer(title)), wsPopup,
 		uintptr(s.origin.x), uintptr(s.origin.y), splashWidth, splashHeight, 0, 0, instance, 0)

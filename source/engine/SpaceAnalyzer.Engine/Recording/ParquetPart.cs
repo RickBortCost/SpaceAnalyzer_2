@@ -83,7 +83,7 @@ public sealed class ParquetPart : IDisposable
     static WriterProperties Properties(StorageProfile profile)
     {
         using var builder = new WriterPropertiesBuilder();
-        builder.CreatedBy("Space Analyzer engine (ParquetSharp)").Version(ParquetVersion.PARQUET_2_6);
+        builder.CreatedBy("Space Fieldbus Analyzer engine (ParquetSharp)").Version(ParquetVersion.PARQUET_2_6);
         if (profile.Codec == "snappy") return builder.Compression(Compression.Snappy).Build();
         builder.Compression(Compression.Zstd).CompressionLevel(profile.Level ?? 9)
             .DataPageVersion(ParquetDataPageVersion.V2).EnablePageChecksum().DisableDictionary();

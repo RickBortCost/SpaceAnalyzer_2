@@ -1,8 +1,8 @@
-# Avvio di Space Analyzer 3 su Windows
+# Avvio di Space Fieldbus Analyzer 3 su Windows
 
-1. Apri la sezione **Releases** del repository e scarica dall’ultima release il file `Space_Analyzer_V<versione>_WINDOWS.zip` (ad esempio `Space_Analyzer_V3.0.0_WINDOWS.zip`). In alternativa puoi scaricare il solo EXE.
-2. Clic destro sullo ZIP → **Estrai tutto**. Scegli una cartella scrivibile, ad esempio `Documenti\Space Analyzer`.
-3. Fai doppio clic su **Space_Analyzer_V<versione>.exe**. Al centro dello schermo compare il logo con la barra di avvio; al termine si apre la finestra dell’applicazione (Microsoft Edge in modalità applicazione, senza schede né barra degli indirizzi).
+1. Apri la sezione **Releases** del repository e scarica dall’ultima release il file `Space_Fieldbus_Analyzer_V<versione>_WINDOWS.zip` (ad esempio `Space_Fieldbus_Analyzer_V3.0.0_WINDOWS.zip`). In alternativa puoi scaricare il solo EXE.
+2. Clic destro sullo ZIP → **Estrai tutto**. Scegli una cartella scrivibile, ad esempio `Documenti\Space Fieldbus Analyzer`.
+3. Fai doppio clic su **Space_Fieldbus_Analyzer_V<versione>.exe**. Al centro dello schermo compare il logo con la barra di avvio; al termine si apre la finestra dell’applicazione (Microsoft Edge in modalità applicazione, senza schede né barra degli indirizzi).
 4. Se la finestra non si apre, visita `http://127.0.0.1:5000`; se la porta è occupata il software usa una delle successive (fino a 5019).
 5. Nel popup **Connessione** configura i collegamenti. Attiva **Acquisizione simultanea** per usare insieme OPC UA, ADS, MQTT e S7, quindi premi **Connetti e leggi**.
 
@@ -18,9 +18,9 @@
 Le modifiche di ogni versione sono in testa a questa pagina della release, nel file `README.txt` dello ZIP e in `CHANGELOG.md` nel repository.
 
 Strumenti da riga di comando (catture primarie e conversioni):
-- `Space_Analyzer_V<versione>.exe --tool inspect <file.sac>`: verifica una cattura primaria;
-- `Space_Analyzer_V<versione>.exe --tool recover <file.sac.part>`: recupera una cattura interrotta;
-- `Space_Analyzer_V<versione>.exe --tool export-fda|export-rbf <originale.parquet> <nodi.json>`: converte un Parquet originale.
+- `Space_Fieldbus_Analyzer_V<versione>.exe --tool inspect <file.sac>`: verifica una cattura primaria;
+- `Space_Fieldbus_Analyzer_V<versione>.exe --tool recover <file.sac.part>`: recupera una cattura interrotta;
+- `Space_Fieldbus_Analyzer_V<versione>.exe --tool export-fda|export-rbf <originale.parquet> <nodi.json>`: converte un Parquet originale.
 
 Il numero di versione è assegnato automaticamente a ogni rilascio (vedi `VERSIONI.md`).
 

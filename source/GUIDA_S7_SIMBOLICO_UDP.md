@@ -1,6 +1,6 @@
-# Space Analyzer 1.13.0 — S7 simbolico e UDP Direct
+# Space Fieldbus Analyzer 1.13.0 — S7 simbolico e UDP Direct
 
-Estrarre tutto lo ZIP, chiudere la versione precedente e avviare `Space_Analyzer_V1.14.0.exe`. Python e TIA Portal non sono necessari sul PC che esegue Space Analyzer. TIA serve per configurare il programma Siemens che invia i dati UDP.
+Estrarre tutto lo ZIP, chiudere la versione precedente e avviare `Space_Analyzer_V1.14.0.exe`. Python e TIA Portal non sono necessari sul PC che esegue Space Fieldbus Analyzer. TIA serve per configurare il programma Siemens che invia i dati UDP.
 
 Nel popup **Connessione → Fonte dati: S7** scegliere la modalità:
 
@@ -59,7 +59,7 @@ Il buffer Record viene dimensionato usando il periodo mediano osservato, prefere
 
 ### Telegramma e catalogo di esempio
 
-L'header consiste in tre campi di 16 bit big-endian: lunghezza totale, module index, contatore di sequenza. Il contatore avanza a ogni invio e ritorna a zero dopo 65535. Il layout di esempio seguente è definito da Space Analyzer:
+L'header consiste in tre campi di 16 bit big-endian: lunghezza totale, module index, contatore di sequenza. Il contatore avanza a ogni invio e ritorna a zero dopo 65535. Il layout di esempio seguente è definito da Space Fieldbus Analyzer:
 
 | Byte nel telegramma | Offset nel payload | Campo | Formato |
 |---|---|---|---|
@@ -83,7 +83,7 @@ Impostare nell'app **lunghezza 24, modulo 200, payload big-endian, timestamp off
 3. Chiamare il FB regolarmente, per esempio in un task a 1 ms, e fornire un impulso `SamplePulse` della durata di una chiamata ogni 10 ms. REQ deve poter tornare falso tra richieste. Se il task stesso dura 10 ms e l'ingresso rimane sempre vero non si ottiene un invio a ogni chiamata.
 4. Collegare CaricoA/CaricoB/Enabled ai simboli effettivi. Per un timestamp UTC S7-1500, leggere `RD_SYS_T` in un LDT e, con esito zero, calcolare `LDT_TO_LINT(UtcLdt) / LINT#1000`. La precisione del clock dipende dalla CPU e dalla sua sincronizzazione. Se non disponibile, impostare nell'app offset `-1`: un semplice contatore relativo non è un timestamp UTC.
 5. Verificare DONE/ERROR/STATUS e `SkippedSamples`. Se TUSEND è ancora occupato, l'esempio salta l'impulso e mantiene il telegramma immutato; non promette la consegna di quel campione. La sequenza conta le richieste di invio, non le risposte del PC.
-6. Consentire l'ingresso UDP verso la porta del PC dalla CPU sulla rete autorizzata. Disconnettere Space Analyzer prima di usare altri ricevitori sulla stessa porta.
+6. Consentire l'ingresso UDP verso la porta del PC dalla CPU sulla rete autorizzata. Disconnettere Space Fieldbus Analyzer prima di usare altri ricevitori sulla stessa porta.
 
 Per pacchetti più grandi verificare i limiti TUSEND del modello/firmware: il limite applicativo di 4096 byte non garantisce che una CPU possa inviare un pacchetto così grande. Iniziare con telegrammi piccoli; la documentazione Siemens indica comunemente 1472 byte, con varianti specifiche. CPU, task e rete devono essere misurati sul campo prima di dichiarare 10 ms.
 

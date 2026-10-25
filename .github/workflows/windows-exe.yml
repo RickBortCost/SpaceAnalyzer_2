@@ -1,4 +1,4 @@
-name: Build and publish Space Analyzer (Windows EXE)
+name: Build and publish Space Fieldbus Analyzer (Windows EXE)
 
 on:
   push:
@@ -97,7 +97,7 @@ jobs:
       - name: Execute the packaged Windows application and verify recordings
         shell: pwsh
         run: |
-          python tools/windows/smoke_exe.py --exe "source/dist/Space_Analyzer_V$($env:SA_VERSION).exe" --report source/dist/WINDOWS_EXE_VERIFICATION.json
+          python tools/windows/smoke_exe.py --exe "source/dist/Space_Fieldbus_Analyzer_V$($env:SA_VERSION).exe" --report source/dist/WINDOWS_EXE_VERIFICATION.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Create portable Windows ZIP and checksums
         shell: pwsh
@@ -108,7 +108,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Space-Analyzer-${{ env.SA_VERSION }}-Windows-build-${{ github.run_number }}
+          name: Space-Fieldbus-Analyzer-${{ env.SA_VERSION }}-Windows-build-${{ github.run_number }}
           if-no-files-found: warn
           path: |
             windows-*.log
@@ -124,7 +124,7 @@ jobs:
         run: |
           $v = $env:SA_VERSION
           $tag = "v$v"
-          $files = @("source/dist/Space_Analyzer_V$($v).exe", "source/dist/Space_Analyzer_V$($v)_WINDOWS.zip", 'source/dist/BUILD_MANIFEST.json', 'source/dist/WINDOWS_EXE_VERIFICATION.json', 'source/dist/SHA256SUMS.txt')
+          $files = @("source/dist/Space_Fieldbus_Analyzer_V$($v).exe", "source/dist/Space_Fieldbus_Analyzer_V$($v)_WINDOWS.zip", 'source/dist/BUILD_MANIFEST.json', 'source/dist/WINDOWS_EXE_VERIFICATION.json', 'source/dist/SHA256SUMS.txt')
           # Testo della release: modifiche di questa versione (CHANGELOG o commit) e guida di avvio.
           python tools/release_notes.py notes $v release-notes.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -134,6 +134,6 @@ jobs:
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             gh release edit $tag --notes-file release-notes.md --repo $env:GITHUB_REPOSITORY
           } else {
-            gh release create $tag @files --target $env:GITHUB_SHA --title "Space Analyzer V$($v) — Windows x64" --notes-file release-notes.md --repo $env:GITHUB_REPOSITORY
+            gh release create $tag @files --target $env:GITHUB_SHA --title "Space Fieldbus Analyzer V$($v) — Windows x64" --notes-file release-notes.md --repo $env:GITHUB_REPOSITORY
           }
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

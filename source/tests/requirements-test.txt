@@ -1,4 +1,4 @@
-# Test tooling only (local protocol peers and fixtures); not part of the Space Analyzer product.
+# Test tooling only (local protocol peers and fixtures); not part of the Space Fieldbus Analyzer product.
 asyncua==2.0.1
 cryptography==49.0.0
 pyarrow==25.0.1

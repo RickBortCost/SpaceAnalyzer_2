@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.23.0 — LINGUA DELL’INTERFACCIA
+SPACE FIELDBUS ANALYZER V1.23.0 — LINGUA DELL’INTERFACCIA
 
 Nella barra superiore, accanto a Impostazioni, è disponibile il menu con
 il simbolo del globo. Selezionare English, Italiano, Deutsch, Français

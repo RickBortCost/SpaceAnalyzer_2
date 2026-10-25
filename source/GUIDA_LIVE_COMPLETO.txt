@@ -1,7 +1,7 @@
 V1.24.0: marker relativi alla schermata in Play; Pausa fissa i timestamp.
 Vedere GUIDA_LIVE_V1.24.txt per tutte le nuove funzioni.
 
-Space Analyzer V1.15.0 - Vista Live dall'inizio dell'acquisizione
+Space Fieldbus Analyzer V1.15.0 - Vista Live dall'inizio dell'acquisizione
 20 ottobre 2026
 
 AVVIO

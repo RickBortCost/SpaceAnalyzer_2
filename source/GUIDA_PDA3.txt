@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.18.2 - DAT PDA3 NATIVO (SPERIMENTALE)
+SPACE FIELDBUS ANALYZER V1.18.2 - DAT PDA3 NATIVO (SPERIMENTALE)
 
 AVVIO WINDOWS
 Estrarre l'intero ZIP in una cartella scrivibile. Avviare Space_Analyzer_V1.18.2.exe.
@@ -36,7 +36,7 @@ a 600 s; la struttura fisica resta della stessa dimensione del modello.
 Il limite file non cambia la durata temporale. Lasciare spazio anche per
 originali e file temporanei.
 
-TIMESTAMP: LEGGERE PRIMA DI USARE I DAT FUORI DA SPACE ANALYZER
+TIMESTAMP: LEGGERE PRIMA DI USARE I DAT FUORI DA SPACE FIELDBUS ANALYZER
 Il timestamp iniziale interno non puo ancora essere riscritto in modo validato.
 Il timestamp iniziale, i metadati e tutti gli indici del modello restano immutati.
 Il solo timestamp finale viene ridotto a inizio + N * 10 ms per un segmento breve.
@@ -45,7 +45,7 @@ La compatibilita del nuovo file breve e della sua fine deve essere verificata
 nella propria versione ibaAnalyzer: la funzione resta sperimentale.
 Gli orari effettivi UTC sono nel JSON associato, insieme all'hash SHA256 del
 DAT, alla mappatura canali e agli hash degli archivi Parquet sorgente.
-Space Analyzer legge direttamente i Float32 del DAT e usa gli orari reali
+Space Fieldbus Analyzer legge direttamente i Float32 del DAT e usa gli orari reali
 del JSON verificato. Portare DAT e JSON insieme quando si copiano i file.
 Senza JSON, l'importazione richiede esplicitamente l'offset UTC in minuti
 del calendario originale (es. +120 per CEST). Non viene inventato un fuso.
@@ -123,7 +123,7 @@ Se richiesto, i DAT sono uniti in una timeline solo se intervalli consecutivi
 e identificativi dei segnali coincidono; gap/sovrapposizioni sono segnalati.
 DAT grezzi senza manifest espongono i 64 identificativi [0:0] ... [0:63].
 I nomi opachi originali dentro ibaAnalyzer non sono rinominati: il manifest
-descrive il legame tra segnale acquisito e slot PDA3. In Space Analyzer vengono
+descrive il legame tra segnale acquisito e slot PDA3. In Space Fieldbus Analyzer vengono
 mostrati alias e unita del manifest. Qualita e timestamp PLC non si possono
 ricavare dal DAT: per diagnosticarli aprire il Parquet originale associato.
 Lo stesso motore grafico gestisce DAT, CSV e Parquet, anche su grafici separati:

@@ -1,4 +1,4 @@
-# Space Analyzer 3.0 — applicazione interamente in C#
+# Space Fieldbus Analyzer 3.0 — applicazione interamente in C#
 
 ## Cosa cambia
 

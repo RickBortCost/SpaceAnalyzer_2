@@ -121,7 +121,7 @@ public static class CsvRows
                 {
                     var missing = new[] { "node_id", "timestamp_ms", "value_numeric" }.Where(c => !header.Contains(c)).OrderBy(c => c, StringComparer.Ordinal).ToList();
                     if (missing.Count > 0)
-                        throw new UserError("CSV non compatibile: colonne mancanti " + string.Join(", ", missing) + ". Usare il CSV esportato da Space Analyzer.");
+                        throw new UserError("CSV non compatibile: colonne mancanti " + string.Join(", ", missing) + ". Usare il CSV esportato da Space Fieldbus Analyzer.");
                 }
                 continue;
             }
@@ -131,7 +131,7 @@ public static class CsvRows
             yield return row;
         }
         if (header == null && requireColumns)
-            throw new UserError("CSV non compatibile: colonne mancanti node_id, timestamp_ms, value_numeric. Usare il CSV esportato da Space Analyzer.");
+            throw new UserError("CSV non compatibile: colonne mancanti node_id, timestamp_ms, value_numeric. Usare il CSV esportato da Space Fieldbus Analyzer.");
     }
 
     /// <summary>Records of the excel dialect (quoted fields may span lines); blank lines yield empty records.</summary>

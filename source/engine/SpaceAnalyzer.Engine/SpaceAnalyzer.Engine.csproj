@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- Acquisition and recording engine of Space Analyzer 3.0: a child process of the UI service. -->
+  <!-- Acquisition and recording engine of Space Fieldbus Analyzer 3.0: a child process of the UI service. -->
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
@@ -13,10 +13,10 @@
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <TieredPGO>true</TieredPGO>
-    <Version>3.3.0</Version>
+    <Version>3.4.0</Version>
     <ApplicationIcon>../../static/space-analyzer.ico</ApplicationIcon>
-    <Product>Space Analyzer</Product>
-    <Description>Space Analyzer acquisition and recording engine</Description>
+    <Product>Space Fieldbus Analyzer</Product>
+    <Description>Space Fieldbus Analyzer acquisition and recording engine</Description>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);CA1416</NoWarn>
   </PropertyGroup>

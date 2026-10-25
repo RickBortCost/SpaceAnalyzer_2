@@ -100,7 +100,7 @@ public static class Program
                 {
                     var running = status.Get("version").Str() ?? "sconosciuta";
                     if (running != Defaults.Version)
-                        throw new InvalidOperationException($"È già attiva Space Analyzer V{running}. Chiudi la versione precedente con 'Chiudi applicazione' e poi avvia V{Defaults.Version}.");
+                        throw new InvalidOperationException($"È già attiva Space Fieldbus Analyzer V{running}. Chiudi la versione precedente con 'Chiudi applicazione' e poi avvia V{Defaults.Version}.");
                     AppWindow.Open(url, Path.Combine(paths.DataDir, "webapp"), () => { });
                     Console.WriteLine($"Applicazione già avviata: {url}");
                     return null;
@@ -114,7 +114,7 @@ public static class Program
 
     static void Fatal(AppPaths paths, Exception? exc, string? thread)
     {
-        var text = $"Space Analyzer V{Defaults.Version} - errore fatale {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}, thread {thread ?? "senza nome"}\n{exc}";
+        var text = $"Space Fieldbus Analyzer V{Defaults.Version} - errore fatale {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}, thread {thread ?? "senza nome"}\n{exc}";
         try { Log.Error("Errore fatale del servizio (thread " + (thread ?? "senza nome") + ")", exc); } catch (Exception) { }
         try { File.WriteAllText(Path.Combine(paths.DataDir, $"crash-{DateTime.Now:yyyyMMdd-HHmmss}.txt"), text); } catch (Exception) { }
         try { Console.Error.WriteLine(text); } catch (Exception) { }
