@@ -24,13 +24,27 @@ concurrency:
 jobs:
   windows:
     runs-on: windows-2022
-    timeout-minutes: 35
+    timeout-minutes: 75
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0          # servono tutti i tag per calcolare la versione
+      # Python serve solo agli strumenti di build/test (versione, simulatori dei protocolli); il prodotto è interamente C#.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - name: Determine version (tag Git + messaggi di commit)
         shell: pwsh
         run: |
@@ -40,59 +54,41 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Add-Content -Path $env:GITHUB_ENV -Value "SA_VERSION=$version"
           Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## Versione calcolata: $version"
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.25.x'
-          cache: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Verify overlapping recordings, original intervals and catalog navigation
+      - name: Build and unit-test the C# service and engine
         shell: pwsh
         run: |
-          python -m pip install -r source/requirements.txt python-snap7==2.0.2 *> windows-catalog-install.log
-          if ($LASTEXITCODE -ne 0) { Get-Content windows-catalog-install.log -Tail 80; exit $LASTEXITCODE }
+          dotnet build source/app/SpaceAnalyzer/SpaceAnalyzer.csproj -c Release *> windows-dotnet-build.log
+          if ($LASTEXITCODE -ne 0) { Get-Content windows-dotnet-build.log -Tail 80; exit $LASTEXITCODE }
+          dotnet test source/engine/SpaceAnalyzer.Engine.Tests -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet test source/app/SpaceAnalyzer.Tests -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: UI workflows (jsdom) against the C# service and local protocol peers
+        shell: pwsh
+        run: |
+          python -m pip install -r source/tests/requirements-test.txt *> windows-test-install.log
+          if ($LASTEXITCODE -ne 0) { Get-Content windows-test-install.log -Tail 80; exit $LASTEXITCODE }
           $uiDeps = Join-Path $env:RUNNER_TEMP 'space-analyzer-ui'
           npm install --prefix $uiDeps --no-audit --no-fund jsdom@30.0.1
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m unittest discover -s source/tests -p test_live_interval_calculations.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m unittest discover -s source/tests -p test_acquisition_hardening.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m unittest discover -s source/tests -p test_patch_v1291.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:JSDOM_PATH = Join-Path $uiDeps 'node_modules/jsdom'
           python -m unittest discover -s source/tests -p test_versioning.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m unittest discover -s source/tests -p test_mqtt_api.py
+          python source/tests/test_launcher.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m unittest discover -s source/tests -p test_recording_manager.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m unittest discover -s source/tests -p test_recording_preview.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $env:JSDOM_PATH = Join-Path $uiDeps 'node_modules/jsdom'
-          python source/tests/test_source_sessions_ui_harness.py *> windows-catalog-ui.log
-          if ($LASTEXITCODE -ne 0) { Get-Content windows-catalog-ui.log -Tail 100; exit $LASTEXITCODE }
-          Get-Content windows-catalog-ui.log
-          $env:UI_SCRIPT = 'test_live_zoom_ui.cjs'
-          python source/tests/test_source_sessions_ui_harness.py *> windows-live-zoom-ui.log
-          if ($LASTEXITCODE -ne 0) { Get-Content windows-live-zoom-ui.log -Tail 100; exit $LASTEXITCODE }
-          Get-Content windows-live-zoom-ui.log
-          $env:UI_SCRIPT = 'test_live_interval_ui.cjs'
-          python source/tests/test_source_sessions_ui_harness.py *> windows-interval-ui.log
-          if ($LASTEXITCODE -ne 0) { Get-Content windows-interval-ui.log -Tail 100; exit $LASTEXITCODE }
-          Get-Content windows-interval-ui.log
-          $env:UI_SCRIPT = 'test_recording_overlap_ui.cjs'
-          python source/tests/test_source_sessions_ui_harness.py *> windows-overlap-ui.log
-          if ($LASTEXITCODE -ne 0) { Get-Content windows-overlap-ui.log -Tail 100; exit $LASTEXITCODE }
-          Get-Content windows-overlap-ui.log
+          # test_s7_modes_ui.cjs richiede una CPU S7-1200/1500 reale (S7CommPlus autenticato): escluso dalla CI.
+          $scripts = Get-ChildItem source/tests -Filter 'test_*.cjs' | Where-Object { $_.Name -ne 'test_s7_modes_ui.cjs' }
+          foreach ($script in $scripts) {
+            $env:UI_SCRIPT = $script.Name
+            python source/tests/ui_harness_cs.py *> "windows-ui-$($script.BaseName).log"
+            if ($LASTEXITCODE -ne 0) { Get-Content "windows-ui-$($script.BaseName).log" -Tail 100; exit $LASTEXITCODE }
+            Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "- $($script.Name): PASS"
+          }
           Remove-Item Env:UI_SCRIPT
-      - name: Build standalone EXE with current sources
+      - name: Build standalone EXE (Go launcher + self-contained .NET service)
         shell: pwsh
         run: |
-          python source/build_windows.py *> windows-build.log
+          python tools/windows/build_windows.py *> windows-build.log
           if ($LASTEXITCODE -ne 0) { Get-Content windows-build.log -Tail 80; exit $LASTEXITCODE }
       - name: Execute the packaged Windows application and verify recordings
         shell: pwsh
@@ -111,12 +107,7 @@ jobs:
           name: Space-Analyzer-${{ env.SA_VERSION }}-Windows-build-${{ github.run_number }}
           if-no-files-found: warn
           path: |
-            windows-build.log
-            windows-catalog-ui.log
-            windows-live-zoom-ui.log
-            windows-interval-ui.log
-            windows-overlap-ui.log
-            windows-catalog-install.log
+            windows-*.log
             source/dist/*.exe
             source/dist/*.zip
             source/dist/*.json

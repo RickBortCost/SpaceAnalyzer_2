@@ -126,11 +126,11 @@ async function page(){
    await w.I18N.setLanguage(language,{persist:true});assert.equal($('reconnect-ads').textContent,label);
   }
   checks.push('New controls translated in five languages');
-  assert.equal($('record-form').querySelectorAll('input[name="record-format"]').length,6);
+  assert.deepEqual([...$('record-form').querySelectorAll('input[name="record-format"]')].map(el=>el.value).sort(),['csv','das','parquet','rbf']);
   assert([...$('record-form').querySelectorAll('input[name="record-format"]')].every(el=>!el.disabled));
   await t.saveWorkspace(true);
   const saved=await api('/api/config');assert.equal(saved.enabled_sources.length,4);
-  checks.push('All six format choices remain available and multi-source configuration persists');
+  checks.push('The four 3.0 recording formats (CSV, Parquet, FDA, RBF) remain available and multi-source configuration persists');
   $('disconnect').click();await wait(async()=>!Object.keys((await api('/api/values')).sources||{}).length,'all sessions closed');
   assert.equal(errors.length,0,errors.join('; '));console.log(JSON.stringify({result:'PASS',checks,files:[]}));
  }finally{t.stopPolling();for(const d of pages)d.window.close();}

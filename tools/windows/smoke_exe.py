@@ -110,7 +110,7 @@ def main():
                 if status['version']!=build['version']:raise RuntimeError('The running service has an older version')
                 for protocol in ('opcua','ads','mqtt','s7'):
                     if 'id="enable-'+protocol+'"' not in html:raise RuntimeError('Missing protocol control '+protocol)
-                if html.count('name="record-format"')!=6:raise RuntimeError('The bundled UI does not offer all six formats')
+                if html.count('name="record-format"')!=4:raise RuntimeError('The bundled UI does not offer the four 3.0 recording formats')
                 if 'id="global-live-zoom"' not in html:raise RuntimeError('The bundled UI is missing the Zoom live control')
                 for control in ('quick-bindings','quick-expression','quick-run','quick-save'):
                     if 'id="'+control+'"' not in html:raise RuntimeError('Missing interval formula control '+control)
