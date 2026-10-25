@@ -73,9 +73,9 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   $('disconnect').click();await wait(()=>!t.connected&&!$('data-source').disabled,'MQTT disconnected');
   await t.switchSource('opcua');assert.equal(t.selected.size,0);assert($('mqtt-connection-fields').hidden);
   await t.switchSource('mqtt');assert.equal(t.selected.size,2);assert.equal(t.liveCharts.active.name,'MQTT saved chart');
-  await t.saveWorkspace(true);t.stopPolling();w.close();
+  await t.saveWorkspace(true);t.stopPolling();await new Promise(r=>setTimeout(r,700));w.close();
   ({w,$,t}=await page());assert.equal(t.config().source,'mqtt');assert.equal($('mqtt_password').value,'');assert(t.selected.has(a));assert.equal(t.liveCharts.active.name,'MQTT saved chart');
   checks.push('per-source chart and selection profiles, configuration/workspace persistence, session-only password blank after reload');
   assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks,files:[]},null,2));
- }finally{for(const dom of pages){dom.window.uiTest?.stopPolling();dom.window.close();}}
+ }finally{for(const dom of pages)dom.window.uiTest?.stopPolling();await new Promise(r=>setTimeout(r,700));for(const dom of pages)dom.window.close();}
 })().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

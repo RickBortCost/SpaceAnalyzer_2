@@ -96,7 +96,7 @@ function place(w,graph,which,time){clickRole(graph,which==='x1'?'markerX1':'mark
     clickRole(h1,'activate');clickRole(h1,'resetMarkers');assert.equal(h2.trend.markers.x1,null);assert.equal(h2.trend.markers.x2,null);
     $('history-add-chart').click();const h3=hist.active;assert.equal(h3.context.file,null);assert.equal(h3.nodes.size,0);place(w,h1,'x1',1700000012340);assert.equal(h3.trend.markers.x1,h1.trend.markers.x1);
     clickRole(h2,'remove');assert.equal(hist.charts.length,2);
-    while(hist.charts.length<8)$('history-add-chart').click();assert.equal($('history-add-chart').disabled,true);
+    while(hist.charts.length<hist.constructor.MAX_CHARTS)$('history-add-chart').click();assert.equal($('history-add-chart').disabled,true);
     const allIds=[...w.document.querySelectorAll('[id]')].map(e=>e.id);assert.equal(new Set(allIds).size,allIds.length);
     for(const graph of [...hist.charts].slice(1))clickRole(graph,'remove');assert.equal(hist.charts.length,1);assert.equal(control(hist.charts[0],'remove').disabled,true);checks.push('add/remove up to eight charts without duplicate controls');
     $('nav-live').click();assert.equal(JSON.stringify(live.markers),shared);assert.ok(t.connected);

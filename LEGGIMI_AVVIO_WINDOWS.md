@@ -10,6 +10,7 @@
 
 - Software interamente in C# (.NET 8 incluso nell’EXE): non serve installare Python, .NET o altri componenti.
 - Registrazione in **CSV**, **Parquet**, **FDA (.das)** e **RBF**; i file `.dat` esistenti si aprono e si visualizzano.
+- Grafici: doppio clic su un segnale per aprirlo in un nuovo grafico; trascina un canale della legenda su un altro per condividere la scala Y (tasto destro sulla legenda per separarla).
 - Al primo avvio di una nuova versione il servizio viene estratto nella cartella dati (qualche secondo); gli avvii successivi riutilizzano i file già estratti.
 
 ## Novità
@@ -35,6 +36,6 @@ Se non si avvia, consulta `launcher-v<versione>.log`, `opcua-client.log` ed even
 
 ## Verifiche e componenti esterni
 
-La Release viene pubblicata soltanto dopo: compilazione e test unitari C#, 22 workflow dell’interfaccia reale contro il servizio C# con peer locali OPC UA, ADS, MQTT, S7 e SSH, build dell’EXE su Windows, avvio del vero EXE con quattro sessioni indipendenti, registrazione e rilettura CSV, Parquet, FDA/DAS4 e RBF, verifica della cattura primaria, registrazioni sovrapposte, seconda apertura e arresto. Il rapporto è `WINDOWS_EXE_VERIFICATION.json`; gli hash sono in `SHA256SUMS.txt`.
+La Release viene pubblicata soltanto dopo: compilazione e test unitari C#, 23 workflow dell’interfaccia reale contro il servizio C# con peer locali OPC UA, ADS, MQTT, S7 e SSH, build dell’EXE su Windows, avvio del vero EXE con quattro sessioni indipendenti, registrazione e rilettura CSV, Parquet, FDA/DAS4 e RBF, verifica della cattura primaria, registrazioni sovrapposte, seconda apertura e arresto. Il rapporto è `WINDOWS_EXE_VERIFICATION.json`; gli hash sono in `SHA256SUMS.txt`.
 
 I test non sostituiscono prove con PLC e reti industriali. ADS nativo richiede TwinCAT/TcAdsDll e la route appropriata. **S7 simbolico** (S7CommPlus) è implementato con la libreria S7CommPlusDriver ma va verificato su una CPU S7-1200/1500 reale: l’emulatore di test non supporta l’autenticazione. Per connessioni OPC UA protette occorre autorizzare il certificato client sul server e acquisire o importare il certificato del server. Le licenze dei componenti di terze parti sono in `THIRD_PARTY_NOTICES.txt` e nella cartella `licenses` dello ZIP.

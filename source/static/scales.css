@@ -1,0 +1,17 @@
+/* Scale Y condivise: legenda trascinabile, evidenziazione di gruppi e destinazioni, menu e conferma. */
+.legend span[data-signal-id]{cursor:grab;border-radius:5px;padding:1px 6px;border:1px solid transparent;outline:none}
+.legend span[data-signal-id]:focus-visible{outline:2px solid var(--blue,#006EFF);outline-offset:1px}
+.legend span[data-signal-id]:active{cursor:grabbing}
+.legend span.legend-dragging{opacity:.45}
+.legend span.legend-drop-target{border-color:var(--blue,#006EFF);background:color-mix(in srgb,var(--blue,#006EFF) 16%,transparent);box-shadow:0 0 0 2px color-mix(in srgb,var(--blue,#006EFF) 35%,transparent)}
+.legend span.legend-drop-group{border-style:dashed;border-color:var(--blue,#006EFF)}
+.legend .axis-tag.shared{border:1px solid currentColor;border-radius:8px;padding:0 5px;font-weight:700}
+.legend span[data-scale-shared="1"]{background:color-mix(in srgb,var(--surface2,#F2F2F2) 80%,transparent)}
+.scale-menu{position:fixed;z-index:400;min-width:180px;display:flex;flex-direction:column;padding:4px;background:var(--surface,#fff);color:var(--ink,#000);border:1px solid var(--line,#E5E5E5);border-radius:8px;box-shadow:var(--shadow,0 8px 32px #0003)}
+.scale-menu button{text-align:left;background:transparent;border:0;border-radius:5px;padding:7px 10px;color:inherit;cursor:pointer}
+.scale-menu button:hover:not(:disabled),.scale-menu button:focus-visible{background:var(--hover,#CCE2FF)}
+.scale-menu button:disabled{opacity:.45;cursor:default;background:transparent}
+.scale-confirm{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;background:#10283eb0}
+.scale-confirm>div{max-width:440px;width:100%;padding:18px 20px;background:var(--surface,#fff);color:var(--ink,#000);border:1px solid var(--line,#E5E5E5);border-radius:10px;box-shadow:var(--shadow,0 8px 32px #0003)}
+.scale-confirm p{margin:0 0 14px;font-size:13px;line-height:1.5}
+.scale-confirm>div>div{display:flex;gap:8px;justify-content:flex-end}

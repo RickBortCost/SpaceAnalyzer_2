@@ -46,7 +46,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   const drop=new w.Event('drop',{bubbles:true,cancelable:true});Object.defineProperty(drop,'dataTransfer',{value:{getData:()=>ids[0],types:['application/x-opcua-signal']}});g2.element.dispatchEvent(drop);assert.equal(g2.ids.size,1);assert.equal(g1.ids.size,2);
   await wait(()=>g1.trend.series[ids[0]].length>25,'buffer has data');
   pointer(w,g1,'down',250,120);pointer(w,g1,'move',700,450);pointer(w,g1,'up',700,450);
-  assert.ok(g1.trend.zoom);assert.equal(g1.trend.domain.xmin,g2.trend.domain.xmin);assert.equal(g1.trend.domain.xmax,g2.trend.domain.xmax);assert.equal(g2.trend.domain.axes.right,null);assert.ok(g2.trend.frozen);
+  assert.ok(g1.trend.zoom);assert.equal(g1.trend.domain.xmin,g2.trend.domain.xmin);assert.equal(g1.trend.domain.xmax,g2.trend.domain.xmax);assert.ok(!g2.trend.domain.axes.right);assert.ok(g2.trend.frozen);
   pointer(w,g1,'move',400,200);assert.equal(g1.trend.crosshair,g2.trend.crosshair);assert.notEqual(g1.trend.crosshair,null);assert.equal(g1.trend.crosshairEl.hidden,false);assert.equal(g1.trend.crosshairEl.style.left,g2.trend.crosshairEl.style.left);
   role(g1,'timeScroll').value='800';role(g1,'timeScroll').dispatchEvent(new w.Event('input',{bubbles:true}));assert.equal(g1.trend.domain.xmin,g2.trend.domain.xmin);
   live.setMarkers({x1:g1.trend.domain.xmin,x2:g1.trend.domain.xmax});
