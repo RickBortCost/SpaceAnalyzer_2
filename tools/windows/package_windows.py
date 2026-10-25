@@ -3,9 +3,12 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import sys
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(ROOT/'tools'))
+import release_notes  # noqa: E402
 
 
 def main():
@@ -31,6 +34,8 @@ def main():
                           (dist/'BUILD_MANIFEST.json','BUILD_MANIFEST.json'),
                           (dist/'WINDOWS_EXE_VERIFICATION.json','WINDOWS_EXE_VERIFICATION.json')]:
             z.write(path,root+'/'+name)
+        # README.txt: le modifiche di questa versione in testa (CHANGELOG, o commit se la sezione manca).
+        z.writestr(root+'/README.txt',release_notes.readme(version).replace('\n','\r\n').encode('utf-8-sig'))
         for path in sorted((ROOT/'examples/licenses').rglob('*')):
             if path.is_file():z.write(path,root+'/licenses/'+path.relative_to(ROOT/'examples/licenses').as_posix())
     with zipfile.ZipFile(archive) as z:

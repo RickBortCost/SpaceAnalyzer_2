@@ -2,6 +2,12 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.0.4
+
+- **Modifiche in ogni pubblicazione**: la pagina della release e il nuovo `README.txt` nello ZIP iniziano con l'elenco delle modifiche della versione, preso dalla sezione corrispondente di `CHANGELOG.md` (`tools/release_notes.py`). Se la sezione manca, l'elenco viene ricavato dai commit dall'ultima release. Per una release già esistente la pipeline aggiorna anche il testo.
+- `LEGGIMI_AVVIO_WINDOWS.md`: rimosse le sezioni "Novità" di versioni precedenti e l'indicazione superata sulla posizione delle impostazioni; aggiunte le caratteristiche generali.
+- Test: `test_release_notes.py` (sezione della versione, testo della release, ripiego sui commit, README in testo semplice, presenza della sezione per la versione corrente) eseguito dalla pipeline.
+
 ## 3.0.3
 
 - **Cartella delle registrazioni a scelta**: nella finestra di Record il campo "Cartella di destinazione" si può modificare. **Sfoglia…** apre la finestra di Windows "Seleziona cartella"; si può anche scrivere un percorso completo; **Predefinita** torna a `Recordings` accanto all'EXE. La pagina Registrazioni mostra la cartella attiva e ha il pulsante **Cambia…**. La scelta vale per nuove registrazioni, export e pagina Registrazioni ed è memorizzata in `%LOCALAPPDATA%\OPCUA_Web_Client\recordings_location.json`. Il servizio verifica che la cartella sia scrivibile; il cambio è rifiutato durante Record. Se all'avvio la cartella salvata non è disponibile (ad esempio un disco di rete scollegato), si usa quella predefinita e viene mostrato un avviso.
