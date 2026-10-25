@@ -8,6 +8,7 @@
 
 - Schermata a tutta altezza, senza scroll della pagina: barra superiore e barra di stato fisse, pannelli e grafici entrano nella finestra. Motivo: con più grafici la pagina cresceva oltre lo schermo e Dati calcolati, messaggi e stato finivano fuori vista.
 - L'elenco dei segnali, le registrazioni e "Dati calcolati" scorrono dentro il proprio pannello; i grafici si dividono lo spazio disponibile.
+- Avvio sempre a schermo intero (F11 per uscire) e layout che si adatta a qualunque dimensione della finestra senza tagliare i contenuti: sotto i 761 px una colonna con scroll interno. Motivo: la finestra solo massimizzata lasciava barre che riducevano lo spazio utile e, ridimensionandola, parti dell'interfaccia uscivano dalla vista.
 - Dalla 3.0.6: storico Live non più bloccato da "coda di scrittura piena" (coda più capiente e scrittura SQLite più veloce con campionamento a 1 ms e molti segnali, indipendente dallo spazio su disco).
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.

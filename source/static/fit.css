@@ -1,21 +1,33 @@
-/* Schermata a tutta altezza: la pagina non scorre, ogni pannello scorre al proprio interno e i grafici si dividono lo spazio. */
-@media(min-width:761px){
+/* Applicazione a tutta finestra: la pagina non scorre mai, qualunque sia la dimensione della finestra.
+   Barra superiore e barra di stato restano fisse; ogni pagina scorre al proprio interno solo se il contenuto non entra. */
 html,body{height:100%;overflow:hidden}
-body{display:flex;flex-direction:column;height:100dvh;padding-bottom:25px}
-.app-bar{position:relative;flex:none}
-body>main.live-page,body>main.recordings-page,body>main.calculations-page,body>main.ssh-page{flex:1 1 auto;min-height:0;overflow:hidden}
+body{display:flex;flex-direction:column;height:100dvh;padding-bottom:25px;min-width:0}
+.app-bar{position:relative;flex:none;max-height:45dvh;overflow:auto}
+body>main.live-page,body>main.recordings-page,body>main.calculations-page,body>main.ssh-page{flex:1 1 auto;min-height:0!important;overflow:hidden}
 body>main[hidden]{display:none!important}
-main.live-page,main.recordings-page{align-items:stretch;grid-template-rows:minmax(0,1fr);padding-bottom:8px;min-height:0}
 main.calculations-page,main.ssh-page{overflow:auto}
+.graph-main{min-width:0;min-height:0}
+.charts-workspace>.workspace-chart{min-width:0}
+
+@media(min-width:761px){
+main.live-page,main.recordings-page{align-items:stretch;grid-template-rows:minmax(0,1fr);padding-bottom:8px}
 .signals-sidebar,.history-browser{position:static;height:100%;max-height:none;min-height:0;overflow:auto}
 .page-splitter{position:relative;top:0;height:auto;min-height:0}
-.graph-main{min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.graph-main{display:flex;flex-direction:column;overflow:hidden}
 .graph-main>*{flex:none}
-.graph-main>.charts-workspace{flex:1 1 auto;min-height:0;overflow:auto;grid-auto-rows:minmax(340px,1fr);align-items:stretch}
+.graph-main>.charts-workspace{flex:1 1 auto;min-height:0;overflow:auto;grid-auto-rows:minmax(clamp(300px,40dvh,360px),1fr);align-items:stretch}
 .charts-workspace.layout-single{grid-auto-rows:minmax(0,1fr)}
 .charts-workspace>.workspace-chart{display:flex;flex-direction:column;min-height:0;overflow:hidden}
 .charts-workspace>.workspace-chart>*{flex:none}
 .charts-workspace>.workspace-chart>.chartwrap{flex:1 1 0;height:auto!important;min-height:110px;max-height:none!important;resize:none}
 .charts-workspace .chart-resizer{display:none}
-.graph-main>.quick-calculations{max-height:28dvh;overflow:auto}
+.graph-main>.quick-calculations{max-height:min(24dvh,260px);overflow:auto}
+}
+
+/* Finestra stretta: una sola colonna, la pagina scorre dentro l'area centrale e nulla esce dalla finestra. */
+@media(max-width:760px){
+main.live-page,main.recordings-page{display:block;overflow-y:auto;overflow-x:hidden;padding-bottom:12px}
+.signals-sidebar,.history-browser{position:static;height:auto;max-height:50dvh;margin-bottom:10px}
+.graph-main>.quick-calculations{max-height:none}
+.charts-workspace>.workspace-chart .chartwrap{height:min(380px,60dvh)!important}
 }

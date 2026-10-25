@@ -6,7 +6,9 @@ Il numero di versione e la data di ogni release sono assegnati dalla pipeline (v
 
 - **Schermata sempre a tutta altezza**: la pagina non scorre più. Barra superiore e barra di stato restano fisse e l'area centrale occupa esattamente lo spazio della finestra, perché prima con più grafici la pagina cresceva oltre lo schermo e parti dell'interfaccia (Dati calcolati, messaggi, barra di stato) finivano fuori vista.
 - **Pannelli con scroll interno**: l'elenco dei segnali, le registrazioni e "Dati calcolati" (massimo 28% dell'altezza) scorrono dentro il proprio pannello; i grafici si dividono l'altezza disponibile e, solo sotto l'altezza minima utile, scorre l'area dei grafici.
-- Stesso comportamento nelle pagine Registrazioni, Dati calcolati e Debug SSH (nuovo `static/fit.css`; sotto i 761 px di larghezza resta il layout a colonna con scroll).
+- Stesso comportamento nelle pagine Registrazioni, Dati calcolati e Debug SSH (nuovo `static/fit.css`).
+- **Avvio a schermo intero**: la finestra dell'applicazione si apre sempre a schermo intero (F11 per uscire; `SPACE_FULLSCREEN=0` la apre solo massimizzata), perché la schermata massimizzata lasciava barra del titolo e barra di Windows a ridurre lo spazio utile.
+- **Adattamento alla dimensione della finestra**: la pagina non scorre a nessuna larghezza o altezza. Sotto i 761 px di larghezza il contenuto passa su una colonna che scorre dentro l'area centrale; la barra superiore ha un'altezza massima e i grafici hanno un'altezza minima, così nessun contenuto viene tagliato quando la finestra si riduce.
 - Altezza dei grafici adattata automaticamente: la maniglia di ridimensionamento manuale è nascosta, perché l'altezza dipende dallo spazio disponibile.
 
 ## 3.0.6
