@@ -11,6 +11,9 @@ namespace SpaceAnalyzer.App.Live;
 public sealed record LivePoint(double T, double? Value, string? Quality, long? StatusCode = null, string? SourceTs = null, string? ServerTs = null,
     string? Text = null, string? DataType = null, string? Status = null, double? Period = null, string? LocalTs = null, string? Filetime = null)
 {
+    /// <summary>Position in the session stream of its signal (increasing; the Live archive sequence when archived).</summary>
+    public long Seq { get; init; }
+
     public void Write(Utf8JsonWriter w, int fields = 12)
     {
         w.WriteStartArray();
@@ -155,16 +158,26 @@ public sealed class Overview
 /// <summary>The bounded original FIFO of one Live signal plus its display envelope (live_overview.LiveBuffer).</summary>
 public sealed class LiveBuffer
 {
+    static long nextId;
     readonly LinkedList<LivePoint> items = new();
     public int MaxLength { get; }
     public Overview Overview { get; }
     public long ArchiveGeneration { get; }
-    readonly Action<LivePoint>? onAppend;
+    /// <summary>Identity of this FIFO: a client mirroring it starts over when it changes.</summary>
+    public long Id { get; } = Interlocked.Increment(ref nextId);
+    readonly Func<LivePoint, long>? onAppend;
+    long lastSeq;
 
-    public LiveBuffer(IEnumerable<LivePoint> initial, int maxLength, long archiveGeneration, Action<LivePoint>? onAppend, Overview? previous = null)
+    public LiveBuffer(IEnumerable<LivePoint> initial, int maxLength, long archiveGeneration, Func<LivePoint, long>? onAppend, Overview? previous = null)
     {
         MaxLength = maxLength; ArchiveGeneration = archiveGeneration; this.onAppend = onAppend;
-        foreach (var p in initial) { items.AddLast(p); if (items.Count > maxLength) items.RemoveFirst(); }
+        foreach (var p in initial)
+        {
+            var point = p.Seq > lastSeq ? p : p with { Seq = lastSeq + 1 };
+            lastSeq = point.Seq;
+            items.AddLast(point);
+            if (items.Count > maxLength) items.RemoveFirst();
+        }
         Overview = previous ?? new Overview();
         if (previous == null) foreach (var p in items) Overview.Append(p);
     }
@@ -174,24 +187,49 @@ public sealed class LiveBuffer
     public LivePoint? Last => items.Last?.Value;
     public IEnumerable<LivePoint> Points => items;
 
+    LivePoint Sequenced(LivePoint point)
+    {
+        lastSeq = Math.Max(lastSeq + 1, onAppend?.Invoke(point) ?? 0);
+        return point with { Seq = lastSeq };
+    }
+
     public void Append(LivePoint point)
     {
+        point = Sequenced(point);
         items.AddLast(point);
         if (items.Count > MaxLength) items.RemoveFirst();
         Overview.Append(point);
-        onAppend?.Invoke(point);
     }
 
-    /// <summary>points[-1] = point (a calculated revision of the newest timestamp).</summary>
+    /// <summary>points[-1] = point (a calculated revision of the newest timestamp); the revision gets a new sequence.</summary>
     public void ReplaceLast(LivePoint point)
     {
         if (items.Last == null) { Append(point); return; }
+        point = Sequenced(point);
         items.Last.Value = point;
         Overview.Append(point);
-        onAppend?.Invoke(point);
     }
 
     public void RemoveFirst() { if (items.Count > 0) items.RemoveFirst(); }
 
     public List<LivePoint> ToList() => items.ToList();
+
+    /// <summary>
+    /// Points after the client's last sequence. dropLast: that point was replaced by a revision (resent here);
+    /// gap: it left the FIFO, so points between it and the oldest one kept here are not available from this buffer.
+    /// </summary>
+    public List<LivePoint> After(long cursor, out bool dropLast, out bool gap)
+    {
+        var newer = new List<LivePoint>();
+        dropLast = gap = false;
+        var node = items.Last;
+        while (node != null && node.Value.Seq > cursor) { newer.Add(node.Value); node = node.Previous; }
+        if (cursor > 0)
+        {
+            if (node == null) gap = true;
+            else if (node.Value.Seq < cursor) dropLast = true;
+        }
+        newer.Reverse();
+        return newer;
+    }
 }

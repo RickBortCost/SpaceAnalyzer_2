@@ -6,8 +6,46 @@ let polling=false,pollTimer=null,selectionQueue=Promise.resolve(),scanJob='',sca
 let scanRunning=false,filtered=[],lastValues=[],noticeTimer=null,clearRevision=0,connectionBusy=false;
 function recordingLocked(){return !!(recordState.selection_locked??recordState.busy);}
 let liveViewMode='all';
-function liveValuesURL(){return '/api/values?view='+liveViewMode;}
-function setLiveViewMode(mode){liveViewMode=mode==='window'?'window':'all';$('live-time-view').value=liveViewMode;}
+function liveValuesURL(){return '/api/values?view='+liveViewMode+'&samples=0';}
+// Live a piena risoluzione: a ogni aggiornamento arrivano solo i campioni nuovi (binario) e si accodano a LiveSeries.
+// "Ultima finestra" rispecchia il FIFO del servizio; "Intera acquisizione" conserva tutta la sessione e recupera
+// dallo storico originale la parte precedente all'apertura della pagina.
+const LIVE_MAX_SAMPLES=40000000;let liveHistoryBusy=false,liveTruncatedNotice=false;
+async function syncLiveSamples(current){
+  const cursors={};for(const [nid,points] of Object.entries(current))if(points instanceof LiveSeries&&points.buffer)cursors[nid]={buffer:points.buffer,seq:points.lastSeq};
+  const d=await request('/api/live/samples',{cursors});const next={},history={},signals=d.signals||[];
+  const budget=Math.floor(LIVE_MAX_SAMPLES/Math.max(1,signals.length));
+  for(const signal of signals){
+    const nid=signal.nodeid,c=d.columns[nid];let points=current[nid] instanceof LiveSeries?current[nid]:new LiveSeries();
+    if(signal.reset){points.clear();points.needsHistory=liveViewMode==='all'&&signal.archived;}
+    else if(signal.gap&&liveViewMode==='all'){points=new LiveSeries();next[nid]=points;continue;}
+    if(signal.drop_last)points.dropLast();
+    points.append(c.s,c.t,c.v,c.q);points.buffer=signal.buffer;
+    if(liveViewMode==='window')points.dropBefore(signal.first_seq);
+    else if(points.length>budget){points.keepLast(budget);points.needsHistory=false;if(!liveTruncatedNotice){liveTruncatedNotice=true;notice(I18N.t("Intera acquisizione: limite di memoria raggiunto, il grafico mostra la parte più recente della sessione."),true);}}
+    if(points.needsHistory&&liveViewMode==='all'&&points.length)history[nid]=points.firstSeq;
+    next[nid]=points;
+  }
+  if(Object.keys(history).length&&!liveHistoryBusy)loadLiveHistory(history);
+  return next;
+}
+// Every sample is kept at each update; when drawing millions of them gets heavy, charts are redrawn less often.
+let liveDrawCost=0,liveDrawAt=0;
+function drawLiveCharts(){
+  const now=performance.now();if(liveDrawCost>150&&now-liveDrawAt<liveDrawCost*4)return;
+  liveCharts.update(series,(window.liveDataNodes?.(selected)||selected),types);liveDrawCost=performance.now()-now;liveDrawAt=now;
+}
+async function loadLiveHistory(before){
+  liveHistoryBusy=true;
+  try{
+    const d=await request('/api/live/history',{before});let truncated=false;
+    for(const signal of d.signals||[]){const points=series[signal.nodeid],c=d.columns[signal.nodeid];if(!(points instanceof LiveSeries)||points.firstSeq!==before[signal.nodeid])continue;points.prepend(c.s,c.t,c.v,c.q);points.needsHistory=false;truncated=truncated||signal.truncated;}
+    if(truncated)notice(I18N.t("Intera acquisizione: la parte più vecchia della sessione supera il limite di memoria e non è mostrata."),true);
+    liveCharts.update(series,(window.liveDataNodes?.(selected)||selected),types);
+  }catch(error){for(const nid of Object.keys(before))if(series[nid])series[nid].needsHistory=false;if(polling&&!applicationClosed&&typeof document!=='undefined'&&document)notice(I18N.join([{text:"Storico Live non disponibile: "},{value:(error.message)}]),true);}
+  finally{liveHistoryBusy=false;}
+}
+function setLiveViewMode(mode){const next=mode==='window'?'window':'all';if(next==='all'&&liveViewMode!=='all')for(const points of Object.values(series))if(points instanceof LiveSeries)points.needsHistory=true;liveViewMode=next;$('live-time-view').value=liveViewMode;}
 $('live-time-view').addEventListener('change',event=>{setLiveViewMode(event.target.value);clearRevision++;liveCharts.timeRange=null;liveCharts.resetViews();scheduleWorkspaceSave();if(!polling)updateValues();});
 const pageSize=250;
 const liveCharts=new ChartWorkspace({scope:'live',root:'live-charts',selector:'live-active-chart',add:'live-add-chart',layout:'live-layout',allowSignalDrop:true,copySignalsOnAdd:false,
@@ -17,7 +55,7 @@ const trend=liveCharts.charts[0].trend; // First-chart compatibility for existin
 
 async function request(url,body,method){
   const options={headers:{'X-OPCUA-Token':token}};
-  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url.startsWith('/api/analysis/')?600000:(url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
+  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url==='/api/recordings/location/browse'?1800000:url==='/api/live/history'?600000:url.startsWith('/api/analysis/')?600000:(url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
   if(typeof AbortController!=='undefined'){
     controller=new AbortController();options.signal=controller.signal;
     timer=setTimeout(()=>controller.abort(),timeoutMs);
@@ -95,7 +133,7 @@ function renderValues(values){const map=new Map(values.map(v=>[v.nodeid,v]));for
 async function addNode(){if(!connected)throw new Error(I18N.t("Connetti il client per verificare il NodeId."));const j=await request('/api/node?nodeid='+encodeURIComponent(window.sourceNode?.($('manual-node').value.trim())||$('manual-node').value.trim()));if(j.node.node_class!=='Variable')throw new Error(I18N.join([{text:"Il nodo è "},{value:(j.node.node_class)},{text:": usalo come nodo di partenza per esplorare le sue variabili."}]));await toggle(j.node,true);$('manual-node').value='';}
 async function removeAll(){if(recordingLocked())throw new Error(I18N.t("Premere Stop prima di cambiare i segnali."));selected.clear();series={};lastValues=[];renderSelected();syncCheckboxes();await syncSelection();}
 function startPolling(){if(polling)return;polling=true;updateValues();}
-async function updateValues(){const revision=clearRevision;try{const j=await request(liveValuesURL());if(revision!==clearRevision)return;series=j.samples||{};lastValues=j.values||[];if(!connectionBusy)setState(j.state,j.error);if(j.recording)renderRecording(j.recording);window.renderAdsInfo?.(j.ads);window.renderS7Info?.(j.s7);window.renderMqttInfo?.(j.mqtt);window.parallelMqttStatus=j.parallel_mqtt;window.sourceSessionsStatus=j.sources||{};window.refreshSourceState?.();window.refreshLiveExtras?.();window.renderCalculationStatus?.(j.calculations,lastValues);renderValues(lastValues);const d=j.diagnostics||{},ms=v=>v===null||v===undefined?'—':valueText(v)+' ms';renderLiveSession(d);window.renderAdsCyclicDiagnostics?.(d);window.renderS7UDPDiagnostics?.(d);window.renderMqttDiagnostics?.(d.mqtt);I18N.bind($('requested-ms'),"textContent",()=>(ms(d.requested_ms)),false);I18N.bind($('mean-ms'),"textContent",()=>(ms(d.mean_period_ms)),false);I18N.bind($('read-ms'),"textContent",()=>(ms(d.read_cycle_ms)),false);I18N.bind($('read-count'),"textContent",()=>(valueText(d.read_count||0)),false);const age=d.last_sample_at?Math.max(0,Date.now()-d.last_sample_at):null;const bad=lastValues.filter(v=>!v.good),valid=lastValues.filter(v=>v.good&&v.numeric);if(selected.size&&valid.length===0&&bad.length){const counts={};for(const v of bad){const k=v.status||v.error||'Bad';counts[k]=(counts[k]||0)+1;}liveCharts.setEmptyMessage(I18N.join([{text:"Nessun valore numerico valido · "},{value:(Object.entries(counts).map(([k,n])=>k+' '+n+'/'+lastValues.length).join(' · '))}]));}else if(selected.size&&valid.length===0){liveCharts.setEmptyMessage(I18N.t("In attesa del primo campione valido…"));}else liveCharts.setEmptyMessage(I18N.t("Seleziona una variabile numerica per avviare il trend"));const mode=d.acquisition_mode?I18N.join([{text:"Modalità: "},{value:(d.acquisition_mode)},{text:" · "}]):'';const quality=bad.length?I18N.join([{text:" · Qualità non valida: "},{value:(bad.length)},{text:"/"},{value:(lastValues.length)}]):'';I18N.bind($('acqdiag'),"textContent",()=>(j.error?I18N.join([{text:"Connessione: "},{value:(j.error)}]):I18N.join([{value:(mode)},{text:"Ultimo periodo: "},{value:(ms(d.actual_period_ms))},{text:" · "},{value:(age===null?I18N.t("In attesa dei primi campioni."):I18N.join([{text:"Ultimo campione ricevuto "},{value:((age/1000).toFixed(1))},{text:" s fa."}]))},{value:(quality)},{text:" · Periodo richiesto "},{value:(d.requested_ms)},{text:" ms subordinato a server, rete e PC."}])),true);if(j.source==='mqtt')I18N.bind($('acqdiag'),"textContent",()=>(I18N.join([{value:(j.error?I18N.join([{text:"Connessione: "},{value:(j.error)},{text:" · "}]):'')},{text:"MQTT · ogni pubblicazione · "},{value:(d.mqtt?.timestamp_origin||'ricezione')},{text:" · Il periodo indicativo non limita i campioni; il broker e i publisher determinano frequenza e QoS."}])),true);liveCharts.update(series,(window.liveDataNodes?.(selected)||selected),types);I18N.bind($('buffer-diag'),"textContent",()=>(I18N.join([{text:"Buffer "},{value:(d.buffer_mode==='samples'?I18N.t("a campioni"):d.window_seconds+' s')},{text:" · limite effettivo "},{value:((d.buffer_limit_per_signal||0).toLocaleString(I18N.locale()))},{text:" campioni/segnale · Good/Uncertain/Bad conservati con i timestamp."}])),true);}catch(e){setState('disconnected',e.message);I18N.bind($('acqdiag'),"textContent",()=>(I18N.join([{text:"Servizio locale non raggiungibile: "},{value:(e.message)}])),true);}finally{if(polling)pollTimer=setTimeout(updateValues,250);}}
+async function updateValues(){const revision=clearRevision;try{const j=await request(liveValuesURL());if(revision!==clearRevision)return;const live=await syncLiveSamples(series);if(revision!==clearRevision)return;series=live;lastValues=j.values||[];if(!connectionBusy)setState(j.state,j.error);if(j.recording)renderRecording(j.recording);window.renderAdsInfo?.(j.ads);window.renderS7Info?.(j.s7);window.renderMqttInfo?.(j.mqtt);window.parallelMqttStatus=j.parallel_mqtt;window.sourceSessionsStatus=j.sources||{};window.refreshSourceState?.();window.refreshLiveExtras?.();window.renderCalculationStatus?.(j.calculations,lastValues);renderValues(lastValues);const d=j.diagnostics||{},ms=v=>v===null||v===undefined?'—':valueText(v)+' ms';renderLiveSession(d);window.renderAdsCyclicDiagnostics?.(d);window.renderS7UDPDiagnostics?.(d);window.renderMqttDiagnostics?.(d.mqtt);I18N.bind($('requested-ms'),"textContent",()=>(ms(d.requested_ms)),false);I18N.bind($('mean-ms'),"textContent",()=>(ms(d.mean_period_ms)),false);I18N.bind($('read-ms'),"textContent",()=>(ms(d.read_cycle_ms)),false);I18N.bind($('read-count'),"textContent",()=>(valueText(d.read_count||0)),false);const age=d.last_sample_at?Math.max(0,Date.now()-d.last_sample_at):null;const bad=lastValues.filter(v=>!v.good),valid=lastValues.filter(v=>v.good&&v.numeric);if(selected.size&&valid.length===0&&bad.length){const counts={};for(const v of bad){const k=v.status||v.error||'Bad';counts[k]=(counts[k]||0)+1;}liveCharts.setEmptyMessage(I18N.join([{text:"Nessun valore numerico valido · "},{value:(Object.entries(counts).map(([k,n])=>k+' '+n+'/'+lastValues.length).join(' · '))}]));}else if(selected.size&&valid.length===0){liveCharts.setEmptyMessage(I18N.t("In attesa del primo campione valido…"));}else liveCharts.setEmptyMessage(I18N.t("Seleziona una variabile numerica per avviare il trend"));const mode=d.acquisition_mode?I18N.join([{text:"Modalità: "},{value:(d.acquisition_mode)},{text:" · "}]):'';const quality=bad.length?I18N.join([{text:" · Qualità non valida: "},{value:(bad.length)},{text:"/"},{value:(lastValues.length)}]):'';I18N.bind($('acqdiag'),"textContent",()=>(j.error?I18N.join([{text:"Connessione: "},{value:(j.error)}]):I18N.join([{value:(mode)},{text:"Ultimo periodo: "},{value:(ms(d.actual_period_ms))},{text:" · "},{value:(age===null?I18N.t("In attesa dei primi campioni."):I18N.join([{text:"Ultimo campione ricevuto "},{value:((age/1000).toFixed(1))},{text:" s fa."}]))},{value:(quality)},{text:" · Periodo richiesto "},{value:(d.requested_ms)},{text:" ms subordinato a server, rete e PC."}])),true);if(j.source==='mqtt')I18N.bind($('acqdiag'),"textContent",()=>(I18N.join([{value:(j.error?I18N.join([{text:"Connessione: "},{value:(j.error)},{text:" · "}]):'')},{text:"MQTT · ogni pubblicazione · "},{value:(d.mqtt?.timestamp_origin||'ricezione')},{text:" · Il periodo indicativo non limita i campioni; il broker e i publisher determinano frequenza e QoS."}])),true);drawLiveCharts();I18N.bind($('buffer-diag'),"textContent",()=>(I18N.join([{text:"Buffer "},{value:(d.buffer_mode==='samples'?I18N.t("a campioni"):d.window_seconds+' s')},{text:" · limite effettivo "},{value:((d.buffer_limit_per_signal||0).toLocaleString(I18N.locale()))},{text:" campioni/segnale · Good/Uncertain/Bad conservati con i timestamp."}])),true);}catch(e){setState('disconnected',e.message);I18N.bind($('acqdiag'),"textContent",()=>(I18N.join([{text:"Servizio locale non raggiungibile: "},{value:(e.message)}])),true);}finally{if(polling)pollTimer=setTimeout(updateValues,250);}}
 async function clear(){clearRevision++;await request('/api/samples/clear',{});liveCharts.resetViews();liveCharts.resetMarkers();series={};liveCharts.update(series,(window.liveDataNodes?.(selected)||selected),types);}
 function setView(next){view=next;$('scan-list').hidden=next!=='list';$('tree').hidden=next!=='tree';$('view-list').classList.toggle('active',next==='list');$('view-tree').classList.toggle('active',next==='tree');$('search').disabled=next==='tree';$('select-filtered').disabled=next==='tree';$('variables-only').disabled=next==='tree';renderScan();applyRecordingControls();}
 async function browseRoot(){if(window.mqttBrowseActive?.())return window.refreshMqttCatalog(true);if(!connected)throw new Error(I18N.t("Connetti prima il client."));const root=window.sourceNode?.($('root_nodeid').value.trim())||$('root_nodeid').value.trim()||'i=85';$('tree').replaceChildren();setView('tree');const j=await request('/api/node?nodeid='+encodeURIComponent(root));const element=treeNode(j.node,new Set());$('tree').append(element);await element.expand();}
@@ -156,12 +194,13 @@ function applyRecordingControls(){
   $('record').disabled=busy||recordStarting||!connected||applicationClosed;
   $('record-stop').disabled=!busy||recordState.state==='stopping'||applicationClosed;
   for(const id of ['remove-all','add-node','manual-node'])$(id).disabled=busy||applicationClosed;
+  const acquiring=!!recordState.selection_locked||recordStarting;for(const id of ['record-directory','record-directory-browse','record-directory-default','history-location-change'])if($(id))$(id).disabled=acquiring||applicationClosed;
   $('select-filtered').disabled=busy||applicationClosed||view==='tree';
   document.querySelectorAll('#live-page input[data-nodeid],#selected .remove').forEach(e=>e.disabled=busy||applicationClosed);
 }
 function renderRecording(info){
   if(info.revision!==undefined&&recordState.revision!==undefined&&info.revision<recordState.revision)return;
-  recordState=info;recordDirectory=info.directory||recordDirectory;
+  recordState=info;recordDirectory=info.directory||recordDirectory;syncRecordingsLocation();
   const box=$('record-status'),seconds=Number(info.duration_seconds||0).toFixed(1),rows=Number(info.rows_written||0).toLocaleString(I18N.locale());
   box.className='record-status'+(info.busy?' active':'')+(info.error?' error':'')+(info.state==='recording'&&!info.error?' recording':'');box.title='';
   if(info.error)I18N.bind(box,"textContent",()=>(I18N.join([{text:"Errore registrazione: "},{value:(info.error)},{text:" · "},{value:(info.path||'')}])),true);
@@ -172,6 +211,13 @@ function renderRecording(info){
   if(['das','rbf'].includes(info.format)&&info.status_note&&info.state!=='recording')box.textContent+=' · '+info.status_note;
   syncRecordingClock(info);window.renderRecordingJobs?.(info);applyRecordingControls();
 }
+// Recordings folder: one choice for Record, exports and the Recordings page, kept across restarts.
+function syncRecordingsLocation(force=false){const input=$('record-directory');if(input&&(force||document.activeElement!==input))input.value=recordDirectory||'';const shown=$('history-location');if(shown){shown.textContent=recordDirectory||'—';shown.title=recordDirectory||'';}}
+async function setRecordingsLocation(directory){
+  const j=await request('/api/recordings/location',{directory});recordDirectory=j.directory;syncRecordingsLocation(true);
+  window.refreshHistoryFiles?.().catch(()=>{});notice(I18N.join([{text:"Cartella registrazioni: "},{value:(j.directory)}]));return j.directory;
+}
+async function browseRecordingsLocation(){const j=await request('/api/recordings/location/browse',{title:I18N.t("Cartella delle registrazioni")});return j.directory?setRecordingsLocation(j.directory):null;}
 // Recording in evidence: blinking Record button with the elapsed time, compact live figures, time in the window title.
 let recordClock=null,recordClockTimer=null;const baseTitle=document.title;
 function recordElapsed(){return recordClock?recordClock.seconds+(Date.now()-recordClock.at)/1000:0;}
@@ -208,7 +254,7 @@ async function openRecordDialog(){
   await selectionQueue;
   const j=await request('/api/record/status');renderRecording(j.recording);
   if(recordingLocked())throw new Error(I18N.t("Una registrazione è già in corso."));
-  I18N.bind($('record-signal-count'),"textContent",()=>(String((window.liveDataNodes?.(selected)||selected).size)),false);I18N.bind($('record-directory'),"textContent",()=>(recordDirectory),false);
+  I18N.bind($('record-signal-count'),"textContent",()=>(String((window.liveDataNodes?.(selected)||selected).size)),false);syncRecordingsLocation(true);
   updateRecordFormatControls();$('record-dialog-error').hidden=true;$('record-modal').hidden=false;
   $('record-form').querySelector('input:checked').focus();
 }
@@ -216,6 +262,7 @@ function closeRecordDialog(){if(recordStarting)return;$('record-modal').hidden=t
 async function beginRecording(event){
   event.preventDefault();if(recordStarting)return;recordStarting=true;$('record-start').disabled=true;$('record-cancel').disabled=true;$('record-dialog-error').hidden=true;
   try{
+    const wantedDirectory=$('record-directory').value.trim();if(wantedDirectory&&wantedDirectory!==recordDirectory)await setRecordingsLocation(wantedDirectory);
     await selectionQueue;
     const format=$('record-form').querySelector('input[name="record-format"]:checked').value;
     const result=await request('/api/record/start',{format,selected_nodes:[...(window.liveDataNodes?.(selected)||selected).values()],options:recordOptions()});renderRecording(result.recording);$('record-modal').hidden=true;$('record-stop').focus();notice(I18N.join([{text:"Registrazione "},{value:(result.recording.format_label||format.toUpperCase())},{text:" avviata. Pausa e zoom non interrompono Record."}]));
@@ -238,7 +285,7 @@ $('record-form').addEventListener('submit',beginRecording);
 $('record-cancel').addEventListener('click',closeRecordDialog);
 $('record-modal').addEventListener('click',event=>{if(event.target===$('record-modal'))closeRecordDialog();});
 $('record-modal').addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeRecordDialog();}if(event.key==='Tab'){const list=[...$('record-modal').querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled)')];const first=list[0],last=list[list.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
-bind('record',openRecordDialog);bind('record-stop',stopRecording);bind('discover',discover);bind('connect',connect);bind('disconnect',disconnect);bind('save',save);bind('regenerate',regenerate);bind('fetch-cert',fetchCert);bind('upload-cert',uploadCert);bind('add-node',addNode);bind('remove-all',removeAll);bind('browse-root',browseRoot);bind('scan',startScan);bind('cancel-scan',cancelScan);bind('select-filtered',selectFiltered);bind('shutdown',shutdown);
+bind('record',openRecordDialog);bind('record-stop',stopRecording);bind('discover',discover);bind('connect',connect);bind('disconnect',disconnect);bind('save',save);bind('regenerate',regenerate);bind('fetch-cert',fetchCert);bind('upload-cert',uploadCert);bind('add-node',addNode);bind('remove-all',removeAll);bind('browse-root',browseRoot);bind('scan',startScan);bind('cancel-scan',cancelScan);bind('select-filtered',selectFiltered);bind('shutdown',shutdown);bind('record-directory-browse',browseRecordingsLocation);bind('record-directory-default',()=>setRecordingsLocation(''));bind('history-location-change',browseRecordingsLocation);bind('record-directory',()=>{const v=$('record-directory').value.trim();return v===recordDirectory?null:setRecordingsLocation(v);},'change');
 for(const id of ['sample_ms','window_seconds','max_samples','buffer_mode','auto_reconnect'])bind(id,liveConfig,'change');for(const id of ['security','security_mode'])bind(id,securityChanged,'change');
 $('view-list').onclick=()=>setView('list');$('view-tree').onclick=()=>setView('tree');$('search').oninput=()=>{page=0;renderScan();};$('variables-only').onchange=()=>{page=0;renderScan();};$('page-prev').onclick=()=>{page--;renderScan();};$('page-next').onclick=()=>{page++;renderScan();};$('manual-node').onkeydown=e=>{if(e.key==='Enter')addNode().catch(e=>notice(e.message,true));};
 window.addEventListener('error',e=>notice(I18N.join([{text:"Errore interfaccia: "},{value:(e.message||I18N.t("errore JavaScript"))}]),true));
@@ -268,5 +315,5 @@ function renderLiveSession(d){
  if(!range){I18N.bind(label,"textContent",()=>(I18N.join([{value:(liveViewMode==='all'?I18N.t("Intera acquisizione"):I18N.t("Ultima finestra"))},{text:" · in attesa del primo campione"}])),true);return;}
  const stamp=t=>new Date(t).toLocaleString(I18N.locale(),{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
  const span=Math.max(0,(range.xmax-range.xmin)/1000);
- I18N.bind(label,"textContent",()=>(I18N.join([{value:(liveViewMode==='all'?I18N.t("Intera acquisizione"):I18N.t("Ultima finestra"))},{text:" · "},{value:(stamp(range.xmin))},{text:" → "},{value:(stamp(range.xmax))},{text:" · "},{value:(span.toLocaleString(I18N.locale(),{maximumFractionDigits:1}))},{text:" s"},{value:(liveViewMode==='all'?I18N.t(" · Panoramica con picchi e qualità; dettaglio recente nel buffer. Per conservare tutti i campioni usa Record."):I18N.t(" · Dati originali del buffer recente."))}])),true);
+ I18N.bind(label,"textContent",()=>(I18N.join([{value:(liveViewMode==='all'?I18N.t("Intera acquisizione"):I18N.t("Ultima finestra"))},{text:" · "},{value:(stamp(range.xmin))},{text:" → "},{value:(stamp(range.xmax))},{text:" · "},{value:(span.toLocaleString(I18N.locale(),{maximumFractionDigits:1}))},{text:" s"},{value:(liveViewMode==='all'?I18N.t(" · Tutti i campioni della sessione a piena risoluzione. Per conservarli in un file usa Record."):I18N.t(" · Tutti i campioni del buffer recente a piena risoluzione."))}])),true);
 }

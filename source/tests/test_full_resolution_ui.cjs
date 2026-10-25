@@ -73,6 +73,15 @@ async function page(){
   assert.equal(response.headers.get('Content-Type'),'application/x-space-analyzer-samples');
   const decoded=w.decodeSampleBuffer(await response.arrayBuffer());assert.equal(decoded.series['ns=2;s=Saw'].length,10);assert.equal(decoded.series['ns=2;s=Saw'].v[0],value(1,10));
   checks.push('binary samples endpoint returns the exact interval');
+  // Live stream: appended deltas, revised last sample, FIFO mirror, archive prepend and frozen snapshots.
+  {const L=new w.LiveSeries(),F=a=>new w.Float64Array(a),U=a=>new w.Uint8Array(a);
+   L.append(F([1,2,3]),F([10,20,30]),F([1,2,3]),U([0,0,0]));assert.equal(L.length,3);assert.equal(L.lastSeq,3);
+   const frozen=L.snapshot();L.dropLast();L.append(F([5,6]),F([30,40]),F([3.5,4]),U([0,2]));
+   assert.deepEqual([...L.v].map(v=>Number.isNaN(v)?null:v),[1,2,3.5,4]);assert.deepEqual([...frozen.v],[1,2,3]);
+   L.dropBefore(2);assert.deepEqual([...L.seq],[2,5,6]);L.prepend(F([1]),F([10]),F([1]),U([0]));assert.deepEqual([...L.t],[10,20,30,40]);
+   for(let k=0;k<3000;k++)L.append(F([7+k]),F([50+k]),F([k]),U([0]));assert.equal(L.length,3004);assert.equal(L.stats.xmax,3049);
+   L.keepLast(10);assert.equal(L.length,10);assert.equal(L.firstSeq,2997);assert(w.isSampleSeries(L.after(3045)));assert.equal(L.after(3045).length,4);}
+  checks.push('LiveSeries keeps every streamed sample: revisions, FIFO window, archive prepend, snapshots');
   assert.deepEqual(errors,[]);console.log(JSON.stringify({ok:true,checks},null,2));
   for(const dom of pages)dom.window.close();
 })().then(()=>process.exit(0)).catch(e=>{console.error(e);console.error(errors.join("\n"));process.exit(1);});

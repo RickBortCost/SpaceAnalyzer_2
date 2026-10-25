@@ -31,10 +31,10 @@ public sealed class AppRuntime : IDisposable
     public CalculationService Calculations { get; }
     public LiveArchive Archive { get; }
     public Snapshots Snapshots { get; } = new();
-    public RecordingLibrary Library { get; }
+    public RecordingLibrary Library { get; private set; }
     public RecordingLibrary Imported { get; }
     public Comparisons Comparisons { get; }
-    public PrimaryRecovery Recovery { get; }
+    public PrimaryRecovery Recovery { get; private set; }
 
     /// <summary>Serializes connect, selection, Record and formula edits (runtime.command_lock).</summary>
     public SemaphoreSlim CommandLock { get; } = new(1, 1);
@@ -106,6 +106,8 @@ public sealed class AppRuntime : IDisposable
         Events.Listener = evt => Recording.Annotate(evt);
         Calculations = new CalculationService(Path.Combine(paths.DataDir, "calculation_cache"), CalculatedResult);
         Calculations.FaultCallback = (error, dropped) => Events.Emit("calculation_overflow", null, new() { ["protocol"] = "calculated", ["error"] = error, ["lost_batches"] = dropped });
+        var stale = LiveArchive.RemoveStale(Path.Combine(paths.DataDir, "live_analysis_cache"));
+        if (stale > 0) Log.Info($"Storico Live di sessioni precedenti rimosso: {stale / 1048576.0:F0} MiB liberati");
         Archive = new LiveArchive(Path.Combine(paths.DataDir, "live_analysis_cache"));
         Library = new RecordingLibrary(paths.RecordingsDir);
         Imported = new RecordingLibrary(paths.ImportedRecordingsDir);
@@ -444,6 +446,24 @@ public sealed class AppRuntime : IDisposable
         finally { CommandLock.Release(); }
     }
 
+    /// <summary>Changes the recordings folder (null: default). Refused while Record is acquiring.</summary>
+    public async Task<string> SetRecordingsDirectory(string? path)
+    {
+        await CommandLock.WaitAsync();
+        try
+        {
+            if (Recording.Acquiring) throw new UserError("Premere Stop prima di cambiare la cartella delle registrazioni");
+            Paths.SetRecordingsDir(path);
+            Recording.SetDirectory(Paths.RecordingsDir);
+            Library = new RecordingLibrary(Paths.RecordingsDir);
+            Recovery = new PrimaryRecovery(Path.Combine(Paths.RecordingsDir, ".primary"), Events);
+            Recovery.Start();
+            Log.Info("Cartella registrazioni: " + Paths.RecordingsDir);
+            return Paths.RecordingsDir;
+        }
+        finally { CommandLock.Release(); }
+    }
+
     public void ConnectionGuard(JsonObject cfg)
     {
         var active = ActiveConfig;
@@ -533,7 +553,62 @@ public sealed class AppRuntime : IDisposable
         return output;
     }
 
-    public Action<Utf8JsonWriter> Values(string view)
+    /// <summary>Upper bound of Live originals returned by one history request (the browser keeps them as typed arrays).</summary>
+    public const int LiveHistoryBudget = 20_000_000;
+
+    /// <summary>
+    /// Full-resolution Live stream: for each displayed signal the samples after the client's cursor
+    /// ({nid: {buffer, seq}}), with the FIFO identity and its oldest sequence so the client can mirror it.
+    /// </summary>
+    public Recordings.SamplePayload LiveSamples(JsonObject cursors)
+    {
+        var signals = new List<object?>();
+        var columns = new List<Recordings.SampleColumns>();
+        lock (Lock)
+        {
+            foreach (var (nid, buffer) in samples)
+            {
+                var cursor = cursors[nid] as JsonObject;
+                var same = cursor?["buffer"].Num() is double id && (long)id == buffer.Id;
+                var points = buffer.After(same ? (long)(cursor!["seq"].Num() ?? 0) : 0, out var dropLast, out var gap);
+                var column = new Recordings.SampleColumns(nid);
+                foreach (var p in points)
+                    column.Add(p.T, p.Value, Recordings.SampleColumns.Code(p.Quality ?? (p.Value == null ? "Bad" : "Good")), p.Seq);
+                signals.Add(new Dictionary<string, object?>
+                {
+                    ["nodeid"] = nid, ["buffer"] = buffer.Id, ["reset"] = !same, ["drop_last"] = dropLast, ["gap"] = gap,
+                    ["first_seq"] = buffer.First?.Seq ?? 0L, ["points_returned"] = (long)column.Count,
+                    ["archived"] = buffer.ArchiveGeneration == Archive.Generation && Archive.Error.Length == 0,
+                });
+                columns.Add(column);
+            }
+        }
+        return new(new() { ["with_seq"] = true, ["signals"] = signals }, columns);
+    }
+
+    /// <summary>Live originals of the session archived before each signal's sequence ({nid: seq}), for a view started late.</summary>
+    public Recordings.SamplePayload LiveHistory(JsonObject before)
+    {
+        var wanted = new List<(string nid, long seq)>();
+        lock (Lock)
+            foreach (var (nid, node) in before)
+                if (samples.ContainsKey(nid) && node.Num() is double seq && seq > 0) wanted.Add((nid, (long)seq));
+        var limit = Math.Max(1000, LiveHistoryBudget / Math.Max(1, wanted.Count));
+        var signals = new List<object?>();
+        var columns = new List<Recordings.SampleColumns>();
+        foreach (var (nid, seq) in wanted)
+        {
+            var points = Archive.Before(nid, seq, limit, out var truncated);
+            var column = new Recordings.SampleColumns(nid);
+            foreach (var p in points)
+                column.Add(p.T, p.Value, Recordings.SampleColumns.Code(p.Quality ?? (p.Value == null ? "Bad" : "Good")), p.Seq);
+            signals.Add(new Dictionary<string, object?> { ["nodeid"] = nid, ["truncated"] = truncated, ["points_returned"] = (long)column.Count });
+            columns.Add(column);
+        }
+        return new(new() { ["with_seq"] = true, ["signals"] = signals }, columns);
+    }
+
+    public Action<Utf8JsonWriter> Values(string view, bool withSamples = true)
     {
         if (view is not ("all" or "window")) throw new UserError("Vista Live non valida");
         var sessions = SourceStatus();
@@ -589,7 +664,7 @@ public sealed class AppRuntime : IDisposable
             foreach (var row in values) row.WriteDisplay(w);
             w.WriteEndArray();
             w.WriteStartObject("samples");
-            foreach (var (nid, list) in points)
+            foreach (var (nid, list) in withSamples ? points : new())
             {
                 w.WriteStartArray(nid);
                 foreach (var p in Compress(list)) p.Write(w, 3);

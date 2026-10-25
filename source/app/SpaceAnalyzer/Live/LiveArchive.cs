@@ -36,6 +36,26 @@ public sealed class LiveArchive : IDisposable
     string? path;
     bool closed;
 
+    /// <summary>
+    /// Removes Live originals left by a previous run that did not close normally (each session can reach
+    /// several GB). Safe at startup: the instance lock guarantees no other service uses this data folder.
+    /// </summary>
+    public static long RemoveStale(string directory)
+    {
+        long freed = 0;
+        if (!Directory.Exists(directory)) return 0;
+        foreach (var session in Directory.GetDirectories(directory, "session-*"))
+        {
+            try
+            {
+                freed += new DirectoryInfo(session).EnumerateFiles("*", SearchOption.AllDirectories).Sum(f => f.Length);
+                Directory.Delete(session, true);
+            }
+            catch (Exception exc) when (exc is IOException or UnauthorizedAccessException) { }
+        }
+        return freed;
+    }
+
     public LiveArchive(string directory, int maxPending = 32768, long maxBytes = 8L * 1024 * 1024 * 1024, long maxPendingBytes = 32L * 1024 * 1024)
     {
         this.directory = directory; this.maxBytes = maxBytes; this.maxPendingBytes = maxPendingBytes;
@@ -75,21 +95,50 @@ public sealed class LiveArchive : IDisposable
 
     public void SetError(string message) => Fail(message);
 
-    public void Append(long generation, string nid, LivePoint point)
+    /// <summary>Queues one original; returns its archive sequence, 0 when not archived.</summary>
+    public long Append(long generation, string nid, LivePoint point)
     {
         lock (gate)
         {
-            if (!Active || closed || generation != Generation || Error.Length > 0) return;
+            if (!Active || closed || generation != Generation || Error.Length > 0) return 0;
             var seq = sequence + 1;
             var size = 160 + 4L * ((point.Quality?.Length ?? 0) + (point.SourceTs?.Length ?? 0) + (point.ServerTs?.Length ?? 0) + (point.Text?.Length ?? 0)
                 + (point.DataType?.Length ?? 0) + (point.Status?.Length ?? 0) + (point.LocalTs?.Length ?? 0) + (point.Filetime?.Length ?? 0));
             if (pendingBytes + size > maxPendingBytes || !queue.TryAdd(new Point(generation, seq, nid, point, size)))
             {
                 Error = "Storico Live incompleto: coda di scrittura piena";
-                return;
+                return 0;
             }
             sequence = seq; Counts[nid] = Counts.GetValueOrDefault(nid) + 1; pendingBytes += size;
+            return seq;
         }
+    }
+
+    /// <summary>
+    /// Originals of one signal archived before a sequence, newest <paramref name="limit"/> at most, in time order
+    /// (calculated revisions of one timestamp keep their last value). truncated: older originals were left out.
+    /// </summary>
+    public List<LivePoint> Before(string nid, long before, int limit, out bool truncated)
+    {
+        var reference = Reference([nid], double.NegativeInfinity, double.PositiveInfinity);
+        using var c = Reader(reference);
+        using var transaction = c.BeginTransaction();
+        using var command = c.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = "SELECT seq,point FROM points WHERE generation=$g AND nid=$n AND seq<$b AND seq<=$s ORDER BY stamp DESC,seq DESC LIMIT $l";
+        command.Parameters.AddWithValue("$g", reference.Generation); command.Parameters.AddWithValue("$n", nid);
+        command.Parameters.AddWithValue("$b", before); command.Parameters.AddWithValue("$s", reference.Sequence);
+        command.Parameters.AddWithValue("$l", limit + 1);
+        var points = new List<LivePoint>();
+        using (var reader = command.ExecuteReader())
+            while (reader.Read()) points.Add(LivePoint.FromJson((JsonArray)Py.Parse(reader.GetString(1))!) with { Seq = reader.GetInt64(0) });
+        truncated = points.Count > limit;
+        if (truncated) points.RemoveAt(points.Count - 1);
+        points.Reverse();
+        if (nid.StartsWith("calc:", StringComparison.Ordinal))
+            points = points.Where((p, i) => i + 1 == points.Count || points[i + 1].T != p.T).ToList();
+        lock (gate) Check(reference.Generation);
+        return points;
     }
 
     public ArchiveReference Reference(IEnumerable<string> ids, double start, double end)

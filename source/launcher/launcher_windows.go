@@ -29,7 +29,7 @@ var payload []byte
 //go:embed payload.sha256
 var payloadDigest string
 
-const version = "3.0.2"
+const version = "3.0.3"
 
 func message(text string) {
 	title, _ := syscall.UTF16PtrFromString("Space Analyzer V" + version)
@@ -87,15 +87,122 @@ func extract(target string, progress func(float64)) error {
 	return nil
 }
 
-func environment(appDir, runtimeDir string) []string {
+func environment(appDir, runtimeDir, dataDir string) []string {
 	result := []string{}
 	for _, item := range os.Environ() {
 		key, _, _ := strings.Cut(item, "=")
-		if !strings.EqualFold(key, "OPCUA_APP_DIR") && !strings.EqualFold(key, "SPACE_BASE_DIR") && !strings.EqualFold(key, "SPACE_SPLASH") && !strings.EqualFold(key, "SPACE_PACKAGED") {
+		if !strings.EqualFold(key, "OPCUA_APP_DIR") && !strings.EqualFold(key, "SPACE_BASE_DIR") && !strings.EqualFold(key, "SPACE_SPLASH") && !strings.EqualFold(key, "SPACE_PACKAGED") && !strings.EqualFold(key, "OPCUA_DATA_DIR") {
 			result = append(result, item)
 		}
 	}
-	return append(result, "OPCUA_APP_DIR="+appDir, "SPACE_BASE_DIR="+runtimeDir, "SPACE_PACKAGED=1", "SPACE_SPLASH=1", "DOTNET_CLI_TELEMETRY_OPTOUT=1")
+	return append(result, "OPCUA_DATA_DIR="+dataDir, "OPCUA_APP_DIR="+appDir, "SPACE_BASE_DIR="+runtimeDir, "SPACE_PACKAGED=1", "SPACE_SPLASH=1", "DOTNET_CLI_TELEMETRY_OPTOUT=1")
+}
+
+// dataDirectory chooses where settings, logs, the extracted service and every cache live:
+// OPCUA_DATA_DIR when set; otherwise SpaceAnalyzer_Data beside the EXE when that disk can be
+// written, so nothing grows on C: when the EXE runs from another disk; otherwise the 2.x folder
+// %LOCALAPPDATA%\OPCUA_Web_Client. legacy is that 2.x folder when data now live beside the EXE.
+func dataDirectory(appDir string) (dir string, legacy string, err error) {
+	if configured := os.Getenv("OPCUA_DATA_DIR"); configured != "" {
+		return configured, "", os.MkdirAll(configured, 0700)
+	}
+	local := os.Getenv("LOCALAPPDATA")
+	if local == "" {
+		if local, err = os.UserConfigDir(); err != nil {
+			return "", "", err
+		}
+	}
+	legacy = filepath.Join(local, "OPCUA_Web_Client")
+	beside := filepath.Join(appDir, "SpaceAnalyzer_Data")
+	if writable(beside) {
+		return beside, legacy, nil
+	}
+	return legacy, "", os.MkdirAll(legacy, 0700)
+}
+
+func writable(dir string) bool {
+	if os.MkdirAll(dir, 0700) != nil {
+		return false
+	}
+	probe, err := os.CreateTemp(dir, ".write-test-")
+	if err != nil {
+		return false
+	}
+	probe.Close()
+	return os.Remove(probe.Name()) == nil
+}
+
+// migrate brings the settings of the 2.x/3.0 data folder beside the EXE once (they stay in the
+// old folder for older versions), moves imported recordings and removes the old caches, which
+// can be large (Live originals, calculations, extracted services).
+func migrate(legacy, target string, log io.Writer) {
+	marker := filepath.Join(target, ".migrated")
+	if _, err := os.Stat(marker); err == nil {
+		return
+	}
+	if _, err := os.Stat(legacy); err != nil {
+		os.WriteFile(marker, []byte("nessuna cartella precedente\n"), 0600)
+		return
+	}
+	if _, err := os.Stat(filepath.Join(target, "config.json")); err != nil {
+		for _, name := range []string{"config.json", "settings", "certificates", "workspace.json", "formulas.json", "recordings_location.json", "acquisition_events.sqlite3"} {
+			if err := copyTree(filepath.Join(legacy, name), filepath.Join(target, name)); err != nil && !os.IsNotExist(err) {
+				fmt.Fprintf(log, "Migrazione di %s non riuscita: %v\n", name, err)
+			}
+		}
+	}
+	imports := filepath.Join(legacy, "recording_imports")
+	if err := copyTree(imports, filepath.Join(target, "recording_imports")); err == nil {
+		os.RemoveAll(imports)
+	} else if !os.IsNotExist(err) {
+		fmt.Fprintf(log, "Migrazione dei file importati non riuscita: %v\n", err)
+	}
+	for _, cache := range []string{"live_analysis_cache", "calculation_cache", "runtime"} {
+		os.RemoveAll(filepath.Join(legacy, cache))
+	}
+	os.WriteFile(marker, []byte("dati migrati da "+legacy+"\n"), 0600)
+	fmt.Fprintf(log, "Dati migrati da %s a %s; cache precedenti rimosse\n", legacy, target)
+}
+
+// copyTree copies a file or a folder; existing destination files are kept.
+func copyTree(source, target string) error {
+	info, err := os.Stat(source)
+	if err != nil {
+		return err
+	}
+	if !info.IsDir() {
+		if _, err := os.Stat(target); err == nil {
+			return nil
+		}
+		in, err := os.Open(source)
+		if err != nil {
+			return err
+		}
+		defer in.Close()
+		if err = os.MkdirAll(filepath.Dir(target), 0700); err != nil {
+			return err
+		}
+		out, err := os.OpenFile(target, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+		if err != nil {
+			return err
+		}
+		if _, err = io.Copy(out, in); err != nil {
+			out.Close()
+			os.Remove(target)
+			return err
+		}
+		return out.Close()
+	}
+	entries, err := os.ReadDir(source)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if err := copyTree(filepath.Join(source, entry.Name()), filepath.Join(target, entry.Name())); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // runtimeDirectory extracts the payload once per build into the data folder and reuses it
@@ -178,18 +285,8 @@ func run() error {
 		return err
 	}
 	appDir := filepath.Dir(executable)
-	dataDir := os.Getenv("OPCUA_DATA_DIR")
-	if dataDir == "" {
-		local := os.Getenv("LOCALAPPDATA")
-		if local == "" {
-			local, err = os.UserConfigDir()
-			if err != nil {
-				return err
-			}
-		}
-		dataDir = filepath.Join(local, "OPCUA_Web_Client")
-	}
-	if err = os.MkdirAll(dataDir, 0700); err != nil {
+	dataDir, legacyDir, err := dataDirectory(appDir)
+	if err != nil {
 		return err
 	}
 	logPath := filepath.Join(dataDir, "launcher-v"+version+".log")
@@ -198,7 +295,10 @@ func run() error {
 		return err
 	}
 	defer logFile.Close()
-	fmt.Fprintf(logFile, "\nAvvio V%s; applicativo: %s\n", version, appDir)
+	fmt.Fprintf(logFile, "\nAvvio V%s; applicativo: %s; dati: %s\n", version, appDir, dataDir)
+	if legacyDir != "" {
+		migrate(legacyDir, dataDir, logFile)
+	}
 	var splash *Splash
 	tool := len(os.Args) > 1 && os.Args[1] == "--tool"
 	if os.Getenv("SPACE_NO_SPLASH") == "" && !tool {
@@ -215,13 +315,13 @@ func run() error {
 	if tool {
 		// Offline tools (recover/inspect/export) run in the console of the caller.
 		command := exec.Command(service, os.Args[1:]...)
-		command.Env = environment(appDir, runtimeDir)
+		command.Env = environment(appDir, runtimeDir, dataDir)
 		command.Stdout, command.Stderr, command.Stdin = os.Stdout, os.Stderr, os.Stdin
 		return command.Run()
 	}
 	command := exec.Command(service)
 	command.Dir = runtimeDir
-	command.Env = environment(appDir, runtimeDir)
+	command.Env = environment(appDir, runtimeDir, dataDir)
 	command.Stderr = logFile
 	output, err := command.StdoutPipe()
 	if err != nil {
@@ -229,6 +329,7 @@ func run() error {
 	}
 	command.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
 	// The service binds HTTP before opening the default browser and owns the instance lock.
+	started := time.Now()
 	if err = command.Start(); err != nil {
 		return fmt.Errorf("avvio dei servizi non riuscito: %w\nDettagli: %s", err, logPath)
 	}
@@ -243,10 +344,25 @@ func run() error {
 	<-relayed
 	timeout.Stop()
 	if err = command.Wait(); err != nil {
+		if crash := latestCrash(dataDir, started); crash != "" {
+			return fmt.Errorf("esecuzione dei servizi non riuscita: %w\nErrore registrato: %s\nDettagli: %s", err, crash, logPath)
+		}
 		return fmt.Errorf("esecuzione dei servizi non riuscita: %w\nDettagli: %s", err, logPath)
 	}
 	fmt.Fprintln(logFile, "Servizi terminati.")
 	return nil
+}
+
+// latestCrash returns the crash report the service wrote during this run, if any.
+func latestCrash(dataDir string, since time.Time) string {
+	matches, _ := filepath.Glob(filepath.Join(dataDir, "crash-*.txt"))
+	newest, newestTime := "", since.Add(-2*time.Second)
+	for _, path := range matches {
+		if info, err := os.Stat(path); err == nil && info.ModTime().After(newestTime) {
+			newest, newestTime = path, info.ModTime()
+		}
+	}
+	return newest
 }
 
 func main() {

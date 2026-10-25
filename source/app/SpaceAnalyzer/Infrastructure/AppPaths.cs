@@ -14,7 +14,12 @@ public sealed class AppPaths
     public string SettingsDir => Path.Combine(DataDir, "settings");
     public string SettingsFile => Path.Combine(SettingsDir, "saved_settings.json");
     public string SettingsCertDir => Path.Combine(SettingsDir, "certificates");
-    public string RecordingsDir => Path.Combine(ApplicationDir, "Recordings");
+    /// <summary>Folder of new recordings, exports and the Recordings page: the operator's choice, or Recordings beside the application.</summary>
+    public string RecordingsDir { get; private set; } = "";
+    public string DefaultRecordingsDir => Path.Combine(ApplicationDir, "Recordings");
+    public string RecordingsLocationFile => Path.Combine(DataDir, "recordings_location.json");
+    /// <summary>Why the saved folder could not be used at startup (the default is used instead).</summary>
+    public string? RecordingsLocationWarning { get; private set; }
     public string ImportedRecordingsDir => Path.Combine(DataDir, "recording_imports");
     public string WorkspaceFile => Path.Combine(DataDir, "workspace.json");
     public string ExportDir => Path.Combine(RecordingsDir, "Exports");
@@ -32,6 +37,45 @@ public sealed class AppPaths
             : BaseDir);
         var app = Environment.GetEnvironmentVariable("OPCUA_APP_DIR");
         ApplicationDir = Path.GetFullPath(!string.IsNullOrEmpty(app) ? app : packaged ? AppContext.BaseDirectory : BaseDir);
+        RecordingsDir = DefaultRecordingsDir;
+        try
+        {
+            if (File.Exists(RecordingsLocationFile) && System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(RecordingsLocationFile))?["directory"]?.GetValue<string>() is { Length: > 0 } saved)
+                RecordingsDir = Usable(saved);
+        }
+        catch (Exception exc) when (exc is IOException or UnauthorizedAccessException or UserError or System.Text.Json.JsonException or InvalidOperationException or ArgumentException or NotSupportedException)
+        {
+            RecordingsLocationWarning = "Cartella registrazioni salvata non disponibile (" + exc.Message + "): uso " + DefaultRecordingsDir;
+        }
+    }
+
+    /// <summary>Chooses the recordings folder (null or empty: the default) after checking that it can be written; the choice is kept across restarts.</summary>
+    public void SetRecordingsDir(string? path)
+    {
+        var target = string.IsNullOrWhiteSpace(path) ? DefaultRecordingsDir : Usable(path.Trim());
+        Directory.CreateDirectory(DataDir);
+        Py.AtomicPlain(RecordingsLocationFile, new Dictionary<string, object?> { ["directory"] = target == DefaultRecordingsDir ? "" : target });
+        RecordingsDir = target;
+        RecordingsLocationWarning = null;
+    }
+
+    static string Usable(string path)
+    {
+        path = ExpandUser(path);
+        if (!Path.IsPathFullyQualified(path)) throw new UserError("Indicare un percorso completo della cartella (ad esempio D:\\Registrazioni)");
+        var full = Path.GetFullPath(path);
+        try
+        {
+            Directory.CreateDirectory(full);
+            var probe = Path.Combine(full, ".space-analyzer-write-test-" + Guid.NewGuid().ToString("N"));
+            File.WriteAllBytes(probe, [1]);
+            File.Delete(probe);
+        }
+        catch (Exception exc) when (exc is IOException or UnauthorizedAccessException)
+        {
+            throw new UserError("Cartella non scrivibile: " + full + " (" + exc.Message + ")");
+        }
+        return full;
     }
 
     static string ExpandUser(string path) =>

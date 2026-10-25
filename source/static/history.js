@@ -169,7 +169,7 @@ function selectHistoryFile(file,graph=historyCharts.active){
   historyCharts.setGraphData(graph,{},new Map(),{});
   if(graph===historyCharts.active){renderHistoryControls();renderHistoryFileList();}
 }
-async function refreshHistoryFiles(){const result=await request('/api/recordings');historyFiles=(result.files||[]).map(f=>({source:'repository',...f}));I18N.bind(H('history-directory'),"textContent",()=>(result.directory||'—'),false);renderHistoryFileList();}
+async function refreshHistoryFiles(){const result=await request('/api/recordings');historyFiles=(result.files||[]).map(f=>({source:'repository',...f}));I18N.bind(H('history-directory'),"textContent",()=>(result.directory||'—'),false);if(result.directory&&!recordingLocked()){recordDirectory=result.directory;syncRecordingsLocation();}if(result.location_warning)notice(result.location_warning,true);renderHistoryFileList();}
 async function importHistoryLocalFile(file){
   const files=Array.isArray(file)?file:file?[file]:[];if(!files.length)return;
   if(files.some(f=>!['.csv','.parquet','.das','.rbf','.dat','.json'].some(ext=>String(f.name||'').toLowerCase().endsWith(ext))))throw new Error(I18N.t("Seleziona CSV, Parquet, FDA DAS4, RBF, DAT PDA3 e relativi JSON."));

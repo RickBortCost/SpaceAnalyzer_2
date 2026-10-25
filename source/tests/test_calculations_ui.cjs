@@ -54,7 +54,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   await wait(()=>t.liveCharts.active.trend.series[nid]?.length>5,'continuous calculated samples');
   assert.equal(t.liveCharts.active.nodes.get(nid).display_name,'Delta Carico');assert.ok($('selected').querySelector('[data-id="'+nid+'"]'));
   $('live-add-chart').click();assert.equal(t.liveCharts.charts.length,2);t.liveCharts.assign(nid,true);
-  assert.ok(t.liveCharts.active.ids.has(nid));t.liveCharts.setMarkers({x1:t.liveCharts.charts[0].trend.series[nid][0][0],x2:t.liveCharts.charts[0].trend.series[nid].at(-1)[0]});
+  assert.ok(t.liveCharts.active.ids.has(nid));t.liveCharts.setMarkers({x1:t.liveCharts.charts[0].trend.series[nid].at(0)[0],x2:t.liveCharts.charts[0].trend.series[nid].at(-1)[0]});
   assert.equal(t.liveCharts.charts[0].trend.markers.x1,t.liveCharts.charts[1].trend.markers.x1);
   $('record').click();await wait(()=>!$('record-modal').hidden,'Record including calculation');assert.equal($('record-signal-count').textContent,'3');
   $('record-form').querySelector('input[value="csv"]').checked=true;$('record-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));

@@ -114,6 +114,7 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         {
             rt.Recording.TestFinalizerGate = new ManualResetEventSlim(false);
             Post(app, "/test/finalizers/release", _ => { rt.Recording.TestFinalizerGate.Set(); return Task.FromResult<object?>(Ok()); });
+            Post(app, "/test/fatal", _ => { new Thread(() => throw new InvalidOperationException("Errore fatale di prova")) { Name = "test-fatal" }.Start(); return Task.FromResult<object?>(Ok()); });
         }
         Post(app, "/api/shutdown", _ =>
         {
@@ -532,7 +533,10 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             return Ok(("selected", rt.Selected.ToList()));
         });
         Post(app, "/api/samples/clear", _ => { rt.ClearSamples(); return Task.FromResult<object?>(Ok()); });
-        Get(app, "/api/values", ctx => Task.FromResult<object?>(rt.Values(Http.Query(ctx, "view", "all"))));
+        Get(app, "/api/values", ctx => Task.FromResult<object?>(rt.Values(Http.Query(ctx, "view", "all"), Http.Query(ctx, "samples", "1") != "0")));
+        // Full-resolution Live: new samples since the client's cursors, and session originals from the Live archive.
+        Post(app, "/api/live/samples", async ctx => rt.LiveSamples((await Http.Object(ctx, silent: true))["cursors"] as JsonObject ?? new JsonObject()));
+        Post(app, "/api/live/history", async ctx => rt.LiveHistory((await Http.Object(ctx, silent: true))["before"] as JsonObject ?? new JsonObject()));
         Get(app, "/api/acquisition/health", _ => Task.FromResult<object?>(Ok(
             ("acquisition", rt.Acquisition.Status()), ("recording", rt.Recording.Status()), ("calculations", rt.Calculations.Status()),
             ("recovery", rt.Recovery.Status()), ("protocols", rt.Sources.Status()),
@@ -636,7 +640,21 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
 
     void MapRecordings(WebApplication app)
     {
-        Get(app, "/api/recordings", _ => Task.FromResult<object?>(Ok(("directory", Paths.RecordingsDir), ("files", rt.Library.List().Concat(rt.Imported.List("local")).ToList()))));
+        Get(app, "/api/recordings", _ => Task.FromResult<object?>(Ok(("directory", Paths.RecordingsDir), ("default_directory", Paths.DefaultRecordingsDir),
+            ("location_warning", Paths.RecordingsLocationWarning), ("files", rt.Library.List().Concat(rt.Imported.List("local")).ToList()))));
+        // Folder of new recordings, exports and the Recordings page; empty directory = default (Recordings beside the application).
+        Post(app, "/api/recordings/location", async ctx =>
+        {
+            var data = await Http.Object(ctx);
+            var directory = await rt.SetRecordingsDirectory(data["directory"].Str());
+            return Ok(("directory", directory), ("default_directory", Paths.DefaultRecordingsDir));
+        });
+        Post(app, "/api/recordings/location/browse", async ctx =>
+        {
+            var title = (await Http.Object(ctx, silent: true))["title"].Str();
+            title = string.IsNullOrWhiteSpace(title) ? "Cartella delle registrazioni" : title.Trim()[..Math.Min(title.Trim().Length, 120)];
+            return Ok(("directory", await FolderPicker.Pick(title, Paths.RecordingsDir)));
+        });
         Post(app, "/api/recordings/import", async ctx => await Import.Files(ctx, Paths.ImportedRecordingsDir, rt.Imported));
         Post(app, "/api/recordings/data", async ctx =>
         {
