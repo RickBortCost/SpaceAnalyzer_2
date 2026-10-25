@@ -112,6 +112,14 @@ public static class Program
         throw new InvalidOperationException("L'applicazione è già in avvio. Attendere alcuni secondi e riprovare.");
     }
 
+    static void Fatal(AppPaths paths, Exception? exc, string? thread)
+    {
+        var text = $"Space Analyzer V{Defaults.Version} - errore fatale {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}, thread {thread ?? "senza nome"}\n{exc}";
+        try { Log.Error("Errore fatale del servizio (thread " + (thread ?? "senza nome") + ")", exc); } catch (Exception) { }
+        try { File.WriteAllText(Path.Combine(paths.DataDir, $"crash-{DateTime.Now:yyyyMMdd-HHmmss}.txt"), text); } catch (Exception) { }
+        try { Console.Error.WriteLine(text); } catch (Exception) { }
+    }
+
     static int Run(string[] args)
     {
         Progress(70, "Moduli caricati");
@@ -125,6 +133,9 @@ public static class Program
         Directory.CreateDirectory(paths.DataDir);
         Log.Configure(paths.LogFile);
         Log.Info("Application start V" + Defaults.Version);
+        // A fatal error ends the process: record it where the operator and support look first.
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => Fatal(paths, e.ExceptionObject as Exception, Thread.CurrentThread.Name);
+        TaskScheduler.UnobservedTaskException += (_, e) => { Log.Error("Eccezione di un'attività non osservata", e.Exception); e.SetObserved(); };
         if (paths.RecordingsLocationWarning is { } warning) Log.Warning(warning);
         Engine.Core.EngineLog.Sink = Log.Info;
         Directory.CreateDirectory(paths.ImportedRecordingsDir);

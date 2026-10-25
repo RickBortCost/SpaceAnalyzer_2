@@ -224,15 +224,31 @@ public sealed class AdsNativeTransport : IAdsTransport
     }
 
     // Runs on the router thread: copy bytes and clocks only.
+    // Called by the TcAdsDll router on its own thread: an exception escaping here would end the whole
+    // process, so any failure becomes an invalid notification that the acquisition reports and stops on.
     void OnRouterNotification(IntPtr addr, IntPtr header, uint user)
     {
         var receivedNs = Core.Clock.UtcNs(); var receivedMono = Core.Clock.MonoNs();
-        var ticks = Marshal.ReadInt64(header, 4);
-        var size = Marshal.ReadInt32(header, 12);
-        var data = new byte[size];
-        Marshal.Copy(header + 16, data, 0, size);
-        OnNotification?.Invoke(user, ticks, data, receivedNs, receivedMono);
+        long ticks = 0;
+        byte[] data;
+        try
+        {
+            ticks = Marshal.ReadInt64(header, 4);
+            var size = Marshal.ReadInt32(header, 12);
+            if (size < 0 || size > MaxNotificationBytes) throw new InvalidDataException("Dimensione notifica ADS non valida: " + size);
+            data = new byte[size];
+            Marshal.Copy(header + 16, data, 0, size);
+        }
+        catch (Exception exc)
+        {
+            Core.EngineLog.Info("Notifica TcAdsDll non leggibile: " + exc.Message);
+            data = Array.Empty<byte>();
+        }
+        try { OnNotification?.Invoke(user, ticks, data, receivedNs, receivedMono); }
+        catch (Exception exc) { Core.EngineLog.Info("Errore nella notifica TcAdsDll: " + exc); }
     }
+
+    const int MaxNotificationBytes = 16 * 1024 * 1024;
 
     public async Task<uint> AddNotification(uint group, uint offset, uint length, uint maxDelay, uint cycle, uint user, CancellationToken ct)
     {

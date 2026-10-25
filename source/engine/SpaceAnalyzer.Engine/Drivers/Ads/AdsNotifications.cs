@@ -78,6 +78,12 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
     // Router/reader thread: copy bytes and clocks only.
     void Callback(uint user, long ticks, byte[] data, long receivedNs, long receivedMono)
     {
+        try { Enqueue(user, ticks, data, receivedNs, receivedMono); }
+        catch (Exception exc) { lock (gate) callbackFault ??= "Callback ADS: " + exc.Message; }
+    }
+
+    void Enqueue(uint user, long ticks, byte[] data, long receivedNs, long receivedMono)
+    {
         lock (gate)
         {
             if (!accepting || !members.TryGetValue(user, out var member)) return;

@@ -114,6 +114,7 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         {
             rt.Recording.TestFinalizerGate = new ManualResetEventSlim(false);
             Post(app, "/test/finalizers/release", _ => { rt.Recording.TestFinalizerGate.Set(); return Task.FromResult<object?>(Ok()); });
+            Post(app, "/test/fatal", _ => { new Thread(() => throw new InvalidOperationException("Errore fatale di prova")) { Name = "test-fatal" }.Start(); return Task.FromResult<object?>(Ok()); });
         }
         Post(app, "/api/shutdown", _ =>
         {

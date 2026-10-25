@@ -229,6 +229,7 @@ func run() error {
 	}
 	command.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
 	// The service binds HTTP before opening the default browser and owns the instance lock.
+	started := time.Now()
 	if err = command.Start(); err != nil {
 		return fmt.Errorf("avvio dei servizi non riuscito: %w\nDettagli: %s", err, logPath)
 	}
@@ -243,10 +244,25 @@ func run() error {
 	<-relayed
 	timeout.Stop()
 	if err = command.Wait(); err != nil {
+		if crash := latestCrash(dataDir, started); crash != "" {
+			return fmt.Errorf("esecuzione dei servizi non riuscita: %w\nErrore registrato: %s\nDettagli: %s", err, crash, logPath)
+		}
 		return fmt.Errorf("esecuzione dei servizi non riuscita: %w\nDettagli: %s", err, logPath)
 	}
 	fmt.Fprintln(logFile, "Servizi terminati.")
 	return nil
+}
+
+// latestCrash returns the crash report the service wrote during this run, if any.
+func latestCrash(dataDir string, since time.Time) string {
+	matches, _ := filepath.Glob(filepath.Join(dataDir, "crash-*.txt"))
+	newest, newestTime := "", since.Add(-2*time.Second)
+	for _, path := range matches {
+		if info, err := os.Stat(path); err == nil && info.ModTime().After(newestTime) {
+			newest, newestTime = path, info.ModTime()
+		}
+	}
+	return newest
 }
 
 func main() {
