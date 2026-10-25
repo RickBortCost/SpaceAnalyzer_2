@@ -37,6 +37,21 @@ public sealed record LivePoint(double T, double? Value, string? Quality, long? S
     public JsonArray ToJson() => new(
         T, Value, Quality, StatusCode, SourceTs, ServerTs, Text, DataType, Status, Period, LocalTs, Filetime);
 
+    /// <summary>Same text as <c>ToJson().ToJsonString(Py.Options)</c>, written without building the JSON tree (hot path of the Live archive).</summary>
+    public void WriteJson(System.Text.Json.Utf8JsonWriter w)
+    {
+        w.WriteStartArray();
+        w.WriteNumberValue(T);
+        if (Value is double v) w.WriteNumberValue(v); else w.WriteNullValue();
+        Str(w, Quality);
+        if (StatusCode is long sc) w.WriteNumberValue(sc); else w.WriteNullValue();
+        Str(w, SourceTs); Str(w, ServerTs); Str(w, Text); Str(w, DataType); Str(w, Status);
+        if (Period is double p) w.WriteNumberValue(p); else w.WriteNullValue();
+        Str(w, LocalTs); Str(w, Filetime);
+        w.WriteEndArray();
+        static void Str(System.Text.Json.Utf8JsonWriter w, string? s) { if (s is null) w.WriteNullValue(); else w.WriteStringValue(s); }
+    }
+
     public static LivePoint FromJson(JsonArray a)
     {
         JsonNode? At(int i) => i < a.Count ? a[i] : null;

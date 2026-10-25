@@ -1,15 +1,17 @@
 # Space Analyzer 3
 
-**Versione 3.2.1.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.2.2.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.2.1
+## Novità della versione 3.2.2
 
-- Intestazione sempre su un solo livello: stato della connessione e indirizzo del server tolti dalla barra (restano nella barra di stato in basso e in Connessione), compattazione progressiva delle voci a larghezze ridotte e scorrimento orizzontale sotto circa 1170 px. Motivo: nessun controllo tagliato e nessuna barra su due righe.
-- Selettore del tema più largo, senza testo tagliato.
-- Salvataggio di impostazioni e workspace più robusto su Windows (nessun errore "Access denied" con scritture ravvicinate). Motivo: un salvataggio poteva fallire con 500 e bloccare a volte la pubblicazione.
-- Dalla 3.2.0: data e ora del PC (fino al secondo) accanto a Impostazioni, intestazione riordinata (lingua, tema, data e ora, Impostazioni, Spegni) e senza X1/X2; dalla 3.1.0: doppio clic su un segnale per creare un grafico e scale Y condivise dalla legenda.
+- Zoom e spostamento per singola scala Y: rotella, trascinamento e doppio clic sulla colonna dell'asse; indicazione "+N Y" per le scale senza colonna. Motivo: regolare un canale senza toccare gli altri.
+- Legenda utilizzabile da tastiera (Spazio/frecce, Invio, Canc, Esc). Motivo: accessibilità senza mouse.
+- Pallino di stato della connessione accanto a Connessione. Motivo: segnale minimo dopo la rimozione dello stato dall'intestazione.
+- Storico Live: errore di sovraccarico con righe/s in arrivo e scritte, scrittura più veloce (oltre 90.000 righe/s). Motivo: capire quanto ridurre segnali o frequenza; il limite resta dichiarato, mai nascosto.
+- Smoke test dell'EXE deterministico e controlli statici dell'interfaccia in pipeline. Motivo: evitare blocchi casuali delle pubblicazioni ed errori scoperti solo a runtime.
+- Dalla 3.2.1: intestazione su un solo livello e salvataggio JSON robusto su Windows; dalla 3.2.0: data e ora del PC e pulsante Spegni; dalla 3.1.0: doppio clic per nuovo grafico e scale condivise.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

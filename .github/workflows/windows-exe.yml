@@ -76,6 +76,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m unittest discover -s source/tests -p test_release_notes.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest discover -s source/tests -p test_static_assets.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python source/tests/test_launcher.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # test_s7_modes_ui.cjs richiede una CPU S7-1200/1500 reale (S7CommPlus autenticato): escluso dalla CI.

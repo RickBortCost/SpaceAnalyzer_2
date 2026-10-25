@@ -62,7 +62,7 @@ def main():
     else:
         app=args.app.absolute()
         command=[os.environ.get('DOTNET','dotnet'),str(app)] if app.suffix=='.dll' else [str(app)]
-    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'3.2.1'}
+    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'3.2.2'}
     report={'version':build['version'],'tested_at':datetime.now(timezone.utc).isoformat(),
             'platform':sys.platform,'packaged_exe_executed':packaged,'formats':{},
             'hardware_tested':False,'result':'FAIL'}
@@ -80,7 +80,10 @@ def main():
             with socket.socket() as sock:
                 sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
             env={**os.environ,'OPCUA_DATA_DIR':str(data/'settings'),
-                'OPCUA_APP_DIR':str(data/'application'),'OPCUA_NO_BROWSER':'1','OPCUA_WEB_PORT':str(port)}
+                'OPCUA_APP_DIR':str(data/'application'),'OPCUA_NO_BROWSER':'1','OPCUA_WEB_PORT':str(port),
+                # Gancio di prova: il salvataggio della sessione "Slow previous" resta in sospeso finché non viene rilasciato,
+                # così la sovrapposizione con la registrazione successiva non dipende dalla velocità del PC.
+                'SPACE_TEST_HOOKS':'1'}
             if packaged:
                 # The child receives no installed Python/.NET/Go path: the service and
                 # its self-contained .NET runtime must come from the embedded ZIP.
@@ -184,18 +187,19 @@ def main():
                 batch_ids=['mqtt:smoke/batch#/v'+str(i) for i in range(64)]
                 api('/api/select',{'nodeids':batch_ids})
                 batch_nodes=[{'nodeid':n,'display_name':n} for n in batch_ids]
-                first=api('/api/record/start',{'format':'das','selected_nodes':batch_nodes,'options':{'session_name':'Overlap FDA','buffer_seconds':120}})['recording']
+                first=api('/api/record/start',{'format':'das','selected_nodes':batch_nodes,'options':{'session_name':'Slow previous','buffer_seconds':120}})['recording']
                 for index in range(2000):peer.publish('smoke/batch',{'v'+str(i):float(index+i) for i in range(64)},qos=1)
                 until(lambda:api('/api/record/status')['recording']['cycles_received']>=2000)
                 stopped=api('/api/record/stop',{'recording_id':first['recording_id']})['recording']
                 if stopped['selection_locked'] or not stopped['can_start']:raise RuntimeError('Previous save blocks the next recording')
-                if not stopped['finalizing_count']:raise RuntimeError('Overlap fixture finalized too early to verify concurrency')
+                if not stopped['finalizing_count']:raise RuntimeError('Overlap fixture was not held pending (test hook unavailable)')
                 second=api('/api/record/start',{'format':'csv','selected_nodes':batch_nodes,'options':{'session_name':'Overlap next','buffer_seconds':120}})['recording']
                 if second['recording_id']==first['recording_id']:raise RuntimeError('Recording session identity reused')
                 if not second['finalizing_count']:raise RuntimeError('Previous save did not overlap the new acquisition')
                 for index in range(10):peer.publish('smoke/batch',{'v'+str(i):float(9000+index+i) for i in range(64)},qos=1)
                 until(lambda:api('/api/record/status')['recording']['cycles_received']>=10)
                 api('/api/record/stop',{'recording_id':second['recording_id']})
+                api('/test/finalizers/release',{})
                 until(lambda:not api('/api/record/status')['recording']['busy'],timeout=90)
                 jobs=api('/api/record/status')['recording']['finalizations']
                 old=next(j for j in jobs if j['recording_id']==first['recording_id']);new=next(j for j in jobs if j['recording_id']==second['recording_id'])

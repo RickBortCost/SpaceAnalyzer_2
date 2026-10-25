@@ -27,7 +27,8 @@ public sealed class LiveArchive : IDisposable
     readonly BlockingCollection<Item> queue;
     readonly object gate = new();
     public long Generation { get; private set; }
-    long sequence, pendingBytes;
+    long sequence, pendingBytes, written;
+    readonly System.Diagnostics.Stopwatch sessionClock = new();
     public Dictionary<string, long> Counts { get; } = new();
     public string Error { get; private set; } = "";
     string fatal = "";
@@ -68,7 +69,7 @@ public sealed class LiveArchive : IDisposable
         lock (gate)
         {
             Generation++; generation = Generation;
-            sequence = 0; Counts.Clear(); Error = fatal;
+            sequence = 0; Counts.Clear(); Error = fatal; written = 0; sessionClock.Restart();
             if (closed || fatal.Length > 0) return generation;
             if (thread == null)
             {
@@ -106,7 +107,8 @@ public sealed class LiveArchive : IDisposable
                 + (point.DataType?.Length ?? 0) + (point.Status?.Length ?? 0) + (point.LocalTs?.Length ?? 0) + (point.Filetime?.Length ?? 0));
             if (pendingBytes + size > maxPendingBytes || !queue.TryAdd(new Point(generation, seq, nid, point, size)))
             {
-                Error = "Storico Live incompleto: coda di scrittura piena";
+                var seconds = Math.Max(1.0, sessionClock.Elapsed.TotalSeconds);
+                Error = string.Create(CultureInfo.CurrentCulture, $"Storico Live incompleto: coda di scrittura piena (in arrivo circa {sequence / seconds:N0} righe/s, scrittura circa {Interlocked.Read(ref written) / seconds:N0} righe/s: ridurre segnali o frequenza)");
                 return 0;
             }
             sequence = seq; Counts[nid] = Counts.GetValueOrDefault(nid) + 1; pendingBytes += size;
@@ -248,7 +250,8 @@ public sealed class LiveArchive : IDisposable
         {
             c = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = path, Mode = SqliteOpenMode.ReadWriteCreate }.ToString());
             c.Open();
-            Exec(c, "PRAGMA journal_mode=WAL"); Exec(c, "PRAGMA synchronous=NORMAL");
+            // Cache temporanea eliminata a ogni avvio: nessun fsync a ogni commit.
+            Exec(c, "PRAGMA journal_mode=WAL"); Exec(c, "PRAGMA synchronous=OFF");
             Exec(c, "PRAGMA cache_size=-65536"); Exec(c, "PRAGMA temp_store=MEMORY"); Exec(c, "PRAGMA wal_autocheckpoint=8192");
             Exec(c, "CREATE TABLE points(generation INTEGER,seq INTEGER,stamp REAL,nid TEXT,point TEXT)");
             Exec(c, "CREATE INDEX source_time ON points(nid,stamp,seq)");
@@ -306,18 +309,22 @@ public sealed class LiveArchive : IDisposable
             command.CommandText = "INSERT INTO points VALUES($g,$s,$t,$n,$p)";
             var g = command.Parameters.Add("$g", SqliteType.Integer); var s = command.Parameters.Add("$s", SqliteType.Integer);
             var t = command.Parameters.Add("$t", SqliteType.Real); var n = command.Parameters.Add("$n", SqliteType.Text); var pp = command.Parameters.Add("$p", SqliteType.Text);
-            var written = 0;
+            var rows = 0;
+            var buffer = new System.Buffers.ArrayBufferWriter<byte>(256);
+            using var json = new System.Text.Json.Utf8JsonWriter(buffer, new System.Text.Json.JsonWriterOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
             foreach (var item in batch)
             {
                 if (item.Generation != Generation) continue;
                 if (!double.IsFinite(item.P.T)) throw new InvalidDataException("Timestamp originale non finito");
                 var p = item.P.Value is double v && !double.IsFinite(v) ? item.P with { Value = null } : item.P;
-                g.Value = item.Generation; s.Value = item.Seq; t.Value = p.T; n.Value = item.Nid; pp.Value = p.ToJson().ToJsonString(Py.Options);
+                buffer.Clear(); json.Reset(buffer); p.WriteJson(json); json.Flush();
+                g.Value = item.Generation; s.Value = item.Seq; t.Value = p.T; n.Value = item.Nid; pp.Value = System.Text.Encoding.UTF8.GetString(buffer.WrittenSpan);
                 command.ExecuteNonQuery();
-                written++;
+                rows++;
             }
             transaction.Commit();
-            if (written > 0 && new DirectoryInfo(Path.GetDirectoryName(path!)!).GetFiles().Sum(f => f.Length) > maxBytes)
+            Interlocked.Add(ref written, rows);
+            if (rows > 0 && new DirectoryInfo(Path.GetDirectoryName(path!)!).GetFiles().Sum(f => f.Length) > maxBytes)
                 throw new InvalidDataException("Limite spazio storico Live raggiunto");
         }
         catch (Exception exc)

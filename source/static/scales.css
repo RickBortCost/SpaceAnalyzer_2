@@ -18,3 +18,10 @@
 
 /* Data e ora del PC accanto a Impostazioni. */
 .app-clock{display:inline-flex;align-items:center;justify-content:center;min-height:30px;min-width:152px;padding:3px 10px;border:1px solid var(--line,#E5E5E5);border-radius:6px;background:var(--surface2,#F2F2F2);color:var(--ink,#000);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* Pallino di stato della connessione. */
+.conn-dot{flex:none;align-self:center;width:9px;height:9px;margin:0 2px 0 4px;border-radius:50%;background:var(--brand-disabled,#CCC3BE);box-shadow:0 0 0 2px color-mix(in srgb,currentColor 0%,transparent)}
+.conn-dot.ok{background:var(--brand-teal,#0AAF96)}
+.conn-dot.pending{background:var(--brand-orange,#F58C3A)}
+.conn-dot.bad{background:var(--brand-error,#E53C14)}
+.legend span.legend-picked{border-color:var(--blue,#006EFF);box-shadow:0 0 0 2px color-mix(in srgb,var(--blue,#006EFF) 40%,transparent)}

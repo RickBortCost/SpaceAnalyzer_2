@@ -2,6 +2,19 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.2.2
+
+- **Zoom e spostamento per singola scala Y**: la rotella sopra una colonna asse ingrandisce o riduce solo quella scala attorno al cursore (con Maiusc la sposta del 10%), il trascinamento verticale sull'asse la sposta, il doppio clic sull'asse ripristina la scala automatica (fuori dagli assi riporta tutto alla vista iniziale). Con lo zoom rettangolare attivo la modifica riguarda lo zoom corrente. Motivo: con scale indipendenti serviva poter regolare un canale senza toccare gli altri.
+- **Scale oltre il limite di 4 colonne**: nel grafico compare l'indicazione "+N Y" con le scale calcolate ma senza colonna. Motivo: prima non era visibile che alcune scale non avevano un asse disegnato.
+- **Legenda utilizzabile da tastiera**: Spazio o frecce prendono un canale, Invio lo rilascia su un altro per condividere la scala, Canc lo separa, Esc annulla; il canale preso è evidenziato e il suggerimento compare nel tooltip (tradotto in tutte le lingue). Motivo: il solo trascinamento escludeva chi non usa il mouse.
+- **Indicatore di connessione**: un pallino accanto a Connessione (verde connesso, giallo in corso, rosso errore, grigio non connesso) con testo accessibile. Motivo: dopo aver tolto lo stato dall'intestazione (3.2.1) serviva un segnale minimo, senza occupare spazio.
+- **Storico Live: diagnosi del sovraccarico e scrittura più veloce**: l'errore "coda di scrittura piena" riporta ora le righe/s in arrivo e quelle scritte, così si capisce quanto ridurre segnali o frequenza; la serializzazione dei punti avviene senza alberi JSON intermedi e SQLite usa `synchronous=OFF` (l'archivio è temporaneo e ricostruibile), portando lo scrittore da circa 77.000 a oltre 90.000 righe/s nelle misure. Limite invariato e dichiarato: un carico stabile oltre la capacità (indicativamente centinaia di segnali a 1 kHz) rende lo storico incompleto e viene segnalato, mai nascosto. Nuovi test di carico (`LiveArchiveLoadTests`, parametri `SA_LOAD_*`) e di equivalenza della serializzazione (`LivePointJsonTests`).
+- **Smoke test dell'EXE deterministico**: la prova di sovrapposizione delle registrazioni usa il gancio di test `SPACE_TEST_HOOKS` per trattenere il salvataggio precedente e rilasciarlo esplicitamente. Motivo: su runner veloci il controllo "Overlap fixture finalized too early" falliva a caso e bloccava la pubblicazione.
+- **Controlli statici dell'interfaccia** (`test_static_assets.py`, eseguito dalla pipeline): sintassi di tutti i JavaScript, file referenziati dal template, id duplicati, stesse chiavi in tutte le lingue del catalogo. Motivo: errori di questo tipo emergevano solo a runtime.
+- Test UI estesi (`test_scale_groups_ui.cjs`) a rotella, trascinamento, doppio clic, tastiera, scale nascoste e pallino.
+
+Non incluso, da valutare: trigger e allarmi, firma dell'EXE e aggiornamento automatico, prove con hardware e Windows reali.
+
 ## 3.2.1
 
 - **Intestazione su un solo livello**: la barra non va più a capo a nessuna larghezza (dal 3.1.0 andava su due righe tra circa 1280 e 1730 px). Lo stato della connessione e l'indirizzo del server (ad esempio "Non connesso" e "TwinCAT locale · AMS …") non compaiono più nell'intestazione: restano nella barra di stato in basso e nella finestra Connessione. Motivo: la barra deve restare una sola riga senza tagliare i controlli.

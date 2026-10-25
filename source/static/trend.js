@@ -235,7 +235,8 @@ class Trend {
       listen(window,'mouseup',e=>this.zoomEnd(e));
     }
     listen(canvas,'mouseleave',()=>{if(!this.drag){tooltip.hidden=true;this.onHover?.(null);}});
-    listen(canvas,'dblclick',()=>this.resetZoom());
+    listen(canvas,'dblclick',e=>{const hit=this.axisAt(e);if(hit)this.resetScale(hit.key);else this.resetZoom();});
+    listen(canvas,'wheel',e=>this.axisWheel(e));
     canvas.classList.add('zoomable');
     for(const [which,id] of [['x1','markerX1'],['x2','markerX2']]){
       const button=this.el(id);if(button&&typeof button.addEventListener==='function')listen(button,'click',()=>this.armMarker(which));
@@ -386,8 +387,36 @@ class Trend {
   }
   inPlot(pt){if(!pt||!this.layout)return false;const {p,w,h}=this.layout;return pt.x>=p.l&&pt.x<=w-p.r&&pt.y>=p.t&&pt.y<=h-p.b;}
   xTime(x){const b=this.domain,{p,w}=this.layout;return b.xmin+(x-p.l)/(w-p.l-p.r)*(b.xmax-b.xmin);}
+  // ---- Zoom e spostamento di una sola scala: rotella sull'asse (Maiusc = sposta), trascinamento sull'asse, doppio clic = automatica ----
+  axisAt(event){
+    if(!this.layout||!this.domain||!this.axisPlan?.keys)return null;
+    const pt=this.plotPoint(event,false),{p,w,h}=this.layout;if(!pt||pt.y<p.t||pt.y>h-p.b)return null;
+    const COL=Trend.AXIS_COLUMN,plan=this.axisPlan,list=side=>plan.keys.filter(k=>(plan.side.get(k)==='right'?'right':'left')===side).slice(0,Trend.AXIS_COLUMNS);
+    if(pt.x<p.l){const key=list('left')[Math.floor((p.l-pt.x)/COL)];return key?{key,side:'left'}:null;}
+    if(pt.x>w-p.r){const key=list('right')[Math.floor((pt.x-(w-p.r))/COL)];return key?{key,side:'right'}:null;}
+    return null;
+  }
+  scaleRange(key){const d=this.zoom?.axes?.[key]||this.domain?.axes?.[key];return d?{min:d.ymin,max:d.ymax}:null;}
+  setScaleRange(key,min,max){
+    if(!(Number.isFinite(min)&&Number.isFinite(max)&&max>min))return false;
+    if(this.zoom?.axes)this.zoom={...this.zoom,axes:{...this.zoom.axes,[key]:{ymin:min,ymax:max}}};
+    else this.axisSettings[key]={...(this.axisSettings[key]||{}),mode:'manual',min,max};
+    this.tooltip.hidden=true;this.draw();clearTimeout(this.scaleTimer);this.scaleTimer=setTimeout(()=>this.onScaleChanged?.(),250);return true;
+  }
+  resetScale(key){
+    if(this.zoom?.axes&&this.fullDomain?.axes?.[key])this.zoom={...this.zoom,axes:{...this.zoom.axes,[key]:{...this.fullDomain.axes[key]}}};
+    else if(this.axisSettings[key])this.axisSettings[key]={...this.axisSettings[key],mode:'auto'};
+    this.draw();clearTimeout(this.scaleTimer);this.scaleTimer=setTimeout(()=>this.onScaleChanged?.(),250);
+  }
+  axisWheel(event){
+    const hit=this.axisAt(event),r=hit&&this.scaleRange(hit.key);if(!r)return;
+    event.preventDefault();const {p,h}=this.layout,pt=this.plotPoint(event,false),span=r.max-r.min,frac=Math.max(0,Math.min(1,(pt.y-p.t)/(h-p.t-p.b)));
+    if(event.shiftKey){const shift=span*.1*(event.deltaY>0?-1:1);this.setScaleRange(hit.key,r.min+shift,r.max+shift);return;}
+    const at=r.max-frac*span,next=span*(event.deltaY<0?1/1.2:1.2);this.setScaleRange(hit.key,at-(1-frac)*next,at+frac*next);
+  }
   zoomStart(event){
     if(!this.domain||event.button!==undefined&&event.button!==0)return;
+    const hitAxis=this.axisAt(event);if(hitAxis&&this.scaleRange(hitAxis.key)){this.axisDrag={key:hitAxis.key,y0:event.clientY,range:this.scaleRange(hitAxis.key)};this.tooltip.hidden=true;if(event.pointerId!==undefined&&this.canvas.setPointerCapture){try{this.canvas.setPointerCapture(event.pointerId);}catch{}}event.preventDefault();return;}
     const pt=this.plotPoint(event,false);if(!this.inPlot(pt))return;
     if(this.markerMode){this.setMarker(this.markerMode,this.xTime(pt.x));event.preventDefault();return;}
     const hit=['x1','x2'].find(k=>Number.isFinite(this.markers[k])&&Math.abs(pt.x-(this.layout.p.l+(this.markers[k]-this.domain.xmin)/(this.domain.xmax-this.domain.xmin)*(this.layout.w-this.layout.p.l-this.layout.p.r)))<=8);
@@ -397,11 +426,13 @@ class Trend {
     event.preventDefault();this.draw();
   }
   pointerMove(event){
+    if(this.axisDrag){const d=this.axisDrag,{p,h}=this.layout,shift=(event.clientY-d.y0)/(h-p.t-p.b)*(d.range.max-d.range.min);event.preventDefault();this.setScaleRange(d.key,d.range.min+shift,d.range.max+shift);return;}
     if(this.markerDrag){const point=this.plotPoint(event);this.setMarker(this.markerDrag,this.xTime(point.x));event.preventDefault();return;}
     if(this.drag){const pt=this.plotPoint(event);this.drag.x1=pt.x;this.drag.y1=pt.y;this.tooltip.hidden=true;event.preventDefault();this.draw();return;}
-    this.hover(event);
+    this.canvas.style.cursor=this.axisAt(event)?'ns-resize':'';this.hover(event);
   }
   zoomEnd(event){
+    if(this.axisDrag){this.axisDrag=null;if(event.pointerId!==undefined&&this.canvas.releasePointerCapture){try{this.canvas.releasePointerCapture(event.pointerId);}catch{}}return;}
     if(this.markerDrag){const point=this.plotPoint(event);this.setMarker(this.markerDrag,this.xTime(point.x));this.markerDrag=null;try{this.canvas.releasePointerCapture?.(event.pointerId);}catch{}return;}
     if(!this.drag||!this.domain||!this.layout)return;
     const pt=this.plotPoint(event);this.drag.x1=pt.x;this.drag.y1=pt.y;const d=this.drag;this.drag=null;
@@ -415,7 +446,7 @@ class Trend {
     }
     this.draw();if(this.zoom)this.onViewChanged?.({xmin:this.zoom.xmin,xmax:this.zoom.xmax});
   }
-  zoomCancel(event){this.markerDrag=null;if(!this.drag)return;this.drag=null;if(event.pointerId!==undefined&&this.canvas.releasePointerCapture){try{this.canvas.releasePointerCapture(event.pointerId);}catch{}}this.draw();}
+  zoomCancel(event){this.markerDrag=null;this.axisDrag=null;if(!this.drag)return;this.drag=null;if(event.pointerId!==undefined&&this.canvas.releasePointerCapture){try{this.canvas.releasePointerCapture(event.pointerId);}catch{}}this.draw();}
   formatAxis(v,step){
     if(Math.abs(v)>=1e7||(Math.abs(v)>0&&Math.abs(v)<1e-4))return v.toExponential(2);
     if(!(step>0))return Number(v.toPrecision(5)).toLocaleString(I18N.locale());
@@ -505,12 +536,13 @@ class Trend {
       s.style.color=this.color(id);dot.className='dot';tag.className='axis-tag'+(shared?' shared':'');
       if(shared){const gc=this.groupColor(plan,key);tag.style.color=gc;tag.style.borderColor=gc;}
       I18N.bind(tag,"textContent",()=>this.axisTag(id),false);
-      s.title=(n.display_name||id)+(shared?'\n'+I18N.t("Scala condivisa: trascina su un altro canale per unire, tasto destro per separare"):'\n'+I18N.t("Trascina su un altro canale per condividere la scala"));
+      s.title=(n.display_name||id)+(shared?'\n'+I18N.t("Scala condivisa: trascina su un altro canale per unire, tasto destro per separare"):'\n'+I18N.t("Trascina su un altro canale per condividere la scala"))+'\n'+I18N.t("Tastiera: Spazio prende il canale, Invio lo rilascia su un altro, Canc separa");
       s.draggable=true;s.tabIndex=0;s.dataset.signalId=id;s.dataset.scaleKey=key;s.dataset.scaleShared=shared?'1':'0';
       s.append(dot,document.createTextNode(signalShortName(id,n,this.presentation[id])+(this.presentation[id]?.unit?' ['+this.presentation[id].unit+']':'')),tag);
       this.bindLegendEntry(s,id);this.legend.append(s);
     }
   }
+  clearLegendPick(){Trend.legendPicked=null;for(const e of this.legendEntries()){e.classList.remove('legend-picked');e.removeAttribute('aria-grabbed');}}
   legendEntries(){return [...this.legend.querySelectorAll('span[data-signal-id]')];}
   clearLegendDrag(){Trend.legendDrag=null;for(const e of this.legendEntries())e.classList.remove('legend-dragging','legend-drop-target','legend-drop-group');}
   bindLegendEntry(s,id){
@@ -522,6 +554,16 @@ class Trend {
     s.addEventListener('dragleave',e=>{if(!s.contains(e.relatedTarget)){s.classList.remove('legend-drop-target');for(const o of this.legendEntries())o.classList.remove('legend-drop-group');}});
     s.addEventListener('drop',e=>{const d=Trend.legendDrag;this.clearLegendDrag();if(!d||d.trend!==this||d.id===id)return;e.preventDefault();e.stopPropagation();this.joinScale(d.id,id).catch(()=>{});});
     s.addEventListener('contextmenu',e=>this.showScaleMenu(e,id,s));
+    // Tastiera: Spazio prende il canale, Invio lo rilascia su quello selezionato, Esc annulla, frecce spostano il fuoco, Canc separa.
+    s.addEventListener('keydown',e=>{
+      const entries=this.legendEntries(),index=entries.indexOf(s),picked=Trend.legendPicked?.trend===this?Trend.legendPicked.id:null;
+      if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();entries[Math.min(entries.length-1,index+1)]?.focus();}
+      else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();entries[Math.max(0,index-1)]?.focus();}
+      else if(e.key===' '){e.preventDefault();this.clearLegendPick();if(picked!==id){Trend.legendPicked={trend:this,id};s.classList.add('legend-picked');s.setAttribute('aria-grabbed','true');}}
+      else if(e.key==='Enter'&&picked&&picked!==id){e.preventDefault();this.clearLegendPick();this.joinScale(picked,id).catch(()=>{});}
+      else if(e.key==='Escape'&&picked){e.preventDefault();this.clearLegendPick();}
+      else if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();this.separateScale(id);}
+    });
   }
   showScaleMenu(event,id,anchor){
     event.preventDefault();Trend.closeScaleMenu();
@@ -595,6 +637,9 @@ class Trend {
        sideKeys(side).forEach((key,i)=>{const members=plan.members.get(key)||[],a=this.axisSettings[key]||{},unit=(a.unit||[...new Set(members.map(id=>this.presentation[id]?.unit).filter(Boolean))].join('/')).slice(0,5);
          ctx.fillStyle=members.length===1?this.color(members[0]):this.theme.text;ctx.textAlign=right?'left':'right';
          ctx.fillText('Y'+(plan.keys.indexOf(key)+1)+(members.length>1?'*':'')+(a.mode==='manual'?'M':'')+(unit?' '+unit:''),right?w-p.r+9+COL*i:p.l-9-COL*i,p.t-8);});}
+     const hidden=plan.keys.length-sideKeys('left').length-sideKeys('right').length;
+     this.hiddenScales=Math.max(0,hidden);
+     if(hidden>0){ctx.fillStyle=this.theme.text;ctx.textAlign='right';ctx.fillText('+'+hidden+' Y',w-4,10);}
     }
     ctx.save();ctx.beginPath();ctx.rect(p.l,p.t,w-p.l-p.r,h-p.t-p.b);ctx.clip();
     this.drawSeriesLayer(ctx,plan,X,Y,b,p,w,h,dpr);
@@ -693,4 +738,4 @@ class Trend {
     let count=0;for(const [id,points] of Object.entries(this.series)){if(count++>=12)break;const point=nearest(points,t),pp=document.createElement('p'),axis=this.axisTag(id);I18N.bind(pp,"textContent",()=>(I18N.join([{value:(signalShortName(id,this.nodes.get(id),this.presentation[id]))},{text:" ["},{value:(axis)},{text:"]: "},{value:(valueText(point?.[1]))},{value:(this.presentation[id]?.unit?' '+this.presentation[id].unit:'')},{text:" · "},{value:(point?.[2]||'Good')},{value:(point&&Math.abs(point[0]-t)>1000?I18N.t(" (campione distante dal cursore)"):'')}])),true);this.tooltip.append(pp);}this.tooltip.hidden=false;
   }
 }
-Trend.AXIS_COLUMN=58;Trend.AXIS_COLUMNS=4;Trend.legendDrag=null;Trend.scaleMenu=null;
+Trend.AXIS_COLUMN=58;Trend.AXIS_COLUMNS=4;Trend.legendDrag=null;Trend.legendPicked=null;Trend.scaleMenu=null;
