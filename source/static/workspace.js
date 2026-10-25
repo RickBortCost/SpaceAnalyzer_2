@@ -60,6 +60,7 @@ class ChartWorkspace {
       const control=get(role);ui[role]=control?.id||null;
     }
     graph.trend=new Trend(get('canvas'),get('legend'),get('tooltip'),{ui,staticMode:this.staticMode,liveZoom:this.liveZoom,preserveMarkers:true,
+      onSpanWheel:factor=>this.spanWheel(factor),onSpanReset:()=>this.setLiveSpan(null),
       onLiveRange:range=>{if(this.syncZoom)this.timeRange={...range};},
       exactMarkerMode:this.staticMode,onMarkersChanged:markers=>this.setMarkers(markers,graph),onViewChanged:range=>this.syncRange(graph,range),onHover:t=>this.hoverAt(graph,t),
       emptyMessage:this.staticMode?I18N.t("Apri una registrazione"):I18N.t("Trascina qui i segnali oppure selezionali dalla lista")});
@@ -144,7 +145,9 @@ class ChartWorkspace {
     graph.signalSettings=graph.signalSettings||{};graph.axisSettings=graph.axisSettings||{};graph.scaleState=graph.scaleState||{mode:'groups'};graph.trend.presentation=graph.signalSettings;graph.trend.axisSettings=graph.axisSettings;graph.trend.scaleState=graph.scaleState;
     for(const [id,node] of nodes)if(node.calculated&&node.unit&&graph.signalSettings[id]?.unit===undefined)graph.signalSettings[id]={...(graph.signalSettings[id]||{}),unit:node.unit};
     for(const [id,node] of nodes){const prefs=graph.signalSettings[id];if(prefs?.visible===false){nodes.delete(id);delete data[id];}else if(prefs?.alias)nodes.set(id,{...node,display_name:prefs.alias});}
-    graph.trend.displayRange=!this.staticMode&&this.displayRange?{...this.displayRange,xmin:Math.max(this.displayRange.xmin,graph.cutoff??-Infinity)}:null;
+    let range=!this.staticMode&&this.displayRange?{...this.displayRange}:null;
+    if(!this.staticMode&&this.liveSpan){const end=range?range.xmax:this.liveZoomEnd;if(Number.isFinite(end))range={xmin:Math.max(range?.xmin??-Infinity,end-this.liveSpan),xmax:end};}
+    graph.trend.displayRange=range?{...range,xmin:Math.max(range.xmin,graph.cutoff??-Infinity)}:null;
     graph.trend.liveZoomEnd=this.syncZoom?(this.displayRange?.xmax??this.liveZoomEnd):null;
     graph.trend.update(data,nodes,graph.types);
     const counts={Good:0,Uncertain:0,Bad:0};for(const points of Object.values(graph.trend.series)){if(isSampleSeries(points)){counts.Good+=points.stats.good;counts.Uncertain+=points.stats.uncertain;counts.Bad+=points.stats.bad;continue;}for(const p of points)counts[p[2]||(p[1]===null?'Bad':'Good')]++;}
@@ -181,6 +184,38 @@ class ChartWorkspace {
     this.options.onClear?.(graph);
   }
   resetViews(){for(const graph of this.charts){graph.cutoff=null;graph.cleared=false;graph.trend.resetZoom();}}
+  // Periodo visualizzato dei grafici LIVE (asse X): da 10 s a tutti i dati dall'inizio della connessione; null = intera sessione.
+  fullSpan(){
+    if(this.displayRange)return this.displayRange.xmax-this.displayRange.xmin;
+    let lo=Infinity,hi=-Infinity;
+    for(const points of Object.values(this.series||{})){const first=points.at(0)?.[0],last=points.at(-1)?.[0];if(Number.isFinite(first)&&first<lo)lo=first;if(Number.isFinite(last)&&last>hi)hi=last;}
+    return hi>lo?hi-lo:0;
+  }
+  currentSpan(){
+    if(this.liveZoom){const range=this.timeRange||this.charts.map(g=>g.trend.zoom).find(Boolean);if(range)return range.xmax-range.xmin;}
+    return this.liveSpan||this.fullSpan();
+  }
+  spanWheel(factor){
+    if(this.staticMode)return;
+    const full=this.fullSpan();if(!(full>0))return;
+    const next=Math.min(full,Math.max(Math.min(ChartWorkspace.MIN_SPAN_MS,full),this.currentSpan()*factor));
+    this.setLiveSpan(next>=full*.999?null:next);
+  }
+  setLiveSpan(ms){
+    if(this.staticMode)return;
+    this.liveSpan=Number.isFinite(ms)&&ms>0?ms:null;
+    if(this.liveZoom){
+      const span=this.liveSpan||this.fullSpan();
+      for(const graph of this.charts){
+        const t=graph.trend;
+        if(t.zoom)t.zoom={...t.zoom,xmin:t.zoom.xmax-span};
+        if(t.linkedRange)t.linkedRange={xmin:t.linkedRange.xmax-span,xmax:t.linkedRange.xmax};
+      }
+      if(this.timeRange)this.timeRange={xmin:this.timeRange.xmax-span,xmax:this.timeRange.xmax};
+    }
+    for(const graph of this.charts)this.updateGraph(graph);
+    this.options.onSpanChange?.(this.liveSpan);
+  }
   setLiveZoom(enabled){
     this.liveZoom=!this.staticMode&&!!enabled;
     // Set every chart's policy before resuming any synchronized view.
@@ -232,3 +267,4 @@ class ChartWorkspace {
   changed(){this.options.onChange?.();window.scheduleWorkspaceSave?.();}
 }
 ChartWorkspace.MAX_CHARTS=24;
+ChartWorkspace.MIN_SPAN_MS=10000;

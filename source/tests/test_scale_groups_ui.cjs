@@ -256,7 +256,7 @@ function zoomRect(w, g) {
     const e1 = wheel(axisX(k1), midY(), -100); assert(e1.defaultPrevented);
     const after1 = a7.scaleRange(k1); close(after1.max - after1.min, (before1.max - before1.min) / 1.2);
     close(valueAt(after1, midY()), valueAt(before1, midY()), 1e-9); assert.equal(a7.axisSettings[k1].mode, 'manual'); assert.equal(a7.axisSettings[k2], undefined, 'le altre scale non cambiano');
-    assert(!wheel(lay().p.l + 100, midY(), -100).defaultPrevented, 'la rotella nel grafico non agisce sulle scale');
+    {const spanBefore = a7.domain.xmax - a7.domain.xmin, scaleBefore = JSON.stringify(a7.axisSettings); wheel(lay().p.l + 100, midY(), -100); assert.equal(JSON.stringify(a7.axisSettings), scaleBefore, 'la rotella nel grafico non agisce sulle scale'); assert(a7.domain.xmax - a7.domain.xmin <= spanBefore);}
     const spanNow = after1.max - after1.min; wheel(axisX(k1), midY(), 100, true); close(a7.scaleRange(k1).min, after1.min - spanNow * .1);
     const base = a7.scaleRange(k1), pointer = (type, y) => a7.canvas.dispatchEvent(new (w.PointerEvent || w.MouseEvent)((w.PointerEvent ? 'pointer' : 'mouse') + type, {bubbles: true, clientX: axisX(k1), clientY: y, button: 0, pointerId: 3}));
     pointer('down', midY()); pointer('move', midY() + 50); pointer('up', midY() + 50);

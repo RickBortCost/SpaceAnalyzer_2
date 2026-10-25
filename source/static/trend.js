@@ -215,7 +215,7 @@ function axisAssignment(series,nodes,threshold=20){
 class Trend {
   constructor(canvas,legend,tooltip,options={}){
     this.ui={zoomState:'zoom-state',resetZoom:'reset-zoom',pausePlay:'pause-play',timeScroll:'time-scroll',timeScrollStatus:'time-scroll-status',markerX1:'marker-x1',markerX2:'marker-x2',resetMarkers:'reset-markers',markerHint:'marker-hint',markerX1Time:'marker-x1-time',markerX2Time:'marker-x2-time',markerDeltaTime:'marker-delta-time',markerDataBody:'marker-data-body',...(options.ui||{})};
-    this.staticMode=!!options.staticMode;this.liveZoom=!this.staticMode&&!!options.liveZoom;this.onLiveRange=options.onLiveRange;this.onViewChanged=options.onViewChanged;this.onHover=options.onHover;this.linkedRange=null;this.crosshair=null;this.onMarkersChanged=typeof options.onMarkersChanged==='function'?options.onMarkersChanged:null;
+    this.staticMode=!!options.staticMode;this.liveZoom=!this.staticMode&&!!options.liveZoom;this.onLiveRange=options.onLiveRange;this.onSpanWheel=options.onSpanWheel;this.onSpanReset=options.onSpanReset;this.onViewChanged=options.onViewChanged;this.onHover=options.onHover;this.linkedRange=null;this.crosshair=null;this.onMarkersChanged=typeof options.onMarkersChanged==='function'?options.onMarkersChanged:null;
     this.preserveMarkers=!!options.preserveMarkers;this.exactMarkerMode=!!options.exactMarkerMode;this.exactMarkerRows=null;this.listeners=[];
     const listen=(target,type,handler)=>{target.addEventListener(type,handler);this.listeners.push(()=>target.removeEventListener(type,handler));};
     this.canvas=canvas;this.crosshairEl=document.createElement('div');this.crosshairEl.className='synchronized-crosshair';this.crosshairEl.hidden=true;canvas.parentElement.append(this.crosshairEl);this.legend=legend;this.tooltip=tooltip;this.colors=new Map();this.series={};this.latestSeries={};this.nodes=new Map();this.types={};
@@ -235,7 +235,7 @@ class Trend {
       listen(window,'mouseup',e=>this.zoomEnd(e));
     }
     listen(canvas,'mouseleave',()=>{if(!this.drag){tooltip.hidden=true;this.onHover?.(null);}});
-    listen(canvas,'dblclick',e=>{const hit=this.axisAt(e);if(hit)this.resetScale(hit.key);else this.resetZoom();});
+    listen(canvas,'dblclick',e=>{const hit=this.axisAt(e);if(hit)this.resetScale(hit.key);else{this.resetZoom();if(!this.staticMode)this.onSpanReset?.();}});
     listen(canvas,'wheel',e=>this.axisWheel(e));
     canvas.classList.add('zoomable');
     for(const [which,id] of [['x1','markerX1'],['x2','markerX2']]){
@@ -408,8 +408,14 @@ class Trend {
     else if(this.axisSettings[key])this.axisSettings[key]={...this.axisSettings[key],mode:'auto'};
     this.draw();clearTimeout(this.scaleTimer);this.scaleTimer=setTimeout(()=>this.onScaleChanged?.(),250);
   }
+  // Rotella sull'area del grafico LIVE: restringe (su) o allarga (giù) il periodo visualizzato; il workspace applica i limiti (10 s … intera sessione).
+  spanWheel(event){
+    if(this.staticMode||typeof this.onSpanWheel!=='function'||this.frozen||this.drag||this.markerDrag||(this.zoom&&!this.liveZoom))return;
+    if(!this.inPlot(this.plotPoint(event,false)))return;
+    event.preventDefault();this.onSpanWheel(event.deltaY<0?1/1.25:1.25);
+  }
   axisWheel(event){
-    const hit=this.axisAt(event),r=hit&&this.scaleRange(hit.key);if(!r)return;
+    const hit=this.axisAt(event),r=hit&&this.scaleRange(hit.key);if(!r){this.spanWheel(event);return;}
     event.preventDefault();const {p,h}=this.layout,pt=this.plotPoint(event,false),span=r.max-r.min,frac=Math.max(0,Math.min(1,(pt.y-p.t)/(h-p.t-p.b)));
     if(event.shiftKey){const shift=span*.1*(event.deltaY>0?-1:1);this.setScaleRange(hit.key,r.min+shift,r.max+shift);return;}
     const at=r.max-frac*span,next=span*(event.deltaY<0?1/1.2:1.2);this.setScaleRange(hit.key,at-(1-frac)*next,at+frac*next);
