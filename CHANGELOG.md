@@ -2,6 +2,12 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.2.1
+
+- **Intestazione su un solo livello**: la barra non va più a capo a nessuna larghezza (dal 3.1.0 andava su due righe tra circa 1280 e 1730 px). Lo stato della connessione e l'indirizzo del server (ad esempio "Non connesso" e "TwinCAT locale · AMS …") non compaiono più nell'intestazione: restano nella barra di stato in basso e nella finestra Connessione. Motivo: la barra deve restare una sola riga senza tagliare i controlli.
+- **Compattazione progressiva**: sotto circa 1640 px si nascondono nome e versione accanto al logo, sotto 1380 px REQ/REALE, sotto 1240 px il logo, e sotto 1200 px caratteri e margini si riducono; sotto circa 1170 px la barra scorre in orizzontale invece di andare a capo, così nessun controllo è irraggiungibile.
+- Il selettore del tema (Standard/Dark/System) è più largo e il testo non viene più tagliato.
+
 ## 3.2.0
 
 - **Data e ora del PC nell'intestazione**: accanto a Impostazioni compare la data e l'ora, fino al secondo, del PC su cui gira l'applicazione, aggiornate ogni secondo e nel formato della lingua scelta. Motivo: poter confrontare a colpo d'occhio l'orario del PC con i timestamp di grafici, registrazioni e log.
