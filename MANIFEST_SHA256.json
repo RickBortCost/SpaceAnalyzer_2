@@ -438,7 +438,7 @@
   "source/tests/s7_test_server.py": "4262efaa8a86c83bc18c47c4a1768a9796225f195433e2e8ea055dc80e7c2d12",
   "source/tests/ssh_peer.py": "410eae4f332779ff1ba9c5148bcfd8f2f490786622bb0cccb3bb74f93cf21a56",
   "source/tests/test_ads_ui.cjs": "2d90fba6bb067971b56fc542a9fb27b9ccc6b08d4b0611e756b008d71ee0bf9c",
-  "source/tests/test_advanced_ui.cjs": "e41097a45238b59b751e844255e42a8b1dd5d52344bb54a790ec3b2ca71be099",
+  "source/tests/test_advanced_ui.cjs": "7dcf9c829988f379c46392d6da12cc0efb2c71bf6d2265a3000b712a7ef2cc42",
   "source/tests/test_calculations_ui.cjs": "3bc96204c5656880535aa2f6480095824301f70bc4d12af3152a044857bd8b3e",
   "source/tests/test_chart_tools_ui.cjs": "9dc8934ee584202a53e222c92b843f38aa7e9efce85793d92bf4151e9de599f6",
   "source/tests/test_fda_ui.cjs": "9d1765d199ab00e298b7375ee5cf9523ffa7c4237ccbdc013b2558909ba1995a",
