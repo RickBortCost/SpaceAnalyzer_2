@@ -139,7 +139,14 @@ public static class Program
         if (paths.RecordingsLocationWarning is { } warning) Log.Warning(warning);
         // Uploads ("Apri file dal PC") are buffered beside the other data, not in the Windows temp folder on C:.
         var uploads = Path.Combine(paths.DataDir, "tmp");
-        try { if (Directory.Exists(uploads)) Directory.Delete(uploads, true); Directory.CreateDirectory(uploads); Environment.SetEnvironmentVariable("ASPNETCORE_TEMP", uploads); }
+        // The launcher also points TMP/TEMP here: leftovers of a previous run are removed, files in use are skipped.
+        try
+        {
+            Directory.CreateDirectory(uploads);
+            foreach (var entry in new DirectoryInfo(uploads).EnumerateFileSystemInfos())
+                try { if (entry is DirectoryInfo d) d.Delete(true); else entry.Delete(); } catch (Exception exc) when (exc is IOException or UnauthorizedAccessException) { }
+            Environment.SetEnvironmentVariable("ASPNETCORE_TEMP", uploads);
+        }
         catch (Exception exc) when (exc is IOException or UnauthorizedAccessException) { Log.Warning("Cartella temporanea non disponibile: " + exc.Message); }
         Engine.Core.EngineLog.Sink = Log.Info;
         Directory.CreateDirectory(paths.ImportedRecordingsDir);

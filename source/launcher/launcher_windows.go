@@ -91,11 +91,15 @@ func environment(appDir, runtimeDir, dataDir string) []string {
 	result := []string{}
 	for _, item := range os.Environ() {
 		key, _, _ := strings.Cut(item, "=")
-		if !strings.EqualFold(key, "OPCUA_APP_DIR") && !strings.EqualFold(key, "SPACE_BASE_DIR") && !strings.EqualFold(key, "SPACE_SPLASH") && !strings.EqualFold(key, "SPACE_PACKAGED") && !strings.EqualFold(key, "OPCUA_DATA_DIR") {
+		if !strings.EqualFold(key, "OPCUA_APP_DIR") && !strings.EqualFold(key, "SPACE_BASE_DIR") && !strings.EqualFold(key, "SPACE_SPLASH") && !strings.EqualFold(key, "SPACE_PACKAGED") && !strings.EqualFold(key, "OPCUA_DATA_DIR") &&
+			!strings.EqualFold(key, "TMP") && !strings.EqualFold(key, "TEMP") {
 			result = append(result, item)
 		}
 	}
-	return append(result, "OPCUA_DATA_DIR="+dataDir, "OPCUA_APP_DIR="+appDir, "SPACE_BASE_DIR="+runtimeDir, "SPACE_PACKAGED=1", "SPACE_SPLASH=1", "DOTNET_CLI_TELEMETRY_OPTOUT=1")
+	// Temporary files of .NET, SQLite and the OPC UA stack stay on the disk of the data folder.
+	temp := filepath.Join(dataDir, "tmp")
+	os.MkdirAll(temp, 0700)
+	return append(result, "TMP="+temp, "TEMP="+temp, "OPCUA_DATA_DIR="+dataDir, "OPCUA_APP_DIR="+appDir, "SPACE_BASE_DIR="+runtimeDir, "SPACE_PACKAGED=1", "SPACE_SPLASH=1", "DOTNET_CLI_TELEMETRY_OPTOUT=1")
 }
 
 // dataDirectory chooses where settings, logs, the extracted service and every cache live:
