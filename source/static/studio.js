@@ -292,3 +292,11 @@ window.opcuaConfigReady=loadConfig().then(async()=>{startPolling();await restore
   const tick=()=>{const now=new Date();el.textContent=format(now);el.dateTime=now.toISOString();setTimeout(tick,1000-now.getMilliseconds()+5);};
   tick();
 })();
+/* Pallino di stato della connessione accanto a "Connessione": verde connesso, arancio in corso, rosso errore, grigio non connesso. */
+(function(){
+  const dot=document.getElementById('conn-dot'),status=document.getElementById('status');if(!dot||!status)return;
+  const sync=()=>{const text=(status.textContent||'').trim(),kind=status.classList.contains('ok')?'ok':status.classList.contains('bad')?'bad':/…$|\.\.\.$/.test(text)?'pending':'off';
+    dot.className='conn-dot '+kind;const label=text+(status.title?' · '+status.title:'');dot.title=label;dot.setAttribute('aria-label',label);};
+  if(typeof MutationObserver!=='undefined')new MutationObserver(sync).observe(status,{attributes:true,attributeFilter:['class','title'],childList:true,characterData:true,subtree:true});
+  sync();
+})();

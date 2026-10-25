@@ -246,6 +246,46 @@ function zoomRect(w, g) {
     hrow.dispatchEvent(new w.MouseEvent('dblclick', {bubbles: true, cancelable: true})); await pause(100); assert.equal(hist.charts.length, 2);
     checks.push('J: gruppi di scala e doppio clic funzionano anche nella pagina REGISTRAZIONI sul file caricato');
 
+    // ---- zoom e spostamento di una sola scala dall'asse; tastiera; scale nascoste; pallino di stato ----
+    ws.add(); const g7 = ws.active; ws.assignTo(g7, L(1), true); ws.assignTo(g7, L(2), true); g7.trend.draw();
+    const a7 = g7.trend, plan7 = a7.axisPlan, k1 = keyOf(g7, L(1)), k2 = keyOf(g7, L(2));
+    const lay = () => a7.layout, axisX = key => {const side = plan7.side.get(key) === 'right', i = plan7.keys.filter(k => (plan7.side.get(k) === 'right') === side).indexOf(key); return side ? lay().w - lay().p.r + 29 + 58 * i : lay().p.l - 29 - 58 * i;};
+    const midY = () => lay().p.t + (lay().h - lay().p.t - lay().p.b) / 2, plotH = () => lay().h - lay().p.t - lay().p.b;
+    const wheel = (x, y, deltaY, shiftKey = false) => {const e = new w.WheelEvent('wheel', {bubbles: true, cancelable: true, clientX: x, clientY: y, deltaY, shiftKey}); a7.canvas.dispatchEvent(e); return e;};
+    const before1 = a7.scaleRange(k1), valueAt = (r, y) => r.max - (y - lay().p.t) / plotH() * (r.max - r.min);
+    const e1 = wheel(axisX(k1), midY(), -100); assert(e1.defaultPrevented);
+    const after1 = a7.scaleRange(k1); close(after1.max - after1.min, (before1.max - before1.min) / 1.2);
+    close(valueAt(after1, midY()), valueAt(before1, midY()), 1e-9); assert.equal(a7.axisSettings[k1].mode, 'manual'); assert.equal(a7.axisSettings[k2], undefined, 'le altre scale non cambiano');
+    assert(!wheel(lay().p.l + 100, midY(), -100).defaultPrevented, 'la rotella nel grafico non agisce sulle scale');
+    const spanNow = after1.max - after1.min; wheel(axisX(k1), midY(), 100, true); close(a7.scaleRange(k1).min, after1.min - spanNow * .1);
+    const base = a7.scaleRange(k1), pointer = (type, y) => a7.canvas.dispatchEvent(new (w.PointerEvent || w.MouseEvent)((w.PointerEvent ? 'pointer' : 'mouse') + type, {bubbles: true, clientX: axisX(k1), clientY: y, button: 0, pointerId: 3}));
+    pointer('down', midY()); pointer('move', midY() + 50); pointer('up', midY() + 50);
+    close(a7.scaleRange(k1).min, base.min + 50 / plotH() * (base.max - base.min), 1e-9); assert(!a7.drag && !a7.zoom, 'il trascinamento sull’asse non avvia lo zoom a rettangolo');
+    a7.canvas.dispatchEvent(new w.MouseEvent('dblclick', {bubbles: true, clientX: axisX(k1), clientY: midY()})); assert.equal(a7.axisSettings[k1].mode, 'auto'); a7.draw();
+    close(a7.scaleRange(k1).max, a7.fullDomain.axes[k1].ymax);
+    zoomRect(w, g7); assert(a7.zoom); const zoomed = a7.scaleRange(k2); wheel(axisX(k2), midY(), -100);
+    assert(a7.scaleRange(k2).max - a7.scaleRange(k2).min < zoomed.max - zoomed.min); assert.equal(a7.axisSettings[k2], undefined, 'con zoom attivo si modifica solo lo zoom'); assert.equal(a7.axisPlan.keys.length, 2);
+    a7.resetZoom(); await new Promise(r => setTimeout(r, 300));
+    checks.push('Rotella, trascinamento e doppio clic sull’asse zoomano, spostano e ripristinano una sola scala (gruppo incluso), senza avviare lo zoom a rettangolo');
+
+    const e7 = id => entry(g7, id), press = (el, k) => el.dispatchEvent(new w.KeyboardEvent('keydown', {key: k, bubbles: true, cancelable: true}));
+    press(e7(L(2)), ' '); assert(e7(L(2)).classList.contains('legend-picked')); assert.equal(e7(L(2)).getAttribute('aria-grabbed'), 'true');
+    press(e7(L(2)), 'ArrowLeft'); press(e7(L(1)), 'Enter'); await wait(() => keyOf(g7, L(1)) === keyOf(g7, L(2)), 'unione da tastiera');
+    assert(!legend(g7).some(e => e.classList.contains('legend-picked')));
+    press(e7(L(2)), 'Delete'); assert.notEqual(keyOf(g7, L(1)), keyOf(g7, L(2)), 'Canc separa il canale');
+    press(e7(L(1)), ' '); press(e7(L(1)), 'Escape'); press(e7(L(2)), 'Enter'); assert.notEqual(keyOf(g7, L(1)), keyOf(g7, L(2)), 'Esc annulla la presa');
+    checks.push('Legenda da tastiera: Spazio prende, Invio rilascia, Esc annulla, Canc separa');
+
+    ws.add(); const g8 = ws.active; for (const id of ids) ws.assignTo(g8, id, true); g8.trend.draw();
+    assert.equal(g8.trend.axisPlan.keys.length, 12); assert.equal(g8.trend.hiddenScales, 4); assert(g8.trend.layout.p.l <= 78 + 58 * 3 && g8.trend.layout.p.r <= 82 + 58 * 3);
+    checks.push('Con più di 8 scale indipendenti le prime 8 hanno la colonna dei valori e le altre sono segnalate (+N Y)');
+
+    const dot = $('conn-dot'); assert(dot, 'pallino di connessione');
+    for (const [call, kind] of [["setState('connected','')", 'ok'], ["setState('disconnected','Errore di rete')", 'bad'], ["setState('connecting','')", 'pending'], ["setState('disconnected','')", 'off']]) {
+      w.eval(call); await wait(() => dot.classList.contains(kind), 'pallino ' + kind); assert(dot.title.length > 0);
+    }
+    checks.push('Il pallino accanto a Connessione segue lo stato: verde, rosso, arancio, grigio');
+
     // ---- lingue ----
     for (const [lang, label] of [['en', 'Separate scale'], ['de', 'Skala trennen'], ['fr', "Séparer l'échelle"], ['es', 'Separar escala'], ['it', 'Separa scala']]) {
       await w.I18N.setLanguage(lang, {persist: true}); t.showAppPage('live'); ws.activate(g); a.draw();
