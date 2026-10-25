@@ -46,7 +46,8 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   for(const id of ids){$('manual-node').value=id;$('add-node').click();await wait(()=>t.selected.has(id)&&!$('add-node').disabled,'OPC signal selected');}
   const opcChart=t.liveCharts.active;opcChart.name='OPC saved chart';opcChart.signalSettings={[ids[0]]:{alias:'Temperature saved',color:'#f97316',unit:'C'}};
   $('live-add-chart').click();assert.equal(t.liveCharts.charts.length,2);
-  $('disconnect').click();await wait(()=>!t.connected&&!$('data-source').disabled,'disconnected');
+  // The initial branch browse keeps Disconnect disabled; a click before it ends is ignored.
+  await wait(()=>!$('disconnect').disabled,'disconnect available');$('disconnect').click();await wait(()=>!t.connected&&!$('data-source').disabled,'disconnected');
   await t.switchSource('ads');assert.equal(t.config().source,'ads');assert.equal(t.selected.size,0);assert.equal(t.liveCharts.charts.length,1);
   assert([...$('sample_ms').options].find(o=>o.value==='1'&&!o.disabled&&!o.hidden));
   $('sample_ms').value='1';$('sample_ms').dispatchEvent(new w.Event('change'));
