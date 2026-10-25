@@ -46,7 +46,8 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   for(const id of ids){$('manual-node').value=id;$('add-node').click();await wait(()=>t.selected.has(id)&&!$('add-node').disabled,'OPC signal selected');}
   const opcChart=t.liveCharts.active;opcChart.name='OPC saved chart';opcChart.signalSettings={[ids[0]]:{alias:'Temperature saved',color:'#f97316',unit:'C'}};
   $('live-add-chart').click();assert.equal(t.liveCharts.charts.length,2);
-  $('disconnect').click();await wait(()=>!t.connected&&!$('data-source').disabled,'disconnected');
+  // The initial branch browse keeps Disconnect disabled; a click before it ends is ignored.
+  await wait(()=>!$('disconnect').disabled,'disconnect available');$('disconnect').click();await wait(()=>!t.connected&&!$('data-source').disabled,'disconnected');
   await t.switchSource('ads');assert.equal(t.config().source,'ads');assert.equal(t.selected.size,0);assert.equal(t.liveCharts.charts.length,1);
   assert([...$('sample_ms').options].find(o=>o.value==='1'&&!o.disabled&&!o.hidden));
   $('sample_ms').value='1';$('sample_ms').dispatchEvent(new w.Event('change'));
@@ -127,4 +128,4 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   checks.push('native manual fields editable and saved/reloaded; explicit TCP SumRead selection and actual manual client identity/port/bind applied; connected fields remain locked');
   assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks,files:[]},null,2));
  }finally{t.stopPolling();await new Promise(r=>setTimeout(r,600));for(const dom of pages)dom.window.close();}
-})().catch(e=>{console.error(e.stack);process.exit(1);});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

@@ -79,13 +79,6 @@ public static class Program
         }
     }
 
-    static void OpenBrowser(string url)
-    {
-        if (Environment.GetEnvironmentVariable("OPCUA_NO_BROWSER") is { Length: > 0 }) return;
-        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
-        catch (Exception exc) { Log.Warning("Browser non avviato: " + exc.Message); }
-    }
-
     /// <summary>One service per data folder; subsequent launches reopen its browser page.</summary>
     static FileStream? ClaimInstance(AppPaths paths)
     {
@@ -108,7 +101,7 @@ public static class Program
                     var running = status.Get("version").Str() ?? "sconosciuta";
                     if (running != Defaults.Version)
                         throw new InvalidOperationException($"È già attiva Space Analyzer V{running}. Chiudi la versione precedente con 'Chiudi applicazione' e poi avvia V{Defaults.Version}.");
-                    OpenBrowser(url);
+                    AppWindow.Open(url, Path.Combine(paths.DataDir, "webapp"), () => { });
                     Console.WriteLine($"Applicazione già avviata: {url}");
                     return null;
                 }
@@ -161,9 +154,9 @@ public static class Program
         if (app == null) throw new InvalidOperationException($"Nessuna porta locale disponibile tra {requested} e {requested + 19}");
         var url = $"http://127.0.0.1:{port}";
         Py.AtomicPlain(Path.Combine(paths.DataDir, "instance.json"), new Dictionary<string, object?> { ["port"] = (long)port, ["pid"] = (long)Environment.ProcessId, ["version"] = Defaults.Version });
-        Console.WriteLine($"{Defaults.AppName} V{Defaults.Version}\nPagina: {url}\nImpostazioni: {paths.DataDir}\nUsa 'Chiudi applicazione' nella pagina per terminare i servizi.");
+        Console.WriteLine($"{Defaults.AppName} V{Defaults.Version}\nPagina: {url}\nImpostazioni: {paths.DataDir}\nChiudi la finestra dell'applicazione o usa 'Chiudi applicazione' per terminare i servizi.");
         Progress(95, "Servizio HTTP pronto");
-        OpenBrowser(url);
+        AppWindow.Open(url, Path.Combine(paths.DataDir, "webapp"), () => app.StopAsync().Wait(TimeSpan.FromSeconds(30)));
         Progress(100, "Pronto");
         var timer = OperatingSystem.IsWindows() && timeBeginPeriod(1) == 0;
         try { app.WaitForShutdownAsync().GetAwaiter().GetResult(); }

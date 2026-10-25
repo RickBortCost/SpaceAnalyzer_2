@@ -81,4 +81,4 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   assert.equal(errors.length,0,errors.join('\n'));
   console.log(JSON.stringify({result:'PASS',checks:['builder references','validation','preview live/replay','CRUD duplicate','record calculated timestamps','two live charts shared markers','historical original 6000 samples','Parquet materialization','safe parser rejection','workspace restoration'],files:[recording],formula_id:nid,errors},null,2));
  }finally{t.stopPolling();await new Promise(r=>setTimeout(r,600));dom.window.close();}
-})().catch(e=>{console.error(e.stack);process.exitCode=1;});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

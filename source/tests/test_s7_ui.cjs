@@ -50,4 +50,4 @@ async function page(){
   assert.deepEqual(errors,[]);
   console.log(JSON.stringify({result:'PASS',checks:['S7 connection popup/presets','catalog add/edit/persistence','native S7 test connection','configured scan and live graph','Parquet Record/Stop','source profiles and workspace reload','no frontend exceptions']},null,2));
  }finally{t.stop();await new Promise(r=>setTimeout(r,600));for(const d of pages)d.window.close();}
-})().catch(e=>{console.error(e.stack);process.exit(1);});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

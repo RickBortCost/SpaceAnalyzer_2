@@ -71,4 +71,4 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   checks.push('Recent/full selector, visible summary disclosure and workspace reload verified');
   assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks,files:[]},null,2));
  }finally{for(const dom of pages){dom.window.uiTest?.stopPolling();dom.window.close();}}
-})().catch(e=>{console.error(e.stack);process.exitCode=1;});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

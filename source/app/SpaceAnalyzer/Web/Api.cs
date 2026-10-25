@@ -43,6 +43,10 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
                 ctx.Response.Headers.ContentDisposition = "attachment; filename=" + file.Name;
                 await ctx.Response.SendFileAsync(file.Path);
                 break;
+            case SamplePayload samples:
+                ctx.Response.ContentType = SamplePayload.ContentType;
+                await samples.WriteAsync(ctx.Response.Body, ctx.RequestAborted);
+                break;
             case Action<Utf8JsonWriter> writer:
                 await Http.WriteWith(ctx, writer);
                 break;
@@ -608,6 +612,28 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         return CalculationService.Available(rt.Formulas.Formulas(), physical);
     }
 
+    /// <summary>Common fields of a recording view: name, format, calculations and per-signal unit.</summary>
+    void DescribeRecorded(JsonNode? data, RecordingLibrary library, string name, Dictionary<string, object?> descriptor, Dictionary<string, object?> result)
+    {
+        result["name"] = Plain(data.Get("name"));
+        result["format"] = descriptor["format"];
+        result["available_calculations"] = AvailableRecorded(data, descriptor);
+        var definitions = rt.Formulas.Formulas().ToDictionary(f => f["nodeid"].Str()!, f => f);
+        var metadata = library.Metadata(library.PathOf(name));
+        var signalMeta = new Dictionary<string, Dictionary<string, object?>>();
+        var source = metadata["signals"] is JsonArray { Count: > 0 } metaSignals ? metaSignals.Select(Plain).ToList() : (List<object?>)descriptor["signals"]!;
+        foreach (var s in source.OfType<Dictionary<string, object?>>())
+            if (s.GetValueOrDefault("nodeid") is string id) signalMeta[id] = s;
+        foreach (Dictionary<string, object?> signal in (List<object?>)result["signals"]!)
+        {
+            var nid = (string)signal["nodeid"]!;
+            var info = signalMeta.GetValueOrDefault(nid) ?? new();
+            signal["unit"] = info.GetValueOrDefault("unit") ?? "";
+            signal["calculated"] = nid.StartsWith("calc:", StringComparison.Ordinal);
+            if (signal["calculated"] is true && !RowValues.Truthy(signal["unit"])) signal["unit"] = definitions.TryGetValue(nid, out var f) ? f["unit"].Str() ?? "" : "";
+        }
+    }
+
     void MapRecordings(WebApplication app)
     {
         Get(app, "/api/recordings", _ => Task.FromResult<object?>(Ok(("directory", Paths.RecordingsDir), ("files", rt.Library.List().Concat(rt.Imported.List("local")).ToList()))));
@@ -617,24 +643,17 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             var data = await Http.Json(ctx, silent: true) ?? new JsonObject();
             var (library, name, descriptor) = HistoricalReader(data);
             var result = library.Load(name, data.Get("signal_ids"), data.Get("start_ms"), data.Get("end_ms"), data is JsonObject o && o.ContainsKey("max_points") ? o["max_points"] : JsonValue.Create(25000));
-            result["name"] = Plain(data.Get("name"));
-            result["format"] = descriptor["format"];
-            result["available_calculations"] = AvailableRecorded(data, descriptor);
-            var definitions = rt.Formulas.Formulas().ToDictionary(f => f["nodeid"].Str()!, f => f);
-            var metadata = library.Metadata(library.PathOf(name));
-            var signalMeta = new Dictionary<string, Dictionary<string, object?>>();
-            var source = metadata["signals"] is JsonArray { Count: > 0 } metaSignals ? metaSignals.Select(Plain).ToList() : (List<object?>)descriptor["signals"]!;
-            foreach (var s in source.OfType<Dictionary<string, object?>>())
-                if (s.GetValueOrDefault("nodeid") is string id) signalMeta[id] = s;
-            foreach (Dictionary<string, object?> signal in (List<object?>)result["signals"]!)
-            {
-                var nid = (string)signal["nodeid"]!;
-                var info = signalMeta.GetValueOrDefault(nid) ?? new();
-                signal["unit"] = info.GetValueOrDefault("unit") ?? "";
-                signal["calculated"] = nid.StartsWith("calc:", StringComparison.Ordinal);
-                if (signal["calculated"] is true && !RowValues.Truthy(signal["unit"])) signal["unit"] = definitions.TryGetValue(nid, out var f) ? f["unit"].Str() ?? "" : "";
-            }
+            DescribeRecorded(data, library, name, descriptor, result);
             return Ok(("recording", result));
+        });
+        // Full resolution: every sample of the file, binary columns (no reduction for display).
+        Post(app, "/api/recordings/samples", async ctx =>
+        {
+            var data = await Http.Json(ctx, silent: true) ?? new JsonObject();
+            var (library, name, descriptor) = HistoricalReader(data);
+            var view = library.LoadFull(name, data.Get("signal_ids"), data.Get("start_ms"), data.Get("end_ms"));
+            DescribeRecorded(data, library, name, descriptor, view.Info);
+            return new SamplePayload(view.Info, view.Series);
         });
         Post(app, "/api/recordings/compare", async ctx => Ok(("job", rt.Comparisons.Start(await Http.Json(ctx, silent: true) ?? new JsonObject(), s => Source(JsonValue.Create(s))))));
         Get(app, "/api/recordings/compare/{ident}", ctx => Task.FromResult<object?>(Ok(("job", rt.Comparisons.Status((string)ctx.Request.RouteValues["ident"]!)))));

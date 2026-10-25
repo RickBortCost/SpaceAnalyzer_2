@@ -22,4 +22,4 @@ try{
  $('ssh-disconnect').click();await wait(()=>t.ssh.state==='disconnected'&&!$('ssh-save').disabled,'disconnect');await wait(()=>$('ssh-known-key').textContent.includes('SHA256:'),'trusted key persisted');assert(t.connected);
  assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks:['SSH page/navigation','acquisition continues','password cleared','host key approval','stream stdout/stderr/Unicode/exit','text-only XSS-safe output','multiline script','interactive input and stop','settings/public key persistence'],files:[]},null,2));
 }finally{t.stop();await new Promise(r=>setTimeout(r,300));w.close();}
-})().catch(e=>{console.error(e.stack);process.exit(1);});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});
