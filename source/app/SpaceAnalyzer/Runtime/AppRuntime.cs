@@ -426,8 +426,10 @@ public sealed class AppRuntime : IDisposable
         {
             // Until every session is closed the UI keeps seeing the previous state (2.x semantics).
             closing = (Sources.Status(), Sources.Summary());
+            var started = System.Diagnostics.Stopwatch.GetTimestamp();
             try { await Sources.Stop(); }
             finally { closing = null; }
+            Log.Info($"Sorgenti chiuse in {System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:F0} ms");
         }
         if (scanTask != null) await StopScan();
         lastError = "";

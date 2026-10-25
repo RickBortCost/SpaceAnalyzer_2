@@ -132,8 +132,8 @@ public sealed class OpcUaDriver : SourceDriver, IAcquisitionLoop
         var sub = subscription;
         subscription = null;
         if (s == null) return;
-        try { if (sub != null) await sub.DeleteAsync(true).WaitAsync(TimeSpan.FromSeconds(3)); } catch (Exception) { }
-        try { await s.CloseAsync(CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(5)); } catch (Exception) { }
+        // CloseSession deletes the session's subscriptions on the server: no separate round trip.
+        try { await s.CloseAsync(2000, true, CancellationToken.None).WaitAsync(TimeSpan.FromSeconds(3)); } catch (Exception) { }
         try { s.Dispose(); } catch (Exception) { }
     }
 

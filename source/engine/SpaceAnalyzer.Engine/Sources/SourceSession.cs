@@ -317,7 +317,8 @@ public sealed class SourceSession
     {
         Enabled = false;
         cancel?.Cancel();
-        if (task != null) { try { await task; } catch (Exception) { } }
+        // A driver call that ignores cancellation must not hold the disconnect indefinitely.
+        if (task != null) { try { await task.WaitAsync(TimeSpan.FromSeconds(6)); } catch (Exception) { } }
         else await Close();
         State = "disconnected";
         owner.StateChanged();
