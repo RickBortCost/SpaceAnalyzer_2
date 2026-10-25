@@ -445,7 +445,7 @@
   "source/tests/test_chart_tools_ui.cjs": "c2f1201b1ee499f63da07ac9bb589007e2fb3b2be55e4f4a48ccfc86f69dcbfe",
   "source/tests/test_fda_ui.cjs": "9d1765d199ab00e298b7375ee5cf9523ffa7c4237ccbdc013b2558909ba1995a",
   "source/tests/test_full_resolution_ui.cjs": "01a40bd03d8383ec7e6620d83e5dcab8dfcfb9816c70608135c314cbd10db998",
-  "source/tests/test_i18n_ui.cjs": "c4af5ccb632674c1db4530a528dde12bfbc3a5aaee10bd52d11e3cc2be3e6f59",
+  "source/tests/test_i18n_ui.cjs": "a7c1195f376ed44e6d2f27ef40e124e5886fac7d83fe09b1d699e1fae4d0e3de",
   "source/tests/test_launcher.py": "17dfd577c85fd927e8692bfad4a86e9cd203fe0cac6753c3543192abf6d49eef",
   "source/tests/test_live_extensions_ui.cjs": "7219da43f1702d3c66fa202354818f54f00afb08e57e97ec6f940c9c7d68b8b1",
   "source/tests/test_live_full_ui.cjs": "2050b0c36d4d459e2ba66fd15b4f124520278f37d91240b17febe52064ad25fe",
