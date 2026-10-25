@@ -104,14 +104,34 @@ public static class Py
     public static void AtomicJson(string path, JsonNode? data)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        var temporary = path + ".tmp";
-        File.WriteAllText(temporary, Dumps(data, true), new UTF8Encoding(false));
-        File.Move(temporary, path, true);
+        // One temporary file per call: concurrent writers of the same path never share it.
+        var temporary = path + "." + Guid.NewGuid().ToString("N")[..8] + ".tmp";
+        try
+        {
+            File.WriteAllText(temporary, Dumps(data, true), new UTF8Encoding(false));
+            // On Windows the replacement can be refused for a moment while another handle (a reader, a scanner) is open.
+            for (var attempt = 0; ; attempt++)
+            {
+                try { File.Move(temporary, path, true); return; }
+                catch (Exception exc) when (exc is IOException or UnauthorizedAccessException && attempt < 12) { Thread.Sleep(15 * (attempt + 1)); }
+            }
+        }
+        finally
+        {
+            try { if (File.Exists(temporary)) File.Delete(temporary); } catch (Exception exc) when (exc is IOException or UnauthorizedAccessException) { }
+        }
     }
 
     public static JsonObject? ReadObject(string path)
     {
-        try { return File.Exists(path) ? Parse(File.ReadAllText(path, Encoding.UTF8)) as JsonObject : null; }
+        try
+        {
+            if (!File.Exists(path)) return null;
+            // Readers allow the file to be replaced while open (FileShare.Delete), so an atomic save never fails against them.
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            return Parse(reader.ReadToEnd()) as JsonObject;
+        }
         catch (Exception exc) when (exc is IOException or JsonException or UnauthorizedAccessException) { return null; }
     }
 

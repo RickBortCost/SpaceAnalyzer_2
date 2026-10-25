@@ -7,6 +7,7 @@ Il numero di versione e la data di ogni release sono assegnati dalla pipeline (v
 - **Intestazione su un solo livello**: la barra non va più a capo a nessuna larghezza (dal 3.1.0 andava su due righe tra circa 1280 e 1730 px). Lo stato della connessione e l'indirizzo del server (ad esempio "Non connesso" e "TwinCAT locale · AMS …") non compaiono più nell'intestazione: restano nella barra di stato in basso e nella finestra Connessione. Motivo: la barra deve restare una sola riga senza tagliare i controlli.
 - **Compattazione progressiva**: sotto circa 1640 px si nascondono nome e versione accanto al logo, sotto 1380 px REQ/REALE, sotto 1240 px il logo, e sotto 1200 px caratteri e margini si riducono; sotto circa 1170 px la barra scorre in orizzontale invece di andare a capo, così nessun controllo è irraggiungibile.
 - Il selettore del tema (Standard/Dark/System) è più largo e il testo non viene più tagliato.
+- **Salvataggio di impostazioni e workspace più robusto su Windows**: il salvataggio atomico dei file JSON usa un file temporaneo diverso a ogni scrittura, riprova per pochi istanti se Windows rifiuta la sostituzione e le letture non bloccano più la sostituzione del file. Motivo: con scritture ravvicinate (cambio lingua, salvataggio automatico del workspace) il servizio poteva rispondere 500 "Access to the path is denied" e il salvataggio andava perso; era anche la causa di un test UI che a volte bloccava la pubblicazione. Nuovo test `AtomicJsonTests` con scrittori e lettori concorrenti.
 
 ## 3.2.0
 
