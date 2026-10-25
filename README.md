@@ -11,7 +11,7 @@
 - Corretta la sovrapposizione di "Vista completa" con "Analisi X1↔X2".
 - Unità di misura nell'elenco dei segnali e chip "Persi" con i cicli persi durante la registrazione.
 
-**Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche, e questa sezione "Novità" viene aggiornata; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
+**Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 
 **Struttura:** `source/app/SpaceAnalyzer` (servizio web C#), `source/engine/SpaceAnalyzer.Engine` (driver, acquisizione, registrazione), `source/static` e `source/templates` (interfaccia), `source/launcher` (launcher Windows con splash), `source/tests` (workflow UI e simulatori dei protocolli, solo test), `tools/windows` (build e verifica dell'EXE).
 
