@@ -53,4 +53,4 @@ async function page(){
   $('nav-connection').click();$('s7_mode').value='symbolic';await w.switchS7Mode('symbolic');assert.equal(t.charts.charts.length,2);assert(t.selected.has('s7:sym:DB1.Data.Status'));
   assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks:['real EXPLORE/LID browse, structs and arrays','short signal names/full-path hover','multi-chart symbolic selection','mode-specific workspace persistence','UDP field editor and actual packet test','UDP per-packet trend and PLC timestamp diagnostics','Record/Stop/Parquet replay','pause preserves continuous recording','no frontend exceptions']},null,2));
  }finally{t.stop();await new Promise(r=>setTimeout(r,600));for(const d of pages)d.window.close();}
-})().catch(e=>{console.error(e.stack);process.exit(1);});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

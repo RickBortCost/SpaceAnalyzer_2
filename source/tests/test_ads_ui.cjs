@@ -128,4 +128,4 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   checks.push('native manual fields editable and saved/reloaded; explicit TCP SumRead selection and actual manual client identity/port/bind applied; connected fields remain locked');
   assert.deepEqual(errors,[]);console.log(JSON.stringify({result:'PASS',checks,files:[]},null,2));
  }finally{t.stopPolling();await new Promise(r=>setTimeout(r,600));for(const dom of pages)dom.window.close();}
-})().catch(e=>{console.error(e.stack);process.exit(1);});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

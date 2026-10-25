@@ -134,4 +134,4 @@ async function page(){
   $('disconnect').click();await wait(async()=>!Object.keys((await api('/api/values')).sources||{}).length,'all sessions closed');
   assert.equal(errors.length,0,errors.join('; '));console.log(JSON.stringify({result:'PASS',checks,files:[]}));
  }finally{t.stopPolling();for(const d of pages)d.window.close();}
-})().catch(e=>{console.error(e);process.exitCode=1;});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1);});
