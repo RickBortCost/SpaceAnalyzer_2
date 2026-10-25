@@ -2,6 +2,12 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.4.1
+
+- **Nome dell'applicazione sempre visibile nella barra superiore da 1500 px**: con la scala dello schermo al 125% (circa 1530 px di larghezza utile) il nome "Space Fieldbus Analyzer" spariva e restava solo il logo, perché compariva solo sopra 1760 px. Ora compare da 1500 px in su: in quella fascia la versione e REQ/REALE non sono nell'intestazione (la versione resta nella barra di stato, REQ/REALE nella diagnostica del Live), l'icona della lingua è nascosta e spaziature, tasti, selettori e orologio sono più compatti. Motivo: far stare il nome senza spostare o tagliare i comandi.
+- **Lingue con testi più lunghi**: tedesco e francese mostrano il nome da 1640 px, spagnolo da 1560 px (italiano e inglese da 1500 px). Motivo: con quei testi i comandi non entrerebbero sulla stessa riga; verificato da 1500 a 1920 px in tutte le lingue senza barre che vadano a capo o taglino i controlli.
+- Sotto 1500 px il nome resta nascosto (resta il logo), come prima.
+
 ## 3.4.0
 
 - **Nuovo nome: SPACE FIELDBUS ANALYZER**: l'applicazione si chiama ora "Space Fieldbus Analyzer" nell'interfaccia (titolo della finestra, intestazione, testi, tooltip e messaggi, nelle cinque lingue), nel launcher (finestra e splash), nei messaggi e nei file generati (log, esportazioni, nome dell'applicazione OPC UA, intestazione Parquet/RBF) e nella documentazione. Motivo: nome richiesto per l'applicazione.
