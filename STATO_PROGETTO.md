@@ -1,4 +1,9 @@
-# Stato della consegna 3.0.1
+# Stato della consegna 3.0.2
+
+- Indicatore di registrazione: pulsante Record rosso lampeggiante con tempo trascorso, tempo nel titolo della finestra, barra compatta (formato, righe, velocità, parte, coda, file). Verificato in Chromium reale e nel test UI `test_advanced_ui.cjs`; suite UI 22/22.
+- Prova su impianto: con la 3.0.1 i buchi di acquisizione ADS osservati nella 1.29 non si presentano più (verifica dell'utente).
+
+## Consegna precedente 3.0.1
 
 - Interfaccia in finestra applicazione dedicata (Edge/Chrome in modalità app). La chiusura della finestra arresta i servizi e finalizza le registrazioni.
 - Grafici dei file a piena risoluzione: tutti i campioni, trasferimento binario, disegno min–max per colonna di pixel e campioni singoli con lo zoom; fino a 80 milioni di campioni per vista.
