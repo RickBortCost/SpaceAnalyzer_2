@@ -2,18 +2,18 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
-## 3.0.2
+## 3.0.3
 
-- **Registrazione in evidenza**: durante Record il pulsante diventa rosso e lampeggia con il tempo trascorso (`● REC 04:47`, aggiornato ogni secondo); lo stesso tempo compare nel titolo della finestra. La lunga riga di stato è sostituita da una barra compatta: formato, righe scritte, velocità (righe/s), parte, occupazione della coda (verde sotto 50%, ambra fino a 80%, rossa oltre) e nome del file. Percorso completo, righe in memoria, cicli in coda e note restano nel tooltip. Animazioni disattivate se il sistema chiede movimento ridotto.
 - **Cartella delle registrazioni a scelta**: nella finestra di Record il campo "Cartella di destinazione" si può modificare. **Sfoglia…** apre la finestra di Windows "Seleziona cartella"; si può anche scrivere un percorso completo; **Predefinita** torna a `Recordings` accanto all'EXE. La pagina Registrazioni mostra la cartella attiva e ha il pulsante **Cambia…**. La scelta vale per nuove registrazioni, export e pagina Registrazioni ed è memorizzata in `%LOCALAPPDATA%\OPCUA_Web_Client\recordings_location.json`. Il servizio verifica che la cartella sia scrivibile; il cambio è rifiutato durante Record. Se all'avvio la cartella salvata non è disponibile (ad esempio un disco di rete scollegato), si usa quella predefinita e viene mostrato un avviso.
-
 - **Live a piena risoluzione**: il Live usa ora la stessa precisione delle registrazioni. Prima "Intera acquisizione" mostrava un riassunto di 256 intervalli min/max e "Ultima finestra" 1.200 punti per segnale; ora il grafico contiene ogni campione acquisito, disegnato con il min–max per colonna di pixel e i singoli campioni con lo zoom. A ogni aggiornamento il servizio invia solo i campioni nuovi, in formato binario (`/api/live/samples`), identificati da una sequenza per segnale (le revisioni dei valori calcolati sostituiscono l'ultimo campione). "Ultima finestra" rispecchia il buffer del servizio. "Intera acquisizione" conserva tutta la sessione: la parte precedente all'apertura della finestra viene letta dallo storico originale Live su disco (`/api/live/history`). Limite di 40 milioni di campioni nel grafico (20 milioni per una lettura dallo storico); oltre, si mostra la parte più recente con un avviso. Se il disegno supera 150 ms, il grafico viene ridisegnato meno spesso senza perdere campioni.
-
 - **Robustezza del servizio**: le notifiche del router TwinCAT (ADS nativo, TcAdsDll) arrivano in un callback chiamato dal router; un errore al suo interno poteva chiudere l'intero servizio (`exit status 0xe0434352`, interfaccia bloccata). Ora l'errore ferma solo l'acquisizione ADS con un messaggio. Un errore fatale di qualunque thread viene scritto in `opcua-client.log` e in `crash-<data>.txt` nella cartella dei dati; il messaggio del launcher indica quel file.
-
 - **Nessuna scrittura su C: se l'EXE è su un altro disco**: impostazioni, log, servizio estratto, storico Live, cache dei calcoli, file aperti dal PC e file temporanei di upload stanno in `SpaceAnalyzer_Data` accanto all'EXE (prima: `%LOCALAPPDATA%\OPCUA_Web_Client` e la cartella temporanea di Windows, su C:). Al primo avvio il launcher copia impostazioni e file importati dalla cartella precedente ed elimina le sue cache (storico Live, calcoli, servizi estratti). Se la cartella dell'EXE non è scrivibile si usa quella precedente; `OPCUA_DATA_DIR` resta prioritaria.
 - **Storico Live dopo una chiusura anomala**: ogni sessione può occupare fino a 8 GB e prima veniva eliminata solo alla chiusura regolare; dopo un crash restava su disco. Ora le sessioni rimaste vengono eliminate all'avvio.
 - **Disco pieno**: le operazioni che falliscono per mancanza di spazio mostrano "Disco pieno" con il percorso, invece di un errore generico.
+
+## 3.0.2
+
+- **Registrazione in evidenza**: durante Record il pulsante diventa rosso e lampeggia con il tempo trascorso (`● REC 04:47`, aggiornato ogni secondo); lo stesso tempo compare nel titolo della finestra. La lunga riga di stato è sostituita da una barra compatta: formato, righe scritte, velocità (righe/s), parte, occupazione della coda (verde sotto 50%, ambra fino a 80%, rossa oltre) e nome del file. Percorso completo, righe in memoria, cicli in coda e note restano nel tooltip. Animazioni disattivate se il sistema chiede movimento ridotto.
 
 ## 3.0.1
 
