@@ -1,8 +1,9 @@
-// Windows GUI launcher: carry a private Python runtime and keep recordings beside this EXE.
+// Windows GUI launcher: carry the self-contained .NET service (SpaceAnalyzer.exe) and keep recordings beside this EXE.
 package main
 
 import (
 	"archive/zip"
+	"bufio"
 	"bytes"
 	_ "embed"
 	"fmt"
@@ -10,15 +11,25 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
+	"time"
 	"unsafe"
 )
+
+// The C# service prints this marker for each startup stage (only with SPACE_SPLASH=1).
+const startupMarker = "@@SPACE_ANALYZER_STARTUP "
 
 //go:embed payload.zip
 var payload []byte
 
-const version = "2.0.0"
+// SHA-256 of payload.zip, written by the build: the extracted runtime is cached per payload.
+//
+//go:embed payload.sha256
+var payloadDigest string
+
+const version = "3.0.0"
 
 func message(text string) {
 	title, _ := syscall.UTF16PtrFromString("Space Analyzer V" + version)
@@ -26,12 +37,20 @@ func message(text string) {
 	syscall.NewLazyDLL("user32.dll").NewProc("MessageBoxW").Call(0, uintptr(unsafe.Pointer(body)), uintptr(unsafe.Pointer(title)), 0x10)
 }
 
-func extract(target string) error {
+func extract(target string, progress func(float64)) error {
 	archive, err := zip.NewReader(bytes.NewReader(payload), int64(len(payload)))
 	if err != nil {
 		return err
 	}
+	var total, done uint64
 	for _, entry := range archive.File {
+		total += entry.UncompressedSize64
+	}
+	for _, entry := range archive.File {
+		done += entry.UncompressedSize64
+		if total > 0 {
+			progress(float64(done) / float64(total))
+		}
 		name := filepath.FromSlash(entry.Name)
 		if !filepath.IsLocal(name) {
 			return fmt.Errorf("percorso runtime non valido: %s", entry.Name)
@@ -68,15 +87,85 @@ func extract(target string) error {
 	return nil
 }
 
-func environment(appDir string) []string {
+func environment(appDir, runtimeDir string) []string {
 	result := []string{}
 	for _, item := range os.Environ() {
 		key, _, _ := strings.Cut(item, "=")
-		if !strings.EqualFold(key, "OPCUA_APP_DIR") && !strings.EqualFold(key, "PYTHONUNBUFFERED") && !strings.EqualFold(key, "PYTHONUTF8") {
+		if !strings.EqualFold(key, "OPCUA_APP_DIR") && !strings.EqualFold(key, "SPACE_BASE_DIR") && !strings.EqualFold(key, "SPACE_SPLASH") && !strings.EqualFold(key, "SPACE_PACKAGED") {
 			result = append(result, item)
 		}
 	}
-	return append(result, "OPCUA_APP_DIR="+appDir, "PYTHONUNBUFFERED=1", "PYTHONUTF8=1")
+	return append(result, "OPCUA_APP_DIR="+appDir, "SPACE_BASE_DIR="+runtimeDir, "SPACE_PACKAGED=1", "SPACE_SPLASH=1", "DOTNET_CLI_TELEMETRY_OPTOUT=1")
+}
+
+// runtimeDirectory extracts the payload once per build into the data folder and reuses it
+// on later starts (a complete marker guards against interrupted extractions).
+func runtimeDirectory(dataDir string, progress func(float64)) (string, error) {
+	digest := strings.TrimSpace(payloadDigest)
+	if len(digest) < 16 {
+		return "", fmt.Errorf("impronta del runtime mancante")
+	}
+	base := filepath.Join(dataDir, "runtime")
+	target := filepath.Join(base, "v"+version+"-"+digest[:16])
+	if _, err := os.Stat(filepath.Join(target, ".complete")); err == nil {
+		progress(1)
+		return target, nil
+	}
+	if err := os.MkdirAll(base, 0700); err != nil {
+		return "", err
+	}
+	staging, err := os.MkdirTemp(base, "extract-")
+	if err != nil {
+		return "", err
+	}
+	if err = extract(staging, progress); err != nil {
+		os.RemoveAll(staging)
+		return "", err
+	}
+	if err = os.WriteFile(filepath.Join(staging, ".complete"), []byte(digest+"\n"), 0600); err != nil {
+		os.RemoveAll(staging)
+		return "", err
+	}
+	if err = os.Rename(staging, target); err != nil {
+		os.RemoveAll(staging)
+		// Another launch completed the same runtime first.
+		if _, statErr := os.Stat(filepath.Join(target, ".complete")); statErr == nil {
+			return target, nil
+		}
+		return "", err
+	}
+	// Older runtimes are removed when no running service holds their files.
+	if entries, readErr := os.ReadDir(base); readErr == nil {
+		for _, entry := range entries {
+			if entry.IsDir() && entry.Name() != filepath.Base(target) && !strings.HasPrefix(entry.Name(), "extract-") {
+				os.RemoveAll(filepath.Join(base, entry.Name()))
+			}
+		}
+	}
+	return target, nil
+}
+
+// relay copies the service output to the log and drives the splash from the markers.
+func relay(output io.Reader, log io.Writer, splash *Splash, ready func()) {
+	reader := bufio.NewReader(output)
+	for {
+		line, err := reader.ReadString('\n')
+		if line != "" {
+			io.WriteString(log, line)
+			if rest, ok := strings.CutPrefix(strings.TrimSpace(line), strings.TrimSpace(startupMarker)); ok {
+				field, _, _ := strings.Cut(strings.TrimSpace(rest), " ")
+				if percent, convErr := strconv.Atoi(field); convErr == nil {
+					splash.SetProgress(0.45 + 0.55*float64(percent)/100)
+					if percent >= 100 {
+						ready()
+					}
+				}
+			}
+		}
+		if err != nil {
+			return
+		}
+	}
 }
 
 func run() error {
@@ -110,22 +199,51 @@ func run() error {
 	}
 	defer logFile.Close()
 	fmt.Fprintf(logFile, "\nAvvio V%s; applicativo: %s\n", version, appDir)
-	temporary, err := os.MkdirTemp("", "SpaceAnalyzer-v"+version+"-")
+	var splash *Splash
+	tool := len(os.Args) > 1 && os.Args[1] == "--tool"
+	if os.Getenv("SPACE_NO_SPLASH") == "" && !tool {
+		splash = StartSplash()
+	}
+	closeSplash := func() { go func() { time.Sleep(600 * time.Millisecond); splash.Close() }() }
+	defer splash.Close()
+	splash.SetProgress(0.05)
+	runtimeDir, err := runtimeDirectory(dataDir, func(f float64) { splash.SetProgress(0.05 + 0.40*f) })
+	if err != nil {
+		return fmt.Errorf("estrazione dei servizi: %w", err)
+	}
+	service := filepath.Join(runtimeDir, "SpaceAnalyzer.exe")
+	if tool {
+		// Offline tools (recover/inspect/export) run in the console of the caller.
+		command := exec.Command(service, os.Args[1:]...)
+		command.Env = environment(appDir, runtimeDir)
+		command.Stdout, command.Stderr, command.Stdin = os.Stdout, os.Stderr, os.Stdin
+		return command.Run()
+	}
+	command := exec.Command(service)
+	command.Dir = runtimeDir
+	command.Env = environment(appDir, runtimeDir)
+	command.Stderr = logFile
+	output, err := command.StdoutPipe()
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(temporary)
-	if err = extract(temporary); err != nil {
-		return fmt.Errorf("estrazione dei servizi: %w", err)
-	}
-	command := exec.Command(filepath.Join(temporary, "python.exe"), "-u", filepath.Join(temporary, "app.py"))
-	command.Dir = temporary
-	command.Env = environment(appDir)
-	command.Stdout, command.Stderr = logFile, logFile
 	command.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
-	// Python binds the HTTP service before opening the default browser and owns the instance lock.
-	if err = command.Run(); err != nil {
-		return fmt.Errorf("avvio o esecuzione dei servizi non riusciti: %w\nDettagli: %s", err, logPath)
+	// The service binds HTTP before opening the default browser and owns the instance lock.
+	if err = command.Start(); err != nil {
+		return fmt.Errorf("avvio dei servizi non riuscito: %w\nDettagli: %s", err, logPath)
+	}
+	splash.SetProgress(0.45)
+	// Never leave the splash on screen if a stage marker is missing.
+	timeout := time.AfterFunc(3*time.Minute, func() { splash.Close() })
+	relayed := make(chan struct{})
+	go func() {
+		relay(output, logFile, splash, closeSplash)
+		close(relayed)
+	}()
+	<-relayed
+	timeout.Stop()
+	if err = command.Wait(); err != nil {
+		return fmt.Errorf("esecuzione dei servizi non riuscita: %w\nDettagli: %s", err, logPath)
 	}
 	fmt.Fprintln(logFile, "Servizi terminati.")
 	return nil

@@ -79,7 +79,7 @@ Dati interamente sintetici: 10000 frame in 10 s, 1000 Hz, due seni a 50 Hz
 Aprire il file in FDA e controllare nomi, unita', scale, andamento e durata.
 Intestazione del riferimento ricostruita byte per byte, ma non e' disponibile
 una specifica completa ufficiale o un SDK FDA. Non e' stata eseguita una prova
-nel software Danieli FDA: la compatibilita' esterna va confermata sul posto.
+nel software FDA originale: la compatibilita' esterna va confermata sul posto.
 Non viene dichiarata compatibilita' universale con altre varianti DAS.
 
 VERIFICHE

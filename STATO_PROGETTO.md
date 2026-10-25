@@ -1,4 +1,15 @@
-# Stato della consegna 2.1.0
+# Stato della consegna 3.0.0
+
+Applicazione interamente in C#: servizio ASP.NET Core (`source/app/SpaceAnalyzer`) con motore di acquisizione e registrazione in-process (`source/engine/SpaceAnalyzer.Engine`). Python è stato rimosso dal prodotto e resta solo come strumento di test/build.
+
+- Verificato: 20 test xUnit dell'applicazione, 3 del motore, 21 workflow UI jsdom contro il servizio C# con peer locali (OPC UA, ADS, MQTT, S7, SSH), smoke test end-to-end dell'eseguibile (build di sviluppo) e test di avvio/istanza singola.
+- Build Windows (publish self-contained win-x64 + launcher Go) verificata in cross-compilazione; l'esecuzione del vero EXE su Windows è nella pipeline.
+- Da verificare su impianto: S7 simbolico su CPU reale, ADS nativo TcAdsDll, PLC e reti industriali.
+
+Dettagli in `VERSIONE_3.0.md`.
+
+## Consegna precedente 2.1.0
+
 
 Seconda iterazione della Fase 1, senza modifiche a UI, grafici o formati:
 

@@ -1,4 +1,4 @@
-/* Danieli colour standard supplied by the user. RGB values sampled from swatches. */
+/* Space Analyzer colour standard. RGB values sampled from swatches. */
 :root{
  --brand-primary:#006EFF;--brand-primary-soft:#CCE2FF;
  --brand-orange:#F58C3A;--brand-orange-soft:#FFD6B7;
@@ -37,7 +37,7 @@ body.is-recording #record{background:var(--brand-orange-soft);color:#000000;bord
 .tooltip{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow)}
 .marker-table th,.marker-summary,.marker-panel,.graph-choice{background:var(--surface2);border-color:var(--line)}
 .page-splitter:hover span,.grid-resizer:hover,.chart-resizer:hover{background:var(--brand-primary)}
-.brand .company-logo{background:#E5E5E5}.brand strong,.chart-name{color:var(--ink)}
+.brand .company-logo{background:transparent}.brand strong,.chart-name{color:var(--ink)}
 :root[data-theme=dark] .page-tab.active,:root[data-theme=dark] .tab.active,:root[data-theme=dark] .history-file.active{background:#003B88;color:#FFFFFF}
 .record-dialog::backdrop,.connection-dialog::backdrop,.analysis-dialog::backdrop,.properties-dialog::backdrop{background:#00000066}
 .logs-content{background:var(--surface2);color:var(--ink);border:1px solid var(--line)}

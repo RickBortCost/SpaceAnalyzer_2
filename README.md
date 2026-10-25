@@ -1,8 +1,12 @@
-# Space Analyzer 2
+# Space Analyzer 3
 
-**Versione 2.0.** Prosecuzione di Space Analyzer V1.29.0 con le correzioni alla registrazione FDA/DAS4 e all’acquisizione ADS (dettagli in [CHANGELOG.md](CHANGELOG.md)). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_2/releases/latest).
+
+**Struttura:** `source/app/SpaceAnalyzer` (servizio web C#), `source/engine/SpaceAnalyzer.Engine` (driver, acquisizione, registrazione), `source/static` e `source/templates` (interfaccia), `source/launcher` (launcher Windows con splash), `source/tests` (workflow UI e simulatori dei protocolli, solo test), `tools/windows` (build e verifica dell'EXE).
+
+Le guide in `source/` e la storia che segue descrivono anche versioni precedenti, quando l'applicazione era in Python: i riferimenti a moduli `.py` valgono solo per quelle versioni.
 
 La storia delle versioni 1.x che segue è conservata come riferimento.
 

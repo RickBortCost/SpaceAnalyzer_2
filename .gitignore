@@ -20,3 +20,11 @@ source/instance.lock
 source/build/
 source/dist/
 source/live_analysis_cache/
+
+# .NET build output
+source/engine/**/bin/
+source/engine/**/obj/
+source/engine/**/TestResults/
+source/app/**/bin/
+source/app/**/obj/
+source/app/**/TestResults/

@@ -29,7 +29,7 @@ body.analysis-fullscreen{overflow:hidden}body.analysis-fullscreen>.app-bar,body.
 @media(max-width:600px){.connection-page .row{display:grid;grid-template-columns:1fr}.page-tabs .page-tab{padding:7px 8px}}
 
 /* Company identity */
-.brand .company-logo{width:44px;height:42px;object-fit:contain;flex-shrink:0;border-radius:4px;background:#e6e6e6}.brand strong{white-space:nowrap}@media(max-width:480px){.brand .company-logo{width:36px;height:34px}}
+.brand .company-logo{width:44px;height:42px;object-fit:contain;flex-shrink:0;border-radius:4px;background:transparent}.brand strong{white-space:nowrap}@media(max-width:480px){.brand .company-logo{width:36px;height:34px}}
 
 @media(max-width:900px){.app-bar .brand{display:flex}.app-bar{height:auto;min-height:54px;flex-wrap:wrap}.brand small{align-self:center}}
 

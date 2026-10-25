@@ -1,6 +1,6 @@
 # Versionamento automatico
 
-Le versioni seguono il formato **MAJOR.MINOR.PATCH** (Semantic Versioning) e coincidono con i tag Git `vX.Y.Z`. Non si modificano più a mano i numeri in `app.py`, `build_windows.py`, launcher e workflow: lo fa la pipeline.
+Le versioni seguono il formato **MAJOR.MINOR.PATCH** (Semantic Versioning) e coincidono con i tag Git `vX.Y.Z`. Non si modificano più a mano i numeri in `Config/Defaults.cs`, nei file `.csproj`, in `tools/windows/build_windows.py`, nel launcher e nello smoke test: lo fa la pipeline.
 
 ## Come viene scelto il numero
 

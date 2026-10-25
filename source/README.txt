@@ -1,3 +1,17 @@
+SPACE ANALYZER V3.0.0 WINDOWS x64
+
+Estrarre lo ZIP e avviare Space_Analyzer_V3.0.0.exe.
+Chiudere la versione precedente con Chiudi applicazione prima dell'avvio.
+Applicazione interamente in C# (.NET 8 incluso nell'EXE): non serve
+installare Python, .NET o altri componenti.
+
+Registrazione: CSV, Parquet, FDA (.das), RBF. I file .dat si aprono e si
+visualizzano; la registrazione .dat non è più disponibile.
+Strumenti: Space_Analyzer_V3.0.0.exe --tool inspect|recover|export-fda|export-rbf.
+Dettagli: VERSIONE_3.0.md e LEGGIMI_AVVIO_WINDOWS.md.
+
+--- Note delle versioni precedenti ---
+
 SPACE ANALYZER V1.29.0 WINDOWS x64
 
 Estrarre lo ZIP e avviare Space_Analyzer_V1.29.0.exe.

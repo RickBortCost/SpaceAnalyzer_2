@@ -10,6 +10,8 @@ class Peer:
         self.server=None;self.writers=set();self.handles={};self.next_handle=100
         self.ads_state=5;self.version=1;self.sum_enabled=True;self.bad=set();self.commands=[]
         self.released=[];self.fault=None;self.delay=0
+        # ADS/TCP notifications (AddDeviceNotification 6, Delete 7, DeviceNotification 8).
+        self.subscriptions={};self.write_locks={};self.next_notification=500;self.current=None;self.loop=None;self.attrs=[]
         self.symbols={
             'MAIN.Wave':(5,'LREAL',8), 'MAIN.Running':(33,'BOOL',1),
             'MAIN.Counter':(21,'ULINT',8), 'MAIN.Text':(30,'STRING(15)',16),
@@ -19,6 +21,7 @@ class Peer:
             'MAIN.Bad':(5,'LREAL',8), 'MAIN.Nonfinite':(5,'LREAL',8)}
         self.bad.add('MAIN.Bad')
     async def start(self):
+        self.loop=asyncio.get_running_loop()
         self.server=await asyncio.start_server(self.accept,'127.0.0.1',0)
         self.port=self.server.sockets[0].getsockname()[1];return self
     async def close(self):
@@ -78,8 +81,30 @@ class Peer:
                         errs.append(struct.pack('<I',err));values.append(value.ljust(size,b'\0'))
                     data=b''.join(errs+values)
             else:e,data=1794,b''
+        elif cmd==6:
+            g,o,n,mode,delay,cycle=struct.unpack_from('<IIIIII',payload);self.attrs.append((n,mode,delay,cycle))
+            if g!=0xF005 or o not in self.handles:return struct.pack('<I',1810)+struct.pack('<I',0)
+            self.next_notification+=1;self.subscriptions[self.next_notification]=(self.current,o,n)
+            return struct.pack('<II',0,self.next_notification)
+        elif cmd==7:
+            h=struct.unpack_from('<I',payload)[0];self.subscriptions.pop(h,None);return struct.pack('<I',0)
         else:raise AssertionError('Unsupported command')
         return struct.pack('<II',e,len(data))+data
+    def emit(self,ticks,size_override=None):
+        """Push one DeviceNotification per subscription (thread-safe; returns when written)."""
+        async def send():
+            for notification,((w,client,server),handle,size) in list(self.subscriptions.items()):
+                name=self.handles.get(handle)
+                if name is None or w.is_closing():continue
+                data=self.value(name)[:size]
+                if size_override is not None:data=data.ljust(size_override,b'\0')[:size_override]
+                sample=struct.pack('<II',notification,len(data))+data
+                stamp=struct.pack('<QI',ticks,1)+sample
+                body=struct.pack('<II',len(stamp)+4,1)+stamp
+                header=client+server+struct.pack('<HHIII',8,4,len(body),0,0)
+                # Whole frames only: never inside a fragmented response.
+                async with self.write_locks.setdefault(w,asyncio.Lock()):w.write(struct.pack('<HI',0,len(header)+len(body))+header+body)
+        asyncio.run_coroutine_threadsafe(send(),self.loop).result(5)
     async def accept(self,r,w):
         self.writers.add(w)
         try:
@@ -88,14 +113,15 @@ class Peer:
                 raw=await r.readexactly(length);cmd,flags,n,err,invoke=struct.unpack_from('<HHIII',raw,16)
                 assert flags==4 and n==len(raw)-32
                 if self.delay:await asyncio.sleep(self.delay)
-                data=self.process(cmd,raw[32:]);fault,self.fault=self.fault,None
+                self.current=(w,raw[8:16],raw[:8]);data=self.process(cmd,raw[32:]);fault,self.fault=self.fault,None
                 response=raw[8:16]+raw[:8]+struct.pack('<HHIII',cmd,5,len(data),0,invoke+(fault=='invoke'))+data
                 if fault=='length':w.write(struct.pack('<HI',0,0xffffffff));await w.drain();continue
                 header=struct.pack('<HI',0,len(response))
                 # Deliberately fragmented TCP writes (header and payload).
-                w.write(header[:2]);await w.drain();await asyncio.sleep(0)
-                w.write(header[2:]+response[:19]);await w.drain();await asyncio.sleep(0)
-                w.write(response[19:]);await w.drain()
+                async with self.write_locks.setdefault(w,asyncio.Lock()):
+                    w.write(header[:2]);await w.drain();await asyncio.sleep(0)
+                    w.write(header[2:]+response[:19]);await w.drain();await asyncio.sleep(0)
+                    w.write(response[19:]);await w.drain()
         except (asyncio.IncompleteReadError,ConnectionError,asyncio.CancelledError):pass
         finally:
             self.writers.discard(w);w.close()
