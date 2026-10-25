@@ -6,7 +6,7 @@ namespace SpaceAnalyzer.App.Config;
 public static class Defaults
 {
     public const string AppName = "Space Analyzer";
-    public const string Version = "3.0.3";
+    public const string Version = "3.0.4";
     public const int MaxSelected = 64;
     public const int MaxSamples = 360000;
     public const int MaxTotalSamples = 2000000;

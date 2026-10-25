@@ -74,6 +74,8 @@ jobs:
           $env:JSDOM_PATH = Join-Path $uiDeps 'node_modules/jsdom'
           python -m unittest discover -s source/tests -p test_versioning.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest discover -s source/tests -p test_release_notes.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python source/tests/test_launcher.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # test_s7_modes_ui.cjs richiede una CPU S7-1200/1500 reale (S7CommPlus autenticato): escluso dalla CI.
@@ -121,10 +123,15 @@ jobs:
           $v = $env:SA_VERSION
           $tag = "v$v"
           $files = @("source/dist/Space_Analyzer_V$($v).exe", "source/dist/Space_Analyzer_V$($v)_WINDOWS.zip", 'source/dist/BUILD_MANIFEST.json', 'source/dist/WINDOWS_EXE_VERIFICATION.json', 'source/dist/SHA256SUMS.txt')
+          # Testo della release: modifiche di questa versione (CHANGELOG o commit) e guida di avvio.
+          python tools/release_notes.py notes $v release-notes.md
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag @files --clobber --repo $env:GITHUB_REPOSITORY
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            gh release edit $tag --notes-file release-notes.md --repo $env:GITHUB_REPOSITORY
           } else {
-            gh release create $tag @files --target $env:GITHUB_SHA --title "Space Analyzer V$($v) — Windows x64" --notes-file LEGGIMI_AVVIO_WINDOWS.md --repo $env:GITHUB_REPOSITORY
+            gh release create $tag @files --target $env:GITHUB_SHA --title "Space Analyzer V$($v) — Windows x64" --notes-file release-notes.md --repo $env:GITHUB_REPOSITORY
           }
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
