@@ -1,17 +1,17 @@
 # Space Analyzer 3
 
-**Versione 3.0.5.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.0.7.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.0.5
+## Novità della versione 3.0.7
 
-- Grafici più leggibili: asse Y su valori tondi, asse dei tempi adattivo con millisecondi, palette distinta per tema chiaro e scuro, legenda con nomi brevi.
-- Barra strumenti del grafico ridotta alle azioni frequenti (le altre nel menu ⋮); indicatore di qualità solo con campioni Uncertain/Bad; stato Live compatto.
-- Corretta la sovrapposizione di "Vista completa" con "Analisi X1↔X2".
-- Unità di misura nell'elenco dei segnali e chip "Persi" con i cicli persi durante la registrazione.
+- Schermata a tutta altezza, senza scroll della pagina: barra superiore e barra di stato fisse, pannelli e grafici entrano nella finestra. Motivo: con più grafici la pagina cresceva oltre lo schermo e Dati calcolati, messaggi e stato finivano fuori vista.
+- L'elenco dei segnali, le registrazioni e "Dati calcolati" scorrono dentro il proprio pannello; i grafici si dividono lo spazio disponibile.
+- Avvio sempre a schermo intero (F11 per uscire) e layout che si adatta a qualunque dimensione della finestra senza tagliare i contenuti: sotto i 761 px una colonna con scroll interno. Motivo: la finestra solo massimizzata lasciava barre che riducevano lo spazio utile e, ridimensionandola, parti dell'interfaccia uscivano dalla vista.
+- Dalla 3.0.6: storico Live non più bloccato da "coda di scrittura piena" (coda più capiente e scrittura SQLite più veloce con campionamento a 1 ms e molti segnali, indipendente dallo spazio su disco).
 
-**Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche, e questa sezione "Novità" viene aggiornata; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
+**Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 
 **Struttura:** `source/app/SpaceAnalyzer` (servizio web C#), `source/engine/SpaceAnalyzer.Engine` (driver, acquisizione, registrazione), `source/static` e `source/templates` (interfaccia), `source/launcher` (launcher Windows con splash), `source/tests` (workflow UI e simulatori dei protocolli, solo test), `tools/windows` (build e verifica dell'EXE).
 

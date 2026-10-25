@@ -6,6 +6,7 @@ namespace SpaceAnalyzer.App.Web;
 /// <summary>
 /// Opens the interface as a desktop application window: Microsoft Edge (or Chrome) in app mode, with its own profile,
 /// no tabs or address bar. Closing the last window stops the service. Falls back to the default browser.
+/// The window starts full screen (F11 leaves it); SPACE_FULLSCREEN=0 starts it maximized instead.
 /// SPACE_WINDOW=browser keeps the previous behaviour (a normal browser page).
 /// </summary>
 public static class AppWindow
@@ -28,7 +29,8 @@ public static class AppWindow
         {
             Directory.CreateDirectory(profileDir);
             var info = new ProcessStartInfo(browser) { UseShellExecute = false };
-            foreach (var arg in new[] { "--app=" + url, "--user-data-dir=" + profileDir, "--no-first-run", "--no-default-browser-check", "--start-maximized" })
+            var size = Environment.GetEnvironmentVariable("SPACE_FULLSCREEN") == "0" ? "--start-maximized" : "--start-fullscreen";
+            foreach (var arg in new[] { "--app=" + url, "--user-data-dir=" + profileDir, "--no-first-run", "--no-default-browser-check", size })
                 info.ArgumentList.Add(arg);
             var process = Process.Start(info) ?? throw new InvalidOperationException("processo non avviato");
             Log.Info($"Finestra applicazione aperta con {Path.GetFileName(browser)}");
