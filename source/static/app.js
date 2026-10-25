@@ -319,8 +319,8 @@ function renderLiveSession(d){
  const label=$('live-session-status');
  if(!range){I18N.bind(label,"textContent",()=>(I18N.join([{value:(liveViewMode==='all'?I18N.t("Intera acquisizione"):I18N.t("Ultima finestra"))},{text:" · in attesa del primo campione"}])),true);return;}
  const stamp=t=>new Date(t).toLocaleString(I18N.locale(),{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
- const span=Math.max(0,(range.xmax-range.xmin)/1000);
- const mode=liveViewMode==='all'?I18N.t("Intera acquisizione"):I18N.t("Ultima finestra");
+ const total=Math.max(0,(range.xmax-range.xmin)/1000),shown=liveCharts.liveSpan&&liveCharts.liveSpan/1000<total,span=shown?liveCharts.liveSpan/1000:total;
+ const mode=shown?I18N.t("Periodo visualizzato"):liveViewMode==='all'?I18N.t("Intera acquisizione"):I18N.t("Ultima finestra");
  I18N.bind(label,"textContent",()=>(I18N.join([{value:(mode)},{text:" · "},{value:(span.toLocaleString(I18N.locale(),{maximumFractionDigits:1}))},{text:" s · piena risoluzione"}])),true);
  I18N.bind(label,"title",()=>(I18N.join([{value:(stamp(range.xmin))},{text:" → "},{value:(stamp(range.xmax))},{value:(liveViewMode==='all'?I18N.t(" · Tutti i campioni della sessione a piena risoluzione. Per conservarli in un file usa Record."):I18N.t(" · Tutti i campioni del buffer recente a piena risoluzione."))}])),true);
 }

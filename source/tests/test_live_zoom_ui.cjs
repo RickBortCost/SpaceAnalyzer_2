@@ -61,6 +61,30 @@ const close=(a,b)=>assert(Math.abs(a-b)<1e-6,`${a} != ${b}`);
   }
   frame(end);
   assert.equal(ws.liveZoom,false);assert.equal(a.axisPlan.dual,true);
+
+  // Rotella sull'area del grafico: periodo visualizzato da 10 s fino a tutta la sessione (120 s qui).
+  {
+   const sessionEnd=end,longData=Object.fromEntries(ids.map((id,k)=>[id,Array.from({length:121},(_,i)=>[sessionEnd-120000+i*1000,(k?100:10)+i,'Good'])]));
+   const feedLong=()=>{ws.displayRange={xmin:sessionEnd-120000,xmax:sessionEnd};t.feed(longData,nodes,{[ids[0]]:'Double',[ids[1]]:'Double'});};
+   feedLong();
+   const spanOf=()=>a.domain.xmax-a.domain.xmin,lay=a.layout,x=lay.p.l+100,y=lay.p.t+40;
+   const wheel=(dy,px=x,py=y)=>{const e=new w.WheelEvent('wheel',{bubbles:true,cancelable:true,clientX:px,clientY:py,deltaY:dy});a.canvas.dispatchEvent(e);return e;};
+   close(spanOf(),120000);assert.equal(ws.liveSpan||null,null);
+   assert(wheel(-100).defaultPrevented);close(spanOf(),120000/1.25);close(a.domain.xmax,sessionEnd);
+   for(let i=0;i<30;i++)wheel(-100);
+   close(spanOf(),10000);close(a.domain.xmax,sessionEnd);
+   wheel(100);close(spanOf(),12500);
+   for(let i=0;i<40;i++)wheel(100);
+   close(spanOf(),120000);assert.equal(ws.liveSpan,null,'oltre l’intera sessione torna alla vista completa');
+   wheel(-100);wheel(-100);const narrow=spanOf();
+   assert(narrow<120000);
+   a.canvas.dispatchEvent(new w.MouseEvent('dblclick',{bubbles:true,clientX:x,clientY:y}));
+   close(spanOf(),120000);assert.equal(ws.liveSpan,null);
+   a.pauseForZoom();assert(!wheel(-100).defaultPrevented,'a grafico fermo la rotella non cambia il periodo');a.resetZoom();
+   const axisHit=lay.p.l-29;assert(!ws.liveSpan);wheel(-100,axisHit,y);close(spanOf(),120000,'la rotella sull’asse Y non cambia il periodo');
+   frame(end);
+   checks.push('Rotella sul grafico LIVE: periodo X da 10 s a tutta la sessione, ancorato all’ultimo campione; doppio clic ripristina; ferma o sugli assi non agisce');
+  }
   zoom(w,g);assert(a.zoom);assert.equal(a.frozen,true);
   const width=a.domain.xmax-a.domain.xmin,axes=JSON.stringify(a.domain.axes);
   $('global-live-zoom').click();
@@ -89,6 +113,13 @@ const close=(a,b)=>assert(Math.abs(a-b)<1e-6,`${a} != ${b}`);
   $('global-pause').click();assert.equal(a.frozen,false);assert(a.zoom);
   close(a.domain.xmax-a.domain.xmin,narrower);close(a.domain.xmax,end);assert.equal(JSON.stringify(a.domain.axes),newAxes);
   checks.push('Manual Pausa freezes timestamps and data; Play resumes live updates while preserving the XY zoom');
+  {
+   const lay=a.layout,e=new w.WheelEvent('wheel',{bubbles:true,cancelable:true,clientX:lay.p.l+100,clientY:lay.p.t+40,deltaY:100});
+   a.canvas.dispatchEvent(e);assert(e.defaultPrevented);
+   const grown=a.domain.xmax-a.domain.xmin;close(grown,10000);
+   frame(end+1000);close(a.domain.xmax-a.domain.xmin,grown);close(a.domain.xmax,end);
+   checks.push('Con Zoom live la rotella cambia il periodo seguito dalla finestra (minimo 10 s, massimo la durata disponibile)');
+  }
 
   ws.add();const other=ws.active;ws.assignTo(other,ids[0],true);ws.assignTo(other,ids[1],true);
   assert.equal(other.trend.liveZoom,true);

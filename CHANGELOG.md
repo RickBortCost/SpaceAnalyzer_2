@@ -2,6 +2,12 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.3.0
+
+- **Rotella sul grafico LIVE = periodo visualizzato (asse X)**: con il cursore sull'area di un grafico LIVE, la rotella verso l'alto riduce il periodo visualizzato e verso il basso lo aumenta (passo ×1,25), ancorato all'ultimo campione. Il periodo va da un minimo di 10 secondi di dati fino a tutti i dati dall'inizio della connessione (oltre si torna alla vista completa). Vale per tutti i grafici della pagina e anche con Zoom live attivo; il doppio clic nell'area del grafico ripristina l'intera sessione. Non agisce a grafico fermo (Pausa o zoom a rettangolo) né sulle colonne degli assi Y, dove la rotella continua a zoomare la singola scala. Motivo: poter passare dal dettaglio degli ultimi secondi all'intera acquisizione senza aprire menu o impostazioni.
+- La riga di stato del Live indica "Periodo visualizzato" e i secondi mostrati quando il periodo è ridotto (nuova voce tradotta in tutte le lingue). Motivo: rendere evidente che il grafico non mostra l'intera sessione.
+- Test UI: `test_live_zoom_ui.cjs` (limiti 10 s e sessione completa, ripristino, grafico fermo, assi, Zoom live) e `test_scale_groups_ui.cjs` aggiornato.
+
 ## 3.2.2
 
 - **Zoom e spostamento per singola scala Y**: la rotella sopra una colonna asse ingrandisce o riduce solo quella scala attorno al cursore (con Maiusc la sposta del 10%), il trascinamento verticale sull'asse la sposta, il doppio clic sull'asse ripristina la scala automatica (fuori dagli assi riporta tutto alla vista iniziale). Con lo zoom rettangolare attivo la modifica riguarda lo zoom corrente. Motivo: con scale indipendenti serviva poter regolare un canale senza toccare gli altri.
