@@ -37,7 +37,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
  const checks=[];let {w,$,t}=await page();
  try{
   const selector=$('ui-language');assert(selector);assert(selector.closest('.app-bar'));
-  assert(selector.closest('.language-control').previousElementSibling.matches('.app-menu'));
+  const power=selector.closest('.language-control').previousElementSibling;assert(power.matches('#shutdown.power-button')&&power.previousElementSibling.matches('.app-menu'));
   assert.deepEqual(Array.from(selector.options,o=>o.value),['en','it','de','fr','es']);
   const names={
    en:['Recordings','Connection','New recording','Apply','Name / alias'],
