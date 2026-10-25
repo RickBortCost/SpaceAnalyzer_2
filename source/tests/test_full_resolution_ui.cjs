@@ -75,4 +75,4 @@ async function page(){
   checks.push('binary samples endpoint returns the exact interval');
   assert.deepEqual(errors,[]);console.log(JSON.stringify({ok:true,checks},null,2));
   for(const dom of pages)dom.window.close();
-})().catch(e=>{console.error(e);console.error(errors.join('\n'));process.exit(1);});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e);console.error(errors.join("\n"));process.exit(1);});

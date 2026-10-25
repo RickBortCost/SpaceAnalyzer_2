@@ -77,4 +77,4 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   checks.push('Simultaneous-source profile survives switching away and back');
   assert.equal(errors.length,0,errors.join('; '));console.log(JSON.stringify({result:'PASS',checks,files:[]}));
  }finally{t.stopPolling();for(const d of pages)d.window.close();}
-})().catch(e=>{console.error(e);process.exitCode=1;});
+})().then(()=>process.exit(0)).catch(e=>{console.error(e);process.exit(1);});
