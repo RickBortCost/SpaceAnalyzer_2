@@ -139,7 +139,7 @@ class ChartWorkspace {
     graph.trend.liveZoomEnd=this.syncZoom?(this.displayRange?.xmax??this.liveZoomEnd):null;
     graph.trend.update(data,nodes,graph.types);
     const counts={Good:0,Uncertain:0,Bad:0};for(const points of Object.values(graph.trend.series)){if(isSampleSeries(points)){counts.Good+=points.stats.good;counts.Uncertain+=points.stats.uncertain;counts.Bad+=points.stats.bad;continue;}for(const p of points)counts[p[2]||(p[1]===null?'Bad':'Good')]++;}
-    const summary=graph.element.querySelector('[data-chart-role="qualitySummary"]');if(summary){I18N.bind(summary,"textContent",()=>(Object.entries(counts).map(([k,v])=>k+' '+v).join(' · ')),false);I18N.bind(summary,"title",()=>(I18N.t("Qualità dei campioni mostrati nel grafico. Rosso: Bad; ambra: Uncertain.")),true);summary.classList.toggle('has-bad',counts.Bad>0);}
+    const summary=graph.element.querySelector('[data-chart-role="qualitySummary"]');if(summary){I18N.bind(summary,"textContent",()=>(Object.entries(counts).map(([k,v])=>k+' '+v).join(' · ')),false);I18N.bind(summary,"title",()=>(I18N.t("Qualità dei campioni mostrati nel grafico (visibile solo con campioni Uncertain o Bad). Rosso: Bad; ambra: Uncertain.")),true);summary.classList.toggle('has-bad',counts.Bad>0);summary.hidden=counts.Bad+counts.Uncertain===0;}
     if(this.syncZoom&&this.timeRange&&!(this.liveZoom&&graph.trend.frozen)){graph.trend.linkedRange={...this.timeRange};graph.trend.draw();}
     const caption=graph.element.querySelector('[data-chart-role="caption"]');
     I18N.bind(caption,"textContent",()=>(I18N.join([{value:(nodes.size)},{text:" segnali"},{value:(this.staticMode&&graph.context?.file?' · '+(graph.context.file.display_name||graph.context.file.name):'')}])),true);

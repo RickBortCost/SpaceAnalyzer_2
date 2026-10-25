@@ -9,7 +9,9 @@ class ChartActionToolbar {
     this.rail=document.createElement('div');this.rail.className='chart-action-tools';this.rail.setAttribute('role','toolbar');I18N.attr(this.rail,'aria-label',()=>(I18N.t("Strumenti del grafico")));
     this.heading.insertBefore(this.rail,this.controls);this.heading.classList.add('has-chart-tools');
     this.measure=document.createElement('div');this.measure.className='chart-tool-measure';this.measure.setAttribute('aria-hidden','true');this.measure.inert=true;this.heading.append(this.measure);
-    const definitions=[['axes',I18N.t("Assi Y1/Y2")],['signals',I18N.t("Segnali")],['analysis',I18N.t("FFT / Export")],['resetZoom',I18N.t("Ripristina zoom")],['sync',I18N.t("Sincronizza")],['image','PNG'],['rename',I18N.t("Rinomina")],['duplicate',I18N.t("Duplica")],['closeFile',I18N.t("Chiudi file")],['clear',I18N.t("Pulisci")],['remove',I18N.t("Rimuovi")]];
+    // Visibili solo le azioni frequenti; le altre stanno nel menu ⋮ (meno ingombro con più grafici).
+    const definitions=[['analysis',I18N.t("FFT / Export")],['resetZoom',I18N.t("Ripristina zoom")],['closeFile',I18N.t("Chiudi file")],['axes',I18N.t("Assi Y1/Y2")],['signals',I18N.t("Segnali")],['sync',I18N.t("Sincronizza")],['image','PNG'],['rename',I18N.t("Rinomina")],['duplicate',I18N.t("Duplica")],['clear',I18N.t("Pulisci")],['remove',I18N.t("Rimuovi")]];
+    this.primary=new Set(['analysis','resetZoom','closeFile']);
     this.actions=[];
     for(const [key,label] of definitions){
       const button=this.items.querySelector('[data-studio-action="'+key+'"],[data-chart-role="'+key+'"]');if(!button)continue;
@@ -33,9 +35,10 @@ class ChartActionToolbar {
     const widths=this.actions.map(a=>Math.ceil(a.measure.getBoundingClientRect().width));
     if(widths.some(w=>w<=0))return;
     const total=widths.reduce((a,b)=>a+b,0)+gap*Math.max(0,widths.length-1);
-    const overflow=total>room-1,available=room-(overflow?menuWidth+controlGap:0);
+    const overflow=total>room-1||this.actions.some(a=>!this.primary.has(a.key)),available=room-(overflow?menuWidth+controlGap:0);
     let used=0,count=0;
-    for(const width of widths){const next=used+(count?gap:0)+width;if(next>available-1)break;used=next;count++;}
+    const primaryCount=this.actions.filter(a=>this.primary.has(a.key)).length;
+    for(const width of widths){if(count>=primaryCount)break;const next=used+(count?gap:0)+width;if(next>available-1)break;used=next;count++;}
     const focused=document.activeElement;
     const shown=this.actions.slice(0,count),hidden=this.actions.slice(count);
     const same=(parent,entries)=>parent.children.length===entries.length&&entries.every((a,i)=>parent.children[i]===a.button);

@@ -1,6 +1,6 @@
-SPACE ANALYZER V3.0.4 WINDOWS x64
+SPACE ANALYZER V3.0.5 WINDOWS x64
 
-Estrarre lo ZIP e avviare Space_Analyzer_V3.0.4.exe.
+Estrarre lo ZIP e avviare Space_Analyzer_V3.0.5.exe.
 Chiudere la versione precedente con Chiudi applicazione prima dell'avvio.
 L'interfaccia si apre in una finestra applicazione dedicata (Microsoft Edge
 in modalità app). Chiudere la finestra chiude l'applicazione e finalizza le
@@ -19,7 +19,7 @@ installare Python, .NET o altri componenti.
 
 Registrazione: CSV, Parquet, FDA (.das), RBF. I file .dat si aprono e si
 visualizzano; la registrazione .dat non è più disponibile.
-Strumenti: Space_Analyzer_V3.0.4.exe --tool inspect|recover|export-fda|export-rbf.
+Strumenti: Space_Analyzer_V3.0.5.exe --tool inspect|recover|export-fda|export-rbf.
 Dettagli: CHANGELOG.md, VERSIONE_3.0.md e LEGGIMI_AVVIO_WINDOWS.md.
 
 --- Note delle versioni precedenti ---

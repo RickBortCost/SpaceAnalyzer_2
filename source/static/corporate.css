@@ -66,3 +66,10 @@ body.is-recording #record,body.is-recording #record:disabled{background:var(--br
 #global-live-zoom[aria-pressed="true"],.autoscale.live-zoom{background:var(--brand-teal-soft);color:#000000;border-color:var(--brand-teal)}
 .record-location{display:flex;gap:6px;align-items:center}.record-location input{flex:1;min-width:0;font-size:12px}.record-location button{flex:none}
 .recordings-location{display:flex;align-items:center;gap:6px;margin:6px 0;font-size:10px;color:var(--muted);min-width:0}.recordings-location code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-size:10px}.recordings-location button{flex:none}
+/* 3.0.5: grafici più leggibili. Lo scorrimento si fa dal navigatore (la barra separata resta per tastiera e test). */
+.workspace-chart .time-scrollbar{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;margin:0!important;padding:0!important}
+.workspace-chart .navigator{height:26px;margin-bottom:4px}
+.workspace-chart .quality-summary[hidden]{display:none}
+.live-session-status{margin:0 0 2px;font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.signal-unit{color:var(--muted);font-size:10px;margin-left:3px}
+.rec-loss{font-weight:700}
