@@ -43,6 +43,8 @@ with tempfile.TemporaryDirectory(prefix='opcua-launcher-') as directory:
             workspace={'schema':1,'config':{'window_seconds':3600,'max_samples':10000,'buffer_mode':'samples'},'selected_nodes':[], 'live':{'charts':[{'name':'Saved','ids':[]}]},'history':{'charts':[]}}
             req_save=Request(url+'/api/workspace',data=json.dumps(workspace).encode(),headers={'Content-Type':'application/json','X-OPCUA-Token':token},method='POST')
             with opener.open(req_save,timeout=5) as response:assert json.load(response)['ok']
+            chosen=Path(directory)/'Scelta registrazioni';req_loc=Request(url+'/api/recordings/location',data=json.dumps({'directory':str(chosen)}).encode(),headers={'Content-Type':'application/json','X-OPCUA-Token':token},method='POST')
+            with opener.open(req_loc,timeout=5) as response:assert json.load(response)['directory']==str(chosen.resolve())
             imported=Path(directory)/'recording_imports'/'retained.csv';imported.write_text('timestamp_ms,node_id,value_numeric\n1,ns=2;s=X,1\n')
             req=Request(url+'/api/shutdown' ,data=b'{}',headers={'Content-Type':'application/json','X-OPCUA-Token':token},method='POST')
             with opener.open(req,timeout=5) as response:assert json.load(response)['ok']
@@ -61,11 +63,12 @@ with tempfile.TemporaryDirectory(prefix='opcua-launcher-') as directory:
             assert configuration['workspace']['live']['charts'][0]['name']=='Saved'
             assert configuration['workspace']['config']['window_seconds']==3600
             assert imported.exists(), 'Workspace original was deleted at restart'
+            with opener.open(url+'/api/recordings',timeout=5) as response:assert json.load(response)['directory']==str(chosen.resolve()),'recordings folder not kept across restart'
             with opener.open(url,timeout=5) as response:html=response.read().decode()
             parser=TokenParser();parser.feed(html)
             req=Request(url+'/api/shutdown',data=b'{}',headers={'Content-Type':'application/json','X-OPCUA-Token':parser.token},method='POST')
             with opener.open(req,timeout=5) as response:assert json.load(response)['ok']
             process.communicate(timeout=60);assert process.returncode==0
-            print('PASS: HTTP startup, busy-port fallback, single instance, shutdown, workspace and imported originals across process restart')
+            print('PASS: HTTP startup, busy-port fallback, single instance, shutdown, workspace, imported originals and recordings folder across process restart')
         finally:
             if process.poll() is None:process.terminate();process.wait(timeout=10)

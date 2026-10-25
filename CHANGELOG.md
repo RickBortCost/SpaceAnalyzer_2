@@ -5,6 +5,7 @@ Il numero di versione e la data di ogni release sono assegnati dalla pipeline (v
 ## 3.0.2
 
 - **Registrazione in evidenza**: durante Record il pulsante diventa rosso e lampeggia con il tempo trascorso (`● REC 04:47`, aggiornato ogni secondo); lo stesso tempo compare nel titolo della finestra. La lunga riga di stato è sostituita da una barra compatta: formato, righe scritte, velocità (righe/s), parte, occupazione della coda (verde sotto 50%, ambra fino a 80%, rossa oltre) e nome del file. Percorso completo, righe in memoria, cicli in coda e note restano nel tooltip. Animazioni disattivate se il sistema chiede movimento ridotto.
+- **Cartella delle registrazioni a scelta**: nella finestra di Record il campo "Cartella di destinazione" si può modificare. **Sfoglia…** apre la finestra di Windows "Seleziona cartella"; si può anche scrivere un percorso completo; **Predefinita** torna a `Recordings` accanto all'EXE. La pagina Registrazioni mostra la cartella attiva e ha il pulsante **Cambia…**. La scelta vale per nuove registrazioni, export e pagina Registrazioni ed è memorizzata in `%LOCALAPPDATA%\OPCUA_Web_Client\recordings_location.json`. Il servizio verifica che la cartella sia scrivibile; il cambio è rifiutato durante Record. Se all'avvio la cartella salvata non è disponibile (ad esempio un disco di rete scollegato), si usa quella predefinita e viene mostrato un avviso.
 
 ## 3.0.1
 

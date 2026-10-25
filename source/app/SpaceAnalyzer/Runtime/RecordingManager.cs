@@ -25,7 +25,17 @@ public sealed class RecordingManager(string directory, string version, Action<st
     /// <summary>Test hook (SPACE_TEST_HOOKS=1): sessions named "Slow previous" keep their save pending until released.</summary>
     public ManualResetEventSlim? TestFinalizerGate { get; set; }
 
-    public string Directory { get; } = Path.GetFullPath(directory);
+    public string Directory { get; private set; } = Path.GetFullPath(directory);
+
+    /// <summary>New recordings go to this folder; files still being finalized keep their own.</summary>
+    public void SetDirectory(string path)
+    {
+        lock (sync)
+        {
+            if (starting || active is { Acquiring: true }) throw new UserError("Premere Stop prima di cambiare la cartella delle registrazioni");
+            Directory = Path.GetFullPath(path);
+        }
+    }
 
     public bool Acquiring
     {

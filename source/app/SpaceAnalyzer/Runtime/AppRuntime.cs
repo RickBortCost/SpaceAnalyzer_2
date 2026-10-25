@@ -31,10 +31,10 @@ public sealed class AppRuntime : IDisposable
     public CalculationService Calculations { get; }
     public LiveArchive Archive { get; }
     public Snapshots Snapshots { get; } = new();
-    public RecordingLibrary Library { get; }
+    public RecordingLibrary Library { get; private set; }
     public RecordingLibrary Imported { get; }
     public Comparisons Comparisons { get; }
-    public PrimaryRecovery Recovery { get; }
+    public PrimaryRecovery Recovery { get; private set; }
 
     /// <summary>Serializes connect, selection, Record and formula edits (runtime.command_lock).</summary>
     public SemaphoreSlim CommandLock { get; } = new(1, 1);
@@ -441,6 +441,24 @@ public sealed class AppRuntime : IDisposable
         if (!Sources.Sessions.ContainsKey(protocol) || action is not ("connect" or "disconnect")) throw new UserError("Sorgente o comando non valido");
         await CommandLock.WaitAsync();
         try { await Sources.Control(protocol, action); }
+        finally { CommandLock.Release(); }
+    }
+
+    /// <summary>Changes the recordings folder (null: default). Refused while Record is acquiring.</summary>
+    public async Task<string> SetRecordingsDirectory(string? path)
+    {
+        await CommandLock.WaitAsync();
+        try
+        {
+            if (Recording.Acquiring) throw new UserError("Premere Stop prima di cambiare la cartella delle registrazioni");
+            Paths.SetRecordingsDir(path);
+            Recording.SetDirectory(Paths.RecordingsDir);
+            Library = new RecordingLibrary(Paths.RecordingsDir);
+            Recovery = new PrimaryRecovery(Path.Combine(Paths.RecordingsDir, ".primary"), Events);
+            Recovery.Start();
+            Log.Info("Cartella registrazioni: " + Paths.RecordingsDir);
+            return Paths.RecordingsDir;
+        }
         finally { CommandLock.Release(); }
     }
 

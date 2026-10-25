@@ -25,7 +25,7 @@ Dettagli in `CHANGELOG.md` e `VERSIONE_3.0.md` nel repository. Il numero di vers
 
 ## Dati, registrazioni e chiusura
 
-Le registrazioni vengono salvate nella cartella `Recordings` accanto all’EXE; le catture primarie recuperabili in `Recordings\.primary`. Le impostazioni sono in `%LOCALAPPDATA%\OPCUA_Web_Client` e restano compatibili con la 2.x.
+Le registrazioni vengono salvate nella cartella `Recordings` accanto all’EXE, oppure nella cartella scelta nella finestra di Record (**Sfoglia…**, o percorso scritto a mano; **Predefinita** torna a `Recordings`). La stessa cartella è usata per gli export e mostrata nella pagina Registrazioni (**Cambia…**), e resta memorizzata ai riavvii. Le catture primarie recuperabili sono nella sottocartella `.primary`. Le impostazioni sono in `%LOCALAPPDATA%\OPCUA_Web_Client` e restano compatibili con la 2.x.
 
 Per chiudere il software chiudi la finestra dell’applicazione oppure usa **Chiudi applicazione**: in entrambi i casi le registrazioni in corso vengono finalizzate e i servizi si arrestano. Se la finestra è stata aperta nel browser predefinito (Edge e Chrome assenti, oppure `SPACE_WINDOW=browser`), chiudere la scheda lascia attivi i servizi: usa **Chiudi applicazione**. Prima di avviare la nuova versione chiudi l’eventuale versione precedente; se è ancora attiva, il programma lo segnala.
 

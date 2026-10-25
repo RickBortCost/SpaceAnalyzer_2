@@ -17,7 +17,7 @@ const trend=liveCharts.charts[0].trend; // First-chart compatibility for existin
 
 async function request(url,body,method){
   const options={headers:{'X-OPCUA-Token':token}};
-  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url.startsWith('/api/analysis/')?600000:(url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
+  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url==='/api/recordings/location/browse'?1800000:url.startsWith('/api/analysis/')?600000:(url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
   if(typeof AbortController!=='undefined'){
     controller=new AbortController();options.signal=controller.signal;
     timer=setTimeout(()=>controller.abort(),timeoutMs);
@@ -156,12 +156,13 @@ function applyRecordingControls(){
   $('record').disabled=busy||recordStarting||!connected||applicationClosed;
   $('record-stop').disabled=!busy||recordState.state==='stopping'||applicationClosed;
   for(const id of ['remove-all','add-node','manual-node'])$(id).disabled=busy||applicationClosed;
+  const acquiring=!!recordState.selection_locked||recordStarting;for(const id of ['record-directory','record-directory-browse','record-directory-default','history-location-change'])if($(id))$(id).disabled=acquiring||applicationClosed;
   $('select-filtered').disabled=busy||applicationClosed||view==='tree';
   document.querySelectorAll('#live-page input[data-nodeid],#selected .remove').forEach(e=>e.disabled=busy||applicationClosed);
 }
 function renderRecording(info){
   if(info.revision!==undefined&&recordState.revision!==undefined&&info.revision<recordState.revision)return;
-  recordState=info;recordDirectory=info.directory||recordDirectory;
+  recordState=info;recordDirectory=info.directory||recordDirectory;syncRecordingsLocation();
   const box=$('record-status'),seconds=Number(info.duration_seconds||0).toFixed(1),rows=Number(info.rows_written||0).toLocaleString(I18N.locale());
   box.className='record-status'+(info.busy?' active':'')+(info.error?' error':'')+(info.state==='recording'&&!info.error?' recording':'');box.title='';
   if(info.error)I18N.bind(box,"textContent",()=>(I18N.join([{text:"Errore registrazione: "},{value:(info.error)},{text:" · "},{value:(info.path||'')}])),true);
@@ -172,6 +173,13 @@ function renderRecording(info){
   if(['das','rbf'].includes(info.format)&&info.status_note&&info.state!=='recording')box.textContent+=' · '+info.status_note;
   syncRecordingClock(info);window.renderRecordingJobs?.(info);applyRecordingControls();
 }
+// Recordings folder: one choice for Record, exports and the Recordings page, kept across restarts.
+function syncRecordingsLocation(force=false){const input=$('record-directory');if(input&&(force||document.activeElement!==input))input.value=recordDirectory||'';const shown=$('history-location');if(shown){shown.textContent=recordDirectory||'—';shown.title=recordDirectory||'';}}
+async function setRecordingsLocation(directory){
+  const j=await request('/api/recordings/location',{directory});recordDirectory=j.directory;syncRecordingsLocation(true);
+  window.refreshHistoryFiles?.().catch(()=>{});notice(I18N.join([{text:"Cartella registrazioni: "},{value:(j.directory)}]));return j.directory;
+}
+async function browseRecordingsLocation(){const j=await request('/api/recordings/location/browse',{title:I18N.t("Cartella delle registrazioni")});return j.directory?setRecordingsLocation(j.directory):null;}
 // Recording in evidence: blinking Record button with the elapsed time, compact live figures, time in the window title.
 let recordClock=null,recordClockTimer=null;const baseTitle=document.title;
 function recordElapsed(){return recordClock?recordClock.seconds+(Date.now()-recordClock.at)/1000:0;}
@@ -208,7 +216,7 @@ async function openRecordDialog(){
   await selectionQueue;
   const j=await request('/api/record/status');renderRecording(j.recording);
   if(recordingLocked())throw new Error(I18N.t("Una registrazione è già in corso."));
-  I18N.bind($('record-signal-count'),"textContent",()=>(String((window.liveDataNodes?.(selected)||selected).size)),false);I18N.bind($('record-directory'),"textContent",()=>(recordDirectory),false);
+  I18N.bind($('record-signal-count'),"textContent",()=>(String((window.liveDataNodes?.(selected)||selected).size)),false);syncRecordingsLocation(true);
   updateRecordFormatControls();$('record-dialog-error').hidden=true;$('record-modal').hidden=false;
   $('record-form').querySelector('input:checked').focus();
 }
@@ -216,6 +224,7 @@ function closeRecordDialog(){if(recordStarting)return;$('record-modal').hidden=t
 async function beginRecording(event){
   event.preventDefault();if(recordStarting)return;recordStarting=true;$('record-start').disabled=true;$('record-cancel').disabled=true;$('record-dialog-error').hidden=true;
   try{
+    const wantedDirectory=$('record-directory').value.trim();if(wantedDirectory&&wantedDirectory!==recordDirectory)await setRecordingsLocation(wantedDirectory);
     await selectionQueue;
     const format=$('record-form').querySelector('input[name="record-format"]:checked').value;
     const result=await request('/api/record/start',{format,selected_nodes:[...(window.liveDataNodes?.(selected)||selected).values()],options:recordOptions()});renderRecording(result.recording);$('record-modal').hidden=true;$('record-stop').focus();notice(I18N.join([{text:"Registrazione "},{value:(result.recording.format_label||format.toUpperCase())},{text:" avviata. Pausa e zoom non interrompono Record."}]));
@@ -238,7 +247,7 @@ $('record-form').addEventListener('submit',beginRecording);
 $('record-cancel').addEventListener('click',closeRecordDialog);
 $('record-modal').addEventListener('click',event=>{if(event.target===$('record-modal'))closeRecordDialog();});
 $('record-modal').addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();closeRecordDialog();}if(event.key==='Tab'){const list=[...$('record-modal').querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled)')];const first=list[0],last=list[list.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
-bind('record',openRecordDialog);bind('record-stop',stopRecording);bind('discover',discover);bind('connect',connect);bind('disconnect',disconnect);bind('save',save);bind('regenerate',regenerate);bind('fetch-cert',fetchCert);bind('upload-cert',uploadCert);bind('add-node',addNode);bind('remove-all',removeAll);bind('browse-root',browseRoot);bind('scan',startScan);bind('cancel-scan',cancelScan);bind('select-filtered',selectFiltered);bind('shutdown',shutdown);
+bind('record',openRecordDialog);bind('record-stop',stopRecording);bind('discover',discover);bind('connect',connect);bind('disconnect',disconnect);bind('save',save);bind('regenerate',regenerate);bind('fetch-cert',fetchCert);bind('upload-cert',uploadCert);bind('add-node',addNode);bind('remove-all',removeAll);bind('browse-root',browseRoot);bind('scan',startScan);bind('cancel-scan',cancelScan);bind('select-filtered',selectFiltered);bind('shutdown',shutdown);bind('record-directory-browse',browseRecordingsLocation);bind('record-directory-default',()=>setRecordingsLocation(''));bind('history-location-change',browseRecordingsLocation);bind('record-directory',()=>{const v=$('record-directory').value.trim();return v===recordDirectory?null:setRecordingsLocation(v);},'change');
 for(const id of ['sample_ms','window_seconds','max_samples','buffer_mode','auto_reconnect'])bind(id,liveConfig,'change');for(const id of ['security','security_mode'])bind(id,securityChanged,'change');
 $('view-list').onclick=()=>setView('list');$('view-tree').onclick=()=>setView('tree');$('search').oninput=()=>{page=0;renderScan();};$('variables-only').onchange=()=>{page=0;renderScan();};$('page-prev').onclick=()=>{page--;renderScan();};$('page-next').onclick=()=>{page++;renderScan();};$('manual-node').onkeydown=e=>{if(e.key==='Enter')addNode().catch(e=>notice(e.message,true));};
 window.addEventListener('error',e=>notice(I18N.join([{text:"Errore interfaccia: "},{value:(e.message||I18N.t("errore JavaScript"))}]),true));

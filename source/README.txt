@@ -9,6 +9,8 @@ I file aperti in Registrazioni sono mostrati a piena risoluzione: tutti i
 campioni del file, fino a 80 milioni per grafico.
 Durante Record il pulsante lampeggia con il tempo trascorso e una barra
 compatta mostra righe scritte, velocità, parte e occupazione della coda.
+La cartella delle registrazioni si sceglie nella finestra di Record
+(Sfoglia…) e resta memorizzata.
 Applicazione interamente in C# (.NET 8 incluso nell'EXE): non serve
 installare Python, .NET o altri componenti.
 

@@ -1,6 +1,7 @@
 # Stato della consegna 3.0.2
 
 - Indicatore di registrazione: pulsante Record rosso lampeggiante con tempo trascorso, tempo nel titolo della finestra, barra compatta (formato, righe, velocità, parte, coda, file). Verificato in Chromium reale e nel test UI `test_advanced_ui.cjs`; suite UI 22/22.
+- Cartella delle registrazioni a scelta (finestra nativa di Windows o percorso), memorizzata e usata anche da export e pagina Registrazioni. Verificato in `test_advanced_ui.cjs` (registrazione nella cartella scelta, percorso relativo rifiutato, ritorno alla predefinita) e in `test_launcher.py` (cartella conservata al riavvio). La finestra di Windows non è eseguibile nei test automatici.
 - Prova su impianto: con la 3.0.1 i buchi di acquisizione ADS osservati nella 1.29 non si presentano più (verifica dell'utente).
 
 ## Consegna precedente 3.0.1

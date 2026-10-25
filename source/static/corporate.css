@@ -64,3 +64,5 @@ body.is-recording #record,body.is-recording #record:disabled{background:var(--br
 
 /* Live zoom keeps the selected time span and Y limits while data advances. */
 #global-live-zoom[aria-pressed="true"],.autoscale.live-zoom{background:var(--brand-teal-soft);color:#000000;border-color:var(--brand-teal)}
+.record-location{display:flex;gap:6px;align-items:center}.record-location input{flex:1;min-width:0;font-size:12px}.record-location button{flex:none}
+.recordings-location{display:flex;align-items:center;gap:6px;margin:6px 0;font-size:10px;color:var(--muted);min-width:0}.recordings-location code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);font-size:10px}.recordings-location button{flex:none}
