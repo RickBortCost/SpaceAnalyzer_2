@@ -36,6 +36,26 @@ public sealed class LiveArchive : IDisposable
     string? path;
     bool closed;
 
+    /// <summary>
+    /// Removes Live originals left by a previous run that did not close normally (each session can reach
+    /// several GB). Safe at startup: the instance lock guarantees no other service uses this data folder.
+    /// </summary>
+    public static long RemoveStale(string directory)
+    {
+        long freed = 0;
+        if (!Directory.Exists(directory)) return 0;
+        foreach (var session in Directory.GetDirectories(directory, "session-*"))
+        {
+            try
+            {
+                freed += new DirectoryInfo(session).EnumerateFiles("*", SearchOption.AllDirectories).Sum(f => f.Length);
+                Directory.Delete(session, true);
+            }
+            catch (Exception exc) when (exc is IOException or UnauthorizedAccessException) { }
+        }
+        return freed;
+    }
+
     public LiveArchive(string directory, int maxPending = 32768, long maxBytes = 8L * 1024 * 1024 * 1024, long maxPendingBytes = 32L * 1024 * 1024)
     {
         this.directory = directory; this.maxBytes = maxBytes; this.maxPendingBytes = maxPendingBytes;

@@ -74,6 +74,9 @@ public static class Http
         var inner = exc is AggregateException { InnerException: { } i } ? i : exc;
         inner = inner is System.Reflection.TargetInvocationException { InnerException: { } t } ? t : inner;
         var message = inner.Message.Length > 0 ? inner.Message : inner.GetType().Name;
+        // ERROR_DISK_FULL / ERROR_HANDLE_DISK_FULL: say which disk, instead of a generic I/O error.
+        if (inner is IOException { HResult: var hr } && (hr & 0xFFFF) is 0x70 or 0x27)
+            return (507, "Disco pieno: liberare spazio sul disco indicato e riprovare (" + message + ")");
         return inner switch
         {
             HttpError h => (h.Status, message),

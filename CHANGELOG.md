@@ -11,6 +11,10 @@ Il numero di versione e la data di ogni release sono assegnati dalla pipeline (v
 
 - **Robustezza del servizio**: le notifiche del router TwinCAT (ADS nativo, TcAdsDll) arrivano in un callback chiamato dal router; un errore al suo interno poteva chiudere l'intero servizio (`exit status 0xe0434352`, interfaccia bloccata). Ora l'errore ferma solo l'acquisizione ADS con un messaggio. Un errore fatale di qualunque thread viene scritto in `opcua-client.log` e in `crash-<data>.txt` nella cartella dei dati; il messaggio del launcher indica quel file.
 
+- **Nessuna scrittura su C: se l'EXE è su un altro disco**: impostazioni, log, servizio estratto, storico Live, cache dei calcoli, file aperti dal PC e file temporanei di upload stanno in `SpaceAnalyzer_Data` accanto all'EXE (prima: `%LOCALAPPDATA%\OPCUA_Web_Client` e la cartella temporanea di Windows, su C:). Al primo avvio il launcher copia impostazioni e file importati dalla cartella precedente ed elimina le sue cache (storico Live, calcoli, servizi estratti). Se la cartella dell'EXE non è scrivibile si usa quella precedente; `OPCUA_DATA_DIR` resta prioritaria.
+- **Storico Live dopo una chiusura anomala**: ogni sessione può occupare fino a 8 GB e prima veniva eliminata solo alla chiusura regolare; dopo un crash restava su disco. Ora le sessioni rimaste vengono eliminate all'avvio.
+- **Disco pieno**: le operazioni che falliscono per mancanza di spazio mostrano "Disco pieno" con il percorso, invece di un errore generico.
+
 ## 3.0.1
 
 - **Finestra applicazione**: l'interfaccia si apre in una finestra dedicata (Microsoft Edge o Chrome in modalità applicazione, con un profilo proprio), senza schede né barra degli indirizzi. Chiudere la finestra arresta l'applicazione come **Chiudi applicazione**: le registrazioni in corso vengono finalizzate. Durante una registrazione la chiusura chiede conferma. Se Edge e Chrome non sono disponibili si usa il browser predefinito; `SPACE_WINDOW=browser` mantiene la pagina nel browser.

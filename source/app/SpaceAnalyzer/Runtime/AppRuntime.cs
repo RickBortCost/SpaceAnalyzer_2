@@ -106,6 +106,8 @@ public sealed class AppRuntime : IDisposable
         Events.Listener = evt => Recording.Annotate(evt);
         Calculations = new CalculationService(Path.Combine(paths.DataDir, "calculation_cache"), CalculatedResult);
         Calculations.FaultCallback = (error, dropped) => Events.Emit("calculation_overflow", null, new() { ["protocol"] = "calculated", ["error"] = error, ["lost_batches"] = dropped });
+        var stale = LiveArchive.RemoveStale(Path.Combine(paths.DataDir, "live_analysis_cache"));
+        if (stale > 0) Log.Info($"Storico Live di sessioni precedenti rimosso: {stale / 1048576.0:F0} MiB liberati");
         Archive = new LiveArchive(Path.Combine(paths.DataDir, "live_analysis_cache"));
         Library = new RecordingLibrary(paths.RecordingsDir);
         Imported = new RecordingLibrary(paths.ImportedRecordingsDir);
