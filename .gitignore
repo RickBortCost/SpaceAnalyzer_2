@@ -27,3 +27,4 @@ source/engine/**/obj/
 source/engine/**/TestResults/
 source/app/**/bin/
 source/app/**/obj/
+source/app/**/TestResults/

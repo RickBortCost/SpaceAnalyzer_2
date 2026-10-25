@@ -27,7 +27,7 @@ def main():
                           (ROOT/'source/GUIDA_ZOOM_LIVE.md','GUIDA_ZOOM_LIVE.md'),
                           (ROOT/'source/GUIDA_CALCOLI_INTERVALLO.md','GUIDA_CALCOLI_INTERVALLO.md'),
                           (ROOT/'source/GUIDA_REGISTRAZIONI_RAPIDE.md','GUIDA_REGISTRAZIONI_RAPIDE.md'),
-                          (ROOT/'FASE1_ACQUISIZIONE_REGISTRAZIONE.md','FASE1_ACQUISIZIONE_REGISTRAZIONE.md'),
+                          (ROOT/'VERSIONE_3.0.md','VERSIONE_3.0.md'),(ROOT/'FASE1_ACQUISIZIONE_REGISTRAZIONE.md','FASE1_ACQUISIZIONE_REGISTRAZIONE.md'),
                           (dist/'BUILD_MANIFEST.json','BUILD_MANIFEST.json'),
                           (dist/'WINDOWS_EXE_VERIFICATION.json','WINDOWS_EXE_VERIFICATION.json')]:
             z.write(path,root+'/'+name)

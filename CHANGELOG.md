@@ -2,6 +2,19 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.0.0
+
+Space Analyzer 3.0 è interamente in C#. Rapporto completo, verifiche e limiti in [VERSIONE_3.0.md](VERSIONE_3.0.md).
+
+- **Applicazione in C#**: il servizio Flask/Python è sostituito da `SpaceAnalyzer.exe` (ASP.NET Core su .NET 8, self-contained). Acquisizione, registrazione, lettura delle registrazioni, anteprime, confronti, calcoli, FFT, analisi d'intervallo, recupero delle catture primarie, eventi (SQLite) e SSH girano in un unico processo C#. Nessun runtime Python è incluso nel prodotto.
+- **Motori di acquisizione e registrazione in C#**: driver OPC UA (OPC Foundation .NET), ADS/TCP e TwinCAT locale, MQTT (MQTTnet), S7 classico, UDP e simbolico (S7CommPlusDriver); writer CSV, Parquet (ParquetSharp), FDA DAS4, RBF v3 e cattura primaria SAC.
+- **Formati di registrazione**: CSV, Parquet, FDA (.das) e RBF. La registrazione `.dat` (iba/PDA3) è rimossa; i file `.dat` restano apribili e visualizzabili (PDA3 del modello noto e parti DAT 2.x tramite il Parquet associato).
+- **Marchio**: logo Space Analyzer come icona dell'EXE e nell'interfaccia; rimossi i riferimenti al marchio precedente.
+- **Avvio**: splash centrale con sfondo trasparente, logo e barra di avanzamento guidata dalle fasi reali di avvio del servizio. Il runtime viene estratto una sola volta per versione (`%LOCALAPPDATA%\OPCUA_Web_Client\runtime`), gli avvii successivi sono più rapidi.
+- **Strumenti offline**: `Space_Analyzer_V3.0.0.exe --tool inspect|recover|export-fda|export-rbf` (sostituiscono `primary_tools.py`).
+- **API HTTP invariate**: stesse route, stessi controlli di sicurezza (solo localhost, token per le richieste POST e per SSH, intestazioni CSP), stessi messaggi in italiano; l'interfaccia web non è cambiata.
+- **Test**: 21 workflow UI jsdom eseguiti contro il servizio C# con peer locali OPC UA, ADS, MQTT, S7 e SSH; smoke test end-to-end dell'eseguibile; test xUnit. I test Python che verificavano l'implementazione Python sono stati rimossi con essa; Python resta solo come strumento di test e build (simulatori, harness, versionamento), non nel prodotto.
+
 ## 2.1.0
 
 Seconda iterazione della Fase 1 (hardening acquisizione e registrazione). Report completo, benchmark e limiti in [FASE1_HARDENING_V2.1.md](FASE1_HARDENING_V2.1.md); evidenze in `evidence_v2.1.0/`.

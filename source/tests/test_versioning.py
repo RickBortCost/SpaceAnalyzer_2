@@ -10,8 +10,10 @@ spec = importlib.util.spec_from_file_location('versioning', REPO / 'tools' / 've
 versioning = importlib.util.module_from_spec(spec); spec.loader.exec_module(versioning)
 
 FILES = {
-    'source/app.py': 'APP_VERSION = "0.0.1"\n',
-    'source/build_windows.py': "VERSION = '0.0.1'\n",
+    'source/app/SpaceAnalyzer/Config/Defaults.cs': 'public static class Defaults\n{\n    public const string Version = "0.0.1";\n}\n',
+    'source/app/SpaceAnalyzer/SpaceAnalyzer.csproj': '<Project><PropertyGroup><Version>0.0.1</Version></PropertyGroup></Project>\n',
+    'source/engine/SpaceAnalyzer.Engine/SpaceAnalyzer.Engine.csproj': '<Project><PropertyGroup><Version>0.0.1</Version></PropertyGroup></Project>\n',
+    'tools/windows/build_windows.py': "VERSION = '0.0.1'\n",
     'source/launcher/launcher_windows.go': 'package main\nconst version = "0.0.1"\n',
     'tools/windows/smoke_exe.py': "build={'version':'0.0.1'}\n",
 }
@@ -75,7 +77,7 @@ class Versioning(unittest.TestCase):
         with self.assertRaises(ValueError): versioning.apply('2.7', self.root)
 
     def test_apply_refuses_an_ambiguous_file(self):
-        (self.root / 'source/app.py').write_text('APP_VERSION = "1.0.0"\nAPP_VERSION = "1.0.0"\n')
+        (self.root / 'source/app/SpaceAnalyzer/Config/Defaults.cs').write_text('public const string Version = "1.0.0";\npublic const string Version = "1.0.0";\n')
         with self.assertRaises(RuntimeError): versioning.apply('2.0.0', self.root)
 
     def test_repository_build_files_are_aligned(self):
