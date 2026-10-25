@@ -37,7 +37,7 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
  const checks=[];let {w,$,t}=await page();
  try{
   const selector=$('ui-language');assert(selector);assert(selector.closest('.app-bar'));
-  const power=selector.closest('.language-control').previousElementSibling;assert(power.matches('#shutdown.power-button')&&power.previousElementSibling.matches('.app-menu'));
+  const lang=selector.closest('.language-control'),theme=lang.nextElementSibling,clock=theme.nextElementSibling,menu=clock.nextElementSibling;assert(theme.matches('.theme-control')&&clock.matches('#app-clock')&&menu.matches('.app-menu')&&menu.nextElementSibling.matches('#shutdown.power-button'),'ordine: lingua, tema, data e ora, Impostazioni, Spegni');assert.match(clock.textContent,/^\d{2}[\/.]\d{2}[\/.]\d{4} \d{2}:\d{2}:\d{2}$/);
   assert.deepEqual(Array.from(selector.options,o=>o.value),['en','it','de','fr','es']);
   const names={
    en:['Recordings','Connection','New recording','Apply','Name / alias'],

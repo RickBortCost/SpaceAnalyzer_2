@@ -81,7 +81,7 @@ function updateStudioToolbar(){
   $('global-pause').disabled=ws.staticMode||applicationClosed;I18N.bind($('global-pause'),"textContent",()=>(t.frozen?I18N.t("▶ Play"):I18N.t("Ⅱ Pausa")),true);$('global-pause').setAttribute('aria-pressed',String(t.frozen));
   $('global-live-zoom').disabled=ws.staticMode||applicationClosed;$('global-live-zoom').setAttribute('aria-pressed',String(liveCharts.liveZoom));
   $('global-reset').disabled=!(t.zoom||t.linkedRange)||applicationClosed;
-  for(const k of ['x1','x2']){$('global-'+k).disabled=!t.domain||applicationClosed;$('global-'+k).setAttribute('aria-pressed',String(t.markerMode===k));}
+  for(const k of ['x1','x2']){const b=$('global-'+k);if(!b)continue;b.disabled=!t.domain||applicationClosed;b.setAttribute('aria-pressed',String(t.markerMode===k));}
   I18N.bind($('toolbar-endpoint'),"textContent",()=>((window.sourceEndpoint?.()||$('endpoint').value)||I18N.t("Nessun server")),true);I18N.bind($('toolbar-endpoint'),"title",()=>((window.sourceEndpoint?.()||$('endpoint').value)||I18N.t("Fonte dati")),true);
   I18N.bind($('active-graph-label'),"textContent",()=>(I18N.join([{value:(ws.staticMode?I18N.t("Registrazioni"):I18N.t("Live"))},{text:" · "},{value:(g.name)}])),true);
   document.body.classList.toggle('is-recording',!!recordingLocked());
@@ -92,7 +92,7 @@ function scheduleStudioToolbar(){if(studioToolbarFrame)return;studioToolbarFrame
 $('global-pause').onclick=()=>{activeWorkspace().active?.trend.togglePause();scheduleWorkspaceSave();};
 $('global-live-zoom').onclick=()=>{liveCharts.setLiveZoom(!liveCharts.liveZoom);scheduleStudioToolbar();};
 $('global-reset').onclick=()=>activeWorkspace().active?.trend.resetZoom();
-for(const key of ['x1','x2'])$('global-'+key).onclick=()=>{activeWorkspace().active?.trend.armMarker(key);scheduleStudioToolbar();};
+for(const key of ['x1','x2']){const b=$('global-'+key);if(b)b.onclick=()=>{activeWorkspace().active?.trend.armMarker(key);scheduleStudioToolbar();};}
 for(const [name,fn] of [['setState',setState],['renderRecording',renderRecording]]){
   window[name]=function(...args){const result=fn(...args);scheduleStudioToolbar();return result;};
 }
@@ -284,3 +284,11 @@ for(const id of ['selected','scan-list','tree','history-file-list','history-sign
 const originalShowAppPage=showAppPage;showAppPage=function(page){if(studioFullscreen&&!((page==='recordings'?historyCharts:liveCharts).charts.includes(studioFullscreen)))toggleStudioFullscreen(studioFullscreen);originalShowAppPage(page);scheduleStudioToolbar();};
 try{applyStudioTheme(localStorage.getItem('space-analyzer.palette.version')?(localStorage.getItem('opcua.studio.theme')||'light'):'light',false);}catch{applyStudioTheme('light',false);}
 window.opcuaConfigReady=loadConfig().then(async()=>{startPolling();await restoreWorkspace();renderSelected();scheduleStudioToolbar();}).catch(e=>{workspaceReady=true;notice(I18N.t("Avvio interfaccia: ")+e.message,true);}).finally(()=>startPolling());
+/* Data e ora del PC su cui gira l'applicazione, aggiornate ogni secondo. */
+(function(){
+  const el=document.getElementById('app-clock');if(!el)return;
+  const formats=new Map();
+  const format=date=>{const locale=I18N.locale();let f=formats.get(locale);if(!f){f=new Intl.DateTimeFormat(locale,{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});formats.set(locale,f);}return f.format(date).replace(',','');};
+  const tick=()=>{const now=new Date();el.textContent=format(now);el.dateTime=now.toISOString();setTimeout(tick,1000-now.getMilliseconds()+5);};
+  tick();
+})();

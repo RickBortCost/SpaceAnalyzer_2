@@ -2,6 +2,13 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.2.0
+
+- **Data e ora del PC nell'intestazione**: accanto a Impostazioni compare la data e l'ora, fino al secondo, del PC su cui gira l'applicazione, aggiornate ogni secondo e nel formato della lingua scelta. Motivo: poter confrontare a colpo d'occhio l'orario del PC con i timestamp di grafici, registrazioni e log.
+- **Ordine dei controlli dell'intestazione**: ora, da sinistra a destra, lingua, tema (Standard/Dark/System), data e ora, Impostazioni e pulsante Spegni (prima Impostazioni e Spegni stavano a sinistra di lingua e tema). Motivo: i comandi usati raramente e quello di chiusura restano all'estremità destra della finestra.
+- **Pulsanti X1 e X2 tolti dalla barra strumenti dell'intestazione**: i marker si posizionano dal pannello "Analisi X1↔X2" di ciascun grafico ("Posiziona X1/X2"), invariato. Motivo: la barra dell'intestazione resta essenziale (Pausa, Zoom live, Record, Stop, Zoom).
+- Test: `test_i18n_ui.cjs` verifica l'ordine dei controlli e il formato dell'orologio.
+
 ## 3.1.0
 
 - **Doppio clic su un segnale crea un grafico**: nella lista dei segnali LIVE e della pagina Registrazioni il doppio clic apre un nuovo grafico indipendente con il solo segnale (stessa registrazione in Registrazioni); i doppioni da doppio clic ripetuto sono ignorati. Motivo: prima servivano "+ Grafico" e l'assegnazione manuale del segnale.
