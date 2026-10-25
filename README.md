@@ -8,6 +8,7 @@
 
 - Intestazione sempre su un solo livello: stato della connessione e indirizzo del server tolti dalla barra (restano nella barra di stato in basso e in Connessione), compattazione progressiva delle voci a larghezze ridotte e scorrimento orizzontale sotto circa 1170 px. Motivo: nessun controllo tagliato e nessuna barra su due righe.
 - Selettore del tema più largo, senza testo tagliato.
+- Salvataggio di impostazioni e workspace più robusto su Windows (nessun errore "Access denied" con scritture ravvicinate). Motivo: un salvataggio poteva fallire con 500 e bloccare a volte la pubblicazione.
 - Dalla 3.2.0: data e ora del PC (fino al secondo) accanto a Impostazioni, intestazione riordinata (lingua, tema, data e ora, Impostazioni, Spegni) e senza X1/X2; dalla 3.1.0: doppio clic su un segnale per creare un grafico e scale Y condivise dalla legenda.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
