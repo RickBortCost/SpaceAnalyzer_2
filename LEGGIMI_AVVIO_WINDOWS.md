@@ -2,9 +2,14 @@
 
 1. Apri la sezione **Releases** del repository e scarica dall’ultima release il file `Space_Analyzer_V<versione>_WINDOWS.zip` (ad esempio `Space_Analyzer_V3.0.0_WINDOWS.zip`). In alternativa puoi scaricare il solo EXE.
 2. Clic destro sullo ZIP → **Estrai tutto**. Scegli una cartella scrivibile, ad esempio `Documenti\Space Analyzer`.
-3. Fai doppio clic su **Space_Analyzer_V<versione>.exe**. Al centro dello schermo compare il logo con la barra di avvio; al termine si apre il browser con l’interfaccia.
-4. Se il browser non si apre, visita `http://127.0.0.1:5000`; se la porta è occupata il software usa una delle successive (fino a 5019).
+3. Fai doppio clic su **Space_Analyzer_V<versione>.exe**. Al centro dello schermo compare il logo con la barra di avvio; al termine si apre la finestra dell’applicazione (Microsoft Edge in modalità applicazione, senza schede né barra degli indirizzi).
+4. Se la finestra non si apre, visita `http://127.0.0.1:5000`; se la porta è occupata il software usa una delle successive (fino a 5019).
 5. Nel popup **Connessione** configura i collegamenti. Attiva **Acquisizione simultanea** per usare insieme OPC UA, ADS, MQTT e S7, quindi premi **Connetti e leggi**.
+
+## Novità della 3.0.1
+
+- L’interfaccia si apre in una finestra applicazione dedicata. Chiudere la finestra chiude l’applicazione; durante una registrazione viene chiesta conferma e la registrazione viene finalizzata.
+- I file aperti nella pagina **Registrazioni** sono mostrati a piena risoluzione: tutti i campioni del file, con i valori originali. Con lo zoom compaiono i singoli campioni. Il limite è di 80 milioni di campioni per grafico; oltre, riduci l’intervallo o il numero di segnali.
 
 ## Novità della 3.0
 
@@ -22,7 +27,7 @@ Dettagli in `CHANGELOG.md` e `VERSIONE_3.0.md` nel repository. Il numero di vers
 
 Le registrazioni vengono salvate nella cartella `Recordings` accanto all’EXE; le catture primarie recuperabili in `Recordings\.primary`. Le impostazioni sono in `%LOCALAPPDATA%\OPCUA_Web_Client` e restano compatibili con la 2.x.
 
-Per chiudere il software usa **Chiudi applicazione** nell’interfaccia: chiudere soltanto la scheda del browser lascia attivi i servizi. Prima di avviare la nuova versione chiudi l’eventuale versione precedente; se è ancora attiva, il programma lo segnala.
+Per chiudere il software chiudi la finestra dell’applicazione oppure usa **Chiudi applicazione**: in entrambi i casi le registrazioni in corso vengono finalizzate e i servizi si arrestano. Se la finestra è stata aperta nel browser predefinito (Edge e Chrome assenti, oppure `SPACE_WINDOW=browser`), chiudere la scheda lascia attivi i servizi: usa **Chiudi applicazione**. Prima di avviare la nuova versione chiudi l’eventuale versione precedente; se è ancora attiva, il programma lo segnala.
 
 Se non si avvia, consulta `%LOCALAPPDATA%\OPCUA_Web_Client\launcher-v<versione>.log` e `opcua-client.log` nella stessa cartella.
 

@@ -74,8 +74,8 @@ function place(w,graph,which,time){clickRole(graph,which==='x1'?'markerX1':'mark
     // Each recording chart opens its own file; markers have the same absolute timestamps.
     $('nav-recordings').click();await wait(()=>$('history-file-list').textContent.includes('fixture_A.csv'),'recording repository');
     const choose=name=>[...$('history-file-list').querySelectorAll('button')].find(e=>e.textContent.includes(name)).click();
-    const hist=t.historyCharts;choose('fixture_A.csv');$('history-max-points').value='5000';$('history-load').click();await wait(()=>hist.active.context.loaded,'CSV chart load');const h1=hist.active;
-    assert.equal(h1.nodes.size,2);assert.equal(h1.context.stats.decimated,true);
+    const hist=t.historyCharts;choose('fixture_A.csv');$('history-load').click();await wait(()=>hist.active.context.loaded,'CSV chart load');const h1=hist.active;
+    assert.equal(h1.nodes.size,2);assert.equal(h1.context.stats.decimated,false);assert.equal(h1.context.stats.full_resolution,true);
     $('history-add-chart').click();const h2=hist.active;assert.equal(hist.charts.length,2);choose('fixture_B.parquet');
     const hb=$('history-signal-list').querySelector('input[value="'+ids[1]+'"]');hb.checked=false;hb.dispatchEvent(new w.Event('change',{bubbles:true}));$('history-load').click();await wait(()=>h2.context.loaded,'Parquet chart load');
     assert.equal(h2.nodes.size,1);assert.equal(h1.nodes.size,2);assert.equal(h1.context.file.name,'fixture_A.csv');assert.equal(h2.context.file.name,'fixture_B.parquet');

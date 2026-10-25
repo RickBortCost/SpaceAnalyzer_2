@@ -1,4 +1,11 @@
-# Stato della consegna 3.0.0
+# Stato della consegna 3.0.1
+
+- Interfaccia in finestra applicazione dedicata (Edge/Chrome in modalità app). La chiusura della finestra arresta i servizi e finalizza le registrazioni.
+- Grafici dei file a piena risoluzione: tutti i campioni, trasferimento binario, disegno min–max per colonna di pixel e campioni singoli con lo zoom; fino a 80 milioni di campioni per vista.
+- Verificato: 23 test xUnit dell'applicazione, 22 workflow UI jsdom contro il servizio C# (nuovo `test_full_resolution_ui.cjs`), apertura di un file da 400.000 campioni in Chromium reale; disegno di 64 segnali × 360.000 campioni (23 milioni) in circa 0,5 s al primo disegno e circa 10 ms nei ridisegni (Chromium headless).
+- Da verificare su Windows reale: comportamento della finestra Edge in modalità app sul PC di destinazione (la pipeline esegue l'EXE senza finestra).
+
+## Consegna precedente 3.0.0
 
 Applicazione interamente in C#: servizio ASP.NET Core (`source/app/SpaceAnalyzer`) con motore di acquisizione e registrazione in-process (`source/engine/SpaceAnalyzer.Engine`). Python è stato rimosso dal prodotto e resta solo come strumento di test/build.
 

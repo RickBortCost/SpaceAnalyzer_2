@@ -118,7 +118,7 @@ function releaseFrozenAnalysis(graph){
 window.releaseFrozenAnalysis=releaseFrozenAnalysis;
 window.captureFrozenAnalysis=function(graph){
   releaseFrozenAnalysis(graph);const revision=graph.analysisSnapshotRevision;
-  let x1=Infinity,x2=-Infinity;for(const points of Object.values(graph.trend.series))for(const p of points){x1=Math.min(x1,p[0]);x2=Math.max(x2,p[0]);}
+  let x1=Infinity,x2=-Infinity;for(const points of Object.values(graph.trend.series)){if(isSampleSeries(points)){if(points.length){x1=Math.min(x1,points.stats.xmin);x2=Math.max(x2,points.stats.xmax);}continue;}for(const p of points){x1=Math.min(x1,p[0]);x2=Math.max(x2,p[0]);}}
   if(!Number.isFinite(x1)||!Number.isFinite(x2)){graph.analysisSnapshotError=I18N.t("Nessun campione nella vista congelata");return;}
   graph.analysisSnapshotPromise=request('/api/analysis/live-snapshot',{signal_ids:[...graph.ids],x1,x2}).then(result=>{
     if(revision!==graph.analysisSnapshotRevision){request('/api/analysis/live-snapshot/release',{snapshot_id:result.snapshot_id}).catch(()=>{});return;}

@@ -9,7 +9,7 @@ using SpaceAnalyzer.Engine.Core;
 namespace SpaceAnalyzer.App.Recordings;
 
 /// <summary>Read-only access to the recordings of a folder (recording_reader.py).</summary>
-public sealed class RecordingLibrary
+public sealed partial class RecordingLibrary
 {
     public static readonly Dictionary<string, string> Supported = new(StringComparer.OrdinalIgnoreCase)
     {

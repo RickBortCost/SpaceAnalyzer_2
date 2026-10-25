@@ -39,7 +39,7 @@ const sharedZoom=(ws,g,a,b)=>{g.trend.zoom={xmin:a,xmax:b,axes:g.trend.fullDomai
   checks.push('opening a recording on another day clears both manual and synchronized zoom without pressing Reset');
   // A late shared range while reading a selected file must also be discarded.
   t.selectHistoryFile(a);let release;const normalFetch=w.fetch;
-  w.fetch=(url,options)=>String(url)==='/api/recordings/data'?new Promise(resolve=>{release=()=>normalFetch(url,options).then(resolve);}):normalFetch(url,options);
+  w.fetch=(url,options)=>String(url)==='/api/recordings/samples'?new Promise(resolve=>{release=()=>normalFetch(url,options).then(resolve);}):normalFetch(url,options);
   const loading=t.loadHistory(first);await wait(()=>release,'delayed data request captured');
   hist.timeRange={xmin:laterStart,xmax:laterStart+20};first.trend.linkedRange={...hist.timeRange};release();await loading;w.fetch=normalFetch;
   assert.equal(hist.timeRange,null);assert.equal(first.trend.domain.xmin,1700000000000);assert.equal(first.trend.domain.xmax,1700000059990);
@@ -55,7 +55,7 @@ const sharedZoom=(ws,g,a,b)=>{g.trend.zoom={xmin:a,xmax:b,axes:g.trend.fullDomai
   checks.push('close active file clears all of its traces and settings; another recording and its zoom stay intact');
   // Closing while data is being fetched must invalidate the outstanding result.
   t.selectHistoryFile(a,second);release=null;
-  w.fetch=(url,options)=>String(url)==='/api/recordings/data'?new Promise(resolve=>{release=()=>normalFetch(url,options).then(resolve);}):normalFetch(url,options);
+  w.fetch=(url,options)=>String(url)==='/api/recordings/samples'?new Promise(resolve=>{release=()=>normalFetch(url,options).then(resolve);}):normalFetch(url,options);
   const pending=t.loadHistory(second);await wait(()=>release,'pending read captured');$('history-close-file').click();release();await pending;w.fetch=normalFetch;
   assert.equal(second.context.file,null);assert.equal(second.context.loaded,false);assert.equal(second.ids.size,0);
   checks.push('closing during a pending read prevents the late response from reopening the file');

@@ -110,6 +110,50 @@ public class RecordingTests
         Assert.All(series.Where(p => (string?)p[2] == "Bad"), p => Assert.Null(p[1]));
     }
 
+    [Theory]
+    [InlineData("csv")]
+    [InlineData("parquet")]
+    public void FullResolutionKeepsEverySampleInTimeOrder(string format)
+    {
+        using var dir = new TempDir();
+        // 120.000 samples (above every former display budget), written in reverse order, with Bad samples.
+        var rows = Rows(120000, "ns=2;s=A", i => i == 4321 ? 1e6 : i).Concat(Rows(3, "ns=2;s=A", _ => 7, "Bad")).Reverse();
+        Export.ExportRows(rows, Path.Combine(dir.Path, "full." + format), format);
+        var view = new RecordingLibrary(dir.Path).LoadFull("full." + format, new JsonArray("ns=2;s=A"));
+        var s = Assert.Single(view.Series);
+        Assert.Equal(120003, s.Count);
+        for (var i = 1; i < s.Count; i++) Assert.True(s.T[i] >= s.T[i - 1]);
+        Assert.Equal(1e6, s.V.ToArray().Max());
+        Assert.Equal(3, s.Q.ToArray().Count(q => q == SampleColumns.Bad));
+        Assert.All(Enumerable.Range(0, s.Count).Where(i => s.Q[i] == SampleColumns.Bad), i => Assert.True(double.IsNaN(s.V[i])));
+        Assert.Equal(false, view.Info["decimated"]);
+        var slice = new RecordingLibrary(dir.Path).LoadFull("full." + format, new JsonArray("ns=2;s=A"), JsonValue.Create(1700000000000.0 + 100), JsonValue.Create(1700000000000.0 + 190));
+        Assert.Equal(10, slice.Series[0].Count);
+    }
+
+    [Fact]
+    public void SamplePayloadLayout()
+    {
+        var column = new SampleColumns("x");
+        column.Add(1, 2.5, SampleColumns.Good);
+        column.Add(2, null, SampleColumns.Bad);
+        column.Add(3, 4, SampleColumns.Uncertain);
+        using var buffer = new MemoryStream();
+        new SamplePayload(new Dictionary<string, object?> { ["signals"] = new List<object?> { new Dictionary<string, object?> { ["nodeid"] = "x", ["points_returned"] = 3L } } }, [column])
+            .WriteAsync(buffer, CancellationToken.None).GetAwaiter().GetResult();
+        var bytes = buffer.ToArray();
+        Assert.Equal("SAS1", System.Text.Encoding.ASCII.GetString(bytes, 0, 4));
+        var headerLength = (int)BitConverter.ToUInt32(bytes, 4);
+        var offset = 8 + headerLength + (8 - headerLength % 8) % 8;
+        Assert.Equal(new[] { 1.0, 2, 3 }, Enumerable.Range(0, 3).Select(i => BitConverter.ToDouble(bytes, offset + i * 8)));
+        offset += 24;
+        Assert.Equal(2.5, BitConverter.ToDouble(bytes, offset));
+        Assert.True(double.IsNaN(BitConverter.ToDouble(bytes, offset + 8)));
+        Assert.True(double.IsNaN(BitConverter.ToDouble(bytes, offset + 16)));
+        Assert.Equal(new byte[] { 0, 2, 1 }, bytes[(offset + 24)..(offset + 27)]);
+        Assert.Equal(offset + 32, bytes.Length);
+    }
+
     [Fact]
     public void ExportOfEmptyIntervalFails()
     {

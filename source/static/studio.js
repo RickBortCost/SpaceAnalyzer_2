@@ -156,11 +156,12 @@ function drawNavigator(g){
   win.style.left=(Math.max(0,Math.min(1,(v.xmin-f.xmin)/span))*100)+'%';win.style.right=(100-Math.max(0,Math.min(1,(v.xmax-f.xmin)/span))*100)+'%';
   win.setAttribute('aria-valuemin',f.xmin);win.setAttribute('aria-valuemax',f.xmax);win.setAttribute('aria-valuenow',v.xmin);win.setAttribute('aria-valuetext',t.formatMarkerTime(v.xmin)+' – '+t.formatMarkerTime(v.xmax));
   const r=c.getBoundingClientRect(),w=r.width,h=r.height;if(w<1||h<1)return;
-  const key=[w,h,document.documentElement.dataset.theme,f.xmin,f.xmax,...Object.entries(t.series).map(([id,a])=>id+':'+a.length+':'+a[a.length-1]?.[1]+':'+t.color(id))].join('|');if(g.navigatorCache===key)return;g.navigatorCache=key;
+  const key=[w,h,document.documentElement.dataset.theme,f.xmin,f.xmax,...Object.entries(t.series).map(([id,a])=>id+':'+a.length+':'+a.at(-1)?.[1]+':'+t.color(id))].join('|');if(g.navigatorCache===key)return;g.navigatorCache=key;
   const dpr=window.devicePixelRatio||1;c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);const ctx=c.getContext('2d');ctx.scale(dpr,dpr);ctx.lineWidth=1;
-  // Approximate overview with a bounded sample budget; analysis and main trend retain their input points.
+  // Overview: live data with a bounded sample budget; file data (SampleSeries) reads every sample for each column's min/max.
   for(const [id,points] of Object.entries(t.series)){if(!points.length)continue;const axis=t.axisPlan.axisById.get(id)||'left',yb=f.axes[axis]||f.axes.left;if(!yb)continue;const ymin=yb.ymin,yspan=yb.ymax-ymin;ctx.strokeStyle=t.color(id);ctx.beginPath();const buckets=new Map();
-    for(let i=0,step=Math.max(1,Math.floor(points.length/Math.max(256,w*4)));i<points.length;i+=step){const [time,value]=points[i];if(!Number.isFinite(value))continue;const x=Math.floor((time-f.xmin)/span*(w-1));const old=buckets.get(x);if(old){old[0]=Math.min(old[0],value);old[1]=Math.max(old[1],value);}else buckets.set(x,[value,value]);}
+    if(isSampleSeries(points)){const cols=Math.max(1,Math.floor(w)),lo=new Float64Array(cols).fill(Infinity),hi=new Float64Array(cols).fill(-Infinity),tt=points.t,vv=points.v;for(let i=0;i<tt.length;i++){const value=vv[i];if(!Number.isFinite(value))continue;const x=Math.floor((tt[i]-f.xmin)/span*(w-1));if(x<0||x>=cols)continue;if(value<lo[x])lo[x]=value;if(value>hi[x])hi[x]=value;}for(let x=0;x<cols;x++)if(lo[x]<=hi[x])buckets.set(x,[lo[x],hi[x]]);}
+    else for(let i=0,step=Math.max(1,Math.floor(points.length/Math.max(256,w*4)));i<points.length;i+=step){const time=points[i][0],value=points[i][1];if(!Number.isFinite(value))continue;const x=Math.floor((time-f.xmin)/span*(w-1));const old=buckets.get(x);if(old){old[0]=Math.min(old[0],value);old[1]=Math.max(old[1],value);}else buckets.set(x,[value,value]);}
     let first=true;for(const [x,[lo,hi]] of buckets){const y=h-3-(lo-ymin)/yspan*(h-6),yy=h-3-(hi-ymin)/yspan*(h-6);if(first){ctx.moveTo(x,y);first=false;}else ctx.lineTo(x,y);ctx.lineTo(x,yy);}ctx.stroke();
   }
 }

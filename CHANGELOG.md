@@ -2,6 +2,15 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.0.1
+
+- **Finestra applicazione**: l'interfaccia si apre in una finestra dedicata (Microsoft Edge o Chrome in modalità applicazione, con un profilo proprio), senza schede né barra degli indirizzi. Chiudere la finestra arresta l'applicazione come **Chiudi applicazione**: le registrazioni in corso vengono finalizzate. Durante una registrazione la chiusura chiede conferma. Se Edge e Chrome non sono disponibili si usa il browser predefinito; `SPACE_WINDOW=browser` mantiene la pagina nel browser.
+- **Grafici dei file a piena risoluzione**: aprendo un file il grafico riceve tutti i campioni dell'intervallo selezionato, con i valori originali, senza riduzione min/max né limite di punti per segnale. Il selettore "Risoluzione grafico per segnale" è rimosso. I dati arrivano dal servizio in formato binario (colonne Float64) e restano in memoria come array tipizzati.
+- **Disegno**: quando i campioni visibili superano i pixel, ogni colonna di pixel mostra l'intervallo minimo–massimo di tutti i suoi campioni (stessa copertura della linea completa, picchi di un solo campione compresi); con lo zoom compaiono i singoli campioni. Navigatore e conteggio qualità leggono tutti i campioni. Selezione zoom, marker e cursore riusano lo strato già disegnato.
+- **Limite di memoria**: una vista a piena risoluzione accetta fino a 80 milioni di campioni (circa 1,4 GB). Oltre, il servizio chiede di ridurre intervallo o segnali invece di mostrare una vista ridotta.
+- La parte Live è invariata.
+- Test: nuovo workflow UI `test_full_resolution_ui.cjs` (300.000 righe, valori esatti, picco singolo, zoom, marker, endpoint binario) e due test xUnit (lettura completa e formato binario).
+
 ## 3.0.0
 
 Space Analyzer 3.0 è interamente in C#. Rapporto completo, verifiche e limiti in [VERSIONE_3.0.md](VERSIONE_3.0.md).

@@ -1,7 +1,7 @@
 /* V1.1.15: independent recording views with shared absolute marker timestamps. */
 const H=id=>document.getElementById(id);
 let historyFiles=[],historyMarkerTimer=null,historyCompareBusy=false;
-const emptyHistory=()=>({file:null,chosen:new Set(),from:'',to:'',resolution:'25000',loaded:false,loading:false,stats:null,status:I18N.t("Seleziona una registrazione oppure spunta più file da confrontare."),error:false,markerSeq:0,compareFiles:[],compareMode:'absolute',compareCoverage:'union',compareStatus:'',comparing:false,resetViewOnOpen:false});
+const emptyHistory=()=>({file:null,chosen:new Set(),from:'',to:'',loaded:false,loading:false,stats:null,status:I18N.t("Seleziona una registrazione oppure spunta più file da confrontare."),error:false,markerSeq:0,compareFiles:[],compareMode:'absolute',compareCoverage:'union',compareStatus:'',comparing:false,resetViewOnOpen:false});
 const historyCharts=new ChartWorkspace({scope:'history',root:'history-charts',selector:'history-active-chart',add:'history-add-chart',layout:'history-layout',staticMode:true,copySignalsOnAdd:false,
   onNew:(graph)=>{graph.context=emptyHistory();resetHistoryView(graph,false);},
   onActive:(graph,previous)=>{if(previous)storeHistoryInputs(previous);if(!graph.context)graph.context=emptyHistory();renderHistoryControls();renderHistoryFileList();graph.trend.draw();},
@@ -54,7 +54,7 @@ function showAppPage(page){
 }
 function storeHistoryInputs(graph=historyCharts.active){
   const ctx=historyContext(graph);if(!ctx.file)return;
-  ctx.from=H('history-from').value;ctx.to=H('history-to').value;ctx.resolution=H('history-max-points').value;
+  ctx.from=H('history-from').value;ctx.to=H('history-to').value;
 }
 function renderHistoryFileList(){
   const box=H('history-file-list'),ctx=historyContext(),current=ctx.file;box.replaceChildren();
@@ -143,7 +143,7 @@ function renderHistoryControls(){
   H('history-file-controls').hidden=!file;
   I18N.bind(H('history-selected-name'),"textContent",()=>(file?(file.display_name||file.name):I18N.t("Nessun file selezionato")),true);
   I18N.bind(H('history-selected-meta'),"textContent",()=>(file?I18N.join([{text:""},{value:(file.source==='local'?I18N.t("File dal PC"):'Recordings')},{text:" · "},{value:(file.format_label||String(file.format).toUpperCase())},{text:" · "},{value:(historyBytes(file.size_bytes))},{text:" · "},{value:(historyFormatStamp(file.started_at||file.modified_at))},{text:""},{value:(file.view_source_note?' · '+file.view_source_note:'')},{text:""}]):''),true);
-  H('history-from').value=ctx.from;H('history-to').value=ctx.to;H('history-max-points').value=ctx.resolution;
+  H('history-from').value=ctx.from;H('history-to').value=ctx.to;
   H('history-load').disabled=ctx.loading;H('history-full-range').disabled=ctx.loading;
   H('history-close-file').disabled=!(file||ctx.loading||ctx.comparing||graph.ids.size||(ctx.compareFiles||[]).length);
   H('history-close-all').disabled=!historyCharts.charts.some(g=>g.context?.file||g.context?.loading||g.context?.comparing||g.ids.size||(g.context?.compareFiles||[]).length)||applicationClosed;
@@ -154,7 +154,7 @@ function renderHistoryControls(){
   I18N.bind(H('history-duration'),"textContent",()=>(seconds===undefined?'—':historyDuration(seconds)),false);
   const points=graph.cleared?0:(data?.signals||[]).reduce((n,s)=>n+Number(s.points_returned||0),0);
   I18N.bind(H('history-points'),"textContent",()=>(points.toLocaleString(I18N.locale())),true);I18N.bind(H('history-signal-count'),"textContent",()=>(String(graph.nodes.size)),false);
-  I18N.bind(H('history-diag'),"textContent",()=>(data?.decimated?I18N.t("Vista ridotta min/max. I marker leggono i campioni dal file originale, anche dopo zoom e scorrimento."):I18N.t("Marker comuni a tutti i grafici della pagina, con timestamp assoluti. Ogni grafico conserva file, segnali e intervallo propri.")),true);
+  I18N.bind(H('history-diag'),"textContent",()=>(data?.full_resolution?I18N.t("Piena risoluzione: il grafico contiene tutti i campioni del file; con lo zoom compaiono i singoli campioni."):I18N.t("Marker comuni a tutti i grafici della pagina, con timestamp assoluti. Ogni grafico conserva file, segnali e intervallo propri.")),true);
   renderHistorySignals();
   renderHistoryComparison();
   if(file?.session)H('history-selected-meta').textContent+=' · '+[file.session.session_name,file.session.machine,file.session.operator,file.session.description].filter(Boolean).join(' · ');
@@ -192,11 +192,11 @@ async function loadHistory(graph=historyCharts.active){
   const start=msFromLocalInput(ctx.from),end=msFromLocalInput(ctx.to),revision=++graph.loadRevision;
   ctx.loading=true;ctx.error=false;ctx.status=I18N.join([{text:"Lettura di "},{value:(file.display_name||file.name)},{text:"…"}]);if(graph===historyCharts.active)renderHistoryControls();
   try{
-    const result=await request('/api/recordings/data',{source:file.source||'repository',name:file.name,signal_ids:ids,start_ms:start,end_ms:end,max_points:Number(ctx.resolution)});
+    const data=await request('/api/recordings/samples',{source:file.source||'repository',name:file.name,signal_ids:ids,start_ms:start,end_ms:end});
     if(!historyCharts.charts.includes(graph)||revision!==graph.loadRevision||ctx!==graph.context)return;
-    const data=result.recording,nodes=new Map((data.signals||[]).map(s=>[s.nodeid,{nodeid:s.nodeid,display_name:s.display_name||s.nodeid,unit:s.unit||'',calculated:!!s.calculated}])),types=Object.fromEntries((data.signals||[]).map(s=>[s.nodeid,s.data_type||'Double']));
+    const nodes=new Map((data.signals||[]).map(s=>[s.nodeid,{nodeid:s.nodeid,display_name:s.display_name||s.nodeid,unit:s.unit||'',calculated:!!s.calculated}])),types=Object.fromEntries((data.signals||[]).map(s=>[s.nodeid,s.data_type||'Double']));
     if(!file.signals?.length){file.signals=(data.signals||[]).map(s=>({nodeid:s.nodeid,display_name:s.display_name||s.nodeid,unit:s.unit||'',calculated:!!s.calculated}));ctx.chosen=new Set(file.signals.map(s=>s.nodeid));}
-    if(data.available_calculations){const byId=new Map((file.signals||[]).map(s=>[s.nodeid,s]));for(const s of data.available_calculations)byId.set(s.nodeid,{...s,virtual:true});file.signals=[...byId.values()];}ctx.loaded=true;ctx.stats=data;ctx.status=I18N.join([{value:(file.display_name||file.name)},{text:" · "},{value:(Number(data.numeric_rows||0).toLocaleString(I18N.locale()))},{text:" campioni numerici"},{value:(data.decimated?I18N.t(" · vista min/max"):'')}]);
+    if(data.available_calculations){const byId=new Map((file.signals||[]).map(s=>[s.nodeid,s]));for(const s of data.available_calculations)byId.set(s.nodeid,{...s,virtual:true});file.signals=[...byId.values()];}ctx.loaded=true;ctx.stats=data;ctx.status=I18N.join([{value:(file.display_name||file.name)},{text:" · "},{value:(Number(data.numeric_rows||0).toLocaleString(I18N.locale()))},{text:" campioni numerici"},{value:(I18N.t(" · piena risoluzione"))}]);
     if(start===null&&Number.isFinite(data.start_ms))ctx.from=localInputFromMs(data.start_ms);if(end===null&&Number.isFinite(data.end_ms))ctx.to=localInputFromMs(data.end_ms);
     if(ctx.resetViewOnOpen){resetHistoryView(graph);ctx.resetViewOnOpen=false;}
     historyCharts.setGraphData(graph,data.series||{},nodes,types);

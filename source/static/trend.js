@@ -2,11 +2,53 @@
  * Script classico: nessuna dipendenza ES-module/.mjs o CDN.
  * Trend con doppia scala Y automatica quando i segnali hanno ordini di grandezza molto diversi.
  */
+/* Serie a piena risoluzione dei file: colonne tipizzate (tempo, valore, qualità) con tutti i campioni.
+ * Quando i campioni visibili superano i pixel, ogni colonna di pixel mostra l'intervallo minimo–massimo di tutti
+ * i suoi campioni (la stessa copertura della linea completa); con lo zoom compaiono i singoli campioni.
+ * Nessun campione viene scartato. */
+const SAMPLE_QUALITIES=['Good','Uncertain','Bad'];
+class SampleSeries{
+  constructor(t,v,q){
+    this.t=t;this.v=v;this.q=q;
+    let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity,count=0;const counts=[0,0,0];
+    for(let i=0;i<t.length;i++){const time=t[i],value=v[i];counts[q[i]]=(counts[q[i]]||0)+1;if(!Number.isFinite(time))continue;if(time<xmin)xmin=time;if(time>xmax)xmax=time;if(value===value&&value!==Infinity&&value!==-Infinity){if(value<ymin)ymin=value;if(value>ymax)ymax=value;count++;}}
+    this.stats={xmin,xmax,ymin,ymax,count,good:counts[0],uncertain:counts[1],bad:counts[2]};
+  }
+  get length(){return this.t.length;}
+  value(i){const v=this.v[i];return Number.isFinite(v)?v:null;}
+  quality(i){return SAMPLE_QUALITIES[this.q[i]]||'Bad';}
+  at(i){const n=this.t.length;if(i<0)i+=n;if(i<0||i>=n)return undefined;return [this.t[i],this.value(i),this.quality(i)];}
+  *[Symbol.iterator](){for(let i=0;i<this.t.length;i++)yield this.at(i);}
+  filter(fn){const out=[];for(let i=0;i<this.t.length;i++){const p=this.at(i);if(fn(p,i))out.push(p);}return out;}
+  map(fn){const out=new Array(this.t.length);for(let i=0;i<this.t.length;i++)out[i]=fn(this.at(i),i);return out;}
+  toJSON(){return this.map(p=>p);}
+  /** Primo indice con tempo >= t. */
+  lowerBound(t){let l=0,r=this.t.length;while(l<r){const m=(l+r)>>1;if(this.t[m]<t)l=m+1;else r=m;}return l;}
+  /** Primo indice con tempo > t. */
+  upperBound(t){let l=0,r=this.t.length;while(l<r){const m=(l+r)>>1;if(this.t[m]<=t)l=m+1;else r=m;}return l;}
+}
+function isSampleSeries(points){return points instanceof SampleSeries;}
+/** Risposta binaria di /api/recordings/samples: intestazione JSON e colonne Float64/Float64/Uint8 per segnale. */
+function decodeSampleBuffer(buffer){
+  const view=new DataView(buffer),magic=String.fromCharCode(view.getUint8(0),view.getUint8(1),view.getUint8(2),view.getUint8(3));
+  if(magic!=='SAS1')throw new Error(I18N.t("Risposta del servizio locale non valida"));
+  const length=view.getUint32(4,true),header=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,8,length)));
+  const align=n=>n+((8-n%8)%8);let offset=align(8+length);const series={};
+  for(const signal of header.signals||[]){
+    const n=Number(signal.points_returned||0);
+    const t=new Float64Array(buffer,offset,n);offset=align(offset+n*8);
+    const v=new Float64Array(buffer,offset,n);offset=align(offset+n*8);
+    const q=new Uint8Array(buffer,offset,n);offset=align(offset+n);
+    series[signal.nodeid]=new SampleSeries(t,v,q);
+  }
+  header.series=series;return header;
+}
 function bounds(series, ids=null) {
   let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity,count=0;
   const filter=ids?new Set(ids):null;
   for(const [id,points] of Object.entries(series)){
     if(filter&&!filter.has(id))continue;
+    if(isSampleSeries(points)){const st=points.stats;if(Number.isFinite(st.xmin)){xmin=Math.min(xmin,st.xmin);xmax=Math.max(xmax,st.xmax);}if(st.count){ymin=Math.min(ymin,st.ymin);ymax=Math.max(ymax,st.ymax);count+=st.count;}continue;}
     for(const [t,v] of points){
       if(!Number.isFinite(t)) continue;
       xmin=Math.min(xmin,t);xmax=Math.max(xmax,t);
@@ -27,12 +69,21 @@ function valueText(value){
 }
 function nearest(points,t){
   if(!points.length)return null;
+  if(isSampleSeries(points)){let l=Math.min(points.lowerBound(t),points.length-1);if(l>0&&Math.abs(points.t[l-1]-t)<Math.abs(points.t[l]-t))l--;return points.at(l);}
   let l=0,r=points.length-1;
   while(l<r){const m=(l+r)>>1;if(points[m][0]<t)l=m+1;else r=m;}
   return l>0&&Math.abs(points[l-1][0]-t)<Math.abs(points[l][0]-t)?points[l-1]:points[l];
 }
 function nearestValid(points,t){
   if(!points.length)return null;
+  if(isSampleSeries(points)){
+    const start=points.lowerBound(t);let left=start-1,right=start;
+    while(left>=0||right<points.length){
+      const dl=left>=0?Math.abs(points.t[left]-t):Infinity,dr=right<points.length?Math.abs(points.t[right]-t):Infinity,idx=dl<=dr?left--:right++;
+      if(Number.isFinite(points.v[idx]))return points.at(idx);
+    }
+    return null;
+  }
   let l=0,r=points.length-1;while(l<r){const m=(l+r)>>1;if(points[m][0]<t)l=m+1;else r=m;}
   let left=l-1,right=l,best=null,bestDistance=Infinity;
   while(left>=0||right<points.length){
@@ -45,6 +96,7 @@ function nearestValid(points,t){
 }
 function signalScale(points){
   let min=Infinity,max=-Infinity,count=0;
+  if(isSampleSeries(points)){const st=points.stats;if(!st.count)return null;return Math.max(Math.max(Math.abs(st.ymin),Math.abs(st.ymax)),st.ymax-st.ymin,1e-12);}
   for(const [,v] of points){if(typeof v==='number'&&Number.isFinite(v)){min=Math.min(min,v);max=Math.max(max,v);count++;}}
   if(!count)return null;
   const span=max-min,absmax=Math.max(Math.abs(min),Math.abs(max));
@@ -109,7 +161,7 @@ class Trend {
   el(name){const id=this.ui[name];return id?document.getElementById(id):null;}
   destroy(){this.onResume?.();for(const remove of this.listeners)remove();this.listeners=[];this._resizeObserver?.disconnect();this.crosshairEl?.remove();}
   color(id){if(this.presentation?.[id]?.color)return this.presentation[id].color;if(!this.colors.has(id)){const palette=['#006EFF','#F58C3A','#0AAF96','#707E86','#004299','#A14C12','#006B5C','#505A60'];const i=this.colors.size;this.colors.set(id,palette[i]||`hsl(${(i*137.5)%360} 65% 38%)`);}return this.colors.get(id);}
-  cloneSeries(series){return Object.fromEntries(Object.entries(series).map(([id,points])=>[id,(points||[]).map(p=>[...p])]));}
+  cloneSeries(series){return Object.fromEntries(Object.entries(series).map(([id,points])=>[id,isSampleSeries(points)?points:(points||[]).map(p=>[...p])]));}
   update(series,nodes,types={}){
     const signature=[...nodes.keys()].join('\u001f');
     if(this.nodeSignature&&signature!==this.nodeSignature){this.zoom=null;this.manualPaused=false;this.frozen=false;this.frozenAt=null;if(!this.preserveMarkers)this.resetMarkers(false);}
@@ -313,18 +365,75 @@ class Trend {
     for(let i=0;i<=5;i++){const y=p.t+i*(h-p.t-p.b)/5;ctx.beginPath();ctx.moveTo(p.l,y);ctx.lineTo(w-p.r,y);ctx.stroke();const lv=b.axes.left.ymax-i*(b.axes.left.ymax-b.axes.left.ymin)/5;ctx.fillStyle=this.theme.text;ctx.textAlign='right';ctx.fillText(this.formatAxis(lv),p.l-9,y+4);if(plan.dual&&b.axes.right){const rv=b.axes.right.ymax-i*(b.axes.right.ymax-b.axes.right.ymin)/5;ctx.textAlign='left';ctx.fillText(this.formatAxis(rv),w-p.r+9,y+4);}}
     ctx.font='600 10px Segoe UI';ctx.fillStyle=this.theme.text;ctx.textAlign='left';ctx.fillText(this.axisLabel('left'),p.l,p.t-8);if(plan.dual){ctx.textAlign='right';ctx.fillText(this.axisLabel('right'),w-p.r,p.t-8);}
     ctx.save();ctx.beginPath();ctx.rect(p.l,p.t,w-p.l-p.r,h-p.t-p.b);ctx.clip();
-    for(const [id,points] of Object.entries(this.series)){const axis=plan.axisById.get(id)||'left';ctx.strokeStyle=this.color(id);ctx.fillStyle=this.color(id);ctx.lineWidth=this.presentation[id]?.width||1.8;ctx.beginPath();let last=null,finite=0,first=null;
+    this.drawSeriesLayer(ctx,plan,X,Y,b,p,w,h,dpr);
+    this.drawMarkers(ctx,X,p,w,h);ctx.restore();ctx.fillStyle=this.theme.text;ctx.font='11px Segoe UI';
+    for(let i=0;i<=4;i++){const t=b.xmin+i*(b.xmax-b.xmin)/4;ctx.textAlign=i===0?'left':i===4?'right':'center';const dt=new Date(t);ctx.fillText(dt.toLocaleTimeString(I18N.locale(),{hour:'2-digit',minute:'2-digit',second:'2-digit'}),X(t),h-14);}
+    this.drawSelection(ctx);this.updateMarkerTable();this.renderCrosshair();
+  }
+  /** Segnali e fascia qualità. Con dati di file lo strato resta in cache finché vista, dimensioni e dati non cambiano
+   * (selezione zoom, marker e cursore non ridisegnano milioni di campioni). */
+  drawSeriesLayer(ctx,plan,X,Y,b,p,w,h,dpr){
+    const packed=this.staticMode&&Object.values(this.series).some(isSampleSeries);
+    if(!packed){this.seriesLayer=null;this.paintSeries(ctx,plan,X,Y,b,p,w,h,dpr);return;}
+    Trend.layerIds=Trend.layerIds||new WeakMap();Trend.layerCounter=Trend.layerCounter||0;
+    const identity=points=>{if(!points||typeof points!=='object')return '0';if(!Trend.layerIds.has(points))Trend.layerIds.set(points,++Trend.layerCounter);return Trend.layerIds.get(points)+':'+points.length;};
+    const key=JSON.stringify([w,h,dpr,b.xmin,b.xmax,b.axes,Object.entries(this.series).map(([id,points])=>[id,identity(points),this.color(id),this.presentation[id]?.width,this.types[id],plan.axisById.get(id)])]);
+    if(this.seriesLayer?.key!==key){
+      const layer=document.createElement('canvas');layer.width=Math.round(w*dpr);layer.height=Math.round(h*dpr);const lctx=layer.getContext('2d');
+      if(!lctx){this.paintSeries(ctx,plan,X,Y,b,p,w,h,dpr);return;}
+      lctx.scale(dpr,dpr);lctx.beginPath();lctx.rect(p.l,p.t,w-p.l-p.r,h-p.t-p.b);lctx.clip();this.paintSeries(lctx,plan,X,Y,b,p,w,h,dpr);
+      this.seriesLayer={key,layer};
+    }
+    ctx.drawImage(this.seriesLayer.layer,0,0,w,h);
+  }
+  paintSeries(ctx,plan,X,Y,b,p,w,h,dpr){
+    for(const [id,points] of Object.entries(this.series)){const axis=plan.axisById.get(id)||'left';ctx.strokeStyle=this.color(id);ctx.fillStyle=this.color(id);ctx.lineWidth=this.presentation[id]?.width||1.8;
+      if(isSampleSeries(points)){this.drawSamples(ctx,points,X,v=>Y(v,axis),this.types[id]==='Boolean',b,Math.max(1,Math.round((w-p.l-p.r)*dpr)));continue;}
+      ctx.beginPath();let last=null,finite=0,first=null;
       for(const point of points){const [t,v]=point;if(v===null||!Number.isFinite(v)||!Number.isFinite(t)){last=null;continue;}const x=X(t),y=Y(v,axis);if(last){if(this.types[id]==='Boolean')ctx.lineTo(x,last[1]);ctx.lineTo(x,y);}else ctx.moveTo(x,y);last=[x,y];first=first||last;finite++;}
       ctx.stroke();if(finite===1&&first){ctx.beginPath();ctx.arc(first[0],first[1],3,0,Math.PI*2);ctx.fill();}
     }
     // Quality stripe: bad/uncertain intervals are never joined by a numerical line.
-    for(const points of Object.values(this.series))for(let i=0;i<points.length;i++){
+    for(const points of Object.values(this.series))if(isSampleSeries(points))this.drawSampleQuality(ctx,points,X,b,h-p.b-7);else for(let i=0;i<points.length;i++){
       const q=points[i][2];if(q!=='Bad'&&q!=='Uncertain')continue;
       const x=X(points[i][0]),next=X(points[i+1]?.[0]??points[i][0]);ctx.fillStyle=q==='Bad'?'#E53C1470':'#F58C3A90';ctx.fillRect(x,h-p.b-7,Math.max(2,next-x),7);
     }
-    this.drawMarkers(ctx,X,p,w,h);ctx.restore();ctx.fillStyle=this.theme.text;ctx.font='11px Segoe UI';
-    for(let i=0;i<=4;i++){const t=b.xmin+i*(b.xmax-b.xmin)/4;ctx.textAlign=i===0?'left':i===4?'right':'center';const dt=new Date(t);ctx.fillText(dt.toLocaleTimeString(I18N.locale(),{hour:'2-digit',minute:'2-digit',second:'2-digit'}),X(t),h-14);}
-    this.drawSelection(ctx);this.updateMarkerTable();this.renderCrosshair();
+  }
+  /** Disegno a piena risoluzione: segmenti reali se i campioni visibili sono pochi, altrimenti min–max per colonna di pixel. */
+  drawSamples(ctx,s,X,Y,step,b,columns){
+    const t=s.t,v=s.v,n=t.length;if(!n)return;
+    const i0=Math.max(0,s.lowerBound(b.xmin)-1),i1=Math.min(n,s.upperBound(b.xmax)+1),span=b.xmax-b.xmin;
+    ctx.beginPath();let pen=false,lastY=0,finite=0,fx=0,fy=0;
+    const to=(x,y)=>{if(pen){if(step)ctx.lineTo(x,lastY);ctx.lineTo(x,y);}else{ctx.moveTo(x,y);pen=true;}lastY=y;};
+    if(i1-i0<=columns*4){
+      for(let i=i0;i<i1;i++){const value=v[i];if(!Number.isFinite(value)){pen=false;continue;}const x=X(t[i]),y=Y(value);to(x,y);if(!finite){fx=x;fy=y;}finite++;}
+    }else{
+      // Più campioni che pixel: per ogni colonna di pixel il tratto verticale dal minimo al massimo dei campioni,
+      // esteso all'ultimo valore della colonna precedente. È ciò che la linea completa copre in quella colonna.
+      const lw=ctx.lineWidth||1;let col=NaN,lo=0,hi=0,last=0,prev=NaN;
+      const flush=()=>{
+        if(col!==col)return;let a=lo,z=hi;if(prev===prev){if(prev<a)a=prev;if(prev>z)z=prev;}
+        const x=X(b.xmin+(col+.5)/columns*span),y1=Y(z),y2=Y(a),top=Math.min(y1,y2);
+        ctx.fillRect(x-lw/2,top-lw/2,lw,Math.abs(y2-y1)+lw);prev=last;col=NaN;finite+=2;
+      };
+      for(let i=i0;i<i1;i++){
+        const value=v[i];if(!Number.isFinite(value)){flush();prev=NaN;continue;}
+        const c=Math.floor((t[i]-b.xmin)/span*columns);
+        if(c!==col){flush();col=c;lo=hi=last=value;continue;}
+        if(value<lo)lo=value;if(value>hi)hi=value;last=value;
+      }
+      flush();
+    }
+    ctx.stroke();if(finite===1){ctx.beginPath();ctx.arc(fx,fy,3,0,Math.PI*2);ctx.fill();}
+  }
+  /** Fascia qualità: intervalli contigui Bad/Uncertain uniti in un solo rettangolo. */
+  drawSampleQuality(ctx,s,X,b,y){
+    const t=s.t,q=s.q,n=t.length;if(!n||!(s.stats.bad||s.stats.uncertain))return;
+    const i0=Math.max(0,s.lowerBound(b.xmin)-1),i1=Math.min(n,s.upperBound(b.xmax)+1);
+    for(let i=i0;i<i1;i++){
+      const code=q[i];if(code!==1&&code!==2)continue;let j=i;while(j+1<i1&&q[j+1]===code)j++;
+      const x=X(t[i]),next=X(j+1<n?t[j+1]:t[j]);ctx.fillStyle=code===2?'#E53C1470':'#F58C3A90';ctx.fillRect(x,y,Math.max(2,next-x),7);i=j;
+    }
   }
   drawMarkers(ctx,X,p,w,h){
     for(const [which,label,color] of [['x1','X1','#006EFF'],['x2','X2','#F58C3A']]){
