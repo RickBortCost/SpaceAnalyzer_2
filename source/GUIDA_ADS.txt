@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.8.2 - MODIFICA PARAMETRI ADS
+SPACE FIELDBUS ANALYZER V1.8.2 - MODIFICA PARAMETRI ADS
 
 I campi IP/hostname PLC, porta TCP router, AMS Net ID client, porta AMS client
 e IP locale/scheda di rete sono modificabili anche con TwinCAT locale scelto.

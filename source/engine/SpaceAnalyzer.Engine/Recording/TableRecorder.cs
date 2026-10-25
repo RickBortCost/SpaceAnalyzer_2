@@ -127,7 +127,7 @@ public sealed partial class TableRecorder : IFormatRecorder, IDisposable
             ["storage"] = storage.ToDictionary(), ["format_label"] = storage.Label,
             ["session_name"] = labels["session_name"], ["machine"] = labels["machine"], ["operator"] = labels["operator"], ["description"] = labels["description"],
             ["session_id"] = sessionBase, ["max_file_bytes"] = maxBytes, ["max_duration_s"] = maxDuration, ["queue_capacity_cycles"] = capacity,
-            ["writer"] = "Space Analyzer engine (C#)",
+            ["writer"] = "Space Fieldbus Analyzer engine (C#)",
         };
         if (options.ValueKind == JsonValueKind.Object && options.TryGetProperty("calculation_formulas", out var formulas) && formulas.ValueKind == JsonValueKind.Array && formulas.GetArrayLength() > 0)
         {

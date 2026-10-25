@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.21.0 - RBF, FDA E STRUMENTI GRAFICO
+SPACE FIELDBUS ANALYZER V1.21.0 - RBF, FDA E STRUMENTI GRAFICO
 
 RBF: APRIRE REGISTRAZIONI
 In Registrazioni usare Apri file dal PC e selezionare .RBF. Il formato è
@@ -40,7 +40,7 @@ Ogni segnale ha un canale fisico _Q: 0=assente nel frame, 1=Bad,
 2=Uncertain, 3=Good. Gli aggiornamenti assenti non vengono interpolati o
 riempiti con valori precedenti. Aggiornamenti distinti dello stesso segnale
 allo stesso istante restano distinti. I frame sono ordinati per timestamp.
-Riaprendo un RBF/JSON Space Analyzer recupera nomi, identificativi e unità;
+Riaprendo un RBF/JSON Space Fieldbus Analyzer recupera nomi, identificativi e unità;
 anche il solo RBF rimane leggibile, con nomi fisici e riconoscimento _Q.
 
 COMPATIBILITÀ RBF

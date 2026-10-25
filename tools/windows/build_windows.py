@@ -18,7 +18,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / 'source'
 APP = SOURCE / 'app' / 'SpaceAnalyzer'
-VERSION = '3.3.0'
+VERSION = '3.4.0'
 
 
 def validate_versions():
@@ -54,7 +54,7 @@ def publish(work, dotnet):
             shutil.copytree(SOURCE / name, runtime / name, dirs_exist_ok=True)
     (runtime / 'static' / 'trend.mjs').unlink(missing_ok=True)
     shutil.copy2(SOURCE / 'THIRD_PARTY_NOTICES.txt', runtime / 'THIRD_PARTY_NOTICES.txt')
-    (runtime / 'bundled-runtime.flag').write_text('Space Analyzer ' + VERSION + ' self-contained .NET service\n', encoding='utf-8')
+    (runtime / 'bundled-runtime.flag').write_text('Space Fieldbus Analyzer ' + VERSION + ' self-contained .NET service\n', encoding='utf-8')
     for name in ('static', 'templates'):
         for asset in (SOURCE / name).rglob('*'):
             if asset.is_file() and asset.name != 'trend.mjs':
@@ -70,7 +70,7 @@ def main():
     parser.add_argument('--go', default='go')
     parser.add_argument('--dotnet', default=os.environ.get('DOTNET', 'dotnet'))
     parser.add_argument('--work', default=str(SOURCE / 'build'))
-    parser.add_argument('--output', default=str(SOURCE / 'dist' / ('Space_Analyzer_V' + VERSION + '.exe')))
+    parser.add_argument('--output', default=str(SOURCE / 'dist' / ('Space_Fieldbus_Analyzer_V' + VERSION + '.exe')))
     args = parser.parse_args()
     work = Path(args.work).resolve()
     work.mkdir(parents=True, exist_ok=True)
@@ -110,8 +110,8 @@ def main():
         source_commit = None
     service = runtime / 'SpaceAnalyzer.exe'
     manifest = {
-        'application_name': 'Space Analyzer', 'version': VERSION, 'platform': 'Windows x64', 'exe': output.name, 'size_bytes': output.stat().st_size,
-        'icon': 'Space Analyzer logo (RT_ICON / RT_GROUP_ICON) in launcher and service',
+        'application_name': 'Space Fieldbus Analyzer', 'version': VERSION, 'platform': 'Windows x64', 'exe': output.name, 'size_bytes': output.stat().st_size,
+        'icon': 'Space Fieldbus Analyzer logo (RT_ICON / RT_GROUP_ICON) in launcher and service',
         'source_commit': source_commit, 'embedded_payload_verified': True,
         'packaging': 'Go GUI launcher + self-contained .NET 8 service (win-x64), runtime cached per payload in %LOCALAPPDATA%/OPCUA_Web_Client/runtime',
         'service': {'exe': 'SpaceAnalyzer.exe', 'sha256': digest(service), 'framework': '.NET 8 self-contained', 'web': 'ASP.NET Core Kestrel on 127.0.0.1'},

@@ -1,4 +1,4 @@
-# Space Analyzer V1.28.0 — sorgenti aggiornati
+# Space Fieldbus Analyzer V1.28.0 — sorgenti aggiornati
 
 Implementazione basata sui sorgenti V1.24.0 dell’handoff, senza ricreare l’applicazione.
 

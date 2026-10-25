@@ -61,7 +61,7 @@ def plain(markdown):
 
 def readme(version, cwd=ROOT):
     general = (Path(cwd) / 'source' / 'README.txt').read_text(encoding='utf-8')
-    title = f'SPACE ANALYZER V{version} WINDOWS x64'
+    title = f'SPACE FIELDBUS ANALYZER V{version} WINDOWS x64'
     return (f'{title}\n{"=" * len(title)}\n\nMODIFICHE DI QUESTA VERSIONE\n\n{plain(changes(version, cwd))}\n\n'
             f'Elenco completo delle versioni: CHANGELOG.md nel repository.\n\n{"-" * len(title)}\n\n{general}')
 

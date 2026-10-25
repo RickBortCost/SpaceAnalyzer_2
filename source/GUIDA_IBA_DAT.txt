@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.17.0 - REGISTRAZIONE IBA DAT
+SPACE FIELDBUS ANALYZER V1.17.0 - REGISTRAZIONE IBA DAT
 ==========================================
 
 AVVIO E UTILIZZO
@@ -56,7 +56,7 @@ originale (anche ULINT), qualita e codici, timestamp source/server/local e
 FILETIME ADS quando disponibili. Non cambiano campioni o frequenza acquisita.
 
 RIAPERTURA, FFT E CALCOLI
-Registrazioni elenca anche i DAT generati da Space Analyzer. Selezionando un
+Registrazioni elenca anche i DAT generati da Space Fieldbus Analyzer. Selezionando un
 DAT, grafici, marker, FFT, export intervallo e formule leggono il PARQUET
 ORIGINALE ASSOCIATO, limitato esattamente alla parte corrispondente del DAT.
 Questa scelta e esplicitata nell'interfaccia. Non e un lettore universale

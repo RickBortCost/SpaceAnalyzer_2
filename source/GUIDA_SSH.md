@@ -1,4 +1,4 @@
-# Space Analyzer 1.12.0 — Debug SSH
+# Space Fieldbus Analyzer 1.12.0 — Debug SSH
 
 ## Avvio e collegamento
 
@@ -17,7 +17,7 @@ Per il PAC indicato, il profilo iniziale propone:
 | Keepalive | 20 secondi |
 | Output | UTF-8, modificabile |
 
-Inserire le **credenziali effettive** del target: nessuna password è preimpostata. Il servizio SSH deve essere attivo e raggiungibile dal PC che esegue Space Analyzer. Username e password sono sensibili alle maiuscole. Per autenticazione a chiave la chiave pubblica deve essere autorizzata dal target; selezionare il file privato OpenSSH/PEM e la passphrase, se cifrato. RSA, Ed25519 ed ECDSA sono supportati. Convertire i file PuTTY PPK in OpenSSH tramite PuTTYgen.
+Inserire le **credenziali effettive** del target: nessuna password è preimpostata. Il servizio SSH deve essere attivo e raggiungibile dal PC che esegue Space Fieldbus Analyzer. Username e password sono sensibili alle maiuscole. Per autenticazione a chiave la chiave pubblica deve essere autorizzata dal target; selezionare il file privato OpenSSH/PEM e la passphrase, se cifrato. RSA, Ed25519 ed ECDSA sono supportati. Convertire i file PuTTY PPK in OpenSSH tramite PuTTYgen.
 
 Premere **Connetti SSH**. Al primo collegamento appare l'impronta SHA256 della chiave host: confrontarla con un'impronta ottenuta da un canale affidabile e premere **Impronta verificata · Accetta**. Prima dell'accettazione il client non invia l'autenticazione al target. Una chiave diversa da quella salvata blocca il collegamento. Dopo aver verificato una sostituzione prevista del target/chiave, disconnettere e utilizzare **Rimuovi chiave salvata** per ripetere la verifica. La richiesta di verifica scade dopo 120 secondi.
 

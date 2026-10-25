@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.24.0 — VERIFICHE
+SPACE FIELDBUS ANALYZER V1.24.0 — VERIFICHE
 
 39 test backend / 7 suite, 8 flussi UI DOM/componenti.
 Verificati due protocolli reali locali nello stesso processo, Record Parquet

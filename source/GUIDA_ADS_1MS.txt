@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.14.0 - ACQUISIZIONE ADS DA 1 ms
+SPACE FIELDBUS ANALYZER V1.14.0 - ACQUISIZIONE ADS DA 1 ms
 
 1. Estrarre tutto lo ZIP e avviare Space_Analyzer_V1.14.0.exe.
 2. Aprire Connessione e scegliere ADS - Beckhoff TwinCAT.

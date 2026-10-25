@@ -48,7 +48,7 @@ public static class RbfExporter
             var c = valueChannels[i];
             lines.Add($"Channel{i:00} = {channels[c].name} {c} 65535 {i} 0 -1 -1");
         }
-        lines.AddRange(["# Properties", "Property0 = Space Analyzer", "Property5 = " + QualityMarker, "END SAVESTATE", ""]);
+        lines.AddRange(["# Properties", "Property0 = Space Fieldbus Analyzer", "Property5 = " + QualityMarker, "END SAVESTATE", ""]);
         return Legacy.Cp1252Strict.GetBytes(string.Join("\r\n", lines));
     }
 

@@ -21,7 +21,7 @@ def main():
     digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
     if smoke['result']!='PASS' or not smoke['packaged_exe_executed'] or digest(exe)!=smoke['sha256']:
         raise RuntimeError('Refusing to publish an unverified executable')
-    root='Space_Analyzer_V'+version+'_WINDOWS'
+    root='Space_Fieldbus_Analyzer_V'+version+'_WINDOWS'
     archive=dist/(root+'.zip')
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for path,name in [(exe,exe.name),(ROOT/'LEGGIMI_AVVIO_WINDOWS.md','LEGGIMI_AVVIO_WINDOWS.md'),

@@ -1,4 +1,4 @@
-SPACE ANALYZER V1.9.0 - DATI CALCOLATI
+SPACE FIELDBUS ANALYZER V1.9.0 - DATI CALCOLATI
 
 1. Collegare OPC UA o ADS, selezionare/scansionare le variabili.
 2. Aprire Dati calcolati. Inserire nome, eventuale unita e cliccare le sorgenti.

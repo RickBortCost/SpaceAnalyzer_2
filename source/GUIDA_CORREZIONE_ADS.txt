@@ -1,4 +1,4 @@
-Space Analyzer V1.14.1 - Correzione blocchi ADS cicliche
+Space Fieldbus Analyzer V1.14.1 - Correzione blocchi ADS cicliche
 20 ottobre 2026
 
 INSTALLAZIONE

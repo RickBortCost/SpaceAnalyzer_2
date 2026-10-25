@@ -114,7 +114,7 @@ public static class Export
                 _ => new Column<string>(n, LogicalType.String()),
             }).ToArray();
             using var builder = new WriterPropertiesBuilder();
-            builder.CreatedBy("Space Analyzer (ParquetSharp)").Version(ParquetVersion.PARQUET_2_6);
+            builder.CreatedBy("Space Fieldbus Analyzer (ParquetSharp)").Version(ParquetVersion.PARQUET_2_6);
             if (profile.Codec == "snappy") builder.Compression(Compression.Snappy);
             else
             {

@@ -36,7 +36,7 @@ with tempfile.TemporaryDirectory(prefix='opcua-launcher-') as directory:
             with opener.open(url,timeout=5) as response:html=response.read().decode()
             parser=TokenParser();parser.feed(html);token=parser.token
             assert token, 'Missing local API token in page metadata'
-            with opener.open(url+'/api/status') as response:assert json.load(response)['app']=='Space Analyzer'
+            with opener.open(url+'/api/status') as response:assert json.load(response)['app']=='Space Fieldbus Analyzer'
             second=subprocess.run(COMMAND,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=30)
             assert second.returncode==0,(second.stdout,second.stderr)
             assert 'già avviata' in second.stdout

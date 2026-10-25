@@ -1,4 +1,4 @@
-// Space Analyzer 1.13.0 - esempio originale S7-1500.
+// Space Fieldbus Analyzer 1.13.0 - esempio originale S7-1500.
 // NON compilato con TIA / NON collaudato su CPU fisica.
 // Richiede connessione UDP OUC esistente; vedere GUIDA_S7_SIMBOLICO_UDP.md.
 // FC standard: AT conserva il bit pattern IEEE-754 del REAL.

@@ -29,10 +29,10 @@ var payload []byte
 //go:embed payload.sha256
 var payloadDigest string
 
-const version = "3.3.0"
+const version = "3.4.0"
 
 func message(text string) {
-	title, _ := syscall.UTF16PtrFromString("Space Analyzer V" + version)
+	title, _ := syscall.UTF16PtrFromString("Space Fieldbus Analyzer V" + version)
 	body, _ := syscall.UTF16PtrFromString(text)
 	syscall.NewLazyDLL("user32.dll").NewProc("MessageBoxW").Call(0, uintptr(unsafe.Pointer(body)), uintptr(unsafe.Pointer(title)), 0x10)
 }

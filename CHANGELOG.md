@@ -2,6 +2,14 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.4.0
+
+- **Nuovo nome: SPACE FIELDBUS ANALYZER**: l'applicazione si chiama ora "Space Fieldbus Analyzer" nell'interfaccia (titolo della finestra, intestazione, testi, tooltip e messaggi, nelle cinque lingue), nel launcher (finestra e splash), nei messaggi e nei file generati (log, esportazioni, nome dell'applicazione OPC UA, intestazione Parquet/RBF) e nella documentazione. Motivo: nome richiesto per l'applicazione.
+- **File della release**: EXE e ZIP si chiamano `Space_Fieldbus_Analyzer_V<versione>.exe` e `Space_Fieldbus_Analyzer_V<versione>_WINDOWS.zip`; titolo della release e artefatti della pipeline usano il nuovo nome. Le versioni precedenti restano con il nome originale. Motivo: il nome del file deve corrispondere al nome dell'applicazione.
+- **Intestazione**: il nome più lungo compare solo sopra 1760 px (prima 1640 px) e la barra resta su una riga senza tagliare i controlli, verificato da 1920 a 761 px. Motivo: evitare che il nome più lungo sposti o tagli i comandi.
+- **Identificatori tecnici invariati**: namespace e progetti C# (`SpaceAnalyzer`), `SpaceAnalyzer.exe` del servizio, cartella dati `SpaceAnalyzer_Data`, variabili d'ambiente, chiavi di salvataggio del browser (lingua e tema), tipo di contenuto interno e identificatore del formato di cattura primaria. Motivo: rinominarli farebbe perdere impostazioni, workspace e dati già presenti e renderebbe illeggibili file già registrati, senza alcun beneficio per l'utente.
+- Test aggiornati al nuovo nome (titolo, risposta di `/api/status`, titolo delle note di release).
+
 ## 3.3.0
 
 - **Rotella sul grafico LIVE = periodo visualizzato (asse X)**: con il cursore sull'area di un grafico LIVE, la rotella verso l'alto riduce il periodo visualizzato e verso il basso lo aumenta (passo ×1,25), ancorato all'ultimo campione. Il periodo va da un minimo di 10 secondi di dati fino a tutti i dati dall'inizio della connessione (oltre si torna alla vista completa). Vale per tutti i grafici della pagina e anche con Zoom live attivo; il doppio clic nell'area del grafico ripristina l'intera sessione. Non agisce a grafico fermo (Pausa o zoom a rettangolo) né sulle colonne degli assi Y, dove la rotella continua a zoomare la singola scala. Motivo: poter passare dal dettaglio degli ultimi secondi all'intera acquisizione senza aprire menu o impostazioni.

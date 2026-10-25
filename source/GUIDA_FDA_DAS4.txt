@@ -3,7 +3,7 @@ Il lettore supporta anche canali Float32 insieme a Int16, come in TEST DAS 2.DAS
 Le limitazioni Int16 riportate sotto descrivono il profilo di scrittura FDA.
 Per le novità complete vedere GUIDA_RBF_FDA_STRUMENTI.txt.
 
-Space Analyzer V1.16.0 - Registrazione FDA DAS4
+Space Fieldbus Analyzer V1.16.0 - Registrazione FDA DAS4
 20 ottobre 2026
 
 AVVIO

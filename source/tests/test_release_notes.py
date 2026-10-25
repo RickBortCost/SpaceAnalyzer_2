@@ -49,7 +49,7 @@ class ReleaseNotes(unittest.TestCase):
 
     def test_zip_readme_is_plain_text(self):
         text = release_notes.readme('1.1.0', self.root)
-        self.assertTrue(text.startswith('SPACE ANALYZER V1.1.0 WINDOWS x64'))
+        self.assertTrue(text.startswith('SPACE FIELDBUS ANALYZER V1.1.0 WINDOWS x64'))
         self.assertIn('MODIFICHE DI QUESTA VERSIONE\n\n- Nuova funzione con codice.', text)
         self.assertIn('Note generali.', text)
 
