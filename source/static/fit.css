@@ -10,7 +10,21 @@ html[lang] .app-bar,.app-bar{flex-wrap:nowrap!important;height:54px!important;mi
 .app-bar .preferences-controls{margin-left:auto}
 .app-bar .theme-control select{width:82px;padding-inline:6px}
 }
-@media(min-width:761px) and (max-width:1760px){.app-bar .brand strong,.app-bar .brand small{display:none}}
+@media(min-width:761px) and (max-width:1499px){.app-bar .brand strong,.app-bar .brand small{display:none}}
+/* Da 1500 a 1760 px il nome resta visibile: versione e REQ/REALE nascosti (restano nella barra di stato e nella diagnostica Live) e comandi più compatti. */
+@media(min-width:1500px) and (max-width:1760px){
+html[lang] .app-bar .brand small,html[lang] .app-bar .toolbar-sampling{display:none}
+html[lang] .app-bar{gap:8px;padding-inline:10px}
+html[lang] .app-bar .page-tabs .page-tab{padding-inline:9px}
+html[lang] .app-bar .global-controls button{padding-inline:7px}
+html[lang] .app-bar .language-control .language-icon{display:none}
+html[lang] .app-bar .language-control select{width:92px}
+html[lang] .app-bar .theme-control select{width:88px}
+html[lang] .app-bar .app-clock{min-width:0;padding-inline:8px}
+}
+/* Le lingue con testi più lunghi hanno bisogno di più spazio: il nome compare solo quando entra senza tagliare i comandi. */
+@media(min-width:761px) and (max-width:1639px){html[lang="de"] .app-bar .brand strong,html[lang="fr"] .app-bar .brand strong{display:none}}
+@media(min-width:761px) and (max-width:1559px){html[lang="es"] .app-bar .brand strong{display:none}}
 @media(min-width:761px) and (max-width:1380px){.app-bar .toolbar-sampling{display:none}}
 @media(min-width:761px) and (max-width:1240px){.app-bar .brand{display:none}}
 @media(min-width:761px) and (max-width:1200px){.app-bar{font-size:11px}.app-bar button,.app-bar select,.app-bar .app-clock{font-size:11px}.app-bar select{max-width:84px;padding-inline:5px}.app-bar .language-control .language-icon{display:none}}
