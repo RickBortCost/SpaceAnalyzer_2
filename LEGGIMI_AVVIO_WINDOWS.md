@@ -9,7 +9,7 @@
 ## Caratteristiche
 
 - Software interamente in C# (.NET 8 incluso nell’EXE): non serve installare Python, .NET o altri componenti.
-- Registrazione in **CSV**, **Parquet**, **FDA (.das)** e **RBF**; i file `.dat` esistenti si aprono e si visualizzano.
+- Registrazione in **CSV**, **Parquet**, **FDA (.das)** e **RBF**; i file `.dat` esistenti si aprono e si visualizzano, compresi i DAT scritti da ibaPDA (lettura sperimentale: canali numerati senza nome).
 - Pagina **Conversione**: un file CSV, Parquet, FDA (.das), RBF o DAT si converte in CSV, Parquet, FDA o RBF (segnali e intervallo a scelta); il risultato va nella sottocartella `Conversioni` delle registrazioni e l’originale non viene modificato.
 - Grafici: doppio clic su un segnale per aprirlo in un nuovo grafico; trascina un canale della legenda su un altro per condividere la scala Y (tasto destro sulla legenda per separarla).
 - Al primo avvio di una nuova versione il servizio viene estratto nella cartella dati (qualche secondo); gli avvii successivi riutilizzano i file già estratti.

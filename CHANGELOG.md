@@ -2,6 +2,15 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.5.1
+
+- **Apertura e conversione dei DAT scritti da ibaPDA (lettura sperimentale)**: finora si aprivano solo i DAT PDA3 del modello a 64 canali scritto da Space Analyzer 1.x; un DAT prodotto da ibaPDA veniva rifiutato con "record RLE 0x00 non supportato". Ora anche questi file si aprono in Registrazioni e si convertono nella pagina Conversione (ad esempio in Parquet). Motivo: richiesta di convertire i DAT acquisiti con ibaPDA.
+- **Valori Float32 o Double**: i blocchi dati usano la stessa codifica RLE del modello, ma con valori a 8 byte (Double); il lettore riconosce da solo la dimensione dei valori. I valori sono letti senza arrotondamenti. Motivo: era la differenza che bloccava la lettura.
+- **Canali senza nome, ricostruiti dalla struttura del file**: intestazione e indice dei file ibaPDA sono in formato proprietario non leggibile, quindi nomi e unità non sono disponibili; i canali si chiamano "Canale 01", "Canale 02"… nell'ordine dei blocchi finali. I blocchi di ogni canale vengono riconosciuti da: un blocco finale corto per canale (dà il numero di canali), stesso numero di campioni per tutti i canali, periodo ricavato dalla durata, blocchi scritti in ordine di tempo, salti tra blocchi consecutivi compatibili con la variazione del segnale. Fra le attribuzioni valide si sceglie quella con i salti minori, che deve essere nettamente migliore della seconda; se l'attribuzione è ambigua il file viene rifiutato invece di mescolare i canali. L'esito della verifica è riportato nella nota del file. Motivo: i dati devono restare quelli del canale giusto anche senza leggere l'indice.
+- **Orario**: dal calendario interno del file. Con **Apri file dal PC…** vale l'offset UTC indicato all'importazione; per un DAT copiato nella cartella delle registrazioni si usa il fuso orario del PC. Motivo: il file non indica il fuso orario.
+- Verifica sul DAT di ibaPDA ricevuto (25 canali, 60.000 campioni per canale a 10 ms, 600 s): attribuzione unica e completa, conversione in Parquet identica, valore per valore, a una decodifica indipendente.
+- Test: `Pda3GenericTests` (DAT sintetico con valori Double e blocchi interlacciati: canali, ordine, valori, tempi, intervallo e conversione in Parquet).
+
 ## 3.5.0
 
 - **Nuova sezione Conversione** (tra Registrazioni e Dati calcolati): si sceglie un file e lo si converte in un altro formato. Sorgenti: CSV, Parquet, FDA DAS4 (.das), RBF v3 e DAT (iba PDA3, anche aperti dal PC con **Apri file dal PC…**). Destinazioni: CSV, Apache Parquet, FDA DAS4 e RBF v3. Si possono scegliere i segnali (tutti o una parte) e un intervallo Da/A facoltativo; senza intervallo si converte tutto il file. Motivo: richiesta di convertire i file acquisiti e registrati (ad esempio un DAT in Parquet) senza aprirli nel grafico né esportare a mano un intervallo.

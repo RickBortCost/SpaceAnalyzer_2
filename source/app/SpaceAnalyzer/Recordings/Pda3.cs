@@ -29,6 +29,10 @@ public sealed class Pda3Reader
     public ulong StartTicks { get; }
     public ulong EndTicks { get; }
     public int DataStart { get; }
+    /// <summary>Bytes of each RLE value: 4 (Float32, model written by Space Analyzer 1.x) or 8 (Double, ibaPDA files).</summary>
+    public int ElementSize { get; private set; } = 4;
+    /// <summary>Channel layout of a DAT that is not the validated model (null for the model).</summary>
+    public Pda3Layout? Generic { get; internal set; }
 
     public Pda3Reader(string path)
     {
@@ -61,14 +65,7 @@ public sealed class Pda3Reader
                 if (cursor + 4 > footer || Blocks.Count >= MaxBlocks) throw new UserError("PDA3: catena blocchi non valida");
                 var length = BinaryPrimitives.ReadUInt32LittleEndian(raw.AsSpan((int)cursor));
                 if (length == 0 || cursor + 4 + length > footer) throw new UserError("PDA3: confine blocco non valido");
-                var block = new Block(Blocks.Count, Pages.Count, (int)cursor, (int)length, 0);
-                long total = 0;
-                foreach (var token in Tokens(block))
-                {
-                    total += token.Count;
-                    if (total > MaxSamplesPerBlock) throw new UserError("PDA3: espansione RLE oltre limite");
-                }
-                Blocks.Add(block with { Samples = total });
+                Blocks.Add(new Block(Blocks.Count, Pages.Count, (int)cursor, (int)length, 0));
                 number++;
                 cursor += 4 + length;
             }
@@ -83,12 +80,35 @@ public sealed class Pda3Reader
             if (!(end < next && next < raw.Length)) throw new UserError("PDA3: riferimento pagina successiva non valido");
             footer = next;
         }
+        // Float32 values first (the model); ibaPDA files store Double values with the same RLE records.
+        UserError? failure = null;
+        foreach (var size in new[] { 4, 8 })
+        {
+            try
+            {
+                ElementSize = size;
+                for (var i = 0; i < Blocks.Count; i++)
+                {
+                    long total = 0;
+                    foreach (var token in Tokens(Blocks[i]))
+                    {
+                        total += token.Count;
+                        if (total > MaxSamplesPerBlock) throw new UserError("PDA3: espansione RLE oltre limite");
+                    }
+                    Blocks[i] = Blocks[i] with { Samples = total };
+                }
+                return;
+            }
+            catch (UserError exc) { failure ??= exc; }
+        }
+        throw failure!;
     }
 
     public IEnumerable<Token> Tokens(Block block)
     {
         var p = block.Offset + 4;
         var end = p + block.Size;
+        var size = ElementSize;
         while (p < end)
         {
             var offset = p;
@@ -99,12 +119,12 @@ public sealed class Pda3Reader
             bool literal;
             if (op == 127)
             {
-                if (p + 6 > end) throw new UserError("PDA3: RLE16 troncato");
-                count = BinaryPrimitives.ReadUInt16LittleEndian(Raw.AsSpan(p + 4));
-                p += 6; literal = false;
+                if (p + size + 2 > end) throw new UserError("PDA3: RLE16 troncato");
+                count = BinaryPrimitives.ReadUInt16LittleEndian(Raw.AsSpan(p + size));
+                p += size + 2; literal = false;
             }
-            else if (op is >= 1 and <= 126) { count = op; p += 4; literal = false; }
-            else if (op >= 129) { count = op - 128; p += 4 * count; literal = true; }
+            else if (op is >= 1 and <= 126) { count = op; p += size; literal = false; }
+            else if (op >= 129) { count = op - 128; p += size * count; literal = true; }
             else throw new UserError($"PDA3: record RLE 0x{op:x2} non supportato all’offset {offset}");
             if (count == 0 || p > end) throw new UserError("PDA3: record RLE non valido o troncato");
             yield return new Token(offset, payload, p, count, literal);
@@ -112,18 +132,29 @@ public sealed class Pda3Reader
         if (p != end) throw new UserError("PDA3: confine RLE non rispettato");
     }
 
-    public IEnumerable<float> Values(Block block)
+    double Value(int offset) => ElementSize == 8 ? BinaryPrimitives.ReadDoubleLittleEndian(Raw.AsSpan(offset)) : BinaryPrimitives.ReadSingleLittleEndian(Raw.AsSpan(offset));
+
+    public IEnumerable<double> Values(Block block)
     {
         foreach (var t in Tokens(block))
         {
             if (t.Literal)
-                for (var i = t.Payload; i < t.End; i += 4) yield return BinaryPrimitives.ReadSingleLittleEndian(Raw.AsSpan(i));
+                for (var i = t.Payload; i < t.End; i += ElementSize) yield return Value(i);
             else
             {
-                var v = BinaryPrimitives.ReadSingleLittleEndian(Raw.AsSpan(t.Payload));
+                var v = Value(t.Payload);
                 for (var i = 0; i < t.Count; i++) yield return v;
             }
         }
+    }
+
+    /// <summary>First and last value of a block, without expanding it.</summary>
+    public (double first, double last) Ends(Block block)
+    {
+        Token? first = null, last = null;
+        foreach (var t in Tokens(block)) { first ??= t; last = t; }
+        if (first is not Token a || last is not Token b) throw new UserError("PDA3: blocco vuoto");
+        return (Value(a.Payload), Value(b.Literal ? b.End - ElementSize : b.Payload));
     }
 }
 
@@ -179,7 +210,13 @@ public static class Pda3
         var key = Path.GetFullPath(path) + "|" + info.Length + "|" + info.LastWriteTimeUtc.Ticks;
         if (Readers.TryGetValue(key, out var cached)) return cached;
         var reader = new Pda3Reader(path);
-        ValidateProfile(reader);
+        try { ValidateProfile(reader); }
+        catch (UserError model)
+        {
+            // Not the validated model (for example a file written by ibaPDA): channels rebuilt from the block structure, without names.
+            try { reader.Generic = Pda3Layout.Build(reader); }
+            catch (UserError generic) { throw new UserError(generic.Message + " (" + model.Message + ")"); }
+        }
         if (Readers.Count >= 4) Readers.Clear();
         Readers[key] = reader;
         return reader;
@@ -196,6 +233,7 @@ public static class Pda3
     public static JsonObject Details(string path, JsonObject? metadata)
     {
         var r = Reader(path);
+        if (r.Generic is Pda3Layout layout) return GenericDetails(r, layout, metadata);
         var p = Profile;
         var meta = (JsonObject)(metadata?.DeepClone() ?? new JsonObject());
         var count = ValidSampleCount(r);
@@ -276,10 +314,114 @@ public static class Pda3
         return (x >= 0 ? "+" : "") + s;
     }
 
+    /// <summary>A DAT outside the validated model: unnamed channels in the order of their final blocks, period from the header duration.</summary>
+    static JsonObject GenericDetails(Pda3Reader r, Pda3Layout layout, JsonObject? metadata)
+    {
+        var meta = (JsonObject)(metadata?.DeepClone() ?? new JsonObject());
+        var calendar = DateTime.Parse(Calendar(r.StartTicks), CultureInfo.InvariantCulture);
+        double offset;
+        string zone;
+        if (!meta["pda3_timezone_offset_minutes"].IsNull())
+        {
+            offset = meta["pda3_timezone_offset_minutes"].Float() ?? double.NaN;
+            if (!double.IsFinite(offset) || offset < -840 || offset > 840) throw new UserError("PDA3: fuso orario non valido");
+            zone = $"offset UTC {PyG(offset)} minuti scelto all’importazione";
+        }
+        else
+        {
+            offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.SpecifyKind(calendar, DateTimeKind.Unspecified)).TotalMinutes;
+            zone = $"fuso orario del PC (offset UTC {PyG(offset)} minuti)";
+        }
+        var start = Ms(calendar - TimeSpan.FromMinutes(offset));
+        var period = layout.PeriodMs;
+        var digits = layout.Channels >= 100 ? "000" : "00";
+        var signals = new JsonArray();
+        for (var k = 0; k < layout.Channels; k++)
+        {
+            var label = (k + 1).ToString(digits, CultureInfo.InvariantCulture);
+            signals.Add(new JsonObject { ["nodeid"] = "pda3:ch" + label, ["display_name"] = "Canale " + label, ["unit"] = "", ["template_index"] = k });
+        }
+        var check = layout.SecondCost is double second
+            ? $"scarto di continuità {layout.BestCost.ToString("G4", CultureInfo.InvariantCulture)} contro {second.ToString("G4", CultureInfo.InvariantCulture)} della seconda ipotesi"
+            : "unica attribuzione coerente";
+        check += layout.Strict ? ", salti tra blocchi compatibili con la variazione del segnale" : ", criterio di plausibilità dei salti non applicabile";
+        check += layout.Exhaustive ? ", verifica delle alternative completa" : ", verifica delle alternative non completata";
+        var note = $"DAT PDA3 non del modello validato (ad esempio ibaPDA), lettura sperimentale: {layout.Channels} canali {(r.ElementSize == 8 ? "Double" : "Float32")} " +
+                   $"ogni {PyG(period).TrimStart('+')} ms. Nomi e unità dei canali non disponibili: canali numerati nell’ordine dei blocchi finali e ricostruiti " +
+                   $"dalla struttura dei blocchi e dalla continuità dei valori ({check}). Orario dal calendario interno con {zone}.";
+        var result = (JsonObject)meta.DeepClone();
+        result["format"] = "dat";
+        result["pda3"] = true;
+        result["pda3_generic"] = true;
+        result["started_at"] = Values.IsoFromMs(start);
+        result["ended_at"] = Values.IsoFromMs(start + (layout.Samples - 1) * period);
+        result["duration_seconds"] = layout.Samples * period / 1000;
+        result["rows_written"] = layout.Samples * layout.Channels;
+        result["initial_sample_ms"] = period;
+        result["signals"] = signals;
+        result["real_start_ms"] = start;
+        result["valid_samples_per_channel"] = layout.Samples;
+        result["real_end_exclusive_ms"] = start + layout.Samples * period;
+        result["pda3_layout"] = new JsonObject
+        {
+            ["channels"] = layout.Channels, ["value_bytes"] = r.ElementSize, ["blocks"] = r.Blocks.Count, ["continuity_cost"] = layout.BestCost,
+            ["alternative_cost"] = layout.SecondCost, ["alternatives_checked"] = layout.Exhaustive, ["jump_plausibility"] = layout.Strict,
+        };
+        result["storage"] = new JsonObject { ["format"] = "pda3", ["label"] = $"iba DAT PDA3 · {(r.ElementSize == 8 ? "Double" : "Float32")} · {layout.Channels} canali (sperimentale)", ["lossless"] = false };
+        result["view_source_note"] = note;
+        result["timestamp_semantics"] = note;
+        result["quality_semantics"] = "Validità numerica del campione decodificato; qualità PLC originale non disponibile.";
+        return result;
+    }
+
+    static IEnumerable<Row> IterGeneric(Pda3Reader r, Pda3Layout layout, JsonObject info, ISet<string>? signalIds, double? startMs, double? endMs)
+    {
+        var start = info["real_start_ms"]!.AsDouble();
+        var period = layout.PeriodMs;
+        object sampleMs = period == Math.Floor(period) ? (long)period : period;
+        var type = r.ElementSize == 8 ? "Double" : "Float";
+        foreach (var signal in info["signals"]!.AsArray())
+        {
+            var nid = signal.Get("nodeid").Str()!;
+            if (signalIds != null && !signalIds.Contains(nid)) continue;
+            var name = RowValues.Str(Py.Plain(signal.Get("display_name")));
+            long position = 0;
+            foreach (var bi in layout.ChannelBlocks[(int)signal.Get("template_index")!.AsDouble()])
+            {
+                var block = r.Blocks[bi];
+                if (startMs != null && start + (position + block.Samples - 1) * period < startMs || endMs != null && start + position * period > endMs)
+                {
+                    position += block.Samples;
+                    continue;
+                }
+                foreach (var v in r.Values(block))
+                {
+                    var t = start + position * period;
+                    var good = double.IsFinite(v);
+                    position++;
+                    if (startMs != null && t < startMs || endMs != null && t > endMs) continue;
+                    yield return new Row
+                    {
+                        ["timestamp_ms"] = t, ["timestamp_utc"] = Values.IsoFromMs(t), ["elapsed_ms"] = (position - 1) * period, ["cycle"] = position,
+                        ["node_id"] = nid, ["signal_name"] = name, ["value_numeric"] = good ? v : null, ["value_text"] = PyJson.Str(v), ["data_type"] = type,
+                        ["good"] = good, ["quality"] = good ? "Good" : "Bad", ["status"] = good ? "PDA3DecodedNumeric" : "PDA3NonFinite", ["sample_ms"] = sampleMs,
+                        ["source_timestamp"] = null, ["server_timestamp"] = null, ["local_timestamp"] = null, ["ads_filetime"] = null,
+                    };
+                }
+            }
+            if (position != layout.Samples) throw new UserError("PDA3: conteggio canale non valido");
+        }
+    }
+
     public static IEnumerable<Row> IterRows(string path, JsonObject? meta, ISet<string>? signalIds = null, double? startMs = null, double? endMs = null)
     {
         var r = Reader(path);
         var info = Details(path, meta);
+        if (r.Generic is Pda3Layout layout)
+        {
+            foreach (var row in IterGeneric(r, layout, info, signalIds, startMs, endMs)) yield return row;
+            yield break;
+        }
         var start = info["real_start_ms"]!.AsDouble();
         var p = Profile;
         var count = info["valid_samples_per_channel"]!.AsLong();
@@ -303,7 +445,7 @@ public static class Pda3
                 {
                     if (position >= count) break;
                     var t = start + position * 10;
-                    var good = float.IsFinite(value);
+                    var good = double.IsFinite(value);
                     position++;
                     if (startMs != null && t < startMs || endMs != null && t > endMs) continue;
                     double v = value;

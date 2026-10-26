@@ -1,6 +1,6 @@
-SPACE FIELDBUS ANALYZER V3.5.0 WINDOWS x64
+SPACE FIELDBUS ANALYZER V3.5.1 WINDOWS x64
 
-Estrarre lo ZIP e avviare Space_Fieldbus_Analyzer_V3.5.0.exe.
+Estrarre lo ZIP e avviare Space_Fieldbus_Analyzer_V3.5.1.exe.
 Chiudere la versione precedente con Chiudi applicazione prima dell'avvio.
 L'interfaccia si apre in una finestra applicazione dedicata (Microsoft Edge
 in modalità app). Chiudere la finestra chiude l'applicazione e finalizza le
@@ -21,7 +21,7 @@ Registrazione: CSV, Parquet, FDA (.das), RBF. I file .dat si aprono e si
 visualizzano; la registrazione .dat non è più disponibile.
 Conversione: la pagina Conversione converte un file CSV, Parquet, FDA,
 RBF o DAT in CSV, Parquet, FDA o RBF (cartella Recordings\Conversioni).
-Strumenti: Space_Fieldbus_Analyzer_V3.5.0.exe --tool inspect|recover|export-fda|export-rbf.
+Strumenti: Space_Fieldbus_Analyzer_V3.5.1.exe --tool inspect|recover|export-fda|export-rbf.
 Dettagli: CHANGELOG.md, VERSIONE_3.0.md e LEGGIMI_AVVIO_WINDOWS.md.
 
 --- Note delle versioni precedenti ---

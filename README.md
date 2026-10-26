@@ -1,15 +1,14 @@
 # Space Fieldbus Analyzer 3
 
-**Versione 3.5.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.5.1.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.5.0
+## Novità della versione 3.5.1
 
-- Nuova sezione **Conversione**: si sceglie un file (CSV, Parquet, FDA DAS4, RBF o DAT, anche dal PC) e lo si converte in CSV, Parquet, FDA DAS4 o RBF, con tutti i segnali o una parte e con un intervallo facoltativo. Motivo: convertire i file registrati, ad esempio un DAT in Parquet, senza passare dal grafico.
-- Vengono scritti tutti i campioni originali; i limiti di FDA (Int16, 64 segnali) e RBF (64 segnali, 57.600 istanti per file) sono indicati prima di convertire. Motivo: sapere in anticipo se il formato scelto perde precisione.
-- I file convertiti vanno in `Conversioni` nella cartella delle registrazioni e si aprono subito con **Apri in Registrazioni**; l'originale non viene modificato. Motivo: ritrovarli senza cercarli.
-- Dalla 3.4.2: chiusura senza "Failed to fetch" e menu Impostazioni sempre visibile; dalla 3.4.0: nuovo nome Space Fieldbus Analyzer; dalla 3.3.0: rotella sul grafico LIVE per il periodo visualizzato.
+- I DAT scritti da ibaPDA (valori Double, numero di canali qualsiasi) si aprono in Registrazioni e si convertono nella pagina Conversione, ad esempio in Parquet. Motivo: prima venivano rifiutati con "record RLE 0x00 non supportato".
+- Lettura sperimentale: nomi e unità non sono leggibili (intestazione proprietaria), i canali sono numerati e ricostruiti dalla struttura dei blocchi; un'attribuzione ambigua viene rifiutata. Motivo: non mescolare i dati dei canali.
+- Dalla 3.5.0: nuova sezione **Conversione** (CSV, Parquet, FDA DAS4, RBF e DAT verso CSV, Parquet, FDA DAS4 o RBF); dalla 3.4.2: chiusura senza "Failed to fetch"; dalla 3.4.0: nuovo nome Space Fieldbus Analyzer.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 
