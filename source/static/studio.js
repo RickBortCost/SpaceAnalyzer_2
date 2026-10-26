@@ -300,3 +300,12 @@ window.opcuaConfigReady=loadConfig().then(async()=>{startPolling();await restore
   if(typeof MutationObserver!=='undefined')new MutationObserver(sync).observe(status,{attributes:true,attributeFilter:['class','title'],childList:true,characterData:true,subtree:true});
   sync();
 })();
+// Menu Impostazioni in posizione fissa sotto il pulsante (la barra superiore ritaglia i figli assoluti); si chiude con clic fuori, Esc e ridimensionamento.
+(function(){
+  const menu=document.querySelector('.app-bar .app-menu');if(!menu)return;
+  const place=()=>{const panel=menu.querySelector('.detail-content'),summary=menu.querySelector('summary');if(!menu.open||!panel||!summary)return;const r=summary.getBoundingClientRect();panel.style.top=Math.round(r.bottom+5)+'px';panel.style.right=Math.max(8,Math.round(window.innerWidth-r.right))+'px';};
+  menu.addEventListener('toggle',place);
+  window.addEventListener('resize',()=>{menu.open=false;});
+  document.addEventListener('click',e=>{if(menu.open&&!menu.contains(e.target))menu.open=false;});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.open){menu.open=false;menu.querySelector('summary')?.focus();}});
+})();

@@ -118,7 +118,8 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         }
         Post(app, "/api/shutdown", _ =>
         {
-            ThreadPool.QueueUserWorkItem(_ => shutdown());
+            // Lascia il tempo di consegnare la risposta prima di fermare il servizio: altrimenti la pagina vede "Failed to fetch".
+            ThreadPool.QueueUserWorkItem(_ => { Thread.Sleep(400); shutdown(); });
             return Task.FromResult<object?>(Ok());
         });
     }
