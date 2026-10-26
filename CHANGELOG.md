@@ -2,6 +2,12 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.4.2
+
+- **Chiusura dell'applicazione senza errore "Failed to fetch"**: premendo il pulsante Spegni la pagina mostrava l'errore "Failed to fetch" anche se l'applicazione si chiudeva. Il servizio ora attende circa 400 ms prima di fermarsi, così la risposta arriva alla pagina, e la pagina considera concluso lo spegnimento anche se la connessione cade subito dopo la richiesta. Motivo: il servizio si fermava prima di rispondere e la pagina interpretava la chiusura come un errore. Un errore vero restituito dal servizio continua a essere mostrato.
+- **Menu Impostazioni visibile durante la registrazione e in ogni larghezza**: il menu a tendina si apriva dentro la barra superiore, che ritaglia i contenuti oltre la sua altezza, quindi risultava tagliato o coperto dalla barra di registrazione. Ora si apre in posizione fissa sotto il pulsante, sopra a tutti gli altri elementi, e si chiude con clic fuori dal menu, con Esc o ridimensionando la finestra. Motivo: il menu doveva essere sempre leggibile e utilizzabile.
+- Test UI: `test_studio_ui.cjs` verifica posizione e chiusura del menu Impostazioni.
+
 ## 3.4.1
 
 - **Nome dell'applicazione sempre visibile nella barra superiore da 1500 px**: con la scala dello schermo al 125% (circa 1530 px di larghezza utile) il nome "Space Fieldbus Analyzer" spariva e restava solo il logo, perché compariva solo sopra 1760 px. Ora compare da 1500 px in su: in quella fascia la versione e REQ/REALE non sono nell'intestazione (la versione resta nella barra di stato, REQ/REALE nella diagnostica del Live), l'icona della lingua è nascosta e spaziature, tasti, selettori e orologio sono più compatti. Motivo: far stare il nome senza spostare o tagliare i comandi.

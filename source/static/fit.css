@@ -64,3 +64,6 @@ main.live-page,main.recordings-page{display:block;overflow-y:auto;overflow-x:hid
 .power-button{flex:none;display:inline-flex;align-items:center;justify-content:center;width:34px;min-height:30px;padding:0;color:var(--brand-error,#E53C14);background:var(--surface2);border:1px solid var(--line);border-radius:6px;cursor:pointer}
 .power-button:hover:not(:disabled){background:var(--brand-error,#E53C14);color:#fff;border-color:var(--brand-error,#E53C14)}
 .power-button:focus-visible{outline:2px solid var(--brand-error,#E53C14);outline-offset:2px}
+
+/* Menu Impostazioni: la barra superiore ritaglia i contenuti che escono dalla sua altezza, quindi il menu si apre in posizione fissa (coordinate calcolate da studio.js) e sta sopra a tutto. */
+.app-bar .app-menu[open]>.detail-content{position:fixed;top:58px;right:8px;left:auto;bottom:auto;z-index:300}

@@ -62,7 +62,7 @@ def main():
     else:
         app=args.app.absolute()
         command=[os.environ.get('DOTNET','dotnet'),str(app)] if app.suffix=='.dll' else [str(app)]
-    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'3.4.1'}
+    build=json.loads((args.exe.parent/'BUILD_MANIFEST.json').read_text('utf-8')) if packaged else {'version':'3.4.2'}
     report={'version':build['version'],'tested_at':datetime.now(timezone.utc).isoformat(),
             'platform':sys.platform,'packaged_exe_executed':packaged,'formats':{},
             'hardware_tested':False,'result':'FAIL'}
