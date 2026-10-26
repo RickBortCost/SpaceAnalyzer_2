@@ -34,6 +34,7 @@ public sealed class AppRuntime : IDisposable
     public RecordingLibrary Library { get; private set; }
     public RecordingLibrary Imported { get; }
     public Comparisons Comparisons { get; }
+    public Conversions Conversions { get; }
     public PrimaryRecovery Recovery { get; private set; }
 
     /// <summary>Serializes connect, selection, Record and formula edits (runtime.command_lock).</summary>
@@ -112,6 +113,7 @@ public sealed class AppRuntime : IDisposable
         Library = new RecordingLibrary(paths.RecordingsDir);
         Imported = new RecordingLibrary(paths.ImportedRecordingsDir);
         Comparisons = new Comparisons(paths.ImportedRecordingsDir);
+        Conversions = new Conversions(() => Path.Combine(paths.RecordingsDir, Conversions.Folder));
         Recovery = new PrimaryRecovery(Path.Combine(paths.RecordingsDir, ".primary"), Events);
         liveThread = new Thread(LiveLoop) { IsBackground = true, Name = "live-display" };
         liveThread.Start();
@@ -964,6 +966,7 @@ public sealed class AppRuntime : IDisposable
         Acquisition.Close();
         Calculations.Close();
         Comparisons.Close();
+        Conversions.Close();
         Events.Close();
         Archive.Dispose();
     }

@@ -1,0 +1,26 @@
+<main class="conversion-page" id="conversion-page" hidden="">
+<section class="card conversion-files" aria-labelledby="conv-files-title">
+<div class="section-title"><h2 id="conv-files-title" data-i18n="Conversione">Conversione</h2><button class="ghost" id="conv-refresh" type="button" data-i18n="Aggiorna">Aggiorna</button></div>
+<p class="small" data-i18n="Converte una registrazione in un altro formato. Il file originale non viene modificato.">Converte una registrazione in un altro formato. Il file originale non viene modificato.</p>
+<div class="conversion-file-tools"><input id="conv-search" type="search" placeholder="Filtra file…" aria-label="Filtra file" data-i18n-placeholder="Filtra file…" data-i18n-aria-label="Filtra file"><button class="ghost" id="conv-open-local" type="button" data-i18n="Apri file dal PC…">Apri file dal PC…</button><input accept=".csv,.parquet,.das,.rbf,.dat,.json" multiple="" hidden="" id="conv-local-file" type="file"></div>
+<div class="conversion-file-list" id="conv-file-list" role="listbox" aria-label="File disponibili" data-i18n-aria-label="File disponibili"></div>
+<p class="small" id="conv-list-status" role="status"></p>
+</section>
+<section class="card conversion-settings" aria-labelledby="conv-title">
+<div class="section-title"><h2 id="conv-title" data-i18n="Nessun file selezionato">Nessun file selezionato</h2></div>
+<dl class="conversion-info" id="conv-info"></dl>
+<div class="conversion-form" id="conv-form" hidden="">
+<div class="conversion-format"><label for="conv-format" data-i18n="Formato di destinazione">Formato di destinazione</label><select id="conv-format"><option value="csv">CSV</option><option value="parquet">Apache Parquet</option><option value="das">FDA DAS4 (.das)</option><option value="rbf">RBF v3 (.rbf)</option></select><p class="small" id="conv-format-note"></p></div>
+<fieldset class="conversion-signals"><legend data-i18n="Segnali">Segnali</legend>
+<div class="conversion-signal-tools"><label class="checkline"><input id="conv-all" type="checkbox" checked=""><span data-i18n="Tutti">Tutti</span></label><input id="conv-signal-search" type="search" placeholder="Filtra segnali…" aria-label="Filtra segnali" data-i18n-placeholder="Filtra segnali…" data-i18n-aria-label="Filtra segnali"><span class="small" id="conv-signal-count"></span></div>
+<div class="conversion-signal-list" id="conv-signal-list"></div>
+</fieldset>
+<details class="conversion-interval" id="conv-interval"><summary data-i18n="Intervallo (facoltativo)">Intervallo (facoltativo)</summary><div class="row"><div><label for="conv-from" data-i18n="Da">Da</label><input id="conv-from" type="datetime-local" step="0.001"></div><div><label for="conv-to" data-i18n="A">A</label><input id="conv-to" type="datetime-local" step="0.001"></div></div><p class="small" data-i18n="Lasciare l’intervallo completo per convertire tutto il file.">Lasciare l’intervallo completo per convertire tutto il file.</p><button class="ghost" id="conv-full-range" type="button" data-i18n="Intero file">Intero file</button></details>
+<p class="small break" id="conv-destination"></p>
+<p class="record-error" hidden="" id="conv-error" role="alert"></p>
+<div class="toolbar"><button class="primary" id="conv-start" type="button" data-i18n="Converti">Converti</button><button class="ghost" hidden="" id="conv-cancel" type="button" data-i18n="Annulla">Annulla</button></div>
+<div class="conversion-progress" hidden="" id="conv-progress-box"><progress id="conv-progress" max="1"></progress><span class="small" id="conv-status" role="status"></span></div>
+<div class="conversion-result" hidden="" id="conv-result"><h3 data-i18n="File creati">File creati</h3><ul id="conv-result-list"></ul></div>
+</div>
+</section>
+</main>

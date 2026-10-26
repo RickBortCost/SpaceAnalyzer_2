@@ -676,6 +676,10 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         });
         Post(app, "/api/recordings/compare", async ctx => Ok(("job", rt.Comparisons.Start(await Http.Json(ctx, silent: true) ?? new JsonObject(), s => Source(JsonValue.Create(s))))));
         Get(app, "/api/recordings/compare/{ident}", ctx => Task.FromResult<object?>(Ok(("job", rt.Comparisons.Status((string)ctx.Request.RouteValues["ident"]!)))));
+        // Conversion of a recording into another format (Conversione page): background job, output in Recordings/Conversioni.
+        Post(app, "/api/convert", async ctx => Ok(("job", rt.Conversions.Start(await Http.Json(ctx, silent: true) ?? new JsonObject(), s => Source(JsonValue.Create(s))))));
+        Get(app, "/api/convert/{ident}", ctx => Task.FromResult<object?>(Ok(("job", rt.Conversions.Status((string)ctx.Request.RouteValues["ident"]!)))));
+        Post(app, "/api/convert/{ident}/cancel", ctx => Task.FromResult<object?>(Ok(("job", rt.Conversions.Cancel((string)ctx.Request.RouteValues["ident"]!)))));
         Post(app, "/api/recordings/markers", async ctx =>
         {
             var data = await Http.Json(ctx, silent: true) ?? new JsonObject();

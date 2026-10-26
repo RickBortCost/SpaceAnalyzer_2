@@ -47,9 +47,9 @@ function localInputFromIso(value){const t=Date.parse(value||'');return Number.is
 function msFromLocalInput(value){if(!value)return null;const t=new Date(value).getTime();return Number.isFinite(t)?t:null;}
 function historyFormatStamp(value){const t=Date.parse(value||'');return Number.isFinite(t)?new Date(t).toLocaleString(I18N.locale()):'—';}
 function showAppPage(page){
-  window.currentAppPage=page;const history=page==='recordings',calculated=page==='calculations',ssh=page==='ssh';H('live-page').hidden=page!=='live';H('recordings-page').hidden=!history;if(H('calculations-page'))H('calculations-page').hidden=!calculated;if(H('ssh-page'))H('ssh-page').hidden=!ssh;
-  for(const [id,active] of [['nav-live',page==='live'],['nav-recordings',history],...(H('nav-calculations')?[['nav-calculations',calculated]]:[]),...(H('nav-ssh')?[['nav-ssh',ssh]]:[])]){H(id).classList.toggle('active',active);H(id).setAttribute('aria-pressed',String(active));}
-  if(ssh)window.openSSHPage?.();if(calculated)window.openCalculationsPage?.();if(history)refreshHistoryFiles().catch(e=>notice(e.message,true));
+  window.currentAppPage=page;const history=page==='recordings',calculated=page==='calculations',ssh=page==='ssh',conversion=page==='conversion';H('live-page').hidden=page!=='live';H('recordings-page').hidden=!history;if(H('calculations-page'))H('calculations-page').hidden=!calculated;if(H('ssh-page'))H('ssh-page').hidden=!ssh;if(H('conversion-page'))H('conversion-page').hidden=!conversion;
+  for(const [id,active] of [['nav-live',page==='live'],['nav-recordings',history],...(H('nav-calculations')?[['nav-calculations',calculated]]:[]),...(H('nav-ssh')?[['nav-ssh',ssh]]:[]),...(H('nav-conversion')?[['nav-conversion',conversion]]:[])]){H(id).classList.toggle('active',active);H(id).setAttribute('aria-pressed',String(active));}
+  if(ssh)window.openSSHPage?.();if(conversion)window.openConversionPage?.();if(calculated)window.openCalculationsPage?.();if(history)refreshHistoryFiles().catch(e=>notice(e.message,true));
   setTimeout(()=>{(history?historyCharts:liveCharts).draw();},0);
 }
 function storeHistoryInputs(graph=historyCharts.active){
