@@ -1,0 +1,15 @@
+.conversion-page{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:16px;padding:18px;max-width:1600px;width:100%;box-sizing:border-box;margin:0 auto;align-items:start;align-content:start}body>main.conversion-page{flex:1 1 auto;min-height:0;overflow:auto}.conversion-page[hidden]{display:none!important}.conversion-page .card{min-width:0}.conversion-page h2{font-size:19px;overflow-wrap:anywhere}
+.conversion-file-tools{display:flex;gap:8px;margin:10px 0}.conversion-file-tools input{flex:1;min-width:0}
+.conversion-file-list{display:flex;flex-direction:column;gap:5px;max-height:calc(100vh - 260px);min-height:120px;overflow:auto;padding-right:3px}
+.conversion-file{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 8px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 10px;border-radius:6px;min-height:0}
+.conversion-file strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.conversion-file .small{grid-column:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conversion-file:hover:not(:disabled){background:var(--hover)}.conversion-file.active{border-color:var(--blue);box-shadow:inset 3px 0 0 var(--blue)}
+.conversion-badge{grid-row:span 2;align-self:center;font:600 10px/1 system-ui,sans-serif;padding:4px 6px;border-radius:4px;border:1px solid var(--blue);color:var(--blue);background:transparent;min-width:64px;box-sizing:border-box;text-align:center}
+.conversion-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 16px;margin:4px 0 14px}.conversion-info>div{min-width:0}.conversion-info dt{font-size:11px;color:var(--muted)}.conversion-info dd{margin:0;font-weight:600}
+.conversion-form{display:flex;flex-direction:column;gap:12px}.conversion-format select{max-width:320px}
+.conversion-signals{border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}.conversion-signal-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.conversion-signal-tools input[type=search]{flex:1;min-width:160px}
+.conversion-signal-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:2px 12px;max-height:260px;overflow:auto;margin-top:8px}.conversion-signal-list .checkline span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#conv-signal-count.warning{color:var(--danger);font-weight:600}
+.conversion-progress{display:flex;flex-direction:column;gap:4px}.conversion-progress progress{width:100%;height:10px}#conv-status.error{color:var(--danger)}
+.conversion-result ul{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:6px}.conversion-result li{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+@media(max-width:900px){.conversion-page{grid-template-columns:1fr;padding:10px}.conversion-file-list{max-height:300px}}

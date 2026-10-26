@@ -2,6 +2,16 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.5.0
+
+- **Nuova sezione Conversione** (tra Registrazioni e Dati calcolati): si sceglie un file e lo si converte in un altro formato. Sorgenti: CSV, Parquet, FDA DAS4 (.das), RBF v3 e DAT (iba PDA3, anche aperti dal PC con **Apri file dal PC…**). Destinazioni: CSV, Apache Parquet, FDA DAS4 e RBF v3. Si possono scegliere i segnali (tutti o una parte) e un intervallo Da/A facoltativo; senza intervallo si converte tutto il file. Motivo: richiesta di convertire i file acquisiti e registrati (ad esempio un DAT in Parquet) senza aprirli nel grafico né esportare a mano un intervallo.
+- **Tutti i campioni originali**: la conversione scrive ogni campione della selezione con valore, qualità e timestamp, senza riduzione. Gli istanti in cui un canale FDA/RBF non ha un valore ("mancante") non sono campioni e non vengono riportati. Nomi, unità di misura, periodo di campionamento e dati della sessione passano nei metadati del nuovo file. Motivo: il file convertito deve contenere gli stessi dati dell'originale.
+- **Limiti dei formati indicati prima di convertire**: FDA DAS4 salva valori Int16 scalati (l'errore di arrotondamento è nei metadati) e tempi al millisecondo; FDA e RBF accettano al massimo 64 segnali; un file RBF contiene al massimo 57.600 istanti, quindi le registrazioni più lunghe vengono divise in più parti. CSV e Parquet sono senza perdita. Motivo: chiarire quando il formato di destinazione perde precisione.
+- **Conversione in background con avanzamento e annullamento**: la pagina mostra i campioni letti (con percentuale quando il totale è noto) e la fase di scrittura; **Annulla** interrompe la lettura ed elimina i file parziali. Una conversione alla volta. Motivo: i file grandi richiedono tempo e l'interfaccia deve restare utilizzabile.
+- **Destinazione**: i file convertiti vanno nella sottocartella `Conversioni` della cartella delle registrazioni (quella scelta con **Cambia…**), compaiono nella pagina Registrazioni e si aprono subito con **Apri in Registrazioni**. Il file originale non viene modificato; un nome già esistente non viene sovrascritto. Motivo: ritrovare i file convertiti senza cercarli e senza rischiare di perdere l'originale.
+- Servizio: `POST /api/convert`, `GET /api/convert/{id}`, `POST /api/convert/{id}/cancel`.
+- Test: `ConversionTests` (CSV→Parquet, Parquet→FDA/RBF, FDA→CSV con selezione di segnali e intervallo, richieste non valide, nessun file intermedio residuo) e `test_conversion_ui.cjs` (navigazione, conversioni, file dal PC, errore su selezione vuota, apertura in Registrazioni, lingua).
+
 ## 3.4.2
 
 - **Chiusura dell'applicazione senza errore "Failed to fetch"**: premendo il pulsante Spegni la pagina mostrava l'errore "Failed to fetch" anche se l'applicazione si chiudeva. Il servizio ora attende circa 400 ms prima di fermarsi, così la risposta arriva alla pagina, e la pagina considera concluso lo spegnimento anche se la connessione cade subito dopo la richiesta. Motivo: il servizio si fermava prima di rispondere e la pagina interpretava la chiusura come un errore. Un errore vero restituito dal servizio continua a essere mostrato.
