@@ -65,7 +65,7 @@ public static class Import
                 meta["display_name"] = original;
                 if (suffix == ".dat")
                 {
-                    if (!Pda3.IsPda3(target)) throw new UserError("Import DAT: solo PDA3 del modello 64 canali validato; varianti legacy/ignote non supportate");
+                    if (!Pda3.IsPda3(target)) throw new UserError("Import DAT: sono supportati solo i DAT PDA3 (modello Space Analyzer e file ibaPDA in lettura sperimentale)");
                     if (!meta["pda3_profile"].Truthy())
                     {
                         var offset = form["pda3_timezone_offset_minutes"].ToString();
