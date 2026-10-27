@@ -1,0 +1,39 @@
+<main class="influx-page" id="influx-page" hidden="">
+<section class="card history-browser influx-browser" aria-labelledby="influx-title">
+<div class="section-title"><h2 id="influx-title">InfluxDB</h2><span class="influx-state" id="influx-state" role="status" data-i18n="Non connesso">Non connesso</span></div>
+<details class="influx-connection" id="influx-connection" open="">
+<summary data-i18n="Connessione al server">Connessione al server</summary>
+<div class="influx-form">
+<label for="influx-url" data-i18n="Indirizzo del server">Indirizzo del server</label>
+<input id="influx-url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="http://localhost:8086" value="http://localhost:8086">
+<label for="influx-token" data-i18n="Token di accesso">Token di accesso</label>
+<input id="influx-token" type="password" autocomplete="off" spellcheck="false" placeholder="API token (sola lettura)" data-i18n-placeholder="API token (sola lettura)">
+<label for="influx-org" data-i18n="Organizzazione (vuoto = automatica)">Organizzazione (vuoto = automatica)</label>
+<input id="influx-org" type="text" autocomplete="off" spellcheck="false">
+<label class="checkline"><input id="influx-tls" type="checkbox"><span data-i18n="Accetta certificati TLS non verificati">Accetta certificati TLS non verificati</span></label>
+<div class="toolbar"><button class="primary" id="influx-connect" type="button" data-i18n="Connetti">Connetti</button><button class="ghost" id="influx-forget" type="button" data-i18n="Dimentica il token">Dimentica il token</button></div>
+<p class="small" id="influx-error" role="alert" hidden=""></p>
+</div>
+</details>
+<div class="influx-catalog-tools">
+<label for="influx-bucket" data-i18n="Bucket">Bucket</label><select id="influx-bucket" disabled=""></select>
+<label class="checkline"><input id="influx-system" type="checkbox"><span data-i18n="Mostra i bucket di sistema">Mostra i bucket di sistema</span></label>
+<label for="influx-lookback" data-i18n="Cerca le serie con dati negli ultimi">Cerca le serie con dati negli ultimi</label>
+<select id="influx-lookback"><option value="86400" data-i18n="24 ore">24 ore</option><option value="604800" data-i18n="7 giorni">7 giorni</option><option value="2592000" selected="" data-i18n="30 giorni">30 giorni</option><option value="31536000" data-i18n="1 anno">1 anno</option></select>
+<button class="ghost" id="influx-refresh" type="button" data-i18n="Aggiorna l'elenco">Aggiorna l'elenco</button>
+</div>
+<input id="influx-search" type="search" placeholder="Filtra misure, campi e tag…" aria-label="Filtra serie" data-i18n-placeholder="Filtra misure, campi e tag…" data-i18n-aria-label="Filtra serie">
+<div class="influx-series" id="influx-series" role="group" aria-label="Serie disponibili" data-i18n-aria-label="Serie disponibili"></div>
+<p class="small" id="influx-list-status" role="status"></p>
+<div class="influx-range">
+<div class="influx-presets" id="influx-presets" role="group" aria-label="Periodo" data-i18n-aria-label="Periodo"><button type="button" class="ghost" data-preset="300">5 min</button><button type="button" class="ghost" data-preset="900">15 min</button><button type="button" class="ghost active" data-preset="3600">1 h</button><button type="button" class="ghost" data-preset="21600">6 h</button><button type="button" class="ghost" data-preset="86400">24 h</button><button type="button" class="ghost" data-preset="604800">7 g</button><button type="button" class="ghost" data-preset="2592000">30 g</button><button type="button" class="ghost" data-preset="0" data-i18n="Intervallo">Intervallo</button></div>
+<div class="influx-custom" id="influx-custom" hidden=""><label for="influx-from" data-i18n="Da">Da</label><input id="influx-from" type="datetime-local" step="1"><label for="influx-to" data-i18n="A">A</label><input id="influx-to" type="datetime-local" step="1"></div>
+<div class="influx-options"><label for="influx-aggregate" data-i18n="Riduzione dei dati">Riduzione dei dati</label><select id="influx-aggregate"><option value="auto" data-i18n="Automatica (media)">Automatica (media)</option><option value="mean" data-i18n="Media">Media</option><option value="min" data-i18n="Minimo">Minimo</option><option value="max" data-i18n="Massimo">Massimo</option><option value="last" data-i18n="Ultimo valore">Ultimo valore</option><option value="median" data-i18n="Mediana">Mediana</option><option value="raw" data-i18n="Tutti i punti (fino a 500.000)">Tutti i punti (fino a 500.000)</option></select>
+<label for="influx-refresh-every" data-i18n="Aggiornamento automatico">Aggiornamento automatico</label><select id="influx-refresh-every"><option value="0" data-i18n="No">No</option><option value="5">5 s</option><option value="10">10 s</option><option value="30">30 s</option><option value="60">60 s</option></select></div>
+</div>
+<div class="toolbar"><button class="primary" id="influx-load" type="button" data-i18n="Apri nel grafico">Apri nel grafico</button><button class="ghost" id="influx-clear-selection" type="button" data-i18n="Deseleziona">Deseleziona</button></div>
+</section>
+<section class="graph-main influx-graph-main"><div class="record-status" id="influx-status" role="status" data-i18n="Collega un server InfluxDB, scegli le serie e il periodo.">Collega un server InfluxDB, scegli le serie e il periodo.</div>
+<div class="workspace-toolbar"><div><h2 data-i18n="Dati InfluxDB">Dati InfluxDB</h2></div><div class="toolbar"><label for="influx-active-chart" data-i18n="Grafico di destinazione">Grafico di destinazione</label><select id="influx-active-chart"></select><label for="influx-layout" data-i18n="Disposizione">Disposizione</label><select id="influx-layout"><option value="single" data-i18n="1 grafico">1 grafico</option><option value="vertical" data-i18n="2 verticali">2 verticali</option><option value="horizontal" data-i18n="2 orizzontali">2 orizzontali</option><option value="quad" data-i18n="4 grafici">4 grafici</option><option selected="" value="stack" data-i18n="Libero · colonna">Libero · colonna</option><option value="grid" data-i18n="Libero · griglia">Libero · griglia</option></select><button class="primary" id="influx-add-chart" type="button" title="Aggiungi un grafico vuoto" data-i18n="+ Grafico vuoto" data-i18n-title="Aggiungi un grafico vuoto">+ Grafico vuoto</button><details class="sync-menu"><summary data-i18n="Sincronizzazione">Sincronizzazione</summary><div class="detail-content"><label class="checkline"><input checked="" id="influx-sync-zoom" type="checkbox"><span data-i18n=" Sincronizza asse X"> Sincronizza asse X</span></label><label class="checkline"><input checked="" id="influx-sync-hover" type="checkbox"><span data-i18n=" Crosshair comune"> Crosshair comune</span></label></div></details></div></div>
+<div class="charts-workspace" id="influx-charts"></div></section>
+</main>

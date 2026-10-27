@@ -67,3 +67,11 @@ main.live-page,main.recordings-page{display:block;overflow-y:auto;overflow-x:hid
 
 /* Menu Impostazioni: la barra superiore ritaglia i contenuti che escono dalla sua altezza, quindi il menu si apre in posizione fissa (coordinate calcolate da studio.js) e sta sopra a tutto. */
 .app-bar .app-menu[open]>.detail-content{position:fixed;top:58px;right:8px;left:auto;bottom:auto;z-index:300}
+
+/* Menu Strumenti: raggruppa le pagine meno usate (Conversione, Dati calcolati, Debug SSH) in un'unica voce della barra. */
+.page-tabs .tools-menu{position:relative;display:inline-flex}
+.page-tabs .tools-menu>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center}
+.page-tabs .tools-menu>summary::-webkit-details-marker{display:none}
+.page-tabs .tools-menu>summary::after{content:'▾';margin-left:5px;font-size:10px}
+.app-bar .tools-menu[open]>.detail-content{position:fixed;top:58px;left:8px;z-index:300;display:grid;gap:4px;min-width:190px;padding:7px;background:var(--surface);border:1px solid var(--line);border-radius:7px;box-shadow:var(--shadow)}
+.tools-menu .detail-content .page-tab{width:100%;text-align:left;justify-content:flex-start;border-radius:5px}

@@ -2,6 +2,17 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.7.0
+
+- **Nuova pagina InfluxDB**: collegamento a un server InfluxDB 2.x (indirizzo e token di sola lettura), elenco automatico di bucket, misure, campi e tag con il tipo di ogni campo, scelta delle serie e del periodo (5 min … 30 g oppure inizio e fine a scelta) e visualizzazione nei grafici con marker, FFT/Export, scale Y condivise e più grafici indipendenti. Motivo: leggere e graficare i dati di un database InfluxDB senza passare da file.
+- **Il più automatico possibile**: l'organizzazione si ricava dai bucket del token; al collegamento l'elenco delle serie si costruisce da solo e il primo grafico si apre con la prima misura numerica; la connessione si ristabilisce da sola con il token salvato (mai rimandato all'interfaccia, solo le ultime quattro cifre); i periodi relativi finiscono all'ultimo dato se il server non riceve dati da più di 5 minuti.
+- **Riduzione automatica dei dati**: se il periodo contiene meno punti di quanti il grafico ne mostra, arrivano tutti esatti; altrimenti i dati sono ridotti dal server InfluxDB a finestre di durata tonda con media (o minimo, massimo, ultimo valore, mediana a scelta), con i punti al centro della finestra; "Tutti i punti" legge fino a 500.000 punti per serie. Con lo zoom i dati dell'intervallo visibile sono riletti con più dettaglio e il ripristino torna al periodo scelto. Motivo: grafici fluidi anche con milioni di punti nel periodo.
+- Serie booleane disegnate come 0/1; serie di testo elencate ma non selezionabili; aggiornamento automatico opzionale (5–60 s).
+- Nomi di misure, campi e tag sono inseriti nelle query Flux sempre tra virgolette con escape (anche `\`, `"` e `${`), quindi non possono alterare la query.
+- **Menu Strumenti**: Conversione, Dati calcolati e Debug SSH sono raggruppati in un menu "Strumenti" della barra superiore. Motivo: con la nuova pagina le voci non entravano più su una riga; la barra resta su una riga da 1500 a 1920 px in tutte le lingue. Il menu si apre in posizione fissa e si chiude con clic fuori, Esc o scelta di una voce.
+- Test: `InfluxTests` (analisi del CSV annotato di InfluxDB, quoting Flux, finestre, indirizzi), `test_influx_ui.cjs` (connessione, token errato, elenco, valori e tempi esatti, riduzione, booleani, intervallo, zoom, più grafici, riconnessione) contro un server InfluxDB di prova (`influx_peer.py`); guida in `source/GUIDA_INFLUXDB.md`.
+- **Non verificato con un server InfluxDB reale**: i test usano un server di prova che riproduce le risposte dell'API 2.x; il collegamento a una vera istanza 2.7.12 va provato dall'utente.
+
 ## 3.6.0
 
 - **Tipo di dato scelto automaticamente in base ai dati acquisiti**: l'app ora ricava da sola il tipo più stretto che resta esatto per ciascun segnale, in base al tipo acquisito (ad esempio UINT a 16 bit) e ai valori realmente registrati. Nessuna impostazione da fare. I segnali a 32 bit, a 64 bit (Double, Int64, …) e Float non vengono mai ristretti: restano a piena precisione dove il formato lo permette. Motivo: risparmiare memoria e spazio senza perdere nulla.

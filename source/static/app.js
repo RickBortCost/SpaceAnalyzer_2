@@ -57,7 +57,7 @@ const trend=liveCharts.charts[0].trend; // First-chart compatibility for existin
 
 async function request(url,body,method){
   const options={headers:{'X-OPCUA-Token':token}};
-  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url==='/api/recordings/location/browse'?1800000:url==='/api/live/history'?600000:url.startsWith('/api/analysis/')?600000:(url==='/api/recordings'||url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
+  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url==='/api/recordings/location/browse'?1800000:url==='/api/live/history'?600000:url.startsWith('/api/analysis/')?600000:(url==='/api/recordings'||url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/')||url.startsWith('/api/influx/'))?240000:30000;
   if(typeof AbortController!=='undefined'){
     controller=new AbortController();options.signal=controller.signal;
     timer=setTimeout(()=>controller.abort(),timeoutMs);

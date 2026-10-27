@@ -1,0 +1,15 @@
+.influx-page{display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);gap:12px;padding:10px 12px 8px;align-items:stretch;width:100%;box-sizing:border-box;margin:0}
+body>main.influx-page{flex:1 1 auto;min-height:0!important;overflow:hidden}.influx-page[hidden]{display:none!important}
+.influx-browser{display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0;overflow:auto}
+.influx-graph-main{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;gap:8px}
+.influx-state{font:600 11px/1 system-ui,sans-serif;padding:4px 8px;border-radius:10px;border:1px solid var(--line);color:var(--muted,inherit)}.influx-state.ok{border-color:#2e9b57;color:#2e9b57}
+.influx-form{display:grid;gap:6px;margin-top:8px}.influx-form input[type=text],.influx-form input[type=password]{width:100%;box-sizing:border-box}
+.influx-connection>summary{cursor:pointer;font-weight:600}.influx-catalog-tools{display:grid;gap:5px}.influx-catalog-tools select{width:100%}
+.influx-series{display:flex;flex-direction:column;gap:4px;min-height:140px;max-height:42vh;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:4px}
+.influx-group>summary{cursor:pointer;padding:4px 2px}.influx-series-row{display:grid;grid-template-columns:auto minmax(0,auto) minmax(0,1fr) auto;gap:6px;align-items:center;padding:3px 4px 3px 14px;border-radius:4px;cursor:pointer}
+.influx-series-row:hover{background:var(--hover)}.influx-series-row.disabled{opacity:.5;cursor:not-allowed}.influx-field{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.influx-tags{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.influx-type{font:600 10px/1 system-ui,sans-serif;padding:3px 5px;border:1px solid var(--line);border-radius:4px}
+.influx-presets{display:flex;flex-wrap:wrap;gap:4px}.influx-presets button{padding:4px 8px}.influx-presets button.active{border-color:var(--blue);color:var(--blue);box-shadow:inset 0 -2px var(--blue)}
+.influx-custom{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;margin-top:6px}.influx-options{display:grid;gap:5px;margin-top:6px}.influx-options select{width:100%}
+.influx-range{display:grid;gap:4px}
+@media(max-width:900px){.influx-page{grid-template-columns:1fr;overflow:auto}body>main.influx-page{overflow:auto}.influx-series{max-height:260px}}

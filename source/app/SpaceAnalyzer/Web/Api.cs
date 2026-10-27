@@ -8,6 +8,7 @@ using SpaceAnalyzer.App.Analysis;
 using SpaceAnalyzer.App.Calculations;
 using SpaceAnalyzer.App.Config;
 using SpaceAnalyzer.App.Infrastructure;
+using SpaceAnalyzer.App.Influx;
 using SpaceAnalyzer.App.Live;
 using SpaceAnalyzer.App.Recordings;
 using SpaceAnalyzer.App.Runtime;
@@ -26,6 +27,7 @@ public sealed record FileDownload(string Path, string Name, string ContentType =
 public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shutdown)
 {
     readonly Queue<DateTime> frontendLog = new();
+    readonly InfluxService influx = new(rt.Paths.DataDir);
     AppPaths Paths => rt.Paths;
 
     delegate Task<object?> Handler(HttpContext ctx);
@@ -85,6 +87,7 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         MapCalculations(app);
         MapAnalysis(app);
         MapSsh(app);
+        MapInflux(app);
         Get(app, "/api/logs", _ =>
         {
             var path = Paths.LogFile;
@@ -122,6 +125,17 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             ThreadPool.QueueUserWorkItem(_ => { Thread.Sleep(400); shutdown(); });
             return Task.FromResult<object?>(Ok());
         });
+    }
+
+    // ---- InfluxDB 2.x (read-only): connection, catalog and time series for the charts ------------------
+
+    void MapInflux(WebApplication app)
+    {
+        Get(app, "/api/influx/settings", _ => Task.FromResult<object?>(Ok(("settings", influx.PublicSettings()))));
+        Post(app, "/api/influx/connect", async ctx => Http.Ok(("connection", await influx.Connect(await Http.Object(ctx, silent: true), ctx.RequestAborted))));
+        Post(app, "/api/influx/forget", _ => { influx.Forget(); return Task.FromResult<object?>(Ok()); });
+        Post(app, "/api/influx/catalog", async ctx => Http.Ok(("catalog", await influx.Catalog(await Http.Object(ctx, silent: true), ctx.RequestAborted))));
+        Post(app, "/api/influx/samples", async ctx => await influx.Samples(await Http.Object(ctx, silent: true), ctx.RequestAborted));
     }
 
     // ---- Configuration, settings, certificates --------------------------------------------

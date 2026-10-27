@@ -294,6 +294,10 @@ def main():
                     payload['newfield' + str(i // 100)] = i
                 peers['mqtt'].publish('plant/motor', payload, qos=1)
         threading.Thread(target=publish, daemon=True).start()
+    if SCRIPT == 'test_influx_ui.cjs':
+        from influx_peer import Peer as InfluxPeer
+        peers['influx'] = InfluxPeer()
+        os.environ['TEST_INFLUX_PORT'] = str(peers['influx'].port)
     if SCRIPT == 'test_ssh_ui.cjs':
         from ssh_peer import Peer as SSHPeer
         peers['ssh'] = SSHPeer()
@@ -331,6 +335,8 @@ def main():
             peers['mqtt'].close()
         if 'ssh' in peers:
             peers['ssh'].close()
+        if 'influx' in peers:
+            peers['influx'].close()
         if 'ads' in peers:
             loop.run(peers['ads'].close())
         loop.run(server.stop())
