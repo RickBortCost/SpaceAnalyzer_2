@@ -55,7 +55,7 @@ const trend=liveCharts.charts[0].trend; // First-chart compatibility for existin
 
 async function request(url,body,method){
   const options={headers:{'X-OPCUA-Token':token}};
-  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url==='/api/recordings/location/browse'?1800000:url==='/api/live/history'?600000:url.startsWith('/api/analysis/')?600000:(url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
+  let timer=null,controller=null;const timeoutMs=(url.startsWith('/api/s7/')||url.startsWith('/api/browse')||url.startsWith('/api/node'))?190000:url==='/api/ads/test'?40000:url==='/api/record/start'?45000:url==='/api/recordings/location/browse'?1800000:url==='/api/live/history'?600000:url.startsWith('/api/analysis/')?600000:(url==='/api/recordings'||url.startsWith('/api/recordings/')||url.startsWith('/api/calculations/'))?240000:30000;
   if(typeof AbortController!=='undefined'){
     controller=new AbortController();options.signal=controller.signal;
     timer=setTimeout(()=>controller.abort(),timeoutMs);
@@ -71,11 +71,11 @@ async function request(url,body,method){
     try{data=await response.json();}catch{throw new Error(I18N.t("Risposta del servizio locale non valida"));}
     if(!response.ok)throw new Error(I18N.message(data.error||response.statusText));return data;
   }catch(e){
-    if(e&&e.name==='AbortError')throw new Error(I18N.join([{text:"Timeout del servizio locale ("},{value:(timeoutMs/1000)},{text:" s)."}]));
+    if(e&&e.name==='AbortError')throw new Error(I18N.join([{text:"Timeout del servizio locale ("},{value:(timeoutMs/1000)},{text:" s) · "},{value:(url.split("?")[0])}]));
     throw e;
   }finally{if(timer!==null)clearTimeout(timer);}
 }
-function notice(text,error=false){clearTimeout(noticeTimer);I18N.bind($('msg'),"textContent",()=>(text),true);$('msg').className='message'+(error?' error':'');$('msg').hidden=false;const feedback=$('connection-feedback');if($('connection-dialog').open&&feedback){feedback.hidden=false;I18N.bind(feedback,"textContent",()=>(text),true);feedback.className='connection-feedback'+(error?' error':'');}if(!error)noticeTimer=setTimeout(()=>$('msg').hidden=true,7500);}
+function notice(text,error=false){clearTimeout(noticeTimer);I18N.bind($('msg'),"textContent",()=>(text),true);$('msg').className='message'+(error?' error':'');$('msg').hidden=false;const feedback=$('connection-feedback');if($('connection-dialog').open&&feedback){feedback.hidden=false;I18N.bind(feedback,"textContent",()=>(text),true);feedback.className='connection-feedback'+(error?' error':'');}noticeTimer=setTimeout(()=>$('msg').hidden=true,error?20000:7500);}
 function config(){return{ui_language:I18N.language,endpoint:$('endpoint').value.trim(),security:$('security').value,security_mode:$('security_mode').value,username:$('username').value,password:$('password').value,application_uri:$('application_uri').value.trim(),sample_ms:Number($('sample_ms').value),window_seconds:Number($('window_seconds').value),max_samples:Number($('max_samples').value),buffer_mode:$('buffer_mode').value,root_nodeid:$('root_nodeid').value.trim()||'i=85',scan_limit:Number($('scan_limit').value),auto_reconnect:$('auto_reconnect').checked,...(window.sourceConfig?.()||{})};}
 function securityChanged(){if($('security').value==='None')$('security_mode').value='None';else if($('security_mode').value==='None')$('security_mode').value='SignAndEncrypt';}
 function serverCert(info){$('server_cert_abs').value=info.path||'';I18N.bind($('servercertstatus'),"textContent",()=>(info.present?I18N.join([{text:"Presente · SHA-256: "},{value:(info.thumbprint_sha256)}]):I18N.t("Nessun certificato server: acquisiscilo per usare Sign / SignAndEncrypt.")),true);I18N.bind($('cert-badge'),"textContent",()=>(info.present?I18N.t("Server presente"):I18N.t("Server assente")),true);}
@@ -324,3 +324,5 @@ function renderLiveSession(d){
  I18N.bind(label,"textContent",()=>(I18N.join([{value:(mode)},{text:" · "},{value:(span.toLocaleString(I18N.locale(),{maximumFractionDigits:1}))},{text:" s · piena risoluzione"}])),true);
  I18N.bind(label,"title",()=>(I18N.join([{value:(stamp(range.xmin))},{text:" → "},{value:(stamp(range.xmax))},{value:(liveViewMode==='all'?I18N.t(" · Tutti i campioni della sessione a piena risoluzione. Per conservarli in un file usa Record."):I18N.t(" · Tutti i campioni del buffer recente a piena risoluzione."))}])),true);
 }
+// Un messaggio (anche di errore) si chiude con un clic e, in ogni caso, dopo qualche secondo.
+$('msg').addEventListener('click',()=>{clearTimeout(noticeTimer);$('msg').hidden=true;});
