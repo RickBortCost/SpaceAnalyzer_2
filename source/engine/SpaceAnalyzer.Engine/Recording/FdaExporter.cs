@@ -46,7 +46,7 @@ public static class FdaExporter
         return [(byte)raw.Length, .. raw];
     }
 
-    sealed record Channel(string Name, string Description, string Unit, int Size, double Gain);
+    sealed record Channel(string Name, string Description, string Unit, int Size, double Gain, double Offset = 0.0);
 
     static byte[] Header(IReadOnlyList<Channel> channels, long epoch, double sampleMs)
     {
@@ -78,7 +78,7 @@ public static class FdaExporter
             w.Write((ushort)c.Size);
             w.Write((ushort)1);
             w.Write(c.Gain);
-            w.Write(0.0);
+            w.Write(c.Offset);
             w.Write(offset);
             offset += (uint)c.Size;
         }
@@ -97,6 +97,11 @@ public static class FdaExporter
         var sourceMeta = Legacy.SourceMetadata(original);
         if (!Legacy.EnoughSpace(directory)) throw new IOException("Spazio disco insufficiente per la conversione FDA: archivio originale conservato");
         var limits = new double[nodes.Count];
+        // Integer signals: exact 16-bit storage is possible whenever the recorded span fits 65,536 steps (gain 1 plus an offset), e.g. a UINT above 32767.
+        var integerType = new bool[nodes.Count];
+        var integral = Enumerable.Repeat(true, nodes.Count).ToArray();
+        var minValue = Enumerable.Repeat(double.PositiveInfinity, nodes.Count).ToArray();
+        var maxValue = Enumerable.Repeat(double.NegativeInfinity, nodes.Count).ToArray();
         var lastSeen = new Dictionary<int, double>();
         var discontinuities = 0L;
         var examples = new List<object?>();
@@ -122,9 +127,12 @@ public static class FdaExporter
             var q = Legacy.Quality(row.Quality, row.Good);
             double v;
             // Uncertain keeps its numeric value (Q=2); only Bad/missing/non-numeric become 0.
+            if (!string.IsNullOrEmpty(row.DataType)) integerType[n] = DataKinds.IsInteger(row.DataType);
             if (q is 2 or 3 && row.ValueNumeric is double number && double.IsFinite(number))
             {
                 v = number; limits[n] = Math.Max(limits[n], Math.Abs(v));
+                minValue[n] = Math.Min(minValue[n], v); maxValue[n] = Math.Max(maxValue[n], v);
+                if (v != Math.Truncate(v)) integral[n] = false;
             }
             else { v = 0; q = q == 2 ? 2 : 1; }
             staged++;
@@ -137,20 +145,23 @@ public static class FdaExporter
         var channels = new List<Channel> { new("INTERNAL TIME", "Time from start...", "Milliseconds", 4, 1.0) };
         var mapping = new List<object?>();
         var gains = new double[nodes.Count];
+        var offsets = new double[nodes.Count];
         for (var i = 0; i < nodes.Count; i++)
         {
             var gain = ChooseGain(limits[i]);
             if (gain <= 0 || !double.IsFinite(gain)) throw new InvalidDataException("Scala FDA fuori dai limiti numerici");
-            gains[i] = gain;
+            double offset = 0;
+            if (gain > 1 && integerType[i] && integral[i] && maxValue[i] - minValue[i] <= 65535) { gain = 1; offset = minValue[i] + 32768; }
+            gains[i] = gain; offsets[i] = offset;
             var name = Legacy.SafeName(Legacy.NodeName(nodes[i]), i);
             var description = nodes[i].NodeId.Length > 250 ? nodes[i].NodeId[..250] : nodes[i].NodeId;
-            channels.Add(new(name, description, Legacy.Unit(nodes[i]), 2, gain));
+            channels.Add(new(name, description, Legacy.Unit(nodes[i]), 2, gain, offset));
             var valueChannel = channels.Count - 1;
             channels.Add(new(name + "_Q", "Quality: 0=missing, 1=Bad, 2=Uncertain, 3=Good", "", 2, 1.0));
             mapping.Add(new Dictionary<string, object?>
             {
                 ["nodeid"] = nodes[i].NodeId, ["display_name"] = Legacy.NodeName(nodes[i]), ["unit"] = Legacy.Unit(nodes[i]),
-                ["value_channel"] = valueChannel, ["quality_channel"] = channels.Count - 1, ["gain"] = gain, ["offset"] = 0.0, ["maximum_rounding_error"] = gain / 2,
+                ["value_channel"] = valueChannel, ["quality_channel"] = channels.Count - 1, ["gain"] = gain, ["offset"] = offset, ["maximum_rounding_error"] = offset != 0 ? 0.0 : gain / 2,
             });
         }
         var period = Legacy.MetaNumber(sourceMeta, "initial_sample_ms") is double p && p != 0 ? p : 10;
@@ -246,7 +257,8 @@ public static class FdaExporter
                 {
                     Emit(key); Array.Clear(values); seen.Clear();
                 }
-                var encoded = Math.Round(s.Value / gains[s.Node], MidpointRounding.ToEven);
+                // Missing/Bad samples carry no value: raw 0 regardless of the offset.
+                var encoded = s.Q is 2 or 3 ? Math.Round((s.Value - offsets[s.Node]) / gains[s.Node], MidpointRounding.ToEven) : 0;
                 if (encoded is < -32768 or > 32767 || !double.IsFinite(encoded * gains[s.Node])) throw new InvalidDataException("Overflow numerico FDA: archivio originale conservato");
                 values[2 * s.Node] = (short)encoded;
                 values[2 * s.Node + 1] = s.Q;

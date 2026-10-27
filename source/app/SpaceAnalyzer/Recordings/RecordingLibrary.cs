@@ -138,7 +138,7 @@ public sealed partial class RecordingLibrary
             meta["signals"] = new JsonArray(mapped.Select(c => (JsonNode)new JsonObject { ["nodeid"] = c.NodeId, ["display_name"] = c.DisplayName, ["unit"] = c.Unit, ["data_type"] = c.DataType }).ToArray());
             meta["rows_written"] = h.Frames * mapped.Count;
             meta["initial_sample_ms"] = h.SampleUs / 1000.0;
-            meta["storage"] = new JsonObject { ["format"] = "rbf", ["label"] = "RBF v3", ["lossless"] = false };
+            meta["storage"] ??= new JsonObject { ["format"] = "rbf", ["label"] = "RBF v3", ["lossless"] = false };
             if (h.Frames > 0)
             {
                 meta["start_ms"] = h.StartMs; meta["end_ms"] = h.EndMs;

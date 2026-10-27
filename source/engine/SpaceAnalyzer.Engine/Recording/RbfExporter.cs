@@ -67,6 +67,12 @@ public static class RbfExporter
         var directory = Path.GetDirectoryName(Path.GetFullPath(original))!;
         var sourceMeta = Legacy.SourceMetadata(original);
         var kinds = new byte?[nodes.Count];
+        // Per signal: 16-bit integer candidates and the range/integrality of the recorded values decide whether an Int16 channel is exact.
+        var smallInteger = new bool[nodes.Count];
+        var singleFloat = new bool[nodes.Count];
+        var minValue = Enumerable.Repeat(double.PositiveInfinity, nodes.Count).ToArray();
+        var maxValue = Enumerable.Repeat(double.NegativeInfinity, nodes.Count).ToArray();
+        var integral = Enumerable.Repeat(true, nodes.Count).ToArray();
         var files = new List<Dictionary<string, object?>>();
         using var sort = new ExternalSort<Staged>(directory,
             (a, b) => a.Ticks != b.Ticks ? a.Ticks.CompareTo(b.Ticks) : a.Cycle.CompareTo(b.Cycle),
@@ -82,11 +88,13 @@ public static class RbfExporter
             var ticks = (long)Math.Round(exact, MidpointRounding.ToEven);
             if (ticks < 0 || ticks >= 0x100000000L * 1_000_000_000L / 1) throw new InvalidDataException("Timestamp RBF oltre il limite UInt32 secondi");
             var dtype = (row.DataType ?? "").ToUpperInvariant();
-            byte kind = dtype is "BOOL" or "BOOLEAN" ? (byte)0 : dtype is "STRING" or "WSTRING" or "CHAR" or "WCHAR" ? (byte)9 : (byte)7;
+            byte kind = DataKinds.IsBoolean(dtype) ? (byte)0 : DataKinds.IsText(dtype) ? (byte)9 : (byte)7;
             if (dtype is not ("" or "NULL" or "NONE"))
             {
                 if (kinds[i] is byte known && known != kind) throw new InvalidDataException("RBF: tipo del segnale cambiato durante la registrazione");
                 kinds[i] = kind;
+                smallInteger[i] = DataKinds.IsSmallInteger(dtype);
+                singleFloat[i] = DataKinds.IsSingleFloat(dtype);
             }
             var q = Legacy.Quality(row.Quality, row.Good);
             var value = row.ValueNumeric;
@@ -110,16 +118,22 @@ public static class RbfExporter
             {
                 number = value!.Value;
                 if (kind == 0 && number is not (0 or 1)) throw new InvalidDataException("RBF: valore Boolean fuori da 0/1");
+                minValue[i] = Math.Min(minValue[i], number); maxValue[i] = Math.Max(maxValue[i], number);
+                if (number != Math.Truncate(number)) integral[i] = false;
             }
             sort.Add(new Staged(ticks, row.Cycle ?? 0, i, number, text ?? "", (byte)q));
         }
         var channels = new List<(string name, byte type)>();
+        var valueKinds = new byte[nodes.Count];
         var mapping = new List<object?>();
         var valueChannels = new List<int>();
         for (var i = 0; i < nodes.Count; i++)
         {
             var name = Legacy.SafeName(Legacy.NodeName(nodes[i]), i);
             var kind = kinds[i] ?? 7;
+            // Automatic narrowing: a 16-bit integer signal whose recorded values are whole numbers within Int16 is stored as Int16 (2 bytes instead of 4), exactly.
+            if (kind == 7 && smallInteger[i] && integral[i] && minValue[i] >= short.MinValue && maxValue[i] <= short.MaxValue) kind = 2;
+            valueKinds[i] = kind;
             channels.Add((name, kind));
             channels.Add((name + "_Q", 2));
             valueChannels.Add(2 * i);
@@ -161,7 +175,13 @@ public static class RbfExporter
             info["rbf_channels"] = mapping; info["frames"] = frames; info["rows_written"] = frames * nodes.Count;
             info["original_archive"] = Path.GetFileName(original);
             info["duration_seconds"] = first is long a && last is long b ? (b - a) / 1e9 : 0;
-            info["storage"] = new Dictionary<string, object?> { ["format"] = "rbf", ["label"] = "RBF v3 · Float32 + qualità", ["lossless"] = false };
+            var exact = Enumerable.Range(0, nodes.Count).All(n => valueKinds[n] != 7 || singleFloat[n]);
+            var narrow = valueKinds.Count(k => k is 0 or 2);
+            info["storage"] = new Dictionary<string, object?>
+            {
+                ["format"] = "rbf", ["lossless"] = exact,
+                ["label"] = narrow > 0 ? "RBF v3 · tipo nativo per segnale + qualità" : "RBF v3 · Float32 + qualità",
+            };
             info["rbf_compatibility"] = "reference-derived v3; external application validation pending";
             info["timestamp_semantics"] = "UInt32 seconds + UInt32 nanoseconds; original timestamps also in Parquet";
             info["quality_semantics"] = QualityMarker;
@@ -202,6 +222,7 @@ public static class RbfExporter
                 switch (kind)
                 {
                     case 0: frame[offset] = (byte)value; break;
+                    case 2: BinaryPrimitives.WriteInt16LittleEndian(frame.AsSpan(offset), (short)value); break;
                     case 7:
                         var single = (float)value;
                         if (float.IsInfinity(single) && double.IsFinite(value)) throw new InvalidDataException("RBF: valore oltre i limiti Float32; archivio originale conservato");

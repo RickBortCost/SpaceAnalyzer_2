@@ -38,6 +38,41 @@ public class ConversionTests
         return new RecordingLibrary(dir.Path);
     }
 
+    /// <summary>CSV recording where each signal has its own data type and value function (sampled together every 10 ms).</summary>
+    static RecordingLibrary TypedFixture(TempDir dir, int samples, params (string id, string dtype, Func<int, double> value)[] signals)
+    {
+        var sb = new StringBuilder("timestamp_utc,timestamp_ms,cycle,node_id,signal_name,value_numeric,value_text,data_type,status,good,sample_ms,quality\r\n");
+        for (var i = 0; i < samples; i++)
+        {
+            var t = Base + i * 10;
+            var stamp = DateTime.UnixEpoch.AddMilliseconds(t).ToString("yyyy-MM-dd'T'HH:mm:ss.fff'+00:00'", CultureInfo.InvariantCulture);
+            foreach (var (id, dtype, value) in signals)
+            {
+                var text = value(i).ToString("R", CultureInfo.InvariantCulture);
+                sb.Append($"{stamp},{t.ToString(CultureInfo.InvariantCulture)},{i},ns=2;s={id},{id},{text},{text},{dtype},Good,True,10,Good\r\n");
+            }
+        }
+        File.WriteAllText(Path.Combine(dir.Path, "tipi.csv"), sb.ToString());
+        Py.AtomicPlain(Path.Combine(dir.Path, "tipi.metadata.json"), new Dictionary<string, object?>
+        {
+            ["signals"] = signals.Select(s => (object?)new Dictionary<string, object?> { ["nodeid"] = "ns=2;s=" + s.id, ["display_name"] = s.id, ["unit"] = "" }).ToList(),
+            ["initial_sample_ms"] = 10,
+        });
+        return new RecordingLibrary(dir.Path);
+    }
+
+    static (string id, string dtype, Func<int, double> value)[] MixedSignals() =>
+    [
+        ("Piccolo", "UInt16", i => i * 3),                       // 16 bit, valori piccoli: Int16 esatto
+        ("Alto", "UInt16", i => 40000 + i * 150),                // 16 bit oltre 32767: Float32 in RBF, offset in FDA
+        ("Frazione", "Double", i => i * 0.37 + 0.001),           // 64 bit non intero: mai ristretto
+        ("Flag", "Boolean", i => i % 2),
+        ("Enorme", "Int64", i => 3_000_000_000d + i),            // 64 bit intero: mai ristretto a 16 bit
+    ];
+
+    static List<(string id, string type)> RbfTypes(RecordingLibrary library, string name) =>
+        library.Metadata(library.PathOf(name))["rbf_channels"]!.AsArray().Select(m => ((string)m!["display_name"]!, (string)m["data_type"]!)).ToList();
+
     static Dictionary<string, object?> Convert(RecordingLibrary library, string name, string format, JsonObject? extra = null)
     {
         var conversions = new Conversions(() => Path.Combine(library.Directory, Conversions.Folder));
@@ -61,6 +96,54 @@ public class ConversionTests
             .Where(r => !(r.Value("status") is string s && s.EndsWith("_Missing", StringComparison.Ordinal)))
             .Select(r => (RowValues.Finite(r.Value("timestamp_ms"))!.Value, RowValues.StrOr(r.Value("node_id")), RowValues.Finite(r.Value("value_numeric"))))
             .OrderBy(x => x.Item1).ThenBy(x => x.Item2).ToList();
+
+    [Fact]
+    public void RbfUsesTheNarrowestExactTypePerSignal()
+    {
+        using var dir = new TempDir();
+        var library = TypedFixture(dir, 100, MixedSignals());
+        var file = Assert.Single(Files(Convert(library, "tipi.csv", "rbf")));
+        var described = library.Describe((string)file["name"]!);
+        Assert.Equal(
+            [("Piccolo", "Int16"), ("Alto", "Float32"), ("Frazione", "Float32"), ("Flag", "Boolean"), ("Enorme", "Float32")],
+            RbfTypes(library, (string)file["name"]!));
+        // Dimensione del frame: 8 + (2+2) + (4+2) + (4+2) + (1+2) + (4+2) byte.
+        var bytes = new FileInfo(library.PathOf((string)file["name"]!)).Length;
+        Assert.True(bytes < 100 * 37 + 5000, "file RBF piu grande del previsto: " + bytes);
+        var original = Samples(library, "tipi.csv");
+        var back = Samples(library, (string)file["name"]!);
+        // Valori interi di 16 bit, booleani e interi sotto 2^24 tornano identici; il 64 bit non intero e' Float32 (RBF non ha altro): archivio originale conservato.
+        foreach (var id in new[] { "ns=2;s=Piccolo", "ns=2;s=Alto", "ns=2;s=Flag" })
+            Assert.Equal(original.Where(x => x.id == id).Select(x => x.v), back.Where(x => x.id == id).Select(x => x.v));
+        Assert.Equal(false, ((Dictionary<string, object?>)described["storage"]!)["lossless"]);
+    }
+
+    [Fact]
+    public void RbfWithOnlyExactTypesIsDeclaredLossless()
+    {
+        using var dir = new TempDir();
+        var library = TypedFixture(dir, 50, ("A", "UInt16", i => i), ("B", "Boolean", i => i % 2), ("C", "Real", i => i * 0.5));
+        var file = Assert.Single(Files(Convert(library, "tipi.csv", "rbf")));
+        var described = library.Describe((string)file["name"]!);
+        Assert.Equal(true, ((Dictionary<string, object?>)described["storage"]!)["lossless"]);
+        Assert.Equal([("A", "Int16"), ("B", "Boolean"), ("C", "Float32")], RbfTypes(library, (string)file["name"]!));
+    }
+
+    [Fact]
+    public void FdaStoresSixteenBitIntegersExactlyEvenAbove32767()
+    {
+        using var dir = new TempDir();
+        var library = TypedFixture(dir, 100, ("Alto", "UInt16", i => 40000 + i * 150), ("Piccolo", "UInt16", i => i * 3), ("Frazione", "Double", i => i * 0.37 + 0.001));
+        var file = Assert.Single(Files(Convert(library, "tipi.csv", "das")));
+        var back = Samples(library, (string)file["name"]!);
+        var original = Samples(library, "tipi.csv");
+        foreach (var id in new[] { "ns=2;s=Alto", "ns=2;s=Piccolo" })
+            Assert.Equal(original.Where(x => x.id == id).Select(x => x.v), back.Where(x => x.id == id).Select(x => x.v));
+        var meta = library.Metadata(library.PathOf((string)file["name"]!))["fda_channels"]!.AsArray().ToDictionary(m => (string)m!["display_name"]!, m => m!);
+        Assert.Equal(1.0, (double)meta["Alto"]["gain"]!);
+        Assert.NotEqual(0.0, (double)meta["Alto"]["offset"]!);
+        Assert.Equal(0.0, (double)meta["Piccolo"]["offset"]!);
+    }
 
     [Fact]
     public void FdaFilesStayWithinTheViewerRamLimit()

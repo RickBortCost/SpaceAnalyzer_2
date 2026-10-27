@@ -82,6 +82,22 @@ async function page(){
    for(let k=0;k<3000;k++)L.append(F([7+k]),F([50+k]),F([k]),U([0]));assert.equal(L.length,3004);assert.equal(L.stats.xmax,3049);
    L.keepLast(10);assert.equal(L.length,10);assert.equal(L.firstSeq,2997);assert(w.isSampleSeries(L.after(3045)));assert.equal(L.after(3045).length,4);}
   checks.push('LiveSeries keeps every streamed sample: revisions, FIFO window, archive prepend, snapshots');
+  {const F=a=>new w.Float64Array(a),U=a=>new w.Uint8Array(a),is=w.eval('isCompactValueType');
+   for(const t of ['UInt16','UINT','Boolean','BOOL','Int16','Byte','REAL','Float32'])assert.equal(is(t),true,t);
+   for(const t of ['Double','LREAL','UInt32','DINT','Int64','UInt64','','Variant',undefined])assert.equal(is(t),false,String(t));
+   // 16 bit: 4 byte per valore, esatto; 64 bit: 8 byte.
+   const c=new w.LiveSeries(true),d=new w.LiveSeries(false);
+   c.append(F([1,2,3]),F([1000,1010,1020]),F([0,40000,65535]),U([0,0,0]));d.append(F([1,2,3]),F([1000,1010,1020]),F([0,40000,65535.5]),U([0,0,0]));
+   assert.equal(c.bv.BYTES_PER_ELEMENT,4);assert.equal(d.bv.BYTES_PER_ELEMENT,8);assert.deepEqual([...c.v],[0,40000,65535]);assert.equal(c.compact,true);
+   // un valore non esatto in 32 bit porta la serie a 64 bit senza arrotondare nulla
+   c.append(F([4,5]),F([1030,1040]),F([0.1,3000000001]),U([0,0]));
+   assert.equal(c.compact,false);assert.equal(c.bv.BYTES_PER_ELEMENT,8);assert.deepEqual([...c.v],[0,40000,65535,0.1,3000000001]);
+   // anche la parte storica anteposta non viene arrotondata
+   const h=new w.LiveSeries(true);h.append(F([10]),F([2000]),F([7]),U([0]));h.prepend(F([9]),F([1990]),F([1e-7]),U([0]));
+   assert.equal(h.compact,false);assert.deepEqual([...h.v],[1e-7,7]);
+   // NaN non obbliga a 64 bit
+   const n=new w.LiveSeries(true);n.append(F([1]),F([1]),F([NaN]),U([0]));assert.equal(n.compact,true);
+   checks.push('LiveSeries stores 16 bit, boolean and Float32 signals as 32 bit values and widens to 64 bit when a value is not exact');}
   assert.deepEqual(errors,[]);console.log(JSON.stringify({ok:true,checks},null,2));
   for(const dom of pages)dom.window.close();
 })().then(()=>process.exit(0)).catch(e=>{console.error(e);console.error(errors.join("\n"));process.exit(1);});

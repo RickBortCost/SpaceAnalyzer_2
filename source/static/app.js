@@ -11,14 +11,16 @@ function liveValuesURL(){return '/api/values?view='+liveViewMode+'&samples=0';}
 // "Ultima finestra" rispecchia il FIFO del servizio; "Intera acquisizione" conserva tutta la sessione e recupera
 // dallo storico originale la parte precedente all'apertura della pagina.
 const LIVE_MAX_SAMPLES=40000000;let liveHistoryBusy=false,liveTruncatedNotice=false;
+// Valori a 32 bit per i segnali booleani, interi fino a 16 bit o Float32; tutti gli altri restano a 64 bit.
+function liveCompact(nid){return isCompactValueType(selected.get(nid)?.data_type||types[nid]);}
 async function syncLiveSamples(current){
   const cursors={};for(const [nid,points] of Object.entries(current))if(points instanceof LiveSeries&&points.buffer)cursors[nid]={buffer:points.buffer,seq:points.lastSeq};
   const d=await request('/api/live/samples',{cursors});const next={},history={},signals=d.signals||[];
   const budget=Math.floor(LIVE_MAX_SAMPLES/Math.max(1,signals.length));
   for(const signal of signals){
-    const nid=signal.nodeid,c=d.columns[nid];let points=current[nid] instanceof LiveSeries?current[nid]:new LiveSeries();
+    const nid=signal.nodeid,c=d.columns[nid];let points=current[nid] instanceof LiveSeries?current[nid]:new LiveSeries(liveCompact(nid));
     if(signal.reset){points.clear();points.needsHistory=liveViewMode==='all'&&signal.archived;}
-    else if(signal.gap&&liveViewMode==='all'){points=new LiveSeries();next[nid]=points;continue;}
+    else if(signal.gap&&liveViewMode==='all'){points=new LiveSeries(liveCompact(nid));next[nid]=points;continue;}
     if(signal.drop_last)points.dropLast();
     points.append(c.s,c.t,c.v,c.q);points.buffer=signal.buffer;
     if(liveViewMode==='window')points.dropBefore(signal.first_seq);
