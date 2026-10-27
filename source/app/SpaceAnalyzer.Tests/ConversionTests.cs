@@ -63,6 +63,26 @@ public class ConversionTests
             .OrderBy(x => x.Item1).ThenBy(x => x.Item2).ToList();
 
     [Fact]
+    public void FdaFilesStayWithinTheViewerRamLimit()
+    {
+        // 2 segnali = 4 canali dati + tempo = 5 canali; con 5 × 8 byte per campione, 1.200 byte di RAM ammessi = 30 campioni per file.
+        Assert.Equal(711_135, Engine.Recording.FdaExporter.MaxFramesPerFile(47));
+        var original = Engine.Recording.FdaExporter.ViewerRamLimitBytes;
+        try
+        {
+            Engine.Recording.FdaExporter.ViewerRamLimitBytes = 5 * 8 * 30;
+            using var dir = new TempDir();
+            var library = Fixture(dir, samples: 100);
+            var files = Files(Convert(library, "prova.csv", "das"));
+            Assert.Equal(4, files.Count);
+            Assert.Equal([60L, 60L, 60L, 20L], files.Select(f => System.Convert.ToInt64(f["rows"], CultureInfo.InvariantCulture)));  // righe = campioni × 2 segnali
+            var all = files.SelectMany(f => Samples(library, (string)f["name"]!)).OrderBy(x => x.Item1).ThenBy(x => x.Item2).ToList();
+            Assert.Equal(200, all.Count);
+        }
+        finally { Engine.Recording.FdaExporter.ViewerRamLimitBytes = original; }
+    }
+
+    [Fact]
     public void CsvToParquetKeepsEverySampleAndSignalNames()
     {
         using var dir = new TempDir();

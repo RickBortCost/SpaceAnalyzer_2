@@ -1,15 +1,13 @@
 # Space Fieldbus Analyzer 3
 
-**Versione 3.5.2.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.5.3.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.5.2
+## Novità della versione 3.5.3
 
-- REGISTRAZIONI: con la sincronizzazione attiva i grafici dello stesso file condividono l'intervallo X, così cursore, marker e griglia cadono nello stesso punto (prima segnali con inizio e fine diversi sfasavano gli assi X). Motivo: la linea di posizione doveva corrispondere allo stesso istante in tutti i grafici.
-- I messaggi di errore si chiudono con un clic e dopo 20 secondi. Motivo: un errore superato non deve restare a schermo.
-- Il messaggio di timeout riporta la richiesta scaduta e l'elenco delle registrazioni ha un limite di 240 s (prima 30 s). Motivo: con molti file l'elenco può richiedere più di 30 s e non si capiva quale richiesta fosse scaduta.
-- Dalla 3.5.1: lettura e conversione dei DAT scritti da ibaPDA; dalla 3.4.x: nome Space Fieldbus Analyzer, menu Impostazioni in primo piano, chiusura senza errore; dalla 3.3.0: rotella sul grafico LIVE per il periodo visualizzato.
+- I file FDA vengono chiusi prima di superare 255 MB di RAM nel programma FDA (campioni × canali × 8 byte) e la registrazione prosegue nel file successivo (`_FDA0002`, …), senza perdere campioni. Motivo: un file da 900.000 campioni e 46 canali faceva comparire nel programma FDA l'avviso sul limite di 256 MB e la selezione manuale del sottoinsieme di dati. Vale per Record, Conversione e `--tool export-fda`.
+- Dalla 3.5.2: asse X condiviso tra i grafici dello stesso file in Registrazioni, messaggi di errore chiudibili, timeout con indicazione della richiesta; dalla 3.5.1: lettura e conversione dei DAT ibaPDA; dalla 3.4.x: nome Space Fieldbus Analyzer, menu Impostazioni in primo piano, chiusura senza errore.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

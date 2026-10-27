@@ -95,3 +95,5 @@ Esempio sintetico: picco FFT a 125 Hz e frequenza campioni 1000 Hz verificati.
 EXE Windows AMD64 compilato e contenuti/hash/CRC controllati; non eseguito
 su Windows, FDA o PLC fisico in questo ambiente. Canvas UI simulato.
 Report inclusi in Verifiche/V1.16.0.
+
+Limite del programma FDA (dalla 3.5.3): il programma carica in RAM campioni × canali (tempo incluso) × 8 byte e oltre 256 MB chiede la selezione manuale di un sottoinsieme. Space Fieldbus Analyzer chiude ogni file FDA prima di 255 MB e prosegue in un nuovo file (_FDA0002, _FDA0003, ...) senza perdere campioni.
