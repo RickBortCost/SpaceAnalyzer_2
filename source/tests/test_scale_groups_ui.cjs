@@ -286,6 +286,23 @@ function zoomRect(w, g) {
     }
     checks.push('Il pallino accanto a Connessione segue lo stato: verde, rosso, arancio, grigio');
 
+    // ---- REGISTRAZIONI: grafici dello stesso file con intervalli di dati diversi condividono l'asse X (cursore e griglia allineati) ----
+    {
+      t.showAppPage('recordings');
+      const hg2 = hist.active, other = hist.charts.find(c => c !== hg2); assert(other, 'secondo grafico di REGISTRAZIONI');
+      const plain = (from, to) => Array.from({length: 51}, (_, i) => [from + i * (to - from) / 50, Math.sin(i / 5), 'Good']);
+      hg2.series = Object.fromEntries([...hg2.ids].map(id => [id, plain(1000, 11000)])); other.series = Object.fromEntries([...other.ids].map(id => [id, plain(1400, 11400)]));
+      hist.syncZoom = true; hist.timeRange = null;
+      hist.updateGraph(hg2); hist.updateGraph(other); hg2.trend.draw(); other.trend.draw();
+      assert.equal(hg2.trend.domain.xmin, other.trend.domain.xmin, 'stesso inizio asse X'); assert.equal(hg2.trend.domain.xmax, other.trend.domain.xmax, 'stessa fine asse X');
+      assert.equal(hg2.trend.domain.xmin, 1000); assert.equal(hg2.trend.domain.xmax, 11400);
+      hist.syncZoom = false; hist.updateGraph(hg2); hist.updateGraph(other); hg2.trend.draw(); other.trend.draw();
+      assert.equal(hg2.trend.domain.xmax, 11000, 'senza sincronizzazione ogni grafico usa i propri dati'); assert.equal(other.trend.domain.xmin, 1400);
+      hist.syncZoom = true; t.showAppPage('live');
+      checks.push('REGISTRAZIONI: con la sincronizzazione attiva i grafici dello stesso file condividono l’intervallo X, senza sincronizzazione no');
+    }
+
+
     // ---- lingue ----
     for (const [lang, label] of [['en', 'Separate scale'], ['de', 'Skala trennen'], ['fr', "Séparer l'échelle"], ['es', 'Separar escala'], ['it', 'Separa scala']]) {
       await w.I18N.setLanguage(lang, {persist: true}); t.showAppPage('live'); ws.activate(g); a.draw();

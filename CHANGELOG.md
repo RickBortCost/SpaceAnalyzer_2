@@ -2,6 +2,13 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.5.2
+
+- **REGISTRAZIONI: cursore e griglia allineati tra grafici dello stesso file**: con la sincronizzazione attiva e senza zoom, ogni grafico usava l'intervallo X dei propri segnali; segnali con inizio e fine leggermente diversi (qui circa 0,4 s) davano assi X sfasati, quindi la linea di posizione cadeva in punti diversi dei due grafici pur indicando lo stesso istante. Ora i grafici dello stesso file con la sincronizzazione attiva condividono l'intervallo X (unione dei loro dati). Senza sincronizzazione ogni grafico continua a usare i propri dati; file diversi non si influenzano. Motivo: cursore, marker e griglia devono corrispondere allo stesso punto in tutti i grafici.
+- **I messaggi di errore non restano più per sempre**: il messaggio in basso (ad esempio "Timeout del servizio locale") restava finché non compariva un altro messaggio. Ora si chiude con un clic (suggerimento tradotto nelle cinque lingue) e comunque dopo 20 secondi. Motivo: un errore già superato non deve restare sullo schermo.
+- **Timeout più comprensibile e meno frequente**: il messaggio di timeout riporta anche l'indirizzo della richiesta (ad esempio "Timeout del servizio locale (30 s) · /api/…") e l'elenco delle registrazioni ha ora lo stesso limite di 240 s delle altre operazioni sulle registrazioni (prima 30 s). Motivo: con molti file o file grandi l'elenco può richiedere più di 30 s, e senza l'indirizzo non si capiva quale richiesta fosse scaduta.
+- Test UI: `test_scale_groups_ui.cjs` (intervallo X condiviso con e senza sincronizzazione, fallisce sul codice precedente) e `test_studio_ui.cjs` (chiusura del messaggio con un clic).
+
 ## 3.5.1
 
 - **Apertura e conversione dei DAT scritti da ibaPDA (lettura sperimentale)**: finora si aprivano solo i DAT PDA3 del modello a 64 canali scritto da Space Analyzer 1.x; un DAT prodotto da ibaPDA veniva rifiutato con "record RLE 0x00 non supportato". Ora anche questi file si aprono in Registrazioni e si convertono nella pagina Conversione (ad esempio in Parquet). Motivo: richiesta di convertire i DAT acquisiti con ibaPDA.

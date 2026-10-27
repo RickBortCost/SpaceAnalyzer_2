@@ -6,7 +6,7 @@ namespace SpaceAnalyzer.App.Config;
 public static class Defaults
 {
     public const string AppName = "Space Fieldbus Analyzer";
-    public const string Version = "3.5.1";
+    public const string Version = "3.5.2";
     public const int MaxSelected = 64;
     public const int MaxSamples = 360000;
     public const int MaxTotalSamples = 2000000;

@@ -147,9 +147,11 @@ class ChartWorkspace {
     for(const [id,node] of nodes){const prefs=graph.signalSettings[id];if(prefs?.visible===false){nodes.delete(id);delete data[id];}else if(prefs?.alias)nodes.set(id,{...node,display_name:prefs.alias});}
     let range=!this.staticMode&&this.displayRange?{...this.displayRange}:null;
     if(!this.staticMode&&this.liveSpan){const end=range?range.xmax:this.liveZoomEnd;if(Number.isFinite(end))range={xmin:Math.max(range?.xmin??-Infinity,end-this.liveSpan),xmax:end};}
+    if(this.staticMode){graph.extent=this.extentOf(data);range=graph.alignedRange||null;}
     graph.trend.displayRange=range?{...range,xmin:Math.max(range.xmin,graph.cutoff??-Infinity)}:null;
     graph.trend.liveZoomEnd=this.syncZoom?(this.displayRange?.xmax??this.liveZoomEnd):null;
     graph.trend.update(data,nodes,graph.types);
+    if(this.staticMode)this.alignStaticExtents(graph);
     const counts={Good:0,Uncertain:0,Bad:0};for(const points of Object.values(graph.trend.series)){if(isSampleSeries(points)){counts.Good+=points.stats.good;counts.Uncertain+=points.stats.uncertain;counts.Bad+=points.stats.bad;continue;}for(const p of points)counts[p[2]||(p[1]===null?'Bad':'Good')]++;}
     const summary=graph.element.querySelector('[data-chart-role="qualitySummary"]');if(summary){I18N.bind(summary,"textContent",()=>(Object.entries(counts).map(([k,v])=>k+' '+v).join(' · ')),false);I18N.bind(summary,"title",()=>(I18N.t("Qualità dei campioni mostrati nel grafico (visibile solo con campioni Uncertain o Bad). Rosso: Bad; ambra: Uncertain.")),true);summary.classList.toggle('has-bad',counts.Bad>0);summary.hidden=counts.Bad+counts.Uncertain===0;}
     if(this.syncZoom&&this.timeRange&&!(this.liveZoom&&graph.trend.frozen)){graph.trend.linkedRange={...this.timeRange};graph.trend.draw();}
@@ -184,6 +186,27 @@ class ChartWorkspace {
     this.options.onClear?.(graph);
   }
   resetViews(){for(const graph of this.charts){graph.cutoff=null;graph.cleared=false;graph.trend.resetZoom();}}
+  // REGISTRAZIONI: i grafici dello stesso file con la sincronizzazione attiva usano lo stesso intervallo X (unione dei loro dati), così cursore, griglia e marker restano allineati anche se i segnali hanno inizi e fini leggermente diversi.
+  extentOf(data){
+    let lo=Infinity,hi=-Infinity;
+    for(const points of Object.values(data||{})){const first=points.at(0)?.[0],last=points.at(-1)?.[0];if(Number.isFinite(first)&&first<lo)lo=first;if(Number.isFinite(last)&&last>hi)hi=last;}
+    return hi>lo?{xmin:lo,xmax:hi}:null;
+  }
+  alignStaticExtents(changed){
+    const key=g=>g.context?.file?.name??g.context?.file?.id??'';
+    const group=this.charts.filter(g=>g.extent&&key(g)===key(changed));
+    const union=this.syncZoom&&group.length>1?{xmin:Math.min(...group.map(g=>g.extent.xmin)),xmax:Math.max(...group.map(g=>g.extent.xmax))}:null;
+    for(const g of this.charts.filter(g=>key(g)===key(changed))){
+      const before=g.alignedRange;
+      if(!union&&!before)continue;
+      if(union&&before&&before.xmin===union.xmin&&before.xmax===union.xmax)continue;
+      g.alignedRange=union?{...union}:null;
+      g.trend.displayRange=g.alignedRange?{...g.alignedRange}:null;
+      if(g!==changed)g.trend.draw();
+    }
+    if(changed.alignedRange)changed.trend.displayRange={...changed.alignedRange};
+    changed.trend.draw();
+  }
   // Periodo visualizzato dei grafici LIVE (asse X): da 10 s a tutti i dati dall'inizio della connessione; null = intera sessione.
   fullSpan(){
     if(this.displayRange)return this.displayRange.xmax-this.displayRange.xmin;
