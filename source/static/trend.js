@@ -35,9 +35,17 @@ class SampleSeries{
   /** Copia di sola lettura per la pausa: i campioni successivi non la modificano. */
   snapshot(){return this;}
 }
+/* Tipi di dato i cui valori sono esatti in Float32 (booleani, interi fino a 16 bit, Float32): la serie Live li conserva a 32 bit invece di 64.
+ * Tutti gli altri (Double, interi a 32 e 64 bit, tipo sconosciuto) restano a 64 bit; se un valore non fosse esatto in Float32 la serie passa a 64 bit da sola. */
+const COMPACT_VALUE_TYPES=new Set(['BOOL','BOOLEAN','SBYTE','BYTE','INT8','UINT8','USINT','SINT','INT16','UINT16','INT','UINT','WORD','REAL','FLOAT','SINGLE','FLOAT32']);
+function isCompactValueType(dataType){return COMPACT_VALUE_TYPES.has(String(dataType||'').trim().toUpperCase());}
+window.isCompactValueType=isCompactValueType;
 /* Serie Live che cresce a ogni aggiornamento: ogni campione porta la sequenza del flusso del suo segnale. */
 class LiveSeries extends SampleSeries{
-  constructor(){super(null,null,null);this.cap=0;this.start=0;this.end=0;this.buffer=null;this.views=null;this.bt=this.bv=this.bs=new Float64Array(0);this.bq=new Uint8Array(0);}
+  constructor(compact=false){super(null,null,null);this.ValueArray=compact?Float32Array:Float64Array;this.cap=0;this.start=0;this.end=0;this.buffer=null;this.views=null;this.bt=this.bs=new Float64Array(0);this.bv=new this.ValueArray(0);this.bq=new Uint8Array(0);}
+  get compact(){return this.ValueArray===Float32Array;}
+  /** Passa i valori a 64 bit (un valore non esatto in Float32 non deve mai essere arrotondato). */
+  widen(){if(!this.compact)return;const to=new Float64Array(Math.max(this.cap,this.bv.length));to.set(this.bv);this.bv=to;this.ValueArray=Float64Array;this.touch();}
   view(){if(!this.views)this.views={t:this.bt.subarray(this.start,this.end),v:this.bv.subarray(this.start,this.end),q:this.bq.subarray(this.start,this.end),s:this.bs.subarray(this.start,this.end)};return this.views;}
   get t(){return this.view().t;}
   get v(){return this.view().v;}
@@ -50,13 +58,13 @@ class LiveSeries extends SampleSeries{
   // Fresh arrays when growing or compacting: snapshots (pause) keep their own view untouched.
   reserve(extra){
     const used=this.end-this.start,need=used+extra;if(this.end+extra<=this.cap)return;
-    const cap=Math.max(1024,need*2),copy=(Type,from)=>{const to=new Type(cap);to.set(from.subarray(this.start,this.end));return to;};
-    this.bt=copy(Float64Array,this.bt);this.bv=copy(Float64Array,this.bv);this.bq=copy(Uint8Array,this.bq);this.bs=copy(Float64Array,this.bs);this.cap=cap;this.start=0;this.end=used;
+    const cap=Math.max(1024,Math.ceil(need*1.5)),copy=(Type,from)=>{const to=new Type(cap);to.set(from.subarray(this.start,this.end));return to;};
+    this.bt=copy(Float64Array,this.bt);this.bv=copy(this.ValueArray,this.bv);this.bq=copy(Uint8Array,this.bq);this.bs=copy(Float64Array,this.bs);this.cap=cap;this.start=0;this.end=used;
   }
-  append(s,t,v,q){const n=t.length;if(!n)return;if(this.revised){this.cap=0;this.revised=false;}this.reserve(n);this.bs.set(s,this.end);this.bt.set(t,this.end);this.bv.set(v,this.end);this.bq.set(q,this.end);this.end+=n;this.touch();}
+  append(s,t,v,q){const n=t.length;if(!n)return;if(this.compact)for(let i=0;i<n;i++){const x=v[i];if(x===x&&Math.fround(x)!==x){this.widen();break;}}if(this.revised){this.cap=0;this.revised=false;}this.reserve(n);this.bs.set(s,this.end);this.bt.set(t,this.end);this.bv.set(v,this.end);this.bq.set(q,this.end);this.end+=n;this.touch();}
   prepend(s,t,v,q){
-    const n=t.length;if(!n)return;const used=this.end-this.start,cap=Math.max(1024,(n+used)*2),join=(Type,head,tail)=>{const to=new Type(cap);to.set(head);to.set(tail.subarray(this.start,this.end),n);return to;};
-    this.bs=join(Float64Array,s,this.bs);this.bt=join(Float64Array,t,this.bt);this.bv=join(Float64Array,v,this.bv);this.bq=join(Uint8Array,q,this.bq);this.cap=cap;this.start=0;this.end=n+used;this.touch();
+    const n=t.length;if(!n)return;if(this.compact)for(let i=0;i<n;i++){const x=v[i];if(x===x&&Math.fround(x)!==x){this.widen();break;}}const used=this.end-this.start,cap=Math.max(1024,Math.ceil((n+used)*1.5)),join=(Type,head,tail)=>{const to=new Type(cap);to.set(head);to.set(tail.subarray(this.start,this.end),n);return to;};
+    this.bs=join(Float64Array,s,this.bs);this.bt=join(Float64Array,t,this.bt);this.bv=join(this.ValueArray,v,this.bv);this.bq=join(Uint8Array,q,this.bq);this.cap=cap;this.start=0;this.end=n+used;this.touch();
   }
   // The revision is written into fresh arrays, so a paused chart keeps the value it showed.
   dropLast(){if(this.end>this.start){this.end--;this.revised=true;this.touch();}}
