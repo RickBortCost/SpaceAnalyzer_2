@@ -15,6 +15,15 @@ public static class FdaExporter
     const int MaxAbsInt16 = 32767;
     const long MaxTicks = 0xffffffffL;
 
+    /// <summary>
+    /// The FDA viewer refuses to open a file whose data need more than 256 MB of RAM (frames × channels × 8 bytes, time channel included)
+    /// and forces a manual "data subset" selection. A file is therefore closed before it would exceed that (255 MB used, 1 MB of margin).
+    /// Public and writable only so tests can use a small value.
+    /// </summary>
+    public static long ViewerRamLimitBytes = 255L << 20;
+
+    public static long MaxFramesPerFile(int channelCount) => Math.Max(1, ViewerRamLimitBytes / (8L * Math.Max(1, channelCount)));
+
     readonly record struct Staged(double T, long Cycle, int Node, double Value, byte Q);
 
     public static double ChooseGain(double peak)
@@ -147,6 +156,7 @@ public static class FdaExporter
         var period = Legacy.MetaNumber(sourceMeta, "initial_sample_ms") is double p && p != 0 ? p : 10;
         var header = Header(channels, epoch, period);
         var frameSize = 4 + 2 * (channels.Count - 1);
+        var maxFrames = MaxFramesPerFile(channels.Count);
         if (maxBytes > 0 && header.Length + frameSize > maxBytes) throw new InvalidDataException("Limite FDA inferiore a intestazione e un campione completo");
         FileStream? stream = null;
         string? partial = null;
@@ -210,7 +220,7 @@ public static class FdaExporter
                 ticks = t - epoch * 1000;
                 if (ticks is < 0 or > MaxTicks) throw new InvalidDataException("Durata FDA oltre il limite UInt32 millisecondi");
             }
-            if (stream != null && maxBytes > 0 && stream.Position + frameSize > maxBytes) Finish();
+            if (stream != null && ((maxBytes > 0 && stream.Position + frameSize > maxBytes) || frames >= maxFrames)) Finish();
             if (stream == null) Open();
             BinaryPrimitives.WriteUInt32LittleEndian(frame, (uint)ticks);
             for (var i = 0; i < values.Length; i++) BinaryPrimitives.WriteInt16LittleEndian(frame.AsSpan(4 + 2 * i), values[i]);

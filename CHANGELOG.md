@@ -2,6 +2,12 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.5.3
+
+- **File FDA apribili nel programma FDA senza selezione del sottoinsieme**: un file FDA da 900.000 campioni e 46 canali (15 minuti a 1 kHz) faceva comparire nel programma FDA l'avviso "requires storing data in more than 256 MB" e la finestra "Data Subset Selection", perché il programma carica in RAM campioni × canali (tempo incluso) × 8 byte e rifiuta oltre 256 MB (qui 322,7 MB). Ora ogni file FDA viene chiuso prima di superare 255 MB di RAM così calcolati (circa 711.000 campioni con 46 canali; con meno canali, di più) e la registrazione prosegue in un nuovo file `_FDA0002`, `_FDA0003`, … senza perdere campioni. Vale per Record, per la conversione dalla pagina Conversione e per `--tool export-fda`. Motivo: i file generati devono aprirsi direttamente nel programma FDA.
+- Limite invariato per le dimensioni su disco (`max_file_mb`): il nuovo limite si somma e vince quello che scatta per primo.
+- Test: `FdaFilesStayWithinTheViewerRamLimit` (suddivisione dei file, nessun campione perso, formula del limite).
+
 ## 3.5.2
 
 - **REGISTRAZIONI: cursore e griglia allineati tra grafici dello stesso file**: con la sincronizzazione attiva e senza zoom, ogni grafico usava l'intervallo X dei propri segnali; segnali con inizio e fine leggermente diversi (qui circa 0,4 s) davano assi X sfasati, quindi la linea di posizione cadeva in punti diversi dei due grafici pur indicando lo stesso istante. Ora i grafici dello stesso file con la sincronizzazione attiva condividono l'intervallo X (unione dei loro dati). Senza sincronizzazione ogni grafico continua a usare i propri dati; file diversi non si influenzano. Motivo: cursore, marker e griglia devono corrispondere allo stesso punto in tutti i grafici.
