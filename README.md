@@ -1,15 +1,14 @@
 # Space Fieldbus Analyzer 3
 
-**Versione 3.6.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.7.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.6.0
+## Novità della versione 3.7.0
 
-- Il tipo di dato dei file e della memoria Live è scelto automaticamente in base ai dati acquisiti: i segnali booleani e interi fino a 16 bit (UINT, INT, WORD, …) usano la rappresentazione più stretta che resta esatta; i segnali a 32/64 bit e Double non vengono mai ristretti. Motivo: risparmiare memoria e spazio senza perdere nulla.
-- RBF: canali Boolean e Int16 nativi invece di Float32 (2 byte invece di 4 per un UINT con valori fino a 32767). FDA: i segnali interi oltre 32767 (ad esempio UINT) sono salvati esatti con un offset invece di essere scalati con perdita (da verificare nel programma FDA). Live: valori a 32 bit per i segnali a 16 bit, con passaggio automatico a 64 bit se un valore non è esatto.
-- Il Parquet originale non cambia: la misura mostra un guadagno troppo piccolo rispetto al rischio di compatibilità.
-- Dalla 3.5.3: file FDA chiusi prima del limite di 256 MB del programma FDA; dalla 3.5.2: asse X condiviso tra i grafici in Registrazioni e messaggi di errore chiudibili; dalla 3.5.1: DAT ibaPDA; dalla 3.4.x: nome Space Fieldbus Analyzer.
+- Nuova pagina **InfluxDB**: collegamento a un server InfluxDB 2.x (indirizzo e token di sola lettura), elenco automatico di bucket, misure, campi e tag, scelta delle serie e del periodo e grafici con riduzione automatica dei dati (tutti i punti se pochi, finestre con media/min/max/ultimo/mediana se molti) e più dettaglio con lo zoom. Organizzazione, elenco e primo grafico sono automatici; il token salvato non esce dal servizio. Guida: `source/GUIDA_INFLUXDB.md`. Non ancora verificato con un server InfluxDB reale (test con un server di prova).
+- Conversione, Dati calcolati e Debug SSH sono raggruppati nel menu **Strumenti** della barra superiore. Motivo: con la nuova pagina le voci non entravano più su una riga.
+- Dalla 3.6.0: tipo di dato scelto automaticamente per RBF, FDA e memoria Live; dalla 3.5.x: file FDA entro i 256 MB del programma FDA, asse X condiviso in Registrazioni, DAT ibaPDA; dalla 3.4.x: nome Space Fieldbus Analyzer.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

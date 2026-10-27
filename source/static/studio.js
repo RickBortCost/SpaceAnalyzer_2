@@ -10,7 +10,7 @@ class ChartActionToolbar {
     this.heading.insertBefore(this.rail,this.controls);this.heading.classList.add('has-chart-tools');
     this.measure=document.createElement('div');this.measure.className='chart-tool-measure';this.measure.setAttribute('aria-hidden','true');this.measure.inert=true;this.heading.append(this.measure);
     // Visibili solo le azioni frequenti; le altre stanno nel menu ⋮ (meno ingombro con più grafici).
-    const definitions=[['analysis',I18N.t("FFT / Export")],['resetZoom',I18N.t("Ripristina zoom")],['closeFile',I18N.t("Chiudi file")],['axes',I18N.t("Assi Y1/Y2")],['signals',I18N.t("Segnali")],['sync',I18N.t("Sincronizza")],['image','PNG'],['rename',I18N.t("Rinomina")],['duplicate',I18N.t("Duplica")],['clear',I18N.t("Pulisci")],['remove',I18N.t("Rimuovi")]];
+    const definitions=[['analysis',I18N.t("FFT / Export")],['resetZoom',I18N.t("Ripristina zoom")],['closeFile',I18N.t(workspace.options.closeLabel||"Chiudi file")],['axes',I18N.t("Assi Y1/Y2")],['signals',I18N.t("Segnali")],['sync',I18N.t("Sincronizza")],['image','PNG'],['rename',I18N.t("Rinomina")],['duplicate',I18N.t("Duplica")],['clear',I18N.t("Pulisci")],['remove',I18N.t("Rimuovi")]];
     this.primary=new Set(['analysis','resetZoom','closeFile']);
     this.actions=[];
     for(const [key,label] of definitions){
@@ -200,7 +200,7 @@ const decorateStudioChart=(ws,g)=>{
     if(action==='sync'){const cb=$(ws.scope+'-sync-zoom');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change',{bubbles:true}));}
   };
   g.actionToolbar=new ChartActionToolbar(g,ws);
-  const draw=g.trend.draw.bind(g.trend);g.trend.draw=function(){draw();drawNavigator(g);const delta=g.element.querySelector('.marker-inline-delta');I18N.bind(delta,"textContent",()=>('Δt '+this.formatDuration(Number.isFinite(this.markers.x1)&&Number.isFinite(this.markers.x2)?this.markers.x2-this.markers.x1:NaN)),false);const badge=g.element.querySelector('[data-studio-role=state]');I18N.bind(badge,"textContent",()=>(ws.staticMode?I18N.t("FILE"):this.frozen?I18N.t("PAUSA"):connected?'LIVE ●':'OFFLINE'),true);badge.className='graph-state'+(this.frozen?' paused':!connected&&!ws.staticMode?' disconnected':'');g.element.dataset.dropLabel=I18N.join([{text:"Rilascia per aggiungere a "},{value:(g.name)}]);g.actionToolbar?.syncState();scheduleStudioToolbar();};
+  const draw=g.trend.draw.bind(g.trend);g.trend.draw=function(){draw();drawNavigator(g);const delta=g.element.querySelector('.marker-inline-delta');I18N.bind(delta,"textContent",()=>('Δt '+this.formatDuration(Number.isFinite(this.markers.x1)&&Number.isFinite(this.markers.x2)?this.markers.x2-this.markers.x1:NaN)),false);const badge=g.element.querySelector('[data-studio-role=state]');I18N.bind(badge,"textContent",()=>(ws.staticMode?I18N.t(ws.options.stateLabel||"FILE"):this.frozen?I18N.t("PAUSA"):connected?'LIVE ●':'OFFLINE'),true);badge.className='graph-state'+(this.frozen?' paused':!connected&&!ws.staticMode?' disconnected':'');g.element.dataset.dropLabel=I18N.join([{text:"Rilascia per aggiungere a "},{value:(g.name)}]);g.actionToolbar?.syncState();scheduleStudioToolbar();};
   if(ws.staticMode){g.element.classList.add('signal-drop-target');const over=e=>{if(Array.from(e.dataTransfer?.types||[]).includes('application/x-opcua-history')){e.preventDefault();g.element.classList.add('signal-drag-over');}};g.element.addEventListener('dragover',over);g.element.addEventListener('dragleave',e=>{if(!g.element.contains(e.relatedTarget))g.element.classList.remove('signal-drag-over');});g.element.addEventListener('drop',e=>{g.element.classList.remove('signal-drag-over');const raw=e.dataTransfer?.getData('application/x-opcua-history');if(!raw)return;e.preventDefault();try{const payload=JSON.parse(raw);dropHistorySignal(ws,g,payload).catch(err=>notice(err.message,true));}catch{notice(I18N.t("Segnale trascinato non valido."),true);}});}
 }
 window.decorateStudioChart=decorateStudioChart;
@@ -300,12 +300,16 @@ window.opcuaConfigReady=loadConfig().then(async()=>{startPolling();await restore
   if(typeof MutationObserver!=='undefined')new MutationObserver(sync).observe(status,{attributes:true,attributeFilter:['class','title'],childList:true,characterData:true,subtree:true});
   sync();
 })();
-// Menu Impostazioni in posizione fissa sotto il pulsante (la barra superiore ritaglia i figli assoluti); si chiude con clic fuori, Esc e ridimensionamento.
+// Menu dell'intestazione (Impostazioni, Strumenti) in posizione fissa sotto il pulsante (la barra superiore ritaglia i figli assoluti); si chiudono con clic fuori, Esc e ridimensionamento.
 (function(){
-  const menu=document.querySelector('.app-bar .app-menu');if(!menu)return;
-  const place=()=>{const panel=menu.querySelector('.detail-content'),summary=menu.querySelector('summary');if(!menu.open||!panel||!summary)return;const r=summary.getBoundingClientRect();panel.style.top=Math.round(r.bottom+5)+'px';panel.style.right=Math.max(8,Math.round(window.innerWidth-r.right))+'px';};
-  menu.addEventListener('toggle',place);
-  window.addEventListener('resize',()=>{menu.open=false;});
-  document.addEventListener('click',e=>{if(menu.open&&!menu.contains(e.target))menu.open=false;});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu.open){menu.open=false;menu.querySelector('summary')?.focus();}});
+  const menus=[...document.querySelectorAll('.app-bar details.app-menu, .app-bar details.tools-menu')];if(!menus.length)return;
+  const place=menu=>{const panel=menu.querySelector('.detail-content'),summary=menu.querySelector('summary');if(!menu.open||!panel||!summary)return;const r=summary.getBoundingClientRect();panel.style.top=Math.round(r.bottom+5)+'px';
+    if(menu.classList.contains('tools-menu')){panel.style.left=Math.max(8,Math.round(r.left))+'px';panel.style.right='auto';}else{panel.style.right=Math.max(8,Math.round(window.innerWidth-r.right))+'px';}};
+  for(const menu of menus){
+    menu.addEventListener('toggle',()=>place(menu));
+    if(menu.classList.contains('tools-menu'))menu.querySelector('.detail-content')?.addEventListener('click',e=>{if(e.target.closest('button'))menu.open=false;});
+  }
+  window.addEventListener('resize',()=>{for(const menu of menus)menu.open=false;});
+  document.addEventListener('click',e=>{for(const menu of menus)if(menu.open&&!menu.contains(e.target))menu.open=false;});
+  document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;for(const menu of menus)if(menu.open){menu.open=false;menu.querySelector('summary')?.focus();}});
 })();
