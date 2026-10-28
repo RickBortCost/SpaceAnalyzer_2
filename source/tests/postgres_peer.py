@@ -70,15 +70,22 @@ class Peer:
         options = f'-p {self.port} -c listen_addresses=127.0.0.1'
         if os.name != 'nt':
             options += ' -k ' + str(self.root)
-        self.run('pg_ctl', '-D', str(data), '-o', options, '-l', str(self.root / 'server.log'), '-w', 'start')
+        # The server inherits the handles of pg_ctl: on Windows captured pipes would never close, so the output goes to the server log only.
+        self.run('pg_ctl', '-D', str(data), '-o', options, '-l', str(self.root / 'server.log'), '-w', 'start', detached=True)
         self.data = data
         self.psql('postgres', f'CREATE DATABASE {DATABASE}')
         self.psql(DATABASE, SQL)
 
-    def run(self, tool, *args):
+    def run(self, tool, *args, detached=False):
         exe = str(self.bin / (tool + ('.exe' if os.name == 'nt' else '')))
         env = dict(os.environ, PGPASSWORD=PASSWORD)
-        result = subprocess.run(self.prefix + [exe, *args], capture_output=True, text=True, env=env, timeout=120)
+        if detached:
+            code = subprocess.run(self.prefix + [exe, *args], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=env, timeout=120).returncode
+            if code:
+                log = self.root / 'server.log'
+                raise RuntimeError(f'{tool} non riuscito ({code}): ' + (log.read_text(errors='replace')[-4000:] if log.exists() else ''))
+            return ''
+        result = subprocess.run(self.prefix + [exe, *args], stdin=subprocess.DEVNULL, capture_output=True, text=True, env=env, timeout=120)
         if result.returncode:
             raise RuntimeError(f'{tool} non riuscito: {result.stdout}{result.stderr}')
         return result.stdout
@@ -88,7 +95,7 @@ class Peer:
 
     def close(self):
         try:
-            self.run('pg_ctl', '-D', str(self.data), '-m', 'fast', '-w', 'stop')
+            self.run('pg_ctl', '-D', str(self.data), '-m', 'fast', '-w', 'stop', detached=True)
         finally:
             shutil.rmtree(self.root, ignore_errors=True)
 
