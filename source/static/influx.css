@@ -13,3 +13,15 @@ body>main.influx-page{flex:1 1 auto;min-height:0!important;overflow:hidden}.infl
 .influx-custom{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;margin-top:6px}.influx-options{display:grid;gap:5px;margin-top:6px}.influx-options select{width:100%}
 .influx-range{display:grid;gap:4px}
 @media(max-width:900px){.influx-page{grid-template-columns:1fr;overflow:auto}.influx-page .page-splitter{display:none}body>main.influx-page{overflow:auto}.influx-series{max-height:260px}}
+/* Finestra di esportazione */
+.influx-export-dialog{width:min(640px,94vw)}
+.influx-export-period{border:1px solid var(--line);border-radius:6px;margin:0 0 10px;padding:8px 10px;display:grid;gap:6px}.influx-export-period legend{font-weight:600;padding:0 4px}
+.influx-export-period small{color:var(--muted,inherit)}
+.influx-export-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 12px;align-items:center}.influx-export-grid select,.influx-export-grid input{width:100%;box-sizing:border-box}
+.influx-export-folder{display:flex;gap:6px;min-width:0}.influx-export-folder input{flex:1 1 auto;min-width:0}
+#influx-export-progress{width:100%;margin:8px 0}
+.influx-export-files{margin:6px 0 0;padding-left:18px;word-break:break-all}
+.record-status.ok{border-color:#2e9b57}.record-status.error{border-color:#c0392b}
+@media(max-width:700px){.influx-export-grid{grid-template-columns:minmax(0,1fr)}}
+.influx-export-choice{display:flex!important;align-items:center;justify-content:flex-start!important;gap:8px;margin:0;text-align:left}.influx-export-choice input{width:auto;flex:none;margin:0}.influx-export-choice small{margin-left:4px}
+.influx-export-period .influx-custom{grid-template-columns:auto minmax(0,1fr)}

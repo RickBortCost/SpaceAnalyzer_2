@@ -28,6 +28,8 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
 {
     readonly Queue<DateTime> frontendLog = new();
     readonly InfluxService influx = new(rt.Paths.DataDir);
+    InfluxExports? influxExports;
+    InfluxExports InfluxExport => influxExports ??= new InfluxExports(influx, () => Path.Combine(rt.Paths.RecordingsDir, Conversions.Folder));
     AppPaths Paths => rt.Paths;
 
     delegate Task<object?> Handler(HttpContext ctx);
@@ -136,6 +138,10 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         Post(app, "/api/influx/forget", _ => { influx.Forget(); return Task.FromResult<object?>(Ok()); });
         Post(app, "/api/influx/catalog", async ctx => Http.Ok(("catalog", await influx.Catalog(await Http.Object(ctx, silent: true), ctx.RequestAborted))));
         Post(app, "/api/influx/samples", async ctx => await influx.Samples(await Http.Object(ctx, silent: true), ctx.RequestAborted));
+        // Esportazione dei dati originali (periodo e formato a scelta) in background; la cartella di destinazione si sceglie con la finestra del sistema.
+        Post(app, "/api/influx/export", async ctx => Ok(("job", InfluxExport.Start(await Http.Json(ctx, silent: true) ?? new JsonObject()))));
+        Get(app, "/api/influx/export/{ident}", ctx => Task.FromResult<object?>(Ok(("job", InfluxExport.Status((string)ctx.Request.RouteValues["ident"]!)))));
+        Post(app, "/api/influx/export/{ident}/cancel", ctx => Task.FromResult<object?>(Ok(("job", InfluxExport.Cancel((string)ctx.Request.RouteValues["ident"]!)))));
     }
 
     // ---- Configuration, settings, certificates --------------------------------------------

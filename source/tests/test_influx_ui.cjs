@@ -101,6 +101,48 @@ const graphSeries = (t, key) => t.influxCharts.active.series[key];
     const raw = graphSeries(t, counter); assert.equal(raw.t[0], T0); assert.equal(raw.t[3599], T0 + 3599000); assert.equal(raw.v[0], 1000); assert.equal(raw.v[3599], 1000 + 3599);
     checks.push('Tutti i punti esatti; tag con virgolette, backslash e ${ } nel filtro Flux');
 
+    // Esportazione: finestra con periodo, formato e cartella locale; i file contengono tutti i punti originali.
+    const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'influx-export-'));
+    const openExport = () => {$('influx-export-open').click(); const dialog = $('influx-export-dialog'); assert(dialog.open, 'finestra aperta'); return dialog;};
+    const exportAndWait = async (label) => {
+      $('influx-export-form').dispatchEvent(new w.Event('submit', {bubbles: true, cancelable: true}));
+      await wait(() => /completata|annullata|errore|non riuscita|Nessun|non valido|Seleziona|Indica|La fine/i.test($('influx-export-status').textContent) && !$('influx-export-start').disabled, label + ' ' + $('influx-export-status').textContent, 60000);
+      return $('influx-export-status').textContent;
+    };
+    const dialog = openExport();
+    assert.match($('influx-export-summary').textContent, /1\s+serie/);
+    assert($('influx-export-loaded-range').textContent.includes('→') && $('influx-export-visible-range').textContent.includes('→'));
+    assert.deepEqual([...$('influx-export-format').options].map(o => o.value), ['csv', 'parquet', 'das', 'rbf']);
+    // CSV, periodo caricato (un'ora): tutti i 3600 punti, nella cartella scelta.
+    $('influx-export-directory').value = outDir; $('influx-export-format').value = 'csv'; $('influx-export-name').value = 'prova';
+    let result = await exportAndWait('export CSV'); assert.match(result, /completata:\s+3\.?600\s+punti\s+in\s+1\s+file/, result);
+    const csv = fs.readdirSync(outDir).filter(f => f.endsWith('.csv')); assert.equal(csv.length, 1); assert(csv[0].startsWith('prova_'));
+    const lines = fs.readFileSync(path.join(outDir, csv[0]), 'utf8').trim().split(/\r?\n/); assert.equal(lines.length, 3601);
+    const head = lines[0].split(','), col = n => head.indexOf(n), first = lines[1].split(','), last = lines.at(-1).split(',');
+    assert.equal(Number(first[col('timestamp_ms')]), T0); assert.equal(Number(first[col('value_numeric')]), 1000); assert.equal(Number(last[col('timestamp_ms')]), T0 + 3599000); assert.equal(Number(last[col('value_numeric')]), 1000 + 3599);
+    assert(fs.readdirSync(outDir).filter(f => f.startsWith(csv[0].replace(/\.csv$/, ''))).length >= 2, 'metadati accanto al file: ' + fs.readdirSync(outDir));
+    // Intervallo a scelta: 10 minuti = 601 punti (estremi inclusi) in Parquet; il periodo è in ora locale del browser.
+    $('influx-export-format').value = 'parquet'; const radio = v => [...w.document.querySelectorAll('input[name="influx-export-period"]')].find(r => r.value === v);
+    radio('custom').checked = true; $('influx-export-from').value = w.localInputFromMs(T0 + 600000); $('influx-export-to').value = w.localInputFromMs(T0 + 1200000);
+    result = await exportAndWait('export Parquet'); assert.match(result, /completata:\s+601\s+punti\s+in\s+1\s+file/, result);
+    assert(fs.readdirSync(outDir).some(f => f.endsWith('.parquet')));
+    // Intervallo visibile: lo zoom del grafico decide il periodo.
+    radio('visible').checked = true; const g = t.influxCharts.active; g.trend.zoom = {xmin: T0 + 100000, xmax: T0 + 200000, axes: g.trend.fullDomain?.axes}; g.trend.draw();
+    const vis = t.influxExportRange(); assert(vis.start >= T0 + 99000 && vis.end <= T0 + 201000, JSON.stringify(vis)); g.trend.zoom = null; g.trend.draw();
+    // FDA e RBF: i file legacy vengono prodotti dalla stessa lettura.
+    radio('loaded').checked = true;
+    for (const [fmt, ext] of [['das', '.das'], ['rbf', '.rbf']]) {
+      $('influx-export-format').value = fmt; result = await exportAndWait('export ' + fmt); assert.match(result, /completata/, result);
+      assert(fs.readdirSync(outDir).some(f => f.toLowerCase().endsWith(ext)), fmt + ' creato: ' + fs.readdirSync(outDir));
+    }
+    assert(!fs.readdirSync(outDir).some(f => f.startsWith('.esportazione')), 'cartella di lavoro rimossa');
+    // Errori: intervallo invalido non avvia il lavoro.
+    radio('custom').checked = true; $('influx-export-from').value = w.localInputFromMs(T0 + 1200000); $('influx-export-to').value = w.localInputFromMs(T0 + 600000);
+    result = await exportAndWait('export intervallo invalido'); assert.match(result, /La fine deve seguire/);
+    $('influx-export-close').click(); assert(!dialog.open, 'finestra chiusa'); fs.rmSync(outDir, {recursive: true, force: true});
+    checks.push('Esportazione: CSV, Parquet, FDA e RBF con periodo caricato, visibile o a scelta nella cartella indicata');
+
     // Due serie, preset 5 minuti: valori identici ai dati del server.
     tick($, counter, false); const p1 = keyOf(t, 'pressure', 'value', {line: '1'}), p2 = keyOf(t, 'pressure', 'value', {line: '2'});
     tick($, p1, true); tick($, p2, true); t.setInfluxPreset(300); $('influx-load').click();
