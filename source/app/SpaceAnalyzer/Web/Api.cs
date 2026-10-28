@@ -8,6 +8,7 @@ using SpaceAnalyzer.App.Analysis;
 using SpaceAnalyzer.App.Calculations;
 using SpaceAnalyzer.App.Config;
 using SpaceAnalyzer.App.Infrastructure;
+using SpaceAnalyzer.App.Databases;
 using SpaceAnalyzer.App.Influx;
 using SpaceAnalyzer.App.Live;
 using SpaceAnalyzer.App.Recordings;
@@ -28,8 +29,11 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
 {
     readonly Queue<DateTime> frontendLog = new();
     readonly InfluxService influx = new(rt.Paths.DataDir);
-    InfluxExports? influxExports;
-    InfluxExports InfluxExport => influxExports ??= new InfluxExports(influx, () => Path.Combine(rt.Paths.RecordingsDir, Conversions.Folder));
+    readonly PostgresService postgres = new(rt.Paths.DataDir);
+    SeriesExports? postgresExports;
+    SeriesExports PostgresExport => postgresExports ??= new SeriesExports(postgres, () => Path.Combine(rt.Paths.RecordingsDir, Conversions.Folder));
+    SeriesExports? influxExports;
+    SeriesExports InfluxExport => influxExports ??= new SeriesExports(influx, () => Path.Combine(rt.Paths.RecordingsDir, Conversions.Folder));
     AppPaths Paths => rt.Paths;
 
     delegate Task<object?> Handler(HttpContext ctx);
@@ -90,6 +94,7 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         MapAnalysis(app);
         MapSsh(app);
         MapInflux(app);
+        MapPostgres(app);
         Get(app, "/api/logs", _ =>
         {
             var path = Paths.LogFile;
@@ -127,6 +132,20 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             ThreadPool.QueueUserWorkItem(_ => { Thread.Sleep(400); shutdown(); });
             return Task.FromResult<object?>(Ok());
         });
+    }
+
+    // ---- PostgreSQL (read-only): connection, tables with time series, time series for the charts, export ----------------
+
+    void MapPostgres(WebApplication app)
+    {
+        Get(app, "/api/postgres/settings", _ => Task.FromResult<object?>(Ok(("settings", postgres.PublicSettings()))));
+        Post(app, "/api/postgres/connect", async ctx => Http.Ok(("connection", await postgres.Connect(await Http.Object(ctx, silent: true), ctx.RequestAborted))));
+        Post(app, "/api/postgres/forget", _ => { postgres.Forget(); return Task.FromResult<object?>(Ok()); });
+        Post(app, "/api/postgres/catalog", async ctx => Http.Ok(("catalog", await postgres.Catalog(await Http.Object(ctx, silent: true), ctx.RequestAborted))));
+        Post(app, "/api/postgres/samples", async ctx => await postgres.Samples(await Http.Object(ctx, silent: true), ctx.RequestAborted));
+        Post(app, "/api/postgres/export", async ctx => Ok(("job", PostgresExport.Start(await Http.Json(ctx, silent: true) ?? new JsonObject()))));
+        Get(app, "/api/postgres/export/{ident}", ctx => Task.FromResult<object?>(Ok(("job", PostgresExport.Status((string)ctx.Request.RouteValues["ident"]!)))));
+        Post(app, "/api/postgres/export/{ident}/cancel", ctx => Task.FromResult<object?>(Ok(("job", PostgresExport.Cancel((string)ctx.Request.RouteValues["ident"]!)))));
     }
 
     // ---- InfluxDB 2.x (read-only): connection, catalog and time series for the charts ------------------

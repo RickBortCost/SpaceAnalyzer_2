@@ -8,14 +8,34 @@ using SpaceAnalyzer.App.Web;
 using SpaceAnalyzer.Engine.Core;
 using SpaceAnalyzer.Engine.Recording;
 
-namespace SpaceAnalyzer.App.Influx;
+namespace SpaceAnalyzer.App.Databases;
+
+/// <summary>A database series selected for export: identifier, readable name, value type and the request item that describes it.</summary>
+public sealed record ExportSeries(string Key, string Name, string DataType, JsonObject Item);
+
+/// <summary>A time-series database read by the application (InfluxDB, PostgreSQL): what an export needs from it.</summary>
+public interface ISeriesDatabase
+{
+    /// <summary>Name shown to the operator and written in the metadata (InfluxDB, PostgreSQL).</summary>
+    string Label { get; }
+    /// <summary>source_protocol of the exported rows (influxdb, postgresql).</summary>
+    string Protocol { get; }
+    /// <summary>Address of the server, without credentials.</summary>
+    string ServerUrl { get; }
+    /// <summary>Validates the series of an export request.</summary>
+    List<ExportSeries> Plan(JsonNode? series);
+    /// <summary>Number of original points of a series in [start, end).</summary>
+    Task<long> CountPoints(ExportSeries series, double start, double end, CancellationToken ct);
+    /// <summary>Every original point of a series in [start, end): time (ms) and numeric value (booleans as 0/1), in time order.</summary>
+    Task<List<(double Time, double Value)>> RawPoints(ExportSeries series, double start, double end, CancellationToken ct);
+}
 
 /// <summary>
-/// Export of InfluxDB series to CSV, Parquet, FDA DAS4 or RBF, in background. Every original point of the chosen series and period is read from the
+/// Export of database series (InfluxDB, PostgreSQL) to CSV, Parquet, FDA DAS4 or RBF, in background. Every original point of the chosen series and period is read from the
 /// server in time slices (so memory stays bounded whatever the period), merged in time order and written like a recording of this application.
 /// FDA and RBF are produced by the recording exporters from an intermediate Parquet, deleted at the end.
 /// </summary>
-public sealed class InfluxExports(InfluxService influx, Func<string> defaultDirectory)
+public sealed class SeriesExports(ISeriesDatabase database, Func<string> defaultDirectory)
 {
     /// <summary>Points read from the server per slice (all series together): bounds the memory of one slice.</summary>
     public const long SlicePoints = 250_000;
@@ -26,13 +46,13 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
     CancellationTokenSource? running;
     bool closed;
 
-    sealed record Job(string Ident, List<InfluxService.ExportSeries> Series, string Format, double Start, double End, string Directory, string Stem, string Server);
+    sealed record Job(string Ident, List<ExportSeries> Series, string Format, double Start, double End, string Directory, string Stem, string Server);
 
     public Dictionary<string, object?> Start(JsonNode? data)
     {
         var format = data.Get("format").Str() ?? "";
         if (!Conversions.Targets.ContainsKey(format)) throw new UserError("Formato di destinazione non valido: scegliere CSV, Parquet, FDA DAS4 o RBF");
-        var series = InfluxService.ExportPlan(data.Get("series"));
+        var series = database.Plan(data.Get("series"));
         if (format is "das" or "rbf" && series.Count > Conversions.MaxLegacySignals)
             throw new UserError($"{Conversions.Targets[format]}: selezionare al massimo {Conversions.MaxLegacySignals} serie (selezionate {series.Count})");
         var start = data.Get("start_ms").Float();
@@ -44,7 +64,7 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
         else if (!Path.IsPathRooted(directory)) throw new UserError("Indicare un percorso completo per la cartella di destinazione");
         directory = Path.GetFullPath(directory);
         var name = data.Get("name").Str()?.Trim();
-        var stem = Conversions.SafeStem(string.IsNullOrEmpty(name) ? "InfluxDB" : Path.GetFileNameWithoutExtension(name));
+        var stem = Conversions.SafeStem(string.IsNullOrEmpty(name) ? database.Label : Path.GetFileNameWithoutExtension(name));
         lock (gate)
         {
             if (closed) throw new UserError("Servizio di esportazione arrestato");
@@ -59,8 +79,8 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
             };
             order.Add(ident);
             var cancel = running = new CancellationTokenSource();
-            var job = new Job(ident, series, format, s0, e0, directory, stem, influx.ServerUrl);
-            new Thread(() => Run(job, cancel.Token)) { IsBackground = true, Name = "influx-export" }.Start();
+            var job = new Job(ident, series, format, s0, e0, directory, stem, database.ServerUrl);
+            new Thread(() => Run(job, cancel.Token)) { IsBackground = true, Name = "database-export" }.Start();
             return Status(ident);
         }
     }
@@ -114,7 +134,7 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
             var counts = new long[job.Series.Count];
             for (var i = 0; i < job.Series.Count; i++)
             {
-                counts[i] = influx.CountPoints(job.Series[i], job.Start, job.End + 1, cancel).GetAwaiter().GetResult();
+                counts[i] = database.CountPoints(job.Series[i], job.Start, job.End + 1, cancel).GetAwaiter().GetResult();
                 total += counts[i];
             }
             if (total == 0) throw new UserError("Nessun dato nel periodo scelto per le serie selezionate");
@@ -159,7 +179,7 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
             }
             Update(job.Ident, ("state", "ready"), ("phase", "done"), ("rows_read", stats.Rows), ("files", files.Cast<object?>().ToList()),
                 ("finished_at", Values.PythonIso(DateTime.UtcNow)));
-            Log.Info($"Esportazione InfluxDB -> {job.Format}: {stats.Rows} campioni, {files.Count} file");
+            Log.Info($"Esportazione {database.Label} -> {job.Format}: {stats.Rows} campioni, {files.Count} file");
         }
         catch (Exception exc)
         {
@@ -169,7 +189,7 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
             }
             var cancelled = exc is OperationCanceledException;
             Update(job.Ident, ("state", cancelled ? "cancelled" : "error"), ("error", cancelled ? "Esportazione annullata" : Http.Map(exc).message));
-            if (!cancelled) Log.Warning($"Esportazione InfluxDB -> {job.Format} non riuscita: {exc.Message}");
+            if (!cancelled) Log.Warning($"Esportazione {database.Label} -> {job.Format} non riuscita: {exc.Message}");
         }
         finally
         {
@@ -197,7 +217,7 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
             var batch = new List<(double Time, int Series, long Cycle, double Value)>();
             for (var i = 0; i < job.Series.Count; i++)
             {
-                foreach (var (t, v) in influx.RawPoints(job.Series[i], from, to, cancel).GetAwaiter().GetResult())
+                foreach (var (t, v) in database.RawPoints(job.Series[i], from, to, cancel).GetAwaiter().GetResult())
                     batch.Add((t, i, ordinal[i]++, v));
             }
             batch.Sort((a, b) => a.Time != b.Time ? a.Time.CompareTo(b.Time) : a.Series.CompareTo(b.Series));
@@ -216,7 +236,7 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
                     ["timestamp_utc"] = Values.IsoFromMs(t), ["timestamp_ms"] = t, ["elapsed_ms"] = t - job.Start, ["cycle"] = cycle,
                     ["node_id"] = series.Key, ["signal_name"] = series.Name, ["value_numeric"] = v, ["value_text"] = "",
                     ["data_type"] = series.DataType, ["status"] = "Good", ["good"] = true, ["quality"] = "Good", ["status_code"] = 0L,
-                    ["source_protocol"] = "influxdb",
+                    ["source_protocol"] = database.Protocol,
                 };
             }
         }
@@ -226,10 +246,10 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
     {
         var meta = new Dictionary<string, object?>
         {
-            ["endpoint"] = job.Server, ["source_protocol"] = "influxdb", ["timestamp_order"] = "time",
+            ["endpoint"] = job.Server, ["source_protocol"] = database.Protocol, ["timestamp_order"] = "time",
             ["format"] = format,
             ["storage"] = new Dictionary<string, object?> { ["format"] = format, ["label"] = format == "csv" ? "CSV" : "Apache Parquet", ["lossless"] = true },
-            ["state"] = "complete", ["exported_from"] = "InfluxDB", ["converted_at"] = Values.PythonIso(DateTime.UtcNow),
+            ["state"] = "complete", ["exported_from"] = database.Label, ["converted_at"] = Values.PythonIso(DateTime.UtcNow),
             ["signals"] = job.Series.Select(s => (object?)new Dictionary<string, object?> { ["nodeid"] = s.Key, ["display_name"] = s.Name, ["unit"] = "" }).ToList(),
             ["rows_written"] = stats.Rows,
         };
@@ -244,11 +264,11 @@ public sealed class InfluxExports(InfluxService influx, Func<string> defaultDire
         return meta;
     }
 
-    static string Retarget(string json, Job job)
+    string Retarget(string json, Job job)
     {
         var node = JsonNode.Parse(json) as JsonObject ?? new JsonObject();
         node.Remove("original_archive");
-        node["exported_from"] = "InfluxDB";
+        node["exported_from"] = database.Label;
         node["endpoint"] = job.Server;
         node["converted_at"] = Values.PythonIso(DateTime.UtcNow);
         return node.ToJsonString(new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });

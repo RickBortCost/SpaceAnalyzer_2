@@ -203,7 +203,7 @@ function applyRecordingControls(){
 }
 function renderRecording(info){
   if(info.revision!==undefined&&recordState.revision!==undefined&&info.revision<recordState.revision)return;
-  recordState=info;recordDirectory=info.directory||recordDirectory;syncRecordingsLocation();
+  recordState=info;recordDirectory=info.recordings_directory||recordDirectory;syncRecordingsLocation();
   const box=$('record-status'),seconds=Number(info.duration_seconds||0).toFixed(1),rows=Number(info.rows_written||0).toLocaleString(I18N.locale());
   box.className='record-status'+(info.busy?' active':'')+(info.error?' error':'')+(info.state==='recording'&&!info.error?' recording':'');box.title='';
   if(info.error)I18N.bind(box,"textContent",()=>(I18N.join([{text:"Errore registrazione: "},{value:(info.error)},{text:" · "},{value:(info.path||'')}])),true);

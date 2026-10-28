@@ -201,6 +201,8 @@ public sealed class RecordingManager(string directory, string version, Action<st
         };
         var locked = start || current is { Acquiring: true };
         result["revision"] = rev;
+        // The folder for the next recording; "directory" stays the folder of the session described (also after Stop).
+        result["recordings_directory"] = Directory;
         result["selection_locked"] = locked;
         result["can_start"] = !locked && !closed;
         result["busy"] = locked || pending > 0;

@@ -47,11 +47,11 @@ function localInputFromIso(value){const t=Date.parse(value||'');return Number.is
 function msFromLocalInput(value){if(!value)return null;const t=new Date(value).getTime();return Number.isFinite(t)?t:null;}
 function historyFormatStamp(value){const t=Date.parse(value||'');return Number.isFinite(t)?new Date(t).toLocaleString(I18N.locale()):'—';}
 function showAppPage(page){
-  window.currentAppPage=page;const history=page==='recordings',calculated=page==='calculations',ssh=page==='ssh',conversion=page==='conversion',influx=page==='influx';H('live-page').hidden=page!=='live';H('recordings-page').hidden=!history;if(H('calculations-page'))H('calculations-page').hidden=!calculated;if(H('ssh-page'))H('ssh-page').hidden=!ssh;if(H('conversion-page'))H('conversion-page').hidden=!conversion;if(H('influx-page'))H('influx-page').hidden=!influx;
-  for(const [id,active] of [['nav-live',page==='live'],['nav-recordings',history],...(H('nav-calculations')?[['nav-calculations',calculated]]:[]),...(H('nav-ssh')?[['nav-ssh',ssh]]:[]),...(H('nav-conversion')?[['nav-conversion',conversion]]:[]),...(H('nav-influx')?[['nav-influx',influx]]:[])]){H(id).classList.toggle('active',active);H(id).setAttribute('aria-pressed',String(active));}
-  H('nav-tools')?.classList.toggle('active',conversion||calculated||ssh);
-  if(ssh)window.openSSHPage?.();if(conversion)window.openConversionPage?.();if(influx)window.openInfluxPage?.();if(calculated)window.openCalculationsPage?.();if(history)refreshHistoryFiles().catch(e=>notice(e.message,true));
-  setTimeout(()=>{(history?historyCharts:influx&&typeof influxCharts!=='undefined'?influxCharts:liveCharts).draw();},0);
+  window.currentAppPage=page;const history=page==='recordings',calculated=page==='calculations',ssh=page==='ssh',conversion=page==='conversion',influx=page==='influx',pg=page==='pg';H('live-page').hidden=page!=='live';H('recordings-page').hidden=!history;if(H('calculations-page'))H('calculations-page').hidden=!calculated;if(H('ssh-page'))H('ssh-page').hidden=!ssh;if(H('conversion-page'))H('conversion-page').hidden=!conversion;if(H('influx-page'))H('influx-page').hidden=!influx;if(H('pg-page'))H('pg-page').hidden=!pg;
+  for(const [id,active] of [['nav-live',page==='live'],['nav-recordings',history],...(H('nav-calculations')?[['nav-calculations',calculated]]:[]),...(H('nav-ssh')?[['nav-ssh',ssh]]:[]),...(H('nav-conversion')?[['nav-conversion',conversion]]:[]),...(H('nav-influx')?[['nav-influx',influx]]:[]),...(H('nav-pg')?[['nav-pg',pg]]:[])]){H(id).classList.toggle('active',active);H(id).setAttribute('aria-pressed',String(active));}
+  H('nav-tools')?.classList.toggle('active',conversion||calculated||ssh);H('nav-database')?.classList.toggle('active',influx||pg);
+  if(ssh)window.openSSHPage?.();if(conversion)window.openConversionPage?.();if(influx)window.openInfluxPage?.();if(pg)window.openPgPage?.();if(calculated)window.openCalculationsPage?.();if(history)refreshHistoryFiles().catch(e=>notice(e.message,true));
+  setTimeout(()=>{(history?historyCharts:influx&&typeof influxCharts!=='undefined'?influxCharts:pg&&typeof pgCharts!=='undefined'?pgCharts:liveCharts).draw();},0);
 }
 function storeHistoryInputs(graph=historyCharts.active){
   const ctx=historyContext(graph);if(!ctx.file)return;

@@ -1,15 +1,16 @@
 # Space Fieldbus Analyzer 3
 
-**Versione 3.9.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.11.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.10.0
+## Novità della versione 3.11.0
 
-- **InfluxDB → file**: pulsante "Esporta…" nella pagina InfluxDB; finestra per scegliere periodo (caricato, visibile nel grafico o a scelta), formato (CSV, Parquet, FDA DAS4, RBF v3), nome e cartella sul computer. Motivo: portare fuori da InfluxDB i dati analizzati.
-- L'esportazione scrive tutti i punti originali (non le medie del grafico), con avanzamento, annullamento e memoria limitata anche con milioni di punti.
-- Dalla 3.9.1: dock Analisi X1 ↔ X2 corretto e miglioramenti InfluxDB (valori calcolati, fino a 100.000 punti, larghezza regolabile); dalla 3.9.0: notifiche ADS raggruppate e priorità durante l'acquisizione.
-- Dalla 3.8.x: Analisi X1 ↔ X2 generale, grafici riducibili e riordinabili; dalla 3.7.0: pagina InfluxDB e menu Strumenti; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
+- **PostgreSQL**: nuova pagina per leggere serie temporali da PostgreSQL (anche TimescaleDB), con grafici, riduzione dei dati sul server, zoom ed esportazione come per InfluxDB. Tabelle e viste con colonna di tempo trovate in automatico; una colonna per segnale oppure una colonna con il nome del segnale. Motivo: leggere anche i dati salvati in PostgreSQL.
+- **Menu Database** al posto della scheda InfluxDB: si sceglie InfluxDB o PostgreSQL. Motivo: un unico punto di accesso ai database.
+- La password PostgreSQL resta nel servizio e non compare nella pagina né nei file esportati. Motivo: sicurezza delle credenziali.
+- Corretta la cartella di Record che, dopo una registrazione, tornava a quella dell'ultima registrazione (correzione annunciata nella 3.5.1 ma non inclusa). Motivo: mostrare la cartella della prossima registrazione.
+- Dalla 3.10.0: esportazione dei dati InfluxDB in CSV, Parquet, FDA o RBF; dalla 3.9.x: notifiche ADS raggruppate e priorità di Windows durante l'acquisizione; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 
