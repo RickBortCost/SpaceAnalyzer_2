@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using SpaceAnalyzer.App.Databases;
 using SpaceAnalyzer.App.Infrastructure;
 using SpaceAnalyzer.App.Recordings;
 
@@ -13,7 +14,7 @@ namespace SpaceAnalyzer.App.Influx;
 /// Read-only access to an InfluxDB 2.x server: connection (URL + token, organization found automatically), catalog of buckets / measurements /
 /// series and time series for the charts, reduced automatically to what a chart can show.
 /// </summary>
-public sealed class InfluxService(string dataDir) : IDisposable
+public sealed class InfluxService(string dataDir) : ISeriesDatabase, IDisposable
 {
     const int MaxSeriesDefault = 5000;
     const int RawHardLimit = 500_000;
@@ -362,10 +363,11 @@ public sealed class InfluxService(string dataDir) : IDisposable
         return new Loaded(columns, original, columns.Count, window, function);
     }
 
-    /// <summary>A series selected for export: identifier, readable name, value type and the request item that describes it.</summary>
-    public sealed record ExportSeries(string Key, string Name, string DataType, JsonObject Item);
-
     public const int MaxExportSeries = 64;
+
+    public string Label => "InfluxDB";
+    public string Protocol => "influxdb";
+    public List<ExportSeries> Plan(JsonNode? series) => ExportPlan(series);
 
     /// <summary>Validates the series of an export request (at most 64, no text series).</summary>
     public static List<ExportSeries> ExportPlan(JsonNode? series)

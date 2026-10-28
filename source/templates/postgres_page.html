@@ -1,0 +1,63 @@
+<main class="pg-page" id="pg-page" hidden="">
+<section class="card history-browser pg-browser" aria-labelledby="pg-title">
+<div class="section-title"><h2 id="pg-title">PostgreSQL</h2><span class="pg-state" id="pg-state" role="status" data-i18n="Non connesso">Non connesso</span></div>
+<details class="pg-connection" id="pg-connection" open="">
+<summary data-i18n="Connessione al server">Connessione al server</summary>
+<div class="pg-form">
+<div class="row"><div><label for="pg-host" data-i18n="Indirizzo del server">Indirizzo del server</label><input id="pg-host" type="text" autocomplete="off" spellcheck="false" placeholder="localhost" value="localhost"></div><div class="pg-port"><label for="pg-port" data-i18n="Porta">Porta</label><input id="pg-port" type="number" min="1" max="65535" value="5432"></div></div>
+<label for="pg-database" data-i18n="Database">Database</label><input id="pg-database" type="text" autocomplete="off" spellcheck="false">
+<label for="pg-user" data-i18n="Utente">Utente</label><input id="pg-user" type="text" autocomplete="off" spellcheck="false">
+<label for="pg-password" data-i18n="Password">Password</label><input id="pg-password" type="password" autocomplete="off" placeholder="Password" data-i18n-placeholder="Password">
+<div class="row"><div><label for="pg-ssl" data-i18n="Connessione cifrata (SSL)">Connessione cifrata (SSL)</label><select id="pg-ssl"><option value="prefer" data-i18n="Se disponibile">Se disponibile</option><option value="disable" data-i18n="Disattivata">Disattivata</option><option value="require" data-i18n="Obbligatoria">Obbligatoria</option><option value="verify-full" data-i18n="Obbligatoria con verifica del certificato">Obbligatoria con verifica del certificato</option></select></div>
+<div><label for="pg-timezone" data-i18n="Orari senza fuso orario">Orari senza fuso orario</label><select id="pg-timezone"><option value="utc">UTC</option><option value="local" data-i18n="Ora del PC">Ora del PC</option></select></div></div>
+<div class="toolbar"><button class="primary" id="pg-connect" type="button" data-i18n="Connetti">Connetti</button><button class="ghost" id="pg-forget" type="button" data-i18n="Dimentica la password">Dimentica la password</button></div>
+<p class="small" data-i18n="Sola lettura: servono il permesso di connessione al database e SELECT sulle tabelle.">Sola lettura: servono il permesso di connessione al database e SELECT sulle tabelle.</p>
+<p class="small" id="pg-error" role="alert" hidden=""></p>
+</div>
+</details>
+<div class="pg-catalog-tools">
+<label for="pg-table" data-i18n="Tabella o vista">Tabella o vista</label><select id="pg-table" disabled=""></select>
+<label for="pg-time-column" data-i18n="Colonna del tempo">Colonna del tempo</label><select id="pg-time-column" disabled=""></select>
+<label for="pg-label-column" data-i18n="Colonna con il nome del segnale">Colonna con il nome del segnale</label><select id="pg-label-column" disabled=""></select>
+<div id="pg-lookback-field" hidden=""><label for="pg-lookback" data-i18n="Cerca i segnali con dati negli ultimi">Cerca i segnali con dati negli ultimi</label>
+<select id="pg-lookback"><option value="86400" data-i18n="24 ore">24 ore</option><option value="604800" data-i18n="7 giorni">7 giorni</option><option value="2592000" selected="" data-i18n="30 giorni">30 giorni</option><option value="31536000" data-i18n="1 anno">1 anno</option><option value="315360000" data-i18n="10 anni">10 anni</option></select></div>
+<button class="ghost" id="pg-refresh" type="button" data-i18n="Aggiorna l'elenco">Aggiorna l'elenco</button>
+</div>
+<input id="pg-search" type="search" placeholder="Filtra tabelle, colonne e segnali…" aria-label="Filtra serie" data-i18n-placeholder="Filtra tabelle, colonne e segnali…" data-i18n-aria-label="Filtra serie">
+<div class="pg-series" id="pg-series" role="group" aria-label="Serie disponibili" data-i18n-aria-label="Serie disponibili"></div>
+<p class="small" id="pg-list-status" role="status"></p>
+<div class="pg-range">
+<div class="pg-presets" id="pg-presets" role="group" aria-label="Periodo" data-i18n-aria-label="Periodo"><button type="button" class="ghost" data-preset="300">5 min</button><button type="button" class="ghost" data-preset="900">15 min</button><button type="button" class="ghost active" data-preset="3600">1 h</button><button type="button" class="ghost" data-preset="21600">6 h</button><button type="button" class="ghost" data-preset="86400">24 h</button><button type="button" class="ghost" data-preset="604800">7 g</button><button type="button" class="ghost" data-preset="2592000">30 g</button><button type="button" class="ghost" data-preset="0" data-i18n="Intervallo">Intervallo</button></div>
+<div class="pg-custom" id="pg-custom" hidden=""><label for="pg-from" data-i18n="Da">Da</label><input id="pg-from" type="datetime-local" step="1"><label for="pg-to" data-i18n="A">A</label><input id="pg-to" type="datetime-local" step="1"></div>
+<div class="pg-options"><label for="pg-aggregate" data-i18n="Riduzione dei dati">Riduzione dei dati</label><select id="pg-aggregate"><option value="auto" data-i18n="Automatica (media)">Automatica (media)</option><option value="mean" data-i18n="Media">Media</option><option value="min" data-i18n="Minimo">Minimo</option><option value="max" data-i18n="Massimo">Massimo</option><option value="last" data-i18n="Ultimo valore">Ultimo valore</option><option value="median" data-i18n="Mediana">Mediana</option><option value="raw" data-i18n="Tutti i punti (fino a 500.000)">Tutti i punti (fino a 500.000)</option></select>
+<label for="pg-refresh-every" data-i18n="Aggiornamento automatico">Aggiornamento automatico</label><select id="pg-refresh-every"><option value="0" data-i18n="No">No</option><option value="5">5 s</option><option value="10">10 s</option><option value="30">30 s</option><option value="60">60 s</option></select></div>
+</div>
+<div class="toolbar"><button class="primary" id="pg-load" type="button" data-i18n="Apri nel grafico">Apri nel grafico</button><button class="ghost" id="pg-clear-selection" type="button" data-i18n="Deseleziona">Deseleziona</button><button class="ghost" id="pg-export-open" type="button" title="Esporta i dati originali delle serie del grafico in CSV, Parquet, FDA o RBF" data-i18n="Esporta…" data-i18n-title="Esporta i dati originali delle serie del grafico in CSV, Parquet, FDA o RBF">Esporta…</button></div>
+</section>
+<div aria-label="Ridimensiona pannello segnali e area grafici" aria-orientation="vertical" class="page-splitter" id="pg-page-splitter" role="separator" tabindex="0" title="Trascina per ridimensionare. Doppio clic per ripristinare." data-i18n-title="Trascina per ridimensionare. Doppio clic per ripristinare." data-i18n-aria-label="Ridimensiona pannello segnali e area grafici"><span aria-hidden="true"></span></div>
+<section class="graph-main pg-graph-main"><div class="record-status" id="pg-status" role="status" data-i18n="Collega un server PostgreSQL, scegli le serie e il periodo.">Collega un server PostgreSQL, scegli le serie e il periodo.</div>
+<div class="workspace-toolbar"><div><h2 data-i18n="Dati PostgreSQL">Dati PostgreSQL</h2></div><div class="toolbar"><label for="pg-active-chart" data-i18n="Grafico di destinazione">Grafico di destinazione</label><select id="pg-active-chart"></select><label for="pg-layout" data-i18n="Disposizione">Disposizione</label><select id="pg-layout"><option value="single" data-i18n="1 grafico">1 grafico</option><option value="vertical" data-i18n="2 verticali">2 verticali</option><option value="horizontal" data-i18n="2 orizzontali">2 orizzontali</option><option value="quad" data-i18n="4 grafici">4 grafici</option><option selected="" value="stack" data-i18n="Libero · colonna">Libero · colonna</option><option value="grid" data-i18n="Libero · griglia">Libero · griglia</option></select><button class="primary" id="pg-add-chart" type="button" title="Aggiungi un grafico vuoto" data-i18n="+ Grafico vuoto" data-i18n-title="Aggiungi un grafico vuoto">+ Grafico vuoto</button><details class="sync-menu"><summary data-i18n="Sincronizzazione">Sincronizzazione</summary><div class="detail-content"><label class="checkline"><input checked="" id="pg-sync-zoom" type="checkbox"><span data-i18n=" Sincronizza asse X"> Sincronizza asse X</span></label><label class="checkline"><input checked="" id="pg-sync-hover" type="checkbox"><span data-i18n=" Crosshair comune"> Crosshair comune</span></label></div></details></div></div>
+<div class="charts-workspace" id="pg-charts"></div><details class="analysis-dock" id="pg-analysis-dock"><summary><span data-i18n="Analisi X1 ↔ X2 ">Analisi X1 ↔ X2 </span><span class="analysis-dock-graph"></span><span class="marker-inline-delta">Δt —</span></summary><div class="analysis-dock-body"></div></details></section>
+<dialog aria-labelledby="pg-export-title" class="analysis-dialog pg-export-dialog" id="pg-export-dialog"><form id="pg-export-form" method="dialog">
+<div class="dialog-topbar"><strong id="pg-export-title" data-i18n="Esporta dati PostgreSQL">Esporta dati PostgreSQL</strong><button aria-label="Chiudi" class="ghost" id="pg-export-close" type="button" data-i18n-aria-label="Chiudi">×</button></div>
+<div class="analysis-body">
+<p class="small" id="pg-export-summary" role="status"></p>
+<fieldset class="pg-export-period"><legend data-i18n="Periodo da esportare">Periodo da esportare</legend>
+<label class="pg-export-choice"><input checked="" name="pg-export-period" type="radio" value="loaded"><span><span data-i18n="Periodo caricato">Periodo caricato</span> <small id="pg-export-loaded-range"></small></span></label>
+<label class="pg-export-choice"><input name="pg-export-period" type="radio" value="visible"><span><span data-i18n="Intervallo visibile nel grafico">Intervallo visibile nel grafico</span> <small id="pg-export-visible-range"></small></span></label>
+<label class="pg-export-choice"><input name="pg-export-period" type="radio" value="custom"><span data-i18n="Intervallo a scelta">Intervallo a scelta</span></label>
+<div class="pg-custom"><label for="pg-export-from" data-i18n="Dal">Dal</label><input id="pg-export-from" step="1" type="datetime-local"><label for="pg-export-to" data-i18n="Al">Al</label><input id="pg-export-to" step="1" type="datetime-local"></div>
+</fieldset>
+<div class="pg-export-grid">
+<label for="pg-export-format" data-i18n="Formato">Formato</label><select id="pg-export-format"><option value="csv">CSV</option><option value="parquet">Apache Parquet</option><option value="das">FDA DAS4 (.das)</option><option value="rbf">RBF v3</option></select>
+<label for="pg-export-name" data-i18n="Nome del file">Nome del file</label><input id="pg-export-name" maxlength="80" type="text">
+<label for="pg-export-directory" data-i18n="Cartella di destinazione">Cartella di destinazione</label>
+<div class="pg-export-folder"><input id="pg-export-directory" readonly type="text"><button class="ghost" id="pg-export-browse" type="button" data-i18n="Sfoglia…">Sfoglia…</button><button class="ghost" id="pg-export-default" type="button" data-i18n="Predefinita">Predefinita</button></div>
+</div>
+<p class="small" id="pg-export-hint"></p>
+<progress hidden="" id="pg-export-progress" max="100" value="0"></progress>
+<div class="record-status" id="pg-export-status" role="status" hidden=""></div>
+<ul class="pg-export-files small" id="pg-export-files"></ul>
+<div class="toolbar"><button class="primary" id="pg-export-start" type="submit" data-i18n="Esporta">Esporta</button><button class="ghost" id="pg-export-cancel" type="button" hidden="" data-i18n="Annulla esportazione">Annulla esportazione</button></div>
+</div></form></dialog>
+</main>

@@ -21,11 +21,12 @@ BouncyCastle.Cryptography 2.7.0 — MIT — https://www.bouncycastle.org/
 zlib.net-mutliplatform 1.1.0 — BSD-3-Clause — https://github.com/cinderblocks/zlib.net
 SSH.NET 2026.0.0 — MIT — https://github.com/sshnet/SSH.NET
 Microsoft.Data.Sqlite / Microsoft.Data.Sqlite.Core 8.0.32 — MIT — https://github.com/dotnet/efcore
+Npgsql 9.0.4 — PostgreSQL License — https://github.com/npgsql/npgsql
 SQLitePCLRaw (bundle_e_sqlite3, core, lib.e_sqlite3, provider.e_sqlite3) 2.1.13 — Apache-2.0 — https://github.com/ericsink/SQLitePCL.raw
   (SQLite itself is in the public domain)
 System.IO.Hashing, System.Text.Json, System.Collections.Immutable,
   System.Formats.Asn1, System.IO.Pipelines, System.Text.Encodings.Web,
-  System.Diagnostics.DiagnosticSource, System.Memory,
+  System.Diagnostics.DiagnosticSource, System.Memory, System.Runtime.CompilerServices.Unsafe,
   Microsoft.Extensions.* — MIT — https://github.com/dotnet/runtime
 CommunityToolkit.HighPerformance 8.2.2 — MIT — https://github.com/CommunityToolkit/dotnet
 BitFaster.Caching 2.6.0 — MIT — https://github.com/bitfaster/BitFaster.Caching
