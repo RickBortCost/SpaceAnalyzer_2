@@ -186,10 +186,8 @@ function exportChartImage(graph){
 const decorateStudioChart=(ws,g)=>{
   if(g.studioDecorated)return;g.studioDecorated=true;g.signalSettings=g.signalSettings||{};g.axisSettings=g.axisSettings||{};
   const wrap=g.element.querySelector('.chartwrap');wrap.after(createResizer(wrap,180,()=>Math.max(600,window.innerHeight*1.5),()=>g.trend.draw(),'chart-resizer'));
-  const panel=g.element.querySelector('.marker-panel');panel.after(createResizer(panel,130,()=>window.innerHeight*.7,()=>{},'panel-resizer'));
   setupNavigator(g);
   g.element.addEventListener('pointerdown',e=>{if(!e.target.closest('button,summary,input,select'))ws.activate(g);});
-  g.element.querySelector('.marker-analysis').addEventListener('toggle',()=>{g.trend.draw();scheduleWorkspaceSave();});
   for(const button of g.element.querySelectorAll('[data-studio-action]'))button.onclick=()=>{
     const action=button.dataset.studioAction;const menu=button.closest('details');if(menu)menu.open=false;
     if(action==='rename'){const input=g.element.querySelector('[data-chart-role=title]');input.focus();input.select();}
@@ -200,7 +198,7 @@ const decorateStudioChart=(ws,g)=>{
     if(action==='sync'){const cb=$(ws.scope+'-sync-zoom');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change',{bubbles:true}));}
   };
   g.actionToolbar=new ChartActionToolbar(g,ws);
-  const draw=g.trend.draw.bind(g.trend);g.trend.draw=function(){draw();drawNavigator(g);const delta=g.element.querySelector('.marker-inline-delta');I18N.bind(delta,"textContent",()=>('Δt '+this.formatDuration(Number.isFinite(this.markers.x1)&&Number.isFinite(this.markers.x2)?this.markers.x2-this.markers.x1:NaN)),false);const badge=g.element.querySelector('[data-studio-role=state]');I18N.bind(badge,"textContent",()=>(ws.staticMode?I18N.t(ws.options.stateLabel||"FILE"):this.frozen?I18N.t("PAUSA"):connected?'LIVE ●':'OFFLINE'),true);badge.className='graph-state'+(this.frozen?' paused':!connected&&!ws.staticMode?' disconnected':'');g.element.dataset.dropLabel=I18N.join([{text:"Rilascia per aggiungere a "},{value:(g.name)}]);g.actionToolbar?.syncState();scheduleStudioToolbar();};
+  const draw=g.trend.draw.bind(g.trend);g.trend.draw=function(){draw();drawNavigator(g);if(ws.active===g)ws.syncDockDelta();const badge=g.element.querySelector('[data-studio-role=state]');I18N.bind(badge,"textContent",()=>(ws.staticMode?I18N.t(ws.options.stateLabel||"FILE"):this.frozen?I18N.t("PAUSA"):connected?'LIVE ●':'OFFLINE'),true);badge.className='graph-state'+(this.frozen?' paused':!connected&&!ws.staticMode?' disconnected':'');g.element.dataset.dropLabel=I18N.join([{text:"Rilascia per aggiungere a "},{value:(g.name)}]);g.actionToolbar?.syncState();scheduleStudioToolbar();};
   if(ws.staticMode){g.element.classList.add('signal-drop-target');const over=e=>{if(Array.from(e.dataTransfer?.types||[]).includes('application/x-opcua-history')){e.preventDefault();g.element.classList.add('signal-drag-over');}};g.element.addEventListener('dragover',over);g.element.addEventListener('dragleave',e=>{if(!g.element.contains(e.relatedTarget))g.element.classList.remove('signal-drag-over');});g.element.addEventListener('drop',e=>{g.element.classList.remove('signal-drag-over');const raw=e.dataTransfer?.getData('application/x-opcua-history');if(!raw)return;e.preventDefault();try{const payload=JSON.parse(raw);dropHistorySignal(ws,g,payload).catch(err=>notice(err.message,true));}catch{notice(I18N.t("Segnale trascinato non valido."),true);}});}
 }
 window.decorateStudioChart=decorateStudioChart;

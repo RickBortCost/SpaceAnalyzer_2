@@ -35,7 +35,10 @@ class ChartWorkspace {
     this.syncZoom=true;this.syncHover=true;this.liveZoom=false;this.timeRange=null;this.charts=[];this.counter=0;this.active=null;this.markers={x1:null,x2:null};this.colors=new Map();
     this.series={};this.nodes=new Map();this.types={};this.knownIds=new Set();this.pendingLayout=null;
     const base=this.root.firstElementChild;this.template=base.cloneNode(true);
+    this.dock=options.dock?document.getElementById(options.dock):null;this.dockBody=this.dock?.querySelector('.analysis-dock-body')||null;
     this.create(base,'Grafico 1',[],false);
+    this.dock?.addEventListener('toggle',()=>{this.mountDock();for(const g of this.charts)g.trend.draw();window.scheduleWorkspaceSave?.();});
+    window.addEventListener('resize',()=>this.applyRowSizing());
     this.selector.addEventListener('change',()=>this.activate(this.charts.find(c=>c.id===this.selector.value)));
     this.addButton.addEventListener('click',()=>this.add());
     this.layoutSelect.addEventListener('change',()=>this.setLayout(this.layoutSelect.value));
@@ -77,9 +80,11 @@ class ChartWorkspace {
     get('clear').addEventListener('click',()=>this.clearGraph(graph));
     get('closeFile')?.addEventListener('click',()=>this.options.onClose?.(graph));
     get('expand').addEventListener('click',()=>window.toggleStudioFullscreen?.(graph));
+    get('collapse')?.addEventListener('click',()=>this.setCollapsed(graph,!graph.collapsed));
+    graph.markerHome=element.querySelector('.marker-home');graph.markerPanel=element.querySelector('.marker-panel');this.enableReorder(graph);
     get('analysis')?.addEventListener('click',()=>openAnalysis(this,graph));
     if(this.options.allowSignalDrop)this.enableSignalDrop(graph);
-    this.charts.push(graph);window.decorateStudioChart?.(this,graph);const previous=this.active;this.active=graph;this.renderSelectors();
+    this.charts.push(graph);window.decorateStudioChart?.(this,graph);const previous=this.active;this.active=graph;this.renderSelectors();this.applyRowSizing();
     if(notify)this.options.onActive?.(graph,previous);
     return graph;
   }
@@ -107,7 +112,7 @@ class ChartWorkspace {
     if(this.charts.length===1){notice(I18N.t("Mantieni almeno un grafico nella pagina."),true);return;}
     graph.loadRevision++;graph.actionToolbar?.destroy();graph.trend.destroy();graph.element.remove();this.charts=this.charts.filter(c=>c!==graph);
     if(this.active===graph){const previous=graph;this.active=this.charts[0];this.options.onActive?.(this.active,previous);}
-    this.renderSelectors();this.changed();
+    this.renderSelectors();this.applyRowSizing();this.changed();
   }
   activate(graph){
     if(!graph||graph===this.active)return;const previous=this.active;this.active=graph;
@@ -122,9 +127,70 @@ class ChartWorkspace {
       graph.element.querySelector('[data-chart-role="remove"]').disabled=this.charts.length===1;
     }
     this.selector.value=this.active?.id||'';this.addButton.disabled=this.charts.length>=ChartWorkspace.MAX_CHARTS;
-    this.root.classList.toggle('multiple-charts',this.charts.length>1);
+    this.root.classList.toggle('multiple-charts',this.charts.length>1);this.mountDock();
   }
-  setLayout(mode){const allowed=['single','vertical','horizontal','quad','stack','grid'];mode=allowed.includes(mode)?mode:'stack';this.layoutSelect.value=mode;this.root.classList.toggle('chart-grid',mode==='grid');for(const m of allowed)this.root.classList.toggle('layout-'+m,m===mode);this.draw();this.changed();}
+  /** Analisi X1 ↔ X2 generale: il pannello marker del grafico attivo vive nel dock a fondo pagina, gli altri restano nei loro contenitori nascosti. */
+  mountDock(){
+    if(!this.dock||!this.dockBody)return;
+    for(const graph of this.charts)if(graph!==this.active&&graph.markerHome&&graph.markerPanel&&graph.markerPanel.parentElement!==graph.markerHome)graph.markerHome.append(graph.markerPanel);
+    const active=this.active;
+    if(active?.markerPanel){
+      if(active.markerPanel.parentElement!==this.dockBody)this.dockBody.replaceChildren(active.markerPanel);
+      const label=this.dock.querySelector('.analysis-dock-graph');if(label)I18N.bind(label,"textContent",()=>('· '+active.name),false);
+      if(this.dock.open)active.trend.updateMarkerTable?.();
+    }
+    this.syncDockDelta();
+  }
+  analysisOpen(graph){return !!this.dock?.open&&(!graph||graph===this.active);}
+  syncDockDelta(){
+    const delta=this.dock?.querySelector('.marker-inline-delta'),t=this.active?.trend;if(!delta||!t)return;
+    I18N.bind(delta,"textContent",()=>('Δt '+t.formatDuration(Number.isFinite(t.markers.x1)&&Number.isFinite(t.markers.x2)?t.markers.x2-t.markers.x1:NaN)),false);
+  }
+  /** Riduce il grafico alla sola barra del titolo (nessun disegno finché è ridotto). */
+  setCollapsed(graph,value){
+    value=!!value;if(graph.collapsed===value)return;graph.collapsed=value;graph.trend.collapsed=value;
+    graph.element.classList.toggle('chart-collapsed',value);
+    const button=graph.element.querySelector('[data-chart-role="collapse"]');
+    if(button){button.setAttribute('aria-pressed',String(value));button.textContent=value?'▣':'▁';const label=value?"Espandi il grafico":"Riduci a barra";I18N.bind(button,"title",()=>I18N.t(label),true);I18N.attr(button,'aria-label',()=>I18N.t(label));}
+    this.applyRowSizing();if(!value)requestAnimationFrame(()=>graph.trend.draw());this.changed();
+  }
+  /** Le righe formate solo da grafici ridotti occupano l'altezza della barra, le altre mantengono l'altezza standard. */
+  applyRowSizing(){
+    const root=this.root;if(!root)return;
+    const mode=this.layoutSelect?.value;
+    const any=this.charts.some(g=>g.collapsed);
+    if(!any||mode==='single'){root.style.removeProperty('grid-template-rows');return;}
+    let cols=1;const tpl=getComputedStyle(root).gridTemplateColumns;if(tpl&&tpl!=='none'){const n=tpl.trim().split(/\s+/).length;if(n>0)cols=n;}
+    const order=[...root.children].filter(c=>c.classList.contains('workspace-chart'));
+    const rows=[];for(let i=0;i<order.length;i+=cols){const row=order.slice(i,i+cols);rows.push(row.every(c=>c.classList.contains('chart-collapsed'))?'auto':'minmax(clamp(300px,40dvh,360px),1fr)');}
+    root.style.gridTemplateRows=rows.join(' ');
+  }
+  /** Riordino dei grafici con drag&drop dalla maniglia nella barra del titolo. */
+  enableReorder(graph){
+    const identity=graph.element.querySelector('.chart-identity');if(!identity||graph.element.querySelector('.chart-drag-handle'))return;
+    const handle=document.createElement('span');handle.className='chart-drag-handle';handle.draggable=true;handle.setAttribute('role','button');handle.tabIndex=0;handle.textContent='⠿';
+    I18N.bind(handle,"title",()=>I18N.t("Trascina per cambiare l'ordine dei grafici"),true);I18N.attr(handle,'aria-label',()=>I18N.t("Trascina per cambiare l'ordine dei grafici"));
+    identity.prepend(handle);
+    const el=graph.element,MIME='application/x-opcua-chart-order';
+    handle.addEventListener('dragstart',e=>{if(!e.dataTransfer)return;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData(MIME,this.scope+':'+graph.id);try{e.dataTransfer.setDragImage(el,20,12);}catch{}this.dragging=graph;el.classList.add('chart-dragging');});
+    handle.addEventListener('dragend',()=>{this.dragging=null;el.classList.remove('chart-dragging');for(const g of this.charts)g.element.classList.remove('chart-drop-before','chart-drop-after');});
+    handle.addEventListener('keydown',e=>{if(e.altKey&&(e.key==='ArrowUp'||e.key==='ArrowLeft')){e.preventDefault();this.moveChart(graph,this.charts.indexOf(graph)-1);handle.focus();}if(e.altKey&&(e.key==='ArrowDown'||e.key==='ArrowRight')){e.preventDefault();this.moveChart(graph,this.charts.indexOf(graph)+1);handle.focus();}});
+    const isOrder=e=>this.dragging&&Array.from(e.dataTransfer?.types||[]).includes(MIME);
+    const side=e=>{const r=el.getBoundingClientRect();const horizontal=getComputedStyle(this.root).gridTemplateColumns.trim().split(/\s+/).length>1;return horizontal?(e.clientX<r.left+r.width/2?'before':'after'):(e.clientY<r.top+r.height/2?'before':'after');};
+    const over=e=>{if(!isOrder(e)||this.dragging===graph)return;e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='move';const s=side(e);el.classList.toggle('chart-drop-before',s==='before');el.classList.toggle('chart-drop-after',s==='after');};
+    el.addEventListener('dragenter',over);el.addEventListener('dragover',over);
+    el.addEventListener('dragleave',e=>{if(!el.contains(e.relatedTarget))el.classList.remove('chart-drop-before','chart-drop-after');});
+    el.addEventListener('drop',e=>{if(!isOrder(e)||this.dragging===graph)return;e.preventDefault();e.stopPropagation();const s=side(e),from=this.dragging;el.classList.remove('chart-drop-before','chart-drop-after');
+      let to=this.charts.indexOf(graph)+(s==='after'?1:0);if(this.charts.indexOf(from)<to)to--;this.moveChart(from,to);});
+  }
+  moveChart(graph,index){
+    const from=this.charts.indexOf(graph);index=Math.max(0,Math.min(this.charts.length-1,index));if(from<0||from===index)return;
+    this.charts.splice(from,1);this.charts.splice(index,0,graph);
+    const anchor=this.charts[index+1]?.element||null;
+    if(anchor)this.root.insertBefore(graph.element,anchor);else{const last=this.charts[index-1]?.element;last?last.after(graph.element):this.root.append(graph.element);}
+    this.renderSelectors();this.applyRowSizing();requestAnimationFrame(()=>this.draw());this.changed();
+  }
+  setLayout(mode){const allowed=['single','vertical','horizontal','quad','stack','grid'];mode=allowed.includes(mode)?mode:'stack';this.layoutSelect.value=mode;this.root.classList.toggle('chart-grid',mode==='grid');for(const m of allowed)this.root.classList.toggle('layout-'+m,m===mode);this.applyRowSizing();this.draw();this.changed();}
   draw(){for(const graph of this.charts)graph.trend.draw();}
   color(id){return this.charts[0].trend.color(id);}
   update(series,nodes,types={}){
@@ -261,7 +327,7 @@ class ChartWorkspace {
   }
   resetMarkers(){this.setMarkers({x1:null,x2:null});}
   setEmptyMessage(message){for(const graph of this.charts)graph.trend.emptyMessage=message;}
-  serialize(){return {layout:this.layoutSelect.value,active:this.charts.indexOf(this.active),charts:this.charts.map(c=>({name:c.name,ids:[...c.ids]}))};}
+  serialize(){return {layout:this.layoutSelect.value,active:this.charts.indexOf(this.active),charts:this.charts.map(c=>({name:c.name,ids:[...c.ids],collapsed:!!c.collapsed}))};}
   restore(config,nodes){
     if(!config||!Array.isArray(config.charts)||!config.charts.length)return;
     for(const graph of this.charts){graph.actionToolbar?.destroy();graph.trend.destroy();graph.element.remove();}
@@ -269,6 +335,7 @@ class ChartWorkspace {
     for(const item of config.charts.slice(0,ChartWorkspace.MAX_CHARTS))this.create(this.template.cloneNode(true),String(item.name||I18N.t("Grafico")).slice(0,80),Array.isArray(item.ids)?item.ids.filter(id=>nodes.has(id)):[],false);
     this.active=this.charts[Math.max(0,Math.min(this.charts.length-1,Number(config.active)||0))];
     this.setLayout(config.layout);this.renderSelectors();
+    config.charts.slice(0,ChartWorkspace.MAX_CHARTS).forEach((item,i)=>{if(item.collapsed&&this.charts[i])this.setCollapsed(this.charts[i],true);});
   }
   syncRange(source,range){
     if(this.syncZoom){

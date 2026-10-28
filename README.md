@@ -4,7 +4,12 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.7.0
+## Novità della versione 3.8.0
+
+- **Analisi X1 ↔ X2 generale** in fondo alla schermata (Live, Registrazioni, InfluxDB): mostra tutti i valori di calcolo del grafico selezionato; tolta la sezione per ogni grafico. Motivo: meno spazio occupato con più grafici.
+- **Riduci a barra**: tasto accanto al pieno schermo che riduce un grafico alla barra del titolo. Motivo: mettere in evidenza solo alcuni grafici.
+- **Riordino drag&drop** dei grafici con la maniglia ⠿ (oppure Alt + frecce). Motivo: scegliere l'ordine di lettura.
+- Dalla 3.7.0: pagina InfluxDB e menu Strumenti.
 
 - Nuova pagina **InfluxDB**: collegamento a un server InfluxDB 2.x (indirizzo e token di sola lettura), elenco automatico di bucket, misure, campi e tag, scelta delle serie e del periodo e grafici con riduzione automatica dei dati (tutti i punti se pochi, finestre con media/min/max/ultimo/mediana se molti) e più dettaglio con lo zoom. Organizzazione, elenco e primo grafico sono automatici; il token salvato non esce dal servizio. Guida: `source/GUIDA_INFLUXDB.md`. Non ancora verificato con un server InfluxDB reale (test con un server di prova).
 - Conversione, Dati calcolati e Debug SSH sono raggruppati nel menu **Strumenti** della barra superiore. Motivo: con la nuova pagina le voci non entravano più su una riga.

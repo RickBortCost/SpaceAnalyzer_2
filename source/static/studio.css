@@ -46,3 +46,24 @@ body.analysis-fullscreen{overflow:hidden}body.analysis-fullscreen>.app-bar,body.
 .chart-menu-items .chart-tool-button{width:100%;white-space:normal}
 .chart-action-tools>.chart-tool-button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
 @media(max-width:600px){.has-chart-tools>.chart-identity{flex-basis:100px;max-width:30%;min-width:68px}.has-chart-tools .chart-identity .autoscale,.has-chart-tools .chart-identity .graph-state{display:none}.chart-heading.has-chart-tools{padding:6px;gap:4px}}
+/* 3.8.0: analisi X1 ↔ X2 generale a fondo pagina, grafici riducibili a barra e riordinabili. */
+.marker-home,.marker-home[hidden]{display:none!important}
+.analysis-dock{flex:none;margin-top:6px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.analysis-dock>summary{display:flex;align-items:center;gap:10px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:12px}
+.analysis-dock>summary .analysis-dock-graph{font-weight:500;color:var(--muted,#586c80);max-width:40ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.analysis-dock>summary .marker-inline-delta{margin-left:auto;font-weight:500}
+.analysis-dock-body{max-height:min(42dvh,420px);overflow:auto;border-top:1px solid var(--line)}
+.analysis-dock-body .marker-panel{height:auto!important}
+body.analysis-fullscreen .analysis-dock[open]{position:fixed;left:0;right:0;bottom:0;z-index:90;margin:0;border-radius:0}
+body.analysis-fullscreen .analysis-dock-body{max-height:36dvh}
+.workspace-chart.chart-collapsed{min-height:0!important;height:auto!important;align-self:start}
+.workspace-chart.chart-collapsed>*:not(.chart-heading){display:none!important}
+.workspace-chart.chart-collapsed .chart-heading{margin-bottom:0}
+.studio-fullscreen [data-chart-role=collapse]{display:none}
+.chart-drag-handle{cursor:grab;user-select:none;padding:0 4px;color:var(--muted,#586c80);font-size:16px;line-height:1;flex:none}
+.chart-drag-handle:active{cursor:grabbing}
+.workspace-chart.chart-dragging{opacity:.5}
+.workspace-chart.chart-drop-before{box-shadow:inset 0 4px 0 var(--blue,#1467d5)}
+.workspace-chart.chart-drop-after{box-shadow:inset 0 -4px 0 var(--blue,#1467d5)}
+.charts-workspace.layout-horizontal .workspace-chart.chart-drop-before,.charts-workspace.layout-quad .workspace-chart.chart-drop-before,.charts-workspace.chart-grid .workspace-chart.chart-drop-before{box-shadow:inset 4px 0 0 var(--blue,#1467d5)}
+.charts-workspace.layout-horizontal .workspace-chart.chart-drop-after,.charts-workspace.layout-quad .workspace-chart.chart-drop-after,.charts-workspace.chart-grid .workspace-chart.chart-drop-after{box-shadow:inset -4px 0 0 var(--blue,#1467d5)}
