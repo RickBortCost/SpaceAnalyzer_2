@@ -264,7 +264,7 @@ public sealed class Conversions(Func<string> directory)
         return node.ToJsonString(new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
     }
 
-    static NodeSpec Node(Dictionary<string, object?> signal)
+    internal static NodeSpec Node(Dictionary<string, object?> signal)
     {
         var raw = JsonSerializer.SerializeToElement(new Dictionary<string, object?>
         {
@@ -279,7 +279,7 @@ public sealed class Conversions(Func<string> directory)
         ["bytes"] = new FileInfo(path).Length, ["rows"] = rows, ["format"] = Path.GetExtension(path).TrimStart('.').ToLowerInvariant(),
     };
 
-    static string SafeStem(string stem)
+    internal static string SafeStem(string stem)
     {
         var invalid = Path.GetInvalidFileNameChars();
         var clean = new string(stem.Select(c => invalid.Contains(c) || char.IsControl(c) ? '_' : c).ToArray()).Trim().TrimEnd('.');
@@ -287,7 +287,7 @@ public sealed class Conversions(Func<string> directory)
         return clean.Length == 0 ? "Conversione" : clean;
     }
 
-    static string Unique(string path)
+    internal static string Unique(string path)
     {
         if (!File.Exists(path)) return path;
         var folder = Path.GetDirectoryName(path)!;

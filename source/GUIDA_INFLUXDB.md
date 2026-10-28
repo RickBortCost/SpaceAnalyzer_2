@@ -29,3 +29,13 @@ Il token è salvato in `influx.json` nella cartella dati dell'applicazione (come
 
 - Serie definite dall'insieme completo dei tag: se una serie ha più tag di quelli scelti, la query si limita ai tag mostrati.
 - Una serie di testo non si apre; un grafico non ricorda la selezione dopo la chiusura dell'applicazione.
+
+## Esportare i dati in un file
+
+Il pulsante **Esporta…** (sotto l'elenco delle serie) apre una finestra per salvare sul computer i dati delle serie del grafico attivo.
+
+- **Periodo**: *periodo caricato* (quello scelto con i preset o l'intervallo), *intervallo visibile nel grafico* (quello dello zoom) oppure *intervallo a scelta* (dal / al).
+- **Formato**: CSV, Apache Parquet, FDA DAS4 (`.das`) o RBF v3 (FDA e RBF fino a 64 serie).
+- **Nome del file** e **cartella di destinazione** (*Sfoglia…* apre la finestra di Windows; *Predefinita* usa la sottocartella `Conversioni` delle registrazioni, così il file compare anche nella pagina Registrazioni). Formato e cartella sono ricordati.
+- Vengono scritti **tutti i punti originali** del periodo, non le medie mostrate nel grafico. Con dati molto fitti (ad esempio 10 ms su molte ore) il file può essere grande e l'esportazione richiedere tempo: la finestra mostra l'avanzamento e permette di annullare. Un'esportazione alla volta.
+- Accanto al file viene scritto un file di metadati con l'indirizzo del server (mai il token), le serie e il periodo.

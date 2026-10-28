@@ -223,5 +223,105 @@ async function openInfluxPage(){
 window.openInfluxPage=openInfluxPage;
 ifx('nav-influx').onclick=()=>showAppPage('influx');
 document.addEventListener('space-analyzer-languagechange',()=>{renderInfluxState();renderInfluxSeries();renderInfluxStatus();});
+// ---- esportazione ----------------------------------------------------------------------------------------------------
+// Finestra per esportare i dati originali delle serie del grafico attivo (periodo e formato a scelta, cartella locale); il lavoro gira nel servizio.
+const IFX_EXPORT={job:null,timer:null};
+const ifxExportMode=()=>document.querySelector('input[name="influx-export-period"]:checked')?.value||'loaded';
+function influxExportBase(graph){const ctx=ifxCtx(graph);if(ctx.base)return ctx.base;return influxRange([...ctx.selected]);}
+function influxExportVisible(graph){const d=graph?.trend?.domain;return d&&Number.isFinite(d.xmin)&&Number.isFinite(d.xmax)&&d.xmax>d.xmin?{start:d.xmin,end:d.xmax}:null;}
+function influxExportRange(){
+  const graph=influxCharts.active,mode=ifxExportMode();
+  if(mode==='custom'){
+    const start=msFromLocalInput(ifx('influx-export-from').value),end=msFromLocalInput(ifx('influx-export-to').value);
+    if(start===null||end===null)throw new Error(I18N.t('Indica inizio e fine del periodo.'));
+    if(end<=start)throw new Error(I18N.t('La fine deve seguire l’inizio.'));
+    return {start,end};
+  }
+  if(mode==='visible'){const visible=influxExportVisible(graph);if(visible)return visible;}
+  return influxExportBase(graph);
+}
+function influxExportRangeText(range){if(!range)return '';const fmt=ms=>new Date(ms).toLocaleString(I18N.locale());return '('+fmt(range.start)+' → '+fmt(range.end)+')';}
+function renderInfluxExportInfo(){
+  const graph=influxCharts.active,ctx=ifxCtx(graph);
+  I18N.bind(ifx('influx-export-summary'),"textContent",()=>I18N.join([{value:ctx.selected.size},{text:' serie del grafico '},{value:graph.name}]),false);
+  let base=null;try{base=influxExportBase(graph);}catch{}
+  const visible=influxExportVisible(graph)||base;
+  ifx('influx-export-loaded-range').textContent=influxExportRangeText(base);
+  ifx('influx-export-visible-range').textContent=influxExportRangeText(visible);
+  const dir=ifx('influx-export-directory');dir.placeholder=I18N.t('Cartella Conversioni delle registrazioni');
+  I18N.bind(ifx('influx-export-hint'),"textContent",()=>I18N.t('Vengono scritti tutti i punti originali del periodo: con dati molto fitti il file può essere grande e la lettura richiedere tempo.'),true);
+}
+function openInfluxExport(){
+  const graph=influxCharts.active,ctx=ifxCtx(graph);
+  if(!ctx.selected.size){influxError(I18N.t('Seleziona almeno una serie.'));return;}
+  influxError('');
+  const saved=ifxStored().export||{};
+  if(saved.format&&[...ifx('influx-export-format').options].some(o=>o.value===saved.format))ifx('influx-export-format').value=saved.format;
+  ifx('influx-export-directory').value=saved.directory||'';
+  if(!ifx('influx-export-name').value)ifx('influx-export-name').value='InfluxDB_'+(IFX.bucket||'').replace(/[^\w.-]+/g,'_');
+  const end=Date.now();if(!ifx('influx-export-to').value){ifx('influx-export-to').value=localInputFromMs(end);ifx('influx-export-from').value=localInputFromMs(end-3600000);}
+  renderInfluxExportInfo();
+  const dialog=ifx('influx-export-dialog');
+  if(!dialog.open){if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');}
+  if(IFX_EXPORT.job&&!IFX_EXPORT.timer)pollInfluxExport();
+}
+function setInfluxExportBusy(busy){
+  ifx('influx-export-start').disabled=busy;ifx('influx-export-cancel').hidden=!busy;
+  for(const id of ['influx-export-format','influx-export-name','influx-export-browse','influx-export-default','influx-export-from','influx-export-to'])ifx(id).disabled=busy;
+  for(const r of document.querySelectorAll('input[name="influx-export-period"]'))r.disabled=busy;
+}
+function showInfluxExportJob(job){
+  const status=ifx('influx-export-status'),progress=ifx('influx-export-progress'),list=ifx('influx-export-files');
+  status.hidden=false;list.replaceChildren();
+  const fmt=n=>Number(n||0).toLocaleString(I18N.locale());
+  if(job.state==='running'){
+    const total=Number(job.rows_total)||0,done=Number(job.rows_read)||0;
+    progress.hidden=false;progress.value=total>0?Math.min(100,Math.round(done*100/total)):0;
+    I18N.bind(status,"textContent",()=>job.phase==='count'?I18N.t('Conteggio dei punti…'):job.phase==='write'?I18N.join([{text:'Scrittura del file '},{value:job.format_label},{text:'…'}]):I18N.join([{text:'Lettura da InfluxDB e scrittura: '},{value:fmt(done)},{text:' di '},{value:fmt(total)},{text:' punti'}]),false);
+    status.className='record-status';
+  }else if(job.state==='ready'){
+    progress.hidden=true;
+    I18N.bind(status,"textContent",()=>I18N.join([{text:'Esportazione completata: '},{value:fmt(job.rows_read)},{text:' punti in '},{value:(job.files||[]).length},{text:' file'}]),false);
+    status.className='record-status ok';
+    for(const f of job.files||[]){const li=document.createElement('li');li.textContent=f.path+' · '+(Number(f.bytes)/1048576).toFixed(1)+' MiB';list.append(li);}
+  }else{
+    progress.hidden=true;status.className='record-status error';
+    status.textContent=job.state==='cancelled'?I18N.t('Esportazione annullata'):(job.error||I18N.t('Esportazione non riuscita'));
+  }
+}
+async function pollInfluxExport(){
+  clearTimeout(IFX_EXPORT.timer);IFX_EXPORT.timer=null;
+  const id=IFX_EXPORT.job;if(!id)return;
+  try{
+    const job=(await request('/api/influx/export/'+id)).job;
+    showInfluxExportJob(job);
+    if(job.state==='running'){setInfluxExportBusy(true);IFX_EXPORT.timer=setTimeout(pollInfluxExport,600);return;}
+    IFX_EXPORT.job=null;setInfluxExportBusy(false);
+  }catch(e){IFX_EXPORT.job=null;setInfluxExportBusy(false);const status=ifx('influx-export-status');status.hidden=false;status.className='record-status error';status.textContent=e.message;}
+}
+async function startInfluxExport(){
+  const ctx=ifxCtx(),keys=[...ctx.selected],status=ifx('influx-export-status');
+  try{
+    const range=influxExportRange();
+    const body={series:keys.map(k=>IFX.byKey.get(k)).filter(Boolean),start_ms:range.start,end_ms:range.end,format:ifx('influx-export-format').value,
+      directory:ifx('influx-export-directory').value.trim(),name:ifx('influx-export-name').value.trim()};
+    if(!body.series.length)throw new Error(I18N.t('Seleziona almeno una serie.'));
+    ifxStore({export:{format:body.format,directory:body.directory}});
+    setInfluxExportBusy(true);ifx('influx-export-files').replaceChildren();
+    IFX_EXPORT.job=(await request('/api/influx/export',body)).job.id;
+    pollInfluxExport();
+  }catch(e){setInfluxExportBusy(false);IFX_EXPORT.job=null;status.hidden=false;status.className='record-status error';status.textContent=e.message;}
+}
+ifx('influx-export-open').addEventListener('click',openInfluxExport);
+ifx('influx-export-close').addEventListener('click',()=>{const dialog=ifx('influx-export-dialog');if(typeof dialog.close==='function')dialog.close();else dialog.removeAttribute('open');});
+ifx('influx-export-form').addEventListener('submit',event=>{event.preventDefault();startInfluxExport();});
+ifx('influx-export-cancel').addEventListener('click',()=>{if(IFX_EXPORT.job)request('/api/influx/export/'+IFX_EXPORT.job+'/cancel',{}).catch(e=>influxError(e.message));});
+ifx('influx-export-browse').addEventListener('click',async()=>{
+  try{const j=await request('/api/recordings/location/browse',{title:I18N.t('Cartella di esportazione')});if(j.directory)ifx('influx-export-directory').value=j.directory;}
+  catch(e){const status=ifx('influx-export-status');status.hidden=false;status.className='record-status error';status.textContent=e.message;}
+});
+ifx('influx-export-default').addEventListener('click',()=>{ifx('influx-export-directory').value='';});
+for(const input of document.querySelectorAll('#influx-export-from,#influx-export-to'))input.addEventListener('focus',()=>{const custom=document.querySelector('input[name="influx-export-period"][value="custom"]');if(custom)custom.checked=true;});
+
 const influxPageLayout=new ResizablePageLayout('influx-page','influx-page-splitter','opcua.influx.sidebar.width',()=>influxCharts.draw());
-window.uiInflux={IFX,influxCharts,loadInflux,connectInflux,loadInfluxCatalog,setInfluxPreset};
+window.uiInflux={IFX,openInfluxExport,influxExportRange,startInfluxExport,influxCharts,loadInflux,connectInflux,loadInfluxCatalog,setInfluxPreset};

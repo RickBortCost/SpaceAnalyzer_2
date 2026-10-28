@@ -111,4 +111,24 @@ public class InfluxTests
         Assert.Equal(a, b);
         Assert.Equal("influx:b/m/f{a=2,z=1}", a);
     }
+
+    static System.Text.Json.Nodes.JsonObject Item(string field, string type = "Double") => new()
+    {
+        ["bucket"] = "b", ["measurement"] = "m", ["field"] = field, ["data_type"] = type, ["tags"] = new System.Text.Json.Nodes.JsonObject { ["line"] = "1" },
+    };
+
+    [Fact]
+    public void ExportPlanNamesSeriesAndRejectsTextAndTooMany()
+    {
+        var plan = InfluxService.ExportPlan(new System.Text.Json.Nodes.JsonArray { Item("a"), Item("b", "Boolean") });
+        Assert.Equal(2, plan.Count);
+        Assert.Equal("influx:b/m/a{line=1}", plan[0].Key);
+        Assert.Equal("m.a {line=1}", plan[0].Name);
+        Assert.Equal("Boolean", plan[1].DataType);
+        Assert.Throws<UserError>(() => InfluxService.ExportPlan(new System.Text.Json.Nodes.JsonArray { Item("a", "String") }));
+        Assert.Throws<UserError>(() => InfluxService.ExportPlan(new System.Text.Json.Nodes.JsonArray()));
+        var many = new System.Text.Json.Nodes.JsonArray();
+        for (var i = 0; i <= InfluxService.MaxExportSeries; i++) many.Add(Item("f" + i));
+        Assert.Throws<UserError>(() => InfluxService.ExportPlan(many));
+    }
 }

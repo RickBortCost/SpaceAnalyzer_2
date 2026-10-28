@@ -4,11 +4,11 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.9.1
+## Novità della versione 3.10.0
 
-- **Analisi X1 ↔ X2 generale** corretta: un solo dock a fondo schermata, apribile in Live, Registrazioni e InfluxDB (nella 3.8.x in InfluxDB restava dentro il grafico e non si apriva). Motivo: segnalazione dell'utente.
-- **InfluxDB**: valori X1/X2 calcolati, fino a 100.000 punti per serie con indicazione della frequenza dei dati originali, larghezza regolabile con la barra di separazione.
-- Dalla 3.9.0: notifiche ADS raggruppate (fino a 50 ms), priorità di Windows durante l'acquisizione e diagnostica ADS.
+- **InfluxDB → file**: pulsante "Esporta…" nella pagina InfluxDB; finestra per scegliere periodo (caricato, visibile nel grafico o a scelta), formato (CSV, Parquet, FDA DAS4, RBF v3), nome e cartella sul computer. Motivo: portare fuori da InfluxDB i dati analizzati.
+- L'esportazione scrive tutti i punti originali (non le medie del grafico), con avanzamento, annullamento e memoria limitata anche con milioni di punti.
+- Dalla 3.9.1: dock Analisi X1 ↔ X2 corretto e miglioramenti InfluxDB (valori calcolati, fino a 100.000 punti, larghezza regolabile); dalla 3.9.0: notifiche ADS raggruppate e priorità durante l'acquisizione.
 - Dalla 3.8.x: Analisi X1 ↔ X2 generale, grafici riducibili e riordinabili; dalla 3.7.0: pagina InfluxDB e menu Strumenti; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.

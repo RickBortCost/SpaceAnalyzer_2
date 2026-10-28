@@ -2,6 +2,15 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.10.0
+
+- **InfluxDB: esportazione dei dati in un file locale**: nuovo pulsante "Esporta…" nella pagina InfluxDB che apre una finestra in cui si sceglie il periodo (periodo caricato, intervallo visibile nel grafico oppure inizio e fine a scelta), il formato (CSV, Apache Parquet, FDA DAS4 o RBF v3), il nome del file e la cartella sul computer (Sfoglia…; se non indicata, la sottocartella "Conversioni" delle registrazioni, così il file compare nella pagina Registrazioni). Si esportano le serie del grafico attivo. Motivo: portare fuori da InfluxDB i dati che si stanno analizzando, in formati leggibili dagli altri strumenti.
+- **Dati originali, non ridotti**: l'esportazione legge da InfluxDB tutti i punti originali del periodo (non le medie del grafico), a fette di circa 250.000 punti con le serie fuse in ordine di tempo, così la memoria resta limitata anche con milioni di punti (ad esempio 10 ms su molte ore). Motivo: un file esportato deve contenere i dati veri, non quelli ridotti per il disegno.
+- **Lavoro in background con avanzamento**: la finestra mostra conteggio, punti letti e scritti, si può annullare (i file parziali vengono eliminati) e riaprire senza perdere il lavoro in corso; a fine lavoro elenca i file con percorso e dimensione. Un'esportazione alla volta. FDA e RBF passano da un Parquet intermedio nella cartella di destinazione, cancellato alla fine; il file ha un file di metadati accanto, come le registrazioni.
+- Formato e cartella scelti sono ricordati per la volta successiva. Il token di InfluxDB non viene mai scritto nei file: i metadati riportano solo l'indirizzo del server.
+- Test: `test_influx_ui.cjs` (esportazione CSV con tutti i 3.600 punti e primo/ultimo valore esatti, Parquet su intervallo a scelta, intervallo visibile, FDA e RBF, intervallo non valido, cartella di lavoro rimossa), `InfluxTests` (piano di esportazione: nomi, serie di testo, limite di 64); nuove stringhe in cinque lingue.
+- **Non verificato con un server InfluxDB reale**: come per la pagina, i test usano il server di prova; la velocità di lettura di milioni di punti va provata sul vostro server.
+
 ## 3.9.1
 
 - **Analisi X1 ↔ X2 generale: dock corretto in Registrazioni e InfluxDB**: nel modello dei grafici di Registrazioni il dock era finito dentro la scheda del grafico; la pagina InfluxDB ne copiava il modello e otteneva due dock con lo stesso identificatore, uno dentro il grafico (la sezione per grafico che doveva sparire) e uno in fondo mai collegato, che non si apriva. Ora il dock è unico, fuori dai grafici e apribile in tutte e tre le pagine. Motivo: segnalazione dell'utente sulla 3.8.1; i test controllavano solo l'esistenza del dock, non la sua posizione (ora verificata).

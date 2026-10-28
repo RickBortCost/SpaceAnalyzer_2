@@ -313,7 +313,9 @@ public sealed class InfluxService(string dataDir) : IDisposable
         return new SamplePayload(info, loaded.Select(l => l.Columns).ToList());
     }
 
-    async Task<Loaded> LoadSeries(Settings s, JsonObject item, double start, double end, int maxPoints, string aggregate, CancellationToken ct)
+    sealed record Described(string Bucket, string Measurement, string Field, JsonObject? Tags, string Type, string Key, string Name);
+
+    static Described Describe(JsonObject item)
     {
         var bucket = item["bucket"].Str() ?? throw new UserError("Serie senza bucket.");
         var measurement = item["measurement"].Str() ?? "";
@@ -322,9 +324,15 @@ public sealed class InfluxService(string dataDir) : IDisposable
         var type = item["data_type"].Str() ?? "Double";
         var dictionary = new Dictionary<string, string>();
         if (tags != null) foreach (var (k, v) in tags) dictionary[k] = v.Str() ?? "";
-        var key = SeriesKey(bucket, measurement, field, dictionary);
-        var columns = new SampleColumns(key) { DataType = type };
-        columns.Name = measurement + "." + field + (dictionary.Count == 0 ? "" : " {" + string.Join(", ", dictionary.OrderBy(t => t.Key, StringComparer.Ordinal).Select(t => t.Key + "=" + t.Value)) + "}");
+        var name = measurement + "." + field + (dictionary.Count == 0 ? "" : " {" + string.Join(", ", dictionary.OrderBy(t => t.Key, StringComparer.Ordinal).Select(t => t.Key + "=" + t.Value)) + "}");
+        return new Described(bucket, measurement, field, tags, type, SeriesKey(bucket, measurement, field, dictionary), name);
+    }
+
+    async Task<Loaded> LoadSeries(Settings s, JsonObject item, double start, double end, int maxPoints, string aggregate, CancellationToken ct)
+    {
+        var d = Describe(item);
+        var (bucket, measurement, field, tags, type) = (d.Bucket, d.Measurement, d.Field, d.Tags, d.Type);
+        var columns = new SampleColumns(d.Key) { DataType = type, Name = d.Name };
         if (type == "String") throw new UserError($"La serie «{columns.Name}» contiene testo e non può essere disegnata.");
         var range = $"range(start: {Flux.Time(start)}, stop: {Flux.Time(end)})";
         var source = $"from(bucket: {Flux.Str(bucket)}) |> {range} |> filter(fn: (r) => {Filter(measurement, field, tags)})";
@@ -353,6 +361,56 @@ public sealed class InfluxService(string dataDir) : IDisposable
         columns.Sort();
         return new Loaded(columns, original, columns.Count, window, function);
     }
+
+    /// <summary>A series selected for export: identifier, readable name, value type and the request item that describes it.</summary>
+    public sealed record ExportSeries(string Key, string Name, string DataType, JsonObject Item);
+
+    public const int MaxExportSeries = 64;
+
+    /// <summary>Validates the series of an export request (at most 64, no text series).</summary>
+    public static List<ExportSeries> ExportPlan(JsonNode? series)
+    {
+        var items = (series as JsonArray)?.OfType<JsonObject>().ToList() ?? [];
+        if (items.Count == 0) throw new UserError("Seleziona almeno una serie.");
+        if (items.Count > MaxExportSeries) throw new UserError($"Si possono esportare al massimo {MaxExportSeries} serie (selezionate {items.Count}).");
+        var plan = new List<ExportSeries>();
+        foreach (var item in items)
+        {
+            var d = Describe(item);
+            if (d.Type == "String") throw new UserError($"La serie «{d.Name}» contiene testo e non può essere esportata.");
+            plan.Add(new ExportSeries(d.Key, d.Name, d.Type, item));
+        }
+        return plan;
+    }
+
+    static string ExportSource(Described d, double start, double end) =>
+        $"from(bucket: {Flux.Str(d.Bucket)}) |> range(start: {Flux.Time(start)}, stop: {Flux.Time(end)}) |> filter(fn: (r) => {Filter(d.Measurement, d.Field, d.Tags)})";
+
+    /// <summary>Number of original points of a series in [start, end).</summary>
+    public async Task<long> CountPoints(ExportSeries series, double start, double end, CancellationToken ct)
+    {
+        var s = Connected();
+        var rows = await Query(s, ExportSource(Describe(series.Item), start, end) + " |> group() |> count()", 4, ct);
+        return rows.Select(r => (long?)long.Parse(r.Get("_value") ?? "0", CultureInfo.InvariantCulture)).FirstOrDefault() ?? 0;
+    }
+
+    /// <summary>Every original point of a series in [start, end): time (ms) and numeric value (booleans as 0/1), in time order.</summary>
+    public async Task<List<(double Time, double Value)>> RawPoints(ExportSeries series, double start, double end, CancellationToken ct)
+    {
+        var s = Connected();
+        var d = Describe(series.Item);
+        var numeric = d.Type == "Boolean" ? " |> map(fn: (r) => ({r with _value: if r._value then 1.0 else 0.0}))" : "";
+        var rows = await Query(s, ExportSource(d, start, end) + numeric + " |> group() |> sort(columns: [\"_time\"]) |> keep(columns: [\"_time\", \"_value\"])", ExportChunkLimit, ct);
+        var points = new List<(double, double)>(rows.Count);
+        foreach (var row in rows)
+            if (row.Get("_time") is { Length: > 0 } text && FluxCsv.ParseValue(row.Get("_value")) is double value) points.Add((FluxCsv.ParseTimeMs(text), value));
+        return points;
+    }
+
+    public const int ExportChunkLimit = 2_000_000;
+
+    /// <summary>Address of the server (without credentials) for the metadata of an export.</summary>
+    public string ServerUrl => Load().Url;
 
     public void Dispose()
     {
