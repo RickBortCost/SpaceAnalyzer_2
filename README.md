@@ -4,15 +4,13 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.8.0
+## Novità della versione 3.8.1
 
+- Release che pubblica le novità della 3.8.0 (la pipeline della 3.8.0 si era fermata su un test non aggiornato; nessuna modifica al comportamento dell'applicazione). Motivo: rendere disponibile la 3.8.0.
 - **Analisi X1 ↔ X2 generale** in fondo alla schermata (Live, Registrazioni, InfluxDB): mostra tutti i valori di calcolo del grafico selezionato; tolta la sezione per ogni grafico. Motivo: meno spazio occupato con più grafici.
 - **Riduci a barra**: tasto accanto al pieno schermo che riduce un grafico alla barra del titolo. Motivo: mettere in evidenza solo alcuni grafici.
 - **Riordino drag&drop** dei grafici con la maniglia ⠿ (oppure Alt + frecce). Motivo: scegliere l'ordine di lettura.
 - Dalla 3.7.0: pagina InfluxDB e menu Strumenti.
-
-- Nuova pagina **InfluxDB**: collegamento a un server InfluxDB 2.x (indirizzo e token di sola lettura), elenco automatico di bucket, misure, campi e tag, scelta delle serie e del periodo e grafici con riduzione automatica dei dati (tutti i punti se pochi, finestre con media/min/max/ultimo/mediana se molti) e più dettaglio con lo zoom. Organizzazione, elenco e primo grafico sono automatici; il token salvato non esce dal servizio. Guida: `source/GUIDA_INFLUXDB.md`. Non ancora verificato con un server InfluxDB reale (test con un server di prova).
-- Conversione, Dati calcolati e Debug SSH sono raggruppati nel menu **Strumenti** della barra superiore. Motivo: con la nuova pagina le voci non entravano più su una riga.
 - Dalla 3.6.0: tipo di dato scelto automaticamente per RBF, FDA e memoria Live; dalla 3.5.x: file FDA entro i 256 MB del programma FDA, asse X condiviso in Registrazioni, DAT ibaPDA; dalla 3.4.x: nome Space Fieldbus Analyzer.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.

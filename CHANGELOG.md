@@ -2,6 +2,10 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.8.1
+
+- **Correzione del test `test_multi_ui.cjs`**: leggeva i campi marker dentro l'elemento del grafico, ma con l'analisi X1 ↔ X2 generale (3.8.0) il pannello del grafico attivo sta nel dock a fondo pagina. Ora il test cerca i campi anche nel pannello del grafico. Motivo: la pipeline della 3.8.0 si era fermata su questo test e la release non era stata pubblicata; il comportamento dell'applicazione non cambia. Le modifiche della 3.8.0 (analisi generale, riduzione a barra, riordino dei grafici) sono incluse in questa release.
+
 ## 3.8.0
 
 - **Analisi X1 ↔ X2 generale**: la sezione per grafico è stata tolta e sostituita da un'unica sezione "Analisi X1 ↔ X2" in fondo alla schermata (Live, Registrazioni e InfluxDB). All'apertura mostra tutti i valori di calcolo (X1, X2, Δt e tabella dei segnali) del grafico selezionato in quel momento; cliccando un altro grafico l'analisi passa a quel grafico. Motivo: con più grafici le sezioni ripetute occupavano molto spazio e andavano aperte una per una.
