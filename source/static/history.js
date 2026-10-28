@@ -2,7 +2,7 @@
 const H=id=>document.getElementById(id);
 let historyFiles=[],historyMarkerTimer=null,historyCompareBusy=false;
 const emptyHistory=()=>({file:null,chosen:new Set(),from:'',to:'',loaded:false,loading:false,stats:null,status:I18N.t("Seleziona una registrazione oppure spunta più file da confrontare."),error:false,markerSeq:0,compareFiles:[],compareMode:'absolute',compareCoverage:'union',compareStatus:'',comparing:false,resetViewOnOpen:false});
-const historyCharts=new ChartWorkspace({scope:'history',root:'history-charts',selector:'history-active-chart',add:'history-add-chart',layout:'history-layout',staticMode:true,copySignalsOnAdd:false,
+const historyCharts=new ChartWorkspace({scope:'history',dock:'history-analysis-dock',root:'history-charts',selector:'history-active-chart',add:'history-add-chart',layout:'history-layout',staticMode:true,copySignalsOnAdd:false,
   onNew:(graph)=>{graph.context=emptyHistory();resetHistoryView(graph,false);},
   onActive:(graph,previous)=>{if(previous)storeHistoryInputs(previous);if(!graph.context)graph.context=emptyHistory();renderHistoryControls();renderHistoryFileList();graph.trend.draw();},
   onMarkers:()=>scheduleHistoryMarkers(),onClear:()=>renderHistoryControls(),onClose:graph=>closeHistoryFile(graph)});

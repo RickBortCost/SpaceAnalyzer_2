@@ -52,7 +52,7 @@ async function page(){
   await wait(async()=>{const v=await api('/api/values?view=window');return v.samples[signals.opcua][0][0]>x2+100;},'old marker interval evicted from recent raw FIFO',16000);
   assert.equal($('live-time-view').value,'all');
   $('global-pause').click();await wait(()=>graph.analysisSnapshotId,'full-session original snapshot');
-  trend.setMarker('x1',x1);trend.setMarker('x2',x2);graph.element.querySelector('.marker-analysis').open=true;
+  trend.setMarker('x1',x1);trend.setMarker('x2',x2);t.liveCharts.dock.open=true;t.liveCharts.dock.dispatchEvent(new w.Event('toggle'));
   await w.quickCalculationsTick();
   await wait(()=>trend.exactMarkerRows?.get(signals.opcua)?.x1,'old marker resolves from original history');
   assert(Number.isFinite(trend.exactMarkerRows.get(signals.opcua).x2.value));

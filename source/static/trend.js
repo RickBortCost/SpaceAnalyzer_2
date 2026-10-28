@@ -611,6 +611,7 @@ class Trend {
     });
   }
   draw(){
+    if(this.collapsed)return;
     const c=this.canvas,r=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;if(r.width<1||r.height<1)return;
     this.theme=window.studioTheme||{text:'#707E86',grid:'#E5E5E5',surface:'#FFFFFF'};c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);const ctx=c.getContext('2d');if(!ctx)return;ctx.scale(dpr,dpr);
     const plan=this.planAxes(),axisSignature=[plan.dual?'2':'1',...[...plan.axisById.entries()].map(([id,a])=>id+':'+a),...plan.keys.map(k=>k+'@'+plan.side.get(k))].join('|');

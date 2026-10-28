@@ -2,6 +2,14 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.8.0
+
+- **Analisi X1 ↔ X2 generale**: la sezione per grafico è stata tolta e sostituita da un'unica sezione "Analisi X1 ↔ X2" in fondo alla schermata (Live, Registrazioni e InfluxDB). All'apertura mostra tutti i valori di calcolo (X1, X2, Δt e tabella dei segnali) del grafico selezionato in quel momento; cliccando un altro grafico l'analisi passa a quel grafico. Motivo: con più grafici le sezioni ripetute occupavano molto spazio e andavano aperte una per una.
+- **Riduci a barra**: nuovo tasto accanto al tasto a schermo intero (▁ / ▣) che riduce il grafico alla sola barra del titolo; la riga della griglia si abbassa e gli altri grafici recuperano spazio. Un grafico ridotto non viene ridisegnato (meno carico) e lo stato è salvato con il workspace. Motivo: poter tenere sotto mano più grafici mettendone in evidenza solo alcuni.
+- **Riordino dei grafici**: maniglia ⠿ nella barra del titolo per trascinare i grafici e cambiarne l'ordine (indicatore del punto di rilascio), oppure Alt + frecce con la maniglia a fuoco. L'ordine è salvato con il workspace. Motivo: l'ordine dipendeva solo da quello di creazione.
+- Le dimensioni del pannello marker per grafico non sono più salvate (il pannello è unico, a fondo pagina, con altezza massima e scorrimento). Motivo: conseguenza del pannello unico.
+- Test: nuovo `test_dock_ui.cjs` (dock, attivazione, riduzione, ripristino, riordino, lingue); aggiornati `test_studio_ui.cjs` e `test_live_interval_ui.cjs`. Nuove stringhe in italiano, inglese, tedesco, francese e spagnolo.
+
 ## 3.7.0
 
 - **Nuova pagina InfluxDB**: collegamento a un server InfluxDB 2.x (indirizzo e token di sola lettura), elenco automatico di bucket, misure, campi e tag con il tipo di ogni campo, scelta delle serie e del periodo (5 min … 30 g oppure inizio e fine a scelta) e visualizzazione nei grafici con marker, FFT/Export, scale Y condivise e più grafici indipendenti. Motivo: leggere e graficare i dati di un database InfluxDB senza passare da file.

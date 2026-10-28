@@ -50,7 +50,7 @@ async function loadLiveHistory(before){
 function setLiveViewMode(mode){const next=mode==='window'?'window':'all';if(next==='all'&&liveViewMode!=='all')for(const points of Object.values(series))if(points instanceof LiveSeries)points.needsHistory=true;liveViewMode=next;$('live-time-view').value=liveViewMode;}
 $('live-time-view').addEventListener('change',event=>{setLiveViewMode(event.target.value);clearRevision++;liveCharts.timeRange=null;liveCharts.resetViews();scheduleWorkspaceSave();if(!polling)updateValues();});
 const pageSize=250;
-const liveCharts=new ChartWorkspace({scope:'live',root:'live-charts',selector:'live-active-chart',add:'live-add-chart',layout:'live-layout',allowSignalDrop:true,copySignalsOnAdd:false,
+const liveCharts=new ChartWorkspace({scope:'live',dock:'live-analysis-dock',root:'live-charts',selector:'live-active-chart',add:'live-add-chart',layout:'live-layout',allowSignalDrop:true,copySignalsOnAdd:false,
   onActive:()=>renderSelected(),onAssignment:()=>renderSelected(),onScaleChange:()=>renderSelected(),onSignalDrop:(graph,id)=>notice(I18N.join([{text:"Segnale aggiunto a "},{value:(graph.name)},{text:"."}])),onChange:()=>{I18N.bind($('savestatus'),"textContent",()=>(I18N.t("Layout modificato. Usa “Salva impostazione” per conservarlo.")),true);}});
 const livePageLayout=new ResizablePageLayout('live-page','live-page-splitter','opcua.live.sidebar.width',()=>liveCharts.draw());
 const trend=liveCharts.charts[0].trend; // First-chart compatibility for existing diagnostics.

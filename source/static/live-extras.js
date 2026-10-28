@@ -155,7 +155,7 @@
       for(const graph of liveCharts.charts){
         const t=graph.trend,range={...t.markers},marked=Number.isFinite(range.x1)&&Number.isFinite(range.x2)&&range.x1!==range.x2;
         if(!marked){t.exactMarkerMode=false;t.exactMarkerRows=null;t.markerError='';continue;}
-        if(!graph.element.querySelector('.marker-analysis')?.open)continue;
+        if(!liveCharts.analysisOpen(graph))continue;
         const frozen=t.frozen,revision=graph.analysisSnapshotRevision,ids=[...t.nodes.keys()].slice(0,64);if(!ids.length)continue;
         try{
           t.exactMarkerMode=true;t.markerError='';

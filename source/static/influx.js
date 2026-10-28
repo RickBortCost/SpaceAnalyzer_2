@@ -16,7 +16,7 @@ function influxChartElement(){
 const ifxCtx=(graph=influxCharts.active)=>graph.influx||(graph.influx={selected:new Set(),loaded:false,base:null,loading:false,revision:0});
 const influxCharts=(()=>{
   ifx('influx-charts').append(influxChartElement());
-  const workspace=new ChartWorkspace({scope:'influx',root:'influx-charts',selector:'influx-active-chart',add:'influx-add-chart',layout:'influx-layout',staticMode:true,stateLabel:'INFLUX',closeLabel:'Svuota grafico',copySignalsOnAdd:false,
+  const workspace=new ChartWorkspace({scope:'influx',dock:'influx-analysis-dock',root:'influx-charts',selector:'influx-active-chart',add:'influx-add-chart',layout:'influx-layout',staticMode:true,stateLabel:'INFLUX',closeLabel:'Svuota grafico',copySignalsOnAdd:false,
     onNew:graph=>{graph.influx=null;ifxCtx(graph);hookInfluxGraph(graph);},
     onActive:graph=>{ifxCtx(graph);renderInfluxSelection();renderInfluxStatus();graph.trend.draw();},
     onMarkers:()=>{},onClear:graph=>{const ctx=ifxCtx(graph);ctx.selected.clear();ctx.loaded=false;renderInfluxSelection();},
