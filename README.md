@@ -4,11 +4,11 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.9.0
+## Novità della versione 3.9.1
 
-- **Notifiche ADS raggruppate**: il router TwinCAT invia insieme i campioni fino a 50 ms (configurabile nella connessione ADS), ognuno con il suo timestamp PLC. Motivo: molti meno messaggi, quindi meno esposizione ai ritardi di Windows quando si acquisisce a 1 ms con molti canali.
-- **Priorità durante l'acquisizione**: processo a priorità superiore al normale, thread di ricezione TcAdsDll in MMCSS, garbage collector a bassa latenza; tutto torna normale alla disconnessione. Motivo: ridurre i ritardi di Windows sui thread che ricevono i campioni.
-- **Diagnostica ADS** con raggruppamento, priorità e piano energetico (consigliato "Prestazioni elevate"). Motivo: verificare le impostazioni sull'IPC.
+- **Analisi X1 ↔ X2 generale** corretta: un solo dock a fondo schermata, apribile in Live, Registrazioni e InfluxDB (nella 3.8.x in InfluxDB restava dentro il grafico e non si apriva). Motivo: segnalazione dell'utente.
+- **InfluxDB**: valori X1/X2 calcolati, fino a 100.000 punti per serie con indicazione della frequenza dei dati originali, larghezza regolabile con la barra di separazione.
+- Dalla 3.9.0: notifiche ADS raggruppate (fino a 50 ms), priorità di Windows durante l'acquisizione e diagnostica ADS.
 - Dalla 3.8.x: Analisi X1 ↔ X2 generale, grafici riducibili e riordinabili; dalla 3.7.0: pagina InfluxDB e menu Strumenti; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.

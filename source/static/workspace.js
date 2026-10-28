@@ -65,7 +65,7 @@ class ChartWorkspace {
     graph.trend=new Trend(get('canvas'),get('legend'),get('tooltip'),{ui,staticMode:this.staticMode,liveZoom:this.liveZoom,preserveMarkers:true,
       onSpanWheel:factor=>this.spanWheel(factor),onSpanReset:()=>this.setLiveSpan(null),
       onLiveRange:range=>{if(this.syncZoom)this.timeRange={...range};},
-      exactMarkerMode:this.staticMode,onMarkersChanged:markers=>this.setMarkers(markers,graph),onViewChanged:range=>this.syncRange(graph,range),onHover:t=>this.hoverAt(graph,t),
+      exactMarkerMode:this.staticMode&&this.options.exactMarkers!==false,onMarkersChanged:markers=>this.setMarkers(markers,graph),onViewChanged:range=>this.syncRange(graph,range),onHover:t=>this.hoverAt(graph,t),
       emptyMessage:this.staticMode?I18N.t("Apri una registrazione"):I18N.t("Trascina qui i segnali oppure selezionali dalla lista")});
     graph.trend.scaleState=graph.scaleState;graph.trend.onScaleChanged=()=>{this.changed();this.options.onScaleChange?.(graph);};
     if(!this.staticMode){graph.trend.onFreeze=()=>window.captureFrozenAnalysis?.(graph);graph.trend.onResume=()=>window.releaseFrozenAnalysis?.(graph);}

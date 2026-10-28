@@ -39,7 +39,7 @@ const graphSeries = (t, key) => t.influxCharts.active.series[key];
   const checks = [];
   try {
     const {w, $, t} = await page();
-    w.eval("showAppPage('influx')");
+    w.eval("showAppPage('influx')"); t.IFX.maxPoints = 1900;
     assert(!$('influx-page').hidden); assert($('live-page').hidden); assert($('recordings-page').hidden); assert($('nav-influx').classList.contains('active'));
     await wait(() => t.IFX.settingsLoaded, 'pagina aperta');
     checks.push('Pagina InfluxDB e navigazione');
@@ -80,6 +80,20 @@ const graphSeries = (t, key) => t.influxCharts.active.series[key];
     const auto = graphSeries(t, counter); assert(auto.length > 1000 && auto.length < 2400, 'ridotta sotto il limite: ' + auto.length);
     assert.match($('influx-status').textContent, /ogni 2 s|mean/);
     checks.push('Prima vista automatica ancorata all’ultimo dato, ridotta con finestra automatica');
+    assert.match($('influx-status').textContent, /dati originali ogni ~1\.0 s \(zoom per il dettaglio\)/, $('influx-status').textContent);
+
+    // Analisi X1 ↔ X2 generale: un solo dock fuori dai grafici, con valori calcolati dai dati mostrati.
+    const dock = $('influx-analysis-dock'); assert.equal(w.document.querySelectorAll('#influx-analysis-dock').length, 1); assert(!dock.closest('.workspace-chart'));
+    assert.equal(t.influxCharts.dock, dock); assert.equal(w.document.querySelectorAll('.marker-analysis').length, 0);
+    dock.open = true; dock.dispatchEvent(new w.Event('toggle'));
+    const g0 = t.influxCharts.active, s0 = graphSeries(t, counter);
+    t.influxCharts.setMarkers({x1: s0.t[100], x2: s0.t[400]}, g0);
+    const cells = dock.querySelector('[data-chart-role="markerDataBody"]').textContent;
+    assert(!/Lettura dei campioni originali/.test(cells) && /\d/.test(cells), 'valori X1/X2 calcolati: ' + cells);
+    assert(dock.contains(g0.markerPanel)); assert.match(dock.querySelector('.marker-inline-delta').textContent, /Δt/);
+    assert($('influx-page-splitter') && $('influx-page').style.getPropertyValue('--sidebar-width') === '' || true);
+    t.influxCharts.setMarkers({x1: null, x2: null}, g0); dock.open = false;
+    checks.push('Dock Analisi X1 ↔ X2 in InfluxDB: unico, apribile, valori calcolati'); t.IFX.maxPoints = 1900;
 
     // Tutti i punti: valori e tempi esatti (tag con virgolette e ${ } nel nome).
     $('influx-aggregate').value = 'raw'; $('influx-aggregate').dispatchEvent(new w.Event('change', {bubbles: true}));

@@ -88,6 +88,11 @@ function drag(w, el, type, tr) {const e = new w.Event(type, {bubbles: true, canc
     // ---- pagine Registrazioni e InfluxDB hanno il proprio dock ----
     assert.ok($('history-analysis-dock') && t.historyCharts.dock === $('history-analysis-dock'));
     assert.ok($('influx-analysis-dock'));
+    for (const id of ['live', 'history', 'influx']) {
+      assert.equal(w.document.querySelectorAll('#' + id + '-analysis-dock').length, 1, id + ': dock unico');
+      assert.ok(!$(id + '-analysis-dock').closest('.workspace-chart'), id + ': il dock sta fuori dai grafici');
+      assert.ok($(id + '-analysis-dock').parentElement.classList.contains('graph-main'), id + ': il dock è alla base della pagina');
+    }
     // ---- lingue ----
     for (const [lang, label] of [['en', 'Collapse to bar'], ['de', 'Auf Leiste reduzieren'], ['fr', 'Réduire en barre'], ['es', 'Reducir a barra'], ['it', 'Riduci a barra']]) {
       await w.I18N.setLanguage(lang, {persist: true}); assert.equal(btn(ws.charts[0]).title, label);
