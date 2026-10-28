@@ -33,7 +33,7 @@ async function page(){
   await w.opcuaConfigReady;return {dom,w,$,t:w.uiTest};
 }
 
-const clickRole=(graph,role)=>graph.element.querySelector('[data-chart-role="'+role+'"]').click();
+const clickRole=(graph,role)=>control(graph,role).click();
 const control=(graph,role)=>(graph.element.querySelector('[data-chart-role="'+role+'"]')||graph.markerPanel?.querySelector('[data-chart-role="'+role+'"]'));
 function pointer(w,graph,type,x,y){const target=type==='up'&&!w.PointerEvent?w:graph.trend.canvas;target.dispatchEvent(new (w.PointerEvent||w.MouseEvent)((w.PointerEvent?'pointer':'mouse')+(type==='down'?'down':type==='up'?'up':'move'),{bubbles:true,clientX:x,clientY:y,button:0,pointerId:1}));}
 function place(w,graph,which,time){clickRole(graph,which==='x1'?'markerX1':'markerX2');const t=graph.trend,b=t.domain,{p,w:width}=t.layout;pointer(w,graph,'down',p.l+(time-b.xmin)/(b.xmax-b.xmin)*(width-p.l-p.r),200);}

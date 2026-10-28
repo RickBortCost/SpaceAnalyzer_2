@@ -16,7 +16,7 @@ function influxChartElement(){
 const ifxCtx=(graph=influxCharts.active)=>graph.influx||(graph.influx={selected:new Set(),loaded:false,base:null,loading:false,revision:0});
 const influxCharts=(()=>{
   ifx('influx-charts').append(influxChartElement());
-  const workspace=new ChartWorkspace({scope:'influx',dock:'influx-analysis-dock',root:'influx-charts',selector:'influx-active-chart',add:'influx-add-chart',layout:'influx-layout',staticMode:true,stateLabel:'INFLUX',closeLabel:'Svuota grafico',copySignalsOnAdd:false,
+  const workspace=new ChartWorkspace({scope:'influx',dock:'influx-analysis-dock',root:'influx-charts',selector:'influx-active-chart',add:'influx-add-chart',layout:'influx-layout',staticMode:true,exactMarkers:false,stateLabel:'INFLUX',closeLabel:'Svuota grafico',copySignalsOnAdd:false,
     onNew:graph=>{graph.influx=null;ifxCtx(graph);hookInfluxGraph(graph);},
     onActive:graph=>{ifxCtx(graph);renderInfluxSelection();renderInfluxStatus();graph.trend.draw();},
     onMarkers:()=>{},onClear:graph=>{const ctx=ifxCtx(graph);ctx.selected.clear();ctx.loaded=false;renderInfluxSelection();},
@@ -147,7 +147,8 @@ function setInfluxPreset(seconds,persist=true){
 ifx('influx-presets').addEventListener('click',event=>{const b=event.target.closest('button[data-preset]');if(!b)return;setInfluxPreset(Number(b.dataset.preset));if(Number(b.dataset.preset)>0&&ifxCtx().selected.size)loadInflux().catch(e=>influxError(e.message));});
 
 // ---- dati --------------------------------------------------------------------------------------------------------------
-function influxMaxPoints(graph){const width=graph?.trend?.canvas?.clientWidth||0;return Math.max(500,Math.min(20000,Math.round((width||1200)*2)));}
+// Budget di punti per serie: più serie selezionate, meno punti ciascuna (massimo 100.000, come le registrazioni). Con pochi punti nel periodo arrivano tutti i dati originali.
+function influxMaxPoints(graph){if(IFX.maxPoints)return IFX.maxPoints;const series=Math.max(1,ifxCtx(graph).selected.size);return Math.max(2000,Math.min(100000,Math.floor(300000/series)));}
 async function loadInflux(graph=influxCharts.active,options={}){
   const ctx=ifxCtx(graph),keys=[...ctx.selected];if(!keys.length)throw new Error(I18N.t('Seleziona almeno una serie.'));
   const range=options.range||influxRange(keys),revision=++ctx.revision;
@@ -167,10 +168,11 @@ function renderInfluxStatus(){
   const ctx=ifxCtx(),data=ctx.info;if(!ctx.loaded||!data){return;}
   const returned=(data.signals||[]).reduce((n,s)=>n+Number(s.points_returned||0),0),original=(data.signals||[]).reduce((n,s)=>n+Number(s.points_original||0),0);
   const fmt=ms=>new Date(ms).toLocaleString(I18N.locale());
-  const reduced=(data.signals||[]).find(s=>s.window_s>0);
+  const reduced=(data.signals||[]).find(s=>s.window_s>0),perSeries=Math.max(0,...(data.signals||[]).map(s=>Number(s.points_original||0))),spanMs=Number(data.end_ms)-Number(data.start_ms),nativeMs=perSeries>1&&spanMs>0?spanMs/(perSeries-1):0;
   setInfluxStatus(I18N.join([{value:(data.signals||[]).length},{text:' serie · '},{value:returned.toLocaleString(I18N.locale())},{text:' punti'},
-    {text:reduced?' (da '+original.toLocaleString(I18N.locale())+', '+reduced.aggregate+' ogni '+influxWindowText(reduced.window_s)+')':' · '+I18N.t('tutti i punti')},{text:' · '},{value:fmt(data.start_ms)},{text:' → '},{value:fmt(data.end_ms)}]));
+    {text:reduced?' (da '+original.toLocaleString(I18N.locale())+', '+reduced.aggregate+' ogni '+influxWindowText(reduced.window_s)+')':' · '+I18N.t('tutti i punti')},{text:reduced&&nativeMs>0?' · dati originali ogni ~'+influxNativeText(nativeMs)+' (zoom per il dettaglio)':''},{text:' · '},{value:fmt(data.start_ms)},{text:' → '},{value:fmt(data.end_ms)}]));
 }
+function influxNativeText(ms){if(ms<1)return ms.toFixed(2)+' ms';if(ms<1000)return Math.round(ms)+' ms';return (ms/1000).toFixed(ms<10000?1:0)+' s';}
 function influxWindowText(seconds){if(seconds<60)return seconds+' s';if(seconds<3600)return seconds/60+' min';if(seconds<86400)return seconds/3600+' h';return seconds/86400+' g';}
 // Zoom sul grafico: i dati dell'intervallo visibile vengono riletti con più dettaglio; il ripristino torna al periodo scelto.
 function scheduleInfluxRefine(graph,range){
@@ -221,4 +223,5 @@ async function openInfluxPage(){
 window.openInfluxPage=openInfluxPage;
 ifx('nav-influx').onclick=()=>showAppPage('influx');
 document.addEventListener('space-analyzer-languagechange',()=>{renderInfluxState();renderInfluxSeries();renderInfluxStatus();});
+const influxPageLayout=new ResizablePageLayout('influx-page','influx-page-splitter','opcua.influx.sidebar.width',()=>influxCharts.draw());
 window.uiInflux={IFX,influxCharts,loadInflux,connectInflux,loadInfluxCatalog,setInfluxPreset};

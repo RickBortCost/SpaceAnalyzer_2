@@ -2,6 +2,14 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.9.1
+
+- **Analisi X1 ↔ X2 generale: dock corretto in Registrazioni e InfluxDB**: nel modello dei grafici di Registrazioni il dock era finito dentro la scheda del grafico; la pagina InfluxDB ne copiava il modello e otteneva due dock con lo stesso identificatore, uno dentro il grafico (la sezione per grafico che doveva sparire) e uno in fondo mai collegato, che non si apriva. Ora il dock è unico, fuori dai grafici e apribile in tutte e tre le pagine. Motivo: segnalazione dell'utente sulla 3.8.1; i test controllavano solo l'esistenza del dock, non la sua posizione (ora verificata).
+- **InfluxDB: valori di Analisi X1 ↔ X2 calcolati**: restava il messaggio "Lettura dei campioni originali…" perché per le registrazioni i valori si leggono dal file, che qui non esiste. I valori ora sono calcolati sui dati mostrati nel grafico (per periodi ridotti sono medie di finestra: lo zoom rilegge più dettaglio). Motivo: segnalazione dell'utente.
+- **InfluxDB: più punti e frequenza dei dati originali indicata**: il budget di punti per serie sale da 20.000 a 100.000 (diviso per il numero di serie, minimo 2.000, come il limite delle registrazioni) e la barra di stato mostra "dati originali ogni ~10 ms (zoom per il dettaglio)" quando i dati sono ridotti. Motivo: con dati a 10 ms su 6 ore il grafico mostrava medie ogni 10 s senza dire che i dati originali sono molto più fitti. Con 2,1 milioni di punti per serie nel periodo il dettaglio a 10 ms resta visibile con lo zoom (o scegliendo un periodo più breve).
+- **InfluxDB: larghezza regolabile**: aggiunta la barra di separazione tra pannello serie e grafici (trascinabile, doppio clic per ripristinare, larghezza memorizzata) e tolto il limite di larghezza della pagina; i grafici si ridisegnano al ridimensionamento. Motivo: segnalazione dell'utente, come per Live e Registrazioni.
+- Test: `test_influx_ui.cjs` (dock unico e fuori dal grafico, valori X1/X2 calcolati, frequenza originale nella barra di stato), `test_dock_ui.cjs` e `test_multi_ui.cjs` adattati.
+
 ## 3.9.0
 
 - **Raggruppamento delle notifiche ADS cicliche**: il router TwinCAT campiona ancora ogni ciclo, ma può inviare insieme i campioni di un intervallo (parametro nMaxDelay delle notifiche), ognuno con il proprio timestamp PLC. Prima ogni ciclo era un messaggio separato (a 1 ms, mille messaggi al secondo per ogni notifica); ora, in automatico, i campioni vengono raccolti fino a 50 ms (mai meno di un periodo). Il valore si sceglie nella connessione ADS ("Raggruppamento notifiche cicliche", 0 = automatico, fino a 1000 ms). Motivo: con molti meno messaggi il flusso è molto meno esposto ai ritardi di Windows quando l'acquisizione è spinta; la precisione temporale resta quella del PLC. Il Live si aggiorna con lo stesso ritardo.
