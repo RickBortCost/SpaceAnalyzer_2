@@ -465,7 +465,7 @@
   "source/tests/opcua_test_server.py": "1cc5aab67d02ce25175c7f536133ff638a9c7bd1cfea4ac10788433f1ef3b94c",
   "source/tests/package-lock.json": "cd4c45d79481362a3e1a0224bd1b9582bf23602e37676a7ab01a74a49e3acc1b",
   "source/tests/package.json": "3f172e02f742d00eedb5222cb888ebf6c6d350004a0e7ea71af94c47ee4bceb7",
-  "source/tests/postgres_peer.py": "3dc8933439e7ebc862657e12058c0f40def4ad374fece638c70f13271b7091ff",
+  "source/tests/postgres_peer.py": "ce40b6c933b7b1f3e8148cf20837e268c0e819a42bedcb627506ee31d7672547",
   "source/tests/requirements-test.txt": "a36bc56ec25b9ed5510634b1918240889e33ab0db93c104b9474245866f809b2",
   "source/tests/s7_plus_peer.py": "8c8e44f13d80feea525f98c36480c68a089b6e30b236a70002bfe910d81ec3cd",
   "source/tests/s7_test_server.py": "4262efaa8a86c83bc18c47c4a1768a9796225f195433e2e8ea055dc80e7c2d12",

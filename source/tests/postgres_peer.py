@@ -13,6 +13,7 @@ import shutil
 import socket
 import subprocess
 import tempfile
+import uuid
 from pathlib import Path
 
 USER, PASSWORD, DATABASE = 'tester', 'test-password', 'plant'
@@ -52,7 +53,10 @@ def free_port():
 class Peer:
     def __init__(self):
         self.bin = binaries()
-        self.root = Path(tempfile.mkdtemp(prefix='space-pg-'))
+        # Not mkdtemp: on Windows (Python 3.13+) it restricts the folder to the current user, and initdb/pg_ctl run with a restricted
+        # token (without the administrators group) that could not read it. The folder inherits the permissions of the temp folder.
+        self.root = Path(tempfile.gettempdir()) / ('space-pg-' + uuid.uuid4().hex[:12])
+        self.root.mkdir()
         self.port = free_port()
         # PostgreSQL non si avvia come root: su Linux il cluster appartiene all'utente postgres.
         self.prefix = []
