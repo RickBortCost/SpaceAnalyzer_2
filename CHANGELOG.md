@@ -2,6 +2,15 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.9.0
+
+- **Raggruppamento delle notifiche ADS cicliche**: il router TwinCAT campiona ancora ogni ciclo, ma può inviare insieme i campioni di un intervallo (parametro nMaxDelay delle notifiche), ognuno con il proprio timestamp PLC. Prima ogni ciclo era un messaggio separato (a 1 ms, mille messaggi al secondo per ogni notifica); ora, in automatico, i campioni vengono raccolti fino a 50 ms (mai meno di un periodo). Il valore si sceglie nella connessione ADS ("Raggruppamento notifiche cicliche", 0 = automatico, fino a 1000 ms). Motivo: con molti meno messaggi il flusso è molto meno esposto ai ritardi di Windows quando l'acquisizione è spinta; la precisione temporale resta quella del PLC. Il Live si aggiorna con lo stesso ritardo.
+- **Priorità di Windows durante l'acquisizione**: mentre le sorgenti acquisiscono, il processo passa a priorità "superiore al normale" e torna normale alla disconnessione (`SPACE_PROCESS_PRIORITY=normal|abovenormal|high` per cambiarla). Il thread che riceve i campioni da TcAdsDll viene registrato nel servizio multimediale di Windows (MMCSS, profilo "Pro Audio", priorità alta), oppure portato a priorità massima se MMCSS non è disponibile; il thread del motore di acquisizione ha priorità superiore al normale. Motivo: ridurre i ritardi di Windows sui thread che ricevono e smistano i campioni. Non si usa la priorità "alta" per tutto il processo come impostazione predefinita, per non sottrarre tempo ai servizi TwinCAT sui core condivisi.
+- **Garbage collector a bassa latenza** durante l'acquisizione (modalità .NET SustainedLowLatency, ripristinata alla disconnessione). Motivo: evitare pause lunghe di raccolta della memoria mentre arrivano i campioni.
+- **Diagnostica**: il riquadro delle notifiche cicliche ADS mostra il raggruppamento in uso, la priorità del processo, lo stato del thread di ricezione, la modalità del GC e il piano energetico di Windows, con il consiglio di usare "Prestazioni elevate" quando non è attivo. Motivo: verificare sull'IPC che le impostazioni siano applicate; il piano energetico non viene cambiato dall'applicazione.
+- Nessun componente in modalità kernel e nessuna modifica permanente alle impostazioni di sistema.
+- Test: `AcquisitionTuningTests` (ritardo massimo delle notifiche, modalità del GC applicata e ripristinata).
+
 ## 3.8.1
 
 - **Correzione del test `test_multi_ui.cjs`**: leggeva i campi marker dentro l'elemento del grafico, ma con l'analisi X1 ↔ X2 generale (3.8.0) il pannello del grafico attivo sta nel dock a fondo pagina. Ora il test cerca i campi anche nel pannello del grafico. Motivo: la pipeline della 3.8.0 si era fermata su questo test e la release non era stata pubblicata; il comportamento dell'applicazione non cambia. Le modifiche della 3.8.0 (analisi generale, riduzione a barra, riordino dei grafici) sono incluse in questa release.

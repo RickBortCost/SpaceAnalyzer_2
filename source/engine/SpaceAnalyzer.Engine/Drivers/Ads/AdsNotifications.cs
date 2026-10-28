@@ -17,6 +17,8 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
     const int GapWarmup = 4;
     const uint BlockExcludedFlags = 0x2 | 0x4 | 0x10 | 0x40 | 0x80;
     const int MaxBlock = 65536;
+    /// <summary>Automatic notification batching: the router may hold samples up to this long and send them together.</summary>
+    public const int AutoBatchMs = 50;
 
     sealed record Member(string? NodeId, AdsSymbol? Symbol, Block? Block);
     sealed record Block(uint Group, uint Start, uint Length, List<(string nid, AdsSymbol symbol, uint offset)> Members, string Label);
@@ -49,6 +51,8 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
     Generation? generation;
     int sampleMs = 10;
     readonly bool grouping;
+    readonly int batchMs;
+    int maxDelayMs;
     Dictionary<string, object?> layout = new() { ["blocks"] = 0L, ["block_members"] = 0L, ["singles"] = 0L, ["fallback_members"] = 0L };
     Dictionary<string, object?> reported = new();
 
@@ -61,6 +65,7 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
         var value = cfg.TryGetProperty("ads_notify_grouping", out var g) ? (g.ValueKind == JsonValueKind.True ? "1" : g.ValueKind == JsonValueKind.String ? g.GetString() ?? "0" : g.ValueKind == JsonValueKind.Number ? g.GetRawText() : "0")
             : Environment.GetEnvironmentVariable("SPACE_ADS_NOTIFY_GROUPING") ?? "0";
         grouping = value.Trim().ToLowerInvariant() is "1" or "true" or "on" or "yes";
+        batchMs = Math.Clamp(Int("ads_notify_batch_ms", 0), 0, 1000);
         Client.Transport.OnNotification = Callback;
     }
 
@@ -207,8 +212,10 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
         }
         var (blocks, singles) = grouping ? PlanBlocks(entries) : (new(), entries);
         long blockCount = 0, blockMembers = 0, singleCount = 0, fallback = 0;
-        // Native units are 100 ns; SERVERCYCLE = 3, maximum delay one period.
+        // Native units are 100 ns; SERVERCYCLE = 3, samples batched by the router up to the maximum delay.
         var cycle = (uint)(period * 10000);
+        maxDelayMs = MaxDelayMs(batchMs, period);
+        var maxDelay = (uint)(maxDelayMs * 10000);
         foreach (var (group, start, length, list) in blocks)
         {
             try
@@ -230,7 +237,7 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
                 members[user] = new Member(null, null, block);
                 foreach (var (nid, _, _) in list) watchKey[nid] = label;
             }
-            subscriptions.Add(await Client.Transport.AddNotification(group, start, length, cycle, cycle, user, ct));
+            subscriptions.Add(await Client.Transport.AddNotification(group, start, length, maxDelay, cycle, user, ct));
             blockCount++; blockMembers += list.Count;
         }
         foreach (var (nid, symbol) in singles)
@@ -238,13 +245,20 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
             var handle = await Client.Handle(AdsProtocol.SymbolName(nid), ct);
             uint user;
             lock (gate) { user = (uint)++sequence; members[user] = new Member(nid, symbol, null); }
-            subscriptions.Add(await Client.Transport.AddNotification(0xF005, handle, symbol.Size, cycle, cycle, user, ct));
+            subscriptions.Add(await Client.Transport.AddNotification(0xF005, handle, symbol.Size, maxDelay, cycle, user, ct));
             singleCount++;
         }
         layout = new() { ["blocks"] = blockCount, ["block_members"] = blockMembers, ["singles"] = singleCount, ["fallback_members"] = fallback };
         lock (gate) referenceKey = reference != null ? watchKey.GetValueOrDefault(reference, reference) : null;
         started = true;
     }
+
+    /// <summary>
+    /// Maximum delay of the notifications (nMaxDelay): the TwinCAT router samples every cycle and may send the samples of up to this
+    /// interval together, each with its own PLC timestamp. Fewer, larger messages are far less exposed to Windows scheduling delays.
+    /// 0 = automatic (50 ms, at least one period); otherwise the configured value, at least one period.
+    /// </summary>
+    public static int MaxDelayMs(int batchMs, int period) => Math.Max(period, batchMs > 0 ? batchMs : AutoBatchMs);
 
     /// <summary>Samples missing from a cyclic stream (one channel or one block), learned per stream.</summary>
     long CheckCycle(string key, long ticks, long previous, int period, int count)
@@ -363,6 +377,7 @@ public sealed class AdsNotifyDriver : AdsDriver, IAcquisitionLoop
             ["source_gap_samples"] = sourceGapSamples, ["source_gap_events"] = sourceGapEvents, ["source_gaps"] = gaps,
             ["source_gap_policy"] = "missing PLC cycles counted per channel from FILETIME deltas; recording continues and the gap is documented",
             ["control_ms"] = controlMs, ["subscription_restarts"] = restarts,
+            ["notify_max_delay_ms"] = (long)maxDelayMs, ["notify_batch_setting_ms"] = (long)batchMs, ["system"] = SystemTuning.Report(),
         };
         foreach (var (k, v) in Client.Info) result[k] = v;
         return result;

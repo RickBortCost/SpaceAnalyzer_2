@@ -229,6 +229,8 @@ public sealed class AdsNativeTransport : IAdsTransport
     void OnRouterNotification(IntPtr addr, IntPtr header, uint user)
     {
         var receivedNs = Core.Clock.UtcNs(); var receivedMono = Core.Clock.MonoNs();
+        // The router thread only copies samples: MMCSS keeps Windows from delaying it under load (once per thread).
+        Core.SystemTuning.BoostCurrentThread();
         long ticks = 0;
         byte[] data;
         try
