@@ -409,6 +409,7 @@ public sealed class AppRuntime : IDisposable
                 throw new SourceException(error);
             }
             lastError = "";
+            SystemTuning.SetAcquiring(true);
             Log.Info("Sorgenti avviate: " + string.Join(", ", protocols));
         }
         finally { CommandLock.Release(); }
@@ -432,7 +433,7 @@ public sealed class AppRuntime : IDisposable
             closing = (Sources.Status(), Sources.Summary());
             var started = System.Diagnostics.Stopwatch.GetTimestamp();
             try { await Sources.Stop(); }
-            finally { closing = null; }
+            finally { closing = null; SystemTuning.SetAcquiring(false); }
             Log.Info($"Sorgenti chiuse in {System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:F0} ms");
         }
         if (scanTask != null) await StopScan();

@@ -235,7 +235,7 @@ public static class Validation
         catch (ArgumentException exc) { throw new UserError(exc.Message); }
         if (Text("ads_bind_ip").Length > 0 && (!IPAddress.TryParse(Text("ads_bind_ip"), out var ip) || ip.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork || Text("ads_bind_ip").Count(c => c == '.') != 3))
             throw new UserError($"'{Text("ads_bind_ip")}' does not appear to be an IPv4 address");
-        foreach (var (key, lo, hi) in new[] { ("ads_port", 1, 65535), ("ads_tcp_port", 1, 65535), ("ads_source_port", 1, 65534), ("ads_timeout_ms", 100, 10000) })
+        foreach (var (key, lo, hi) in new[] { ("ads_port", 1, 65535), ("ads_tcp_port", 1, 65535), ("ads_source_port", 1, 65534), ("ads_timeout_ms", 100, 10000), ("ads_notify_batch_ms", 0, 1000) })
             cfg[key] = IntegerOrThrow(cfg[key], $"{key}: intero tra {lo} e {hi}", lo, hi, rejectBool: false);
         if (cfg["ads_mode"].Str() is not ("sum" or "individual" or "notify")) throw new UserError("Modalità ADS non valida");
         if (cfg["source"].Str() == "ads" && cfg["ads_mode"].Str() == "notify" && cfg["ads_transport"].Str() != "native")

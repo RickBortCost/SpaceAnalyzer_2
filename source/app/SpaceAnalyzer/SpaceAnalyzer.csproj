@@ -11,7 +11,7 @@
     <InvariantGlobalization>false</InvariantGlobalization>
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
-    <Version>3.8.1</Version>
+    <Version>3.9.0</Version>
     <ApplicationIcon>../../static/space-analyzer.ico</ApplicationIcon>
     <Product>Space Fieldbus Analyzer</Product>
     <Description>Space Fieldbus Analyzer</Description>

@@ -6,7 +6,7 @@ namespace SpaceAnalyzer.App.Config;
 public static class Defaults
 {
     public const string AppName = "Space Fieldbus Analyzer";
-    public const string Version = "3.8.1";
+    public const string Version = "3.9.0";
     public const int MaxSelected = 64;
     public const int MaxSamples = 360000;
     public const int MaxTotalSamples = 2000000;
@@ -50,7 +50,7 @@ public static class Defaults
         {
             ["source"] = "opcua", ["ads_transport"] = "tcp", ["ads_dll_path"] = "", ["ads_host"] = "127.0.0.1", ["ads_target_netid"] = "127.0.0.1.1.1",
             ["ads_port"] = 851, ["ads_tcp_port"] = 48898, ["ads_source_netid"] = "", ["ads_source_port"] = 32905,
-            ["ads_bind_ip"] = "", ["ads_timeout_ms"] = 3000, ["ads_mode"] = "sum", ["ads_encoding"] = "cp1252", ["ads_root"] = "ads:/",
+            ["ads_bind_ip"] = "", ["ads_timeout_ms"] = 3000, ["ads_notify_batch_ms"] = 0, ["ads_mode"] = "sum", ["ads_encoding"] = "cp1252", ["ads_root"] = "ads:/",
             ["endpoint"] = "opc.tcp://127.0.0.1:4840", ["security"] = "Basic256Sha256", ["security_mode"] = "SignAndEncrypt",
             ["username"] = "", ["password"] = "", ["client_cert"] = "certificates/client.der", ["client_key"] = "certificates/client-key.pem",
             ["server_cert"] = "certificates/server.der", ["application_uri"] = "", ["auto_reconnect"] = true, ["sample_ms"] = 500,

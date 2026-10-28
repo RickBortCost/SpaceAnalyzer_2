@@ -102,7 +102,7 @@ public sealed class AcquisitionEngine
         {
             lock (gate)
             {
-                if (thread == null) { thread = new Thread(Run) { Name = "acquisition-engine", IsBackground = true }; thread.Start(); }
+                if (thread == null) { thread = new Thread(Run) { Name = "acquisition-engine", IsBackground = true, Priority = ThreadPriority.AboveNormal }; thread.Start(); }
             }
             wake.Set();
         }

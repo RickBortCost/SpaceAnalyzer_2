@@ -1,17 +1,15 @@
 # Space Fieldbus Analyzer 3
 
-**Versione 3.7.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.9.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.8.1
+## Novità della versione 3.9.0
 
-- Release che pubblica le novità della 3.8.0 (la pipeline della 3.8.0 si era fermata su un test non aggiornato; nessuna modifica al comportamento dell'applicazione). Motivo: rendere disponibile la 3.8.0.
-- **Analisi X1 ↔ X2 generale** in fondo alla schermata (Live, Registrazioni, InfluxDB): mostra tutti i valori di calcolo del grafico selezionato; tolta la sezione per ogni grafico. Motivo: meno spazio occupato con più grafici.
-- **Riduci a barra**: tasto accanto al pieno schermo che riduce un grafico alla barra del titolo. Motivo: mettere in evidenza solo alcuni grafici.
-- **Riordino drag&drop** dei grafici con la maniglia ⠿ (oppure Alt + frecce). Motivo: scegliere l'ordine di lettura.
-- Dalla 3.7.0: pagina InfluxDB e menu Strumenti.
-- Dalla 3.6.0: tipo di dato scelto automaticamente per RBF, FDA e memoria Live; dalla 3.5.x: file FDA entro i 256 MB del programma FDA, asse X condiviso in Registrazioni, DAT ibaPDA; dalla 3.4.x: nome Space Fieldbus Analyzer.
+- **Notifiche ADS raggruppate**: il router TwinCAT invia insieme i campioni fino a 50 ms (configurabile nella connessione ADS), ognuno con il suo timestamp PLC. Motivo: molti meno messaggi, quindi meno esposizione ai ritardi di Windows quando si acquisisce a 1 ms con molti canali.
+- **Priorità durante l'acquisizione**: processo a priorità superiore al normale, thread di ricezione TcAdsDll in MMCSS, garbage collector a bassa latenza; tutto torna normale alla disconnessione. Motivo: ridurre i ritardi di Windows sui thread che ricevono i campioni.
+- **Diagnostica ADS** con raggruppamento, priorità e piano energetico (consigliato "Prestazioni elevate"). Motivo: verificare le impostazioni sull'IPC.
+- Dalla 3.8.x: Analisi X1 ↔ X2 generale, grafici riducibili e riordinabili; dalla 3.7.0: pagina InfluxDB e menu Strumenti; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

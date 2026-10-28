@@ -13,7 +13,7 @@
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <TieredPGO>true</TieredPGO>
-    <Version>3.8.1</Version>
+    <Version>3.9.0</Version>
     <ApplicationIcon>../../static/space-analyzer.ico</ApplicationIcon>
     <Product>Space Fieldbus Analyzer</Product>
     <Description>Space Fieldbus Analyzer acquisition and recording engine</Description>
