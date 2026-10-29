@@ -4,13 +4,11 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.14.0
+## Novità della versione 3.14.1
 
-- **S7: timestamp PLC** (classico e simbolico): una variabile a 64 bit scritta dal PLC a ogni ciclo diventa il timestamp sorgente dei campioni e nel classico segnala con «Uncertain» i gruppi letti in cicli diversi. Motivo: ReadVar e S7CommPlus non portano il tempo del PLC.
-- **S7 simbolico: «Seleziona ramo»** nell'albero dei simboli per aggiungere in un clic tutte le variabili di un DB, struttura o array. Motivo: evitare la selezione una per una.
-- Guida illustrata (IT/EN) aggiornata con le novità S7.
-- Dalla 3.13.0: guida illustrata bilingue nello ZIP e nella release; dalla 3.12.1: il nome di un segnale vale per tutti i grafici.
-- Dalla 3.12.0: PostgreSQL con vista tabellare, query SQL di sola lettura e query salvate.
+- **Storico Live a finestra mobile**: oltre 8 GiB l'archivio degli originali scarta i campioni più vecchi invece di bloccarsi, quindi FFT, formule ed export sul Live restano disponibili per i dati recenti; un intervallo più vecchio dei dati conservati è rifiutato con un messaggio chiaro. Motivo: con molti segnali ad alta frequenza compariva «Limite spazio storico live raggiunto» e l'analisi sul Live restava impossibile fino alla riconnessione.
+- Dalla 3.14.0: timestamp PLC e coerenza di ciclo per S7 classico e simbolico, «Seleziona ramo» nell'albero dei simboli S7.
+- Dalla 3.13.0: guida illustrata bilingue nello ZIP e nella release; dalla 3.12.x: PostgreSQL con vista tabellare e query, il nome di un segnale vale per tutti i grafici.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 
