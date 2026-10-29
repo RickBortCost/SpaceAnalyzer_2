@@ -13,4 +13,4 @@
 | 7 | **Solo variabili**: nasconde cartelle e oggetti. |
 | 8 | **Seleziona risultati**: aggiunge al trend tutte le variabili filtrate. |
 
-Si può anche spuntare una singola riga («Grafico») o inserire un NodeId a mano in «Aggiungi NodeId / gestione». I segnali selezionati compaiono nella colonna «Segnali live» con valore corrente, qualità e tipo. Solo le variabili numeriche entrano nel trend; le altre restano consultabili e registrabili. Fino a 64 segnali complessivi. Durante Record la selezione resta fissa fino a Stop.
+Si può anche spuntare una singola riga («Grafico») o inserire un NodeId a mano in «Aggiungi NodeId / gestione». I segnali selezionati compaiono nella colonna «Segnali live» con valore corrente, qualità e tipo. Solo le variabili numeriche entrano nel trend; le altre restano consultabili e registrabili. Fino a 64 segnali complessivi. Durante Record la selezione resta fissa fino a Stop. Nell'albero dei simboli S7 il pulsante **Seleziona ramo** aggiunge in un colpo tutte le variabili di un DB, di una struttura o di un array (capitolo 3).

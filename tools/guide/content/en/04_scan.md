@@ -13,4 +13,4 @@
 | 7 | **Variables only**: hides folders and objects. |
 | 8 | **Select results**: adds all filtered variables to the trend. |
 
-A single row can also be ticked («Chart») or a NodeId typed by hand in «Add NodeId / management». Selected signals appear in the «Live signals» column with current value, quality and type. Only numeric variables enter the trend; the others can still be inspected and recorded. Up to 64 signals in total. During Record the selection stays fixed until Stop.
+A single row can also be ticked («Chart») or a NodeId typed by hand in «Add NodeId / management». Selected signals appear in the «Live signals» column with current value, quality and type. Only numeric variables enter the trend; the others can still be inspected and recorded. Up to 64 signals in total. During Record the selection stays fixed until Stop. In the S7 symbol tree the **Select branch** button adds all variables of a DB, structure or array at once (chapter 3).

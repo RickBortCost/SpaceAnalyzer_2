@@ -12,6 +12,7 @@ def start_server():
     struct.pack_into('>f',memory,0,42.5)
     struct.pack_into('>h',memory,4,-1234)
     memory[6]=0x80
+    struct.pack_into('>q',memory,300,1792585845123456)   # PLC clock tag: 2026-10-21T12:30:45.123456Z in microseconds
     struct.pack_into('>d',memory,8,12.125)
     struct.pack_into('>q',memory,16,-9223372036854775807)
     memory[32:32+256]=bytes([254,3])+b'ABC'+bytes(251)

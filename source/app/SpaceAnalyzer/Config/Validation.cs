@@ -127,6 +127,24 @@ public static class Validation
         var symbolicRoot = Wrap(() => S7Types.ParseNode(cfg["s7_symbolic_root"].Truthy() ? cfg["s7_symbolic_root"].Str() ?? "" : "s7:sym:/", true).NodeId);
         if (!symbolicRoot.StartsWith("s7:sym:", StringComparison.Ordinal)) throw new UserError("Radice simbolica S7 non valida");
         cfg["s7_symbolic_root"] = symbolicRoot;
+        // PLC time tag of the polled modes: a 64-bit integer written by the PLC program once per cycle.
+        if (cfg["s7_time_unit"].Str() is not ("us" or "ns")) throw new UserError("Unità del timestamp PLC: us o ns");
+        cfg["s7_time_tag"] = Wrap(() =>
+        {
+            var text = cfg["s7_time_tag"].Str() ?? "";
+            if (text.Trim().Length == 0) return "";
+            var tag = S7Types.ParseTag(text);
+            if (tag.Kind is not ("LINT" or "ULINT" or "LWORD")) throw new ArgumentException("Timestamp PLC: la variabile deve essere LINT, ULINT o LWORD (intero a 64 bit)");
+            return tag.NodeId;
+        });
+        cfg["s7_symbolic_time_tag"] = Wrap(() =>
+        {
+            var text = cfg["s7_symbolic_time_tag"].Str() ?? "";
+            if (text.Trim().Length == 0) return "";
+            var node = S7Types.ParseNode(text.StartsWith("s7:sym:", StringComparison.Ordinal) ? text : "s7:sym:" + text.Trim());
+            if (node.Mode != "symbolic") throw new ArgumentException("Timestamp PLC simbolico: indicare un simbolo della CPU");
+            return node.NodeId;
+        });
         if (cfg["s7_udp_root"].Str() != "s7:udp:/") throw new UserError("Radice UDP: usare s7:udp:/");
         if (cfg["s7_udp_bind"].Str() is not string bind || bind.Trim().Length == 0 || bind.IndexOfAny(['/', '\\', '\0', ' ', '\r', '\n']) >= 0)
             throw new UserError("Indirizzo IPv4 locale UDP non valido");

@@ -6,7 +6,7 @@ namespace SpaceAnalyzer.App.Config;
 public static class Defaults
 {
     public const string AppName = "Space Fieldbus Analyzer";
-    public const string Version = "3.13.0";
+    public const string Version = "3.14.0";
     public const int MaxSelected = 64;
     public const int MaxSamples = 360000;
     public const int MaxTotalSamples = 2000000;
@@ -36,7 +36,7 @@ public static class Defaults
             ["s7_tls_key"] = "", ["s7_legacy_key_fallback"] = true, ["s7_symbolic_root"] = "s7:sym:/", ["s7_udp_root"] = "s7:udp:/",
             ["s7_udp_bind"] = "0.0.0.0", ["s7_udp_port"] = 4170, ["s7_udp_sender_port"] = 0, ["s7_udp_module"] = 200, ["s7_udp_length"] = 16,
             ["s7_udp_endian"] = "big", ["s7_udp_timestamp_offset"] = -1, ["s7_udp_watchdog_ms"] = 1000, ["s7_udp_queue"] = 2048,
-            ["s7_udp_tags"] = new JsonArray(),
+            ["s7_udp_tags"] = new JsonArray(), ["s7_time_tag"] = "", ["s7_symbolic_time_tag"] = "", ["s7_time_unit"] = "us",
         }) o[k] = v?.DeepClone();
         return o;
     }

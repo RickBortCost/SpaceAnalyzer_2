@@ -63,7 +63,7 @@ let s7UDPEditing=null,s7UDPBusy=false;
 window.renderS7Mode=()=>{
   const mode=window.currentS7Mode();
   document.querySelectorAll('[data-s7-classic]').forEach(el=>el.hidden=mode!=='classic');
-  $('s7-tcp-fields').hidden=mode==='udp';$('s7-symbolic-fields').hidden=mode!=='symbolic';$('s7-udp-fields').hidden=mode!=='udp';
+  $('s7-tcp-fields').hidden=mode==='udp';$('s7-time-fields').hidden=mode==='udp';$('s7-time-symbolic').hidden=mode!=='symbolic';$('s7-symbolic-fields').hidden=mode!=='symbolic';$('s7-udp-fields').hidden=mode!=='udp';
   I18N.bind($('s7-mode-note'),"textContent",()=>(mode==='symbolic'?I18N.t("S7-1200/1500 · accesso per nome e scansione dei simboli su TCP 102. Non richiede offset assoluti o software Siemens sul PC."):mode==='udp'?I18N.t("Invio ciclico PLC → PC. Il ciclo e la composizione del telegramma si configurano nel programma PLC."):I18N.t("Lettura S7 classica su TCP 102, con indirizzi DB/M/I/Q configurati.")),true);
 };
 window.switchS7Mode=async next=>{

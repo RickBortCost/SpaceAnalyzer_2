@@ -13,7 +13,7 @@ async function page(){
  w.HTMLCanvasElement.prototype.getBoundingClientRect=()=>({x:0,y:0,left:0,top:0,width:950,height:560,right:950,bottom:560});
  w.addEventListener('error',e=>errors.push(e.message));
  const scripts=[...w.document.querySelectorAll('script[src]')].map(s=>path.basename(new URL(s.src).pathname));
- w.eval(scripts.map(f=>fs.readFileSync(path.join(__dirname,'../static',f),'utf8')).join('\n')+'\nwindow.s7Test={switchSource,saveWorkspace,config,get selected(){return selected},get connected(){return connected},get charts(){return liveCharts},get record(){return recordState},stop(){polling=false;clearTimeout(pollTimer);clearTimeout(workspaceTimer);}};');
+ w.eval(scripts.map(f=>fs.readFileSync(path.join(__dirname,'../static',f),'utf8')).join('\n')+'\nwindow.s7Test={setMax(v){maxSelected=v},switchSource,saveWorkspace,config,get selected(){return selected},get connected(){return connected},get charts(){return liveCharts},get record(){return recordState},stop(){polling=false;clearTimeout(pollTimer);clearTimeout(workspaceTimer);}};');
  await wait(()=>$('endpoint').value,'configuration loaded');await w.opcuaConfigReady;
  return {w,$,t:w.s7Test};
 }
@@ -29,6 +29,11 @@ async function page(){
   await wait(()=>w.s7Tags.length===1&&!$('s7-tag-add').disabled,'catalog saved');assert($('s7-tag-list').textContent.includes('Carico Siemens'));
   $('s7-tag-list').querySelector('button').click();$('s7-tag-name').value='Carico A';$('s7-tag-add').click();
   await wait(()=>w.s7Tags[0].display_name==='Carico A'&&!$('s7-tag-add').disabled,'catalog alias edited');
+  $('s7-tag-name').value='Orologio PLC';$('s7-tag-address').value='DB1.DBD300';$('s7-tag-type').value='LINT';$('s7-tag-add').click();
+  await wait(()=>w.s7Tags.length===2&&!$('s7-tag-add').disabled,'PLC clock tag added to the catalog');
+  assert(!$('s7-time-fields').hidden);assert($('s7-time-symbolic').hidden);
+  await assert.rejects(()=>w.eval("request('/api/config',Object.assign(config(),{s7_time_tag:'DB1.DBD300:REAL'}))"),/LINT, ULINT o LWORD/);
+  $('s7_time_tag').value='DB1.DBD300:LINT';$('s7_time_tag').dispatchEvent(new w.Event('change'));
   $('s7-test').click();await wait(()=>$('s7-info').textContent.includes('42.5'),'S7 handshake and real ReadVar test');
   $('connect').click();await wait(()=>t.connected,'S7 connected');assert($('s7_host').disabled);assert($('s7-tag-add').disabled);
   $('scan').click();await wait(()=>$('scan-body').textContent.includes('Carico A'),'catalog scan');
@@ -36,18 +41,31 @@ async function page(){
   await wait(()=>t.selected.has('s7:DB1.DBD0:REAL')&&!$('add-node').disabled,'absolute variable selected');
   await wait(()=>t.charts.charts[0].trend.series['s7:DB1.DBD0:REAL']?.length>15,'live S7 chart');
   assert($('toolbar-endpoint').textContent.includes('Rack'));
+  await wait(async()=>{const j=await(await fetch(base+'/api/values')).json();const v=(j.values||[]).find(x=>x.nodeid==='s7:DB1.DBD0:REAL');return v&&v.source_ts&&v.source_ts.startsWith('2026-10-21T12:30:45.123456')&&v.timestamp_origin==='PLC time tag'&&v.quality==='Good';},'PLC time tag becomes the source timestamp');
   $('record').click();await wait(()=>!$('record-modal').hidden,'record dialog');
   w.document.querySelector('input[name="record-format"][value="parquet"]').checked=true;
   $('record-form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));
   await wait(()=>t.record.active&&t.record.cycles_received>15,'S7 binary recording');
   $('record-stop').click();await wait(()=>t.record.state==='stopped','record finalized');assert.equal(t.record.error,'');
   $('disconnect').click();await wait(()=>!t.connected&&!$('data-source').disabled,'S7 disconnected');
+  // Symbolic tree: one click selects every variable of a structure/array branch (the CPU answer is simulated here).
+  w.eval("window.__request=request;request=async url=>String(url).startsWith('/api/s7/symbols/branch')?{nodes:[{nodeid:'s7:sym:DB_A.x',display_name:'x',node_class:'Variable'},{nodeid:'s7:sym:DB_A.s.y',display_name:'y',node_class:'Variable'}],total:2}:{};");
+  const branchNode=id=>w.eval("treeNode({nodeid:'"+id+"',display_name:'DB_A',node_class:'Object',has_children:true},new Set())");
+  assert(branchNode('s7:sym:/DB_A').querySelector('.branch-select'));
+  assert(!branchNode('s7:sym:/').querySelector('.branch-select'),'no branch button on the symbol root');
+  assert(!branchNode('ads:Main').querySelector('.branch-select'),'branch button only for S7 symbolic');
+  t.setMax(t.selected.size+1);branchNode('s7:sym:/DB_A').querySelector('.branch-select').click();
+  await wait(()=>$('msg').textContent.includes('massimo')&&$('msg').classList.contains('error'),'branch larger than the free slots is refused');assert(!t.selected.has('s7:sym:DB_A.x'));
+  t.setMax(64);branchNode('s7:sym:/DB_A').querySelector('.branch-select').click();
+  await wait(()=>t.selected.has('s7:sym:DB_A.x')&&t.selected.has('s7:sym:DB_A.s.y'),'branch variables selected with one click');
+  assert(t.selected.has('s7:DB1.DBD0:REAL'),'existing selection kept');
+  t.selected.delete('s7:sym:DB_A.x');t.selected.delete('s7:sym:DB_A.s.y');w.eval('request=window.__request');
   t.charts.active.name='Siemens trend';await t.saveWorkspace(true);
   await t.switchSource('ads');assert(!$('ads-connection-fields').hidden);assert.equal(t.selected.size,0);
   await t.switchSource('s7');assert(t.selected.has('s7:DB1.DBD0:REAL'));assert.equal(t.charts.active.name,'Siemens trend');
   await t.saveWorkspace(true);t.stop();await new Promise(r=>setTimeout(r,600));
   const old=w;({w,$,t}=await page());old.close();assert.equal(t.config().source,'s7');assert.equal(t.config().s7_tcp_port,Number(port));assert.equal(w.s7Tags[0].display_name,'Carico A');assert.equal(t.charts.active.name,'Siemens trend');
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({result:'PASS',checks:['S7 connection popup/presets','catalog add/edit/persistence','native S7 test connection','configured scan and live graph','Parquet Record/Stop','source profiles and workspace reload','no frontend exceptions']},null,2));
+  console.log(JSON.stringify({result:'PASS',checks:['S7 connection popup/presets','catalog add/edit/persistence','native S7 test connection','configured scan and live graph','PLC time tag as source timestamp and rejection of a non-integer tag','symbolic branch selection (one click, limits, S7-only)','Parquet Record/Stop','source profiles and workspace reload','no frontend exceptions']},null,2));
  }finally{t.stop();await new Promise(r=>setTimeout(r,600));for(const d of pages)d.window.close();}
 })().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

@@ -203,6 +203,17 @@ public sealed class S7ClassicDriver : SourceDriver
 
     public override async Task<List<Sample>> ReadValuesAsync(IReadOnlyList<string> ids, CancellationToken ct)
     {
+        var timeTag = Text("s7_time_tag");
+        if (timeTag.Length == 0) return await ReadGroupAsync(ids, ct);
+        // The PLC time tag is read before and after the other values: a change means that the group spans two PLC cycles.
+        var read = await ReadGroupAsync(S7PlcTime.Plan(ids, timeTag, true), ct);
+        var rows = S7PlcTime.Collect(ids, timeTag, read);
+        S7PlcTime.Apply(rows, read[0], read[^1], S7PlcTime.Unit(Text("s7_time_unit", "us")));
+        return rows;
+    }
+
+    async Task<List<Sample>> ReadGroupAsync(IReadOnlyList<string> ids, CancellationToken ct)
+    {
         var tags = ids.Select(n => S7Types.ParseTag(n)).ToList();
         // A single large STRING may exceed a small negotiated PDU: split its byte reads.
         var pieces = new List<(int index, S7Tag tag, int offset, int size)>();

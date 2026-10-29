@@ -501,6 +501,18 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
             var cfg = rt.Config.Validated(config);
             return Ok(("tags", Validation.NormalizeUdpTags(data.Get("tags"), (int)cfg["s7_udp_length"].Num()!.Value - 6)));
         });
+        // All variables below a symbolic branch (structure, array or DB), to select them with one click.
+        Get(app, "/api/s7/symbols/branch", async ctx =>
+        {
+            var nid = Http.Query(ctx, "nodeid", "");
+            var node = Engine.Drivers.S7.S7Types.ParseNode(nid, true);
+            if (node.Mode != "symbolic" || !node.Folder || node.Name.Length == 0) throw new UserError("Indicare un ramo simbolico S7 (DB, struttura o array)");
+            if (rt.RequireConnection("s7") is not Engine.Drivers.S7.S7SymbolicDriver driver) throw new UserError("Connettere la modalità S7 simbolica");
+            using var cancel = CancellationTokenSource.CreateLinkedTokenSource(ctx.RequestAborted);
+            cancel.CancelAfter(TimeSpan.FromSeconds(180));
+            var items = (await driver.ScanItemsAsync(node.NodeId, cancel.Token) as List<object?>) ?? new();
+            return Ok(("nodes", items.Take(5000).ToList()), ("total", (long)items.Count));
+        });
         Post(app, "/api/s7/symbols/refresh", async _ =>
         {
             await rt.CommandLock.WaitAsync();
