@@ -73,3 +73,5 @@ main.live-page,main.recordings-page{box-sizing:border-box;width:100%;max-width:n
 .history-time-track{height:7px;border-radius:9px;background:var(--surface2,#e8eef4);position:relative;overflow:hidden}.history-time-bar{position:absolute;top:0;height:100%;border-radius:9px;background:var(--primary,#23679d)}
 .history-compare-actions{margin-top:12px;flex-wrap:wrap}.history-compare-actions button{flex:1;min-width:105px}#history-compare-status:empty{display:none}#history-compare-status{margin:8px 0 0;font-size:11px;overflow-wrap:anywhere}
 #history-compare-status{white-space:normal;height:auto;overflow:visible;line-height:1.45}
+
+.branch-select{min-height:22px;padding:1px 7px;font-size:11px;margin-left:6px}

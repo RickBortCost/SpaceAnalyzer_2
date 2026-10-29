@@ -28,7 +28,8 @@ Dalla versione 3.0 il prodotto non contiene più Python. L'EXE Windows è compos
 | **3.10.0** | **Esportazione dei dati InfluxDB** in CSV, Parquet, FDA o RBF, con periodo e cartella a scelta. |
 | **3.11.0** | Menu **Database** con InfluxDB e **PostgreSQL**. |
 | **3.12.x** | PostgreSQL: **vista tabellare**, **query SQL** di sola lettura e **query salvate**. Il nome di un segnale vale per tutti i grafici della pagina. |
-| **3.13.0** | Questa guida illustrata è inclusa nel pacchetto di ogni versione minore. |
+| **3.13.0** | Questa guida illustrata è inclusa nel pacchetto di ogni versione. |
+| **3.14.0** | S7: **timestamp PLC** e controllo della coerenza di ciclo (classico e simbolico); **Seleziona ramo** nell'albero dei simboli S7. |
 
 ## Avvio su Windows
 

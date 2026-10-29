@@ -162,6 +162,17 @@ public sealed class S7SymbolicDriver : SourceDriver
 
     public override async Task<List<Sample>> ReadValuesAsync(IReadOnlyList<string> ids, CancellationToken ct)
     {
+        var timeTag = Text("s7_symbolic_time_tag");
+        if (timeTag.Length == 0) return await ReadGroupAsync(ids, ct);
+        // One GetMultiVariables request reads the time tag together with the values.
+        var read = await ReadGroupAsync(S7PlcTime.Plan(ids, timeTag, false), ct);
+        var rows = S7PlcTime.Collect(ids, timeTag, read);
+        S7PlcTime.Apply(rows, read[0], null, S7PlcTime.Unit(Text("s7_time_unit", "us")));
+        return rows;
+    }
+
+    async Task<List<Sample>> ReadGroupAsync(IReadOnlyList<string> ids, CancellationToken ct)
+    {
         foreach (var nid in ids)
             if (S7Types.ParseNode(nid).Mode != "symbolic") throw new SourceException("Segnale incompatibile con S7 simbolico");
         var rows = new Dictionary<string, Sample>();

@@ -4,13 +4,13 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.13.0
+## Novità della versione 3.14.0
 
-- **Guida illustrata bilingue (italiano e inglese) inclusa nello ZIP e nella release** di ogni versione, aggiornata alla 3.13 con schermate riacquisite (`docs/guida/`). Motivo: la guida era ferma alla 3.7.0 e non accompagnava i pacchetti.
-- **Rigenerazione a ogni versione minore** con `tools/guide/capture.py` e `tools/guide/build_guide.py` (regola in `CLAUDE.md`, controllata da `test_guide.py` e dal pacchetto).
-- La finestra delle proprietà del segnale indica che nome e alias valgono per tutti i grafici.
-- Dalla 3.12.1: il nome di un segnale vale per tutti i grafici; dalla 3.12.0: PostgreSQL con vista tabellare, query SQL di sola lettura e query salvate.
-- Dalla 3.11.0: pagina PostgreSQL e menu Database; dalla 3.10.0: esportazione dei dati InfluxDB in CSV, Parquet, FDA o RBF.
+- **S7: timestamp PLC** (classico e simbolico): una variabile a 64 bit scritta dal PLC a ogni ciclo diventa il timestamp sorgente dei campioni e nel classico segnala con «Uncertain» i gruppi letti in cicli diversi. Motivo: ReadVar e S7CommPlus non portano il tempo del PLC.
+- **S7 simbolico: «Seleziona ramo»** nell'albero dei simboli per aggiungere in un clic tutte le variabili di un DB, struttura o array. Motivo: evitare la selezione una per una.
+- Guida illustrata (IT/EN) aggiornata con le novità S7.
+- Dalla 3.13.0: guida illustrata bilingue nello ZIP e nella release; dalla 3.12.1: il nome di un segnale vale per tutti i grafici.
+- Dalla 3.12.0: PostgreSQL con vista tabellare, query SQL di sola lettura e query salvate.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

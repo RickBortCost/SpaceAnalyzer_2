@@ -30,7 +30,34 @@ Due modalità: ADS/TCP diretto (client indipendente) oppure TwinCAT locale con n
 
 ![connection_s7](Popup Connessione per S7.)
 
-S7 classico con indirizzi assoluti su TCP 102; si indicano IP, rack e slot della CPU. Per S7-1200/1500 in modalità classica occorre abilitare PUT/GET e usare DB non ottimizzati. Le variabili non vengono scoperte automaticamente: si definiscono nome, indirizzo (ad esempio `DB1.DBD8`, `MW10`, `I0.0`) e tipo, poi compaiono nel catalogo. Esiste anche la modalità simbolica (S7CommPlus), verificabile solo su una CPU reale.
+Il menu «Modalità di acquisizione» offre tre modi, con selezioni e grafici separati (una sola modalità attiva alla volta; per cambiare occorre disconnettersi e fermare Record):
+
+| Modalità | Origine delle variabili | Acquisizione |
+|---|---|---|
+| **S7 classico** | Catalogo di indirizzi assoluti DB/M/I/Q definito dall'utente (fino a 5000) | Polling ReadVar su TCP 102 |
+| **S7 simbolico** | Catalogo letto dalla CPU: DB, strutture e array (S7-1200/1500, S7CommPlus) | Letture aggregate su TCP 102 |
+| **S7 UDP Direct Generic** | Campi del payload definiti dall'utente | Il PLC invia ciclicamente i telegrammi al PC |
+
+**Classico.** Si indicano IP, rack e slot della CPU. Per S7-1200/1500 occorre abilitare PUT/GET e usare DB non ottimizzati. Le variabili non vengono scoperte automaticamente: si definiscono nome, indirizzo (ad esempio `DB1.DBD8`, `MW10`, `I0.0`) e tipo, poi compaiono nel catalogo (importabile ed esportabile in JSON).
+
+**Simbolico.** Il catalogo viene letto dalla CPU e mostra DB, strutture e array anche ottimizzati; non servono offset né software Siemens sul PC. Il driver S7CommPlus è in beta e non è stato provato su una CPU reale: la disponibilità dipende da modello, firmware e autorizzazioni. Nell'albero a sinistra, accanto a ogni ramo (DB, struttura, array) compare **Seleziona ramo**: con un clic si aggiungono ai grafici tutte le variabili del ramo che non lo sono già. Se superano il massimo di 64 segnali la selezione viene rifiutata con un messaggio che indica quante sono: si sceglie allora un sotto-ramo.
+
+**UDP Direct Generic.** Il PLC invia ciclicamente un telegramma (formato Direct Generic documentato da iba); il ritmo lo stabilisce il programma PLC. Un telegramma valido produce un campione per ogni campo selezionato. L'applicazione segnala perdite di sequenza, timeout (watchdog) e overflow della coda marcando i campioni «Uncertain»; duplicati e telegrammi fuori sequenza sono contati nella diagnostica. Con un timestamp UTC nel payload il tempo dei campioni è quello del PLC.
+
+### Timestamp PLC e coerenza di ciclo (classico e simbolico)
+
+![connection_s7_time](Sezione «Timestamp PLC e coerenza di ciclo» del popup Connessione.)
+
+ReadVar e S7CommPlus non forniscono il tempo del PLC. Per averlo, il programma PLC scrive a ogni ciclo un intero a 64 bit con l'ora UTC (ad esempio da `RD_SYS_T`) e lo si indica qui:
+
+| N. | Campo |
+|---|---|
+| 1 | **Variabile / simbolo timestamp PLC**: indirizzo `DB1.DBD300:LINT` in modalità classica, simbolo (ad esempio `DB_Produzione.Orologio.Utc`) in modalità simbolica. Il tipo deve essere LINT, ULINT o LWORD. |
+| 2 | **Unità del valore**: microsecondi dal 1970 UTC (LINT) oppure nanosecondi (LINT, LDT). |
+
+Il valore viene letto insieme a ogni gruppo di variabili e salvato come timestamp sorgente (`source_timestamp`) di tutti i campioni del gruppo. Se il gruppo richiede più richieste ReadVar, il timestamp viene letto prima e dopo le altre variabili: se cambia, i valori non appartengono allo stesso ciclo PLC e sono marcati «Uncertain» con il motivo. Un timestamp non letto, di tipo errato o fuori dall'intervallo 2000–2199 (ad esempio nanosecondi indicati come microsecondi) marca i campioni «Uncertain» ma non li scarta. L'asse dei grafici resta l'ora di arrivo sul PC; il tempo del PLC è nei file registrati.
+
+> Nelle prove la coerenza di ciclo è stata verificata con un server S7 simulato (modalità classica). La modalità simbolica non è stata provata con una CPU reale.
 
 ## MQTT
 

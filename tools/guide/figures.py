@@ -149,6 +149,23 @@ def fig_connection_s7(sh, stack):
 
 
 @pre
+def fig_connection_s7_time(sh, stack):
+    sh.click('#nav-connection')
+    sh.wait(300)
+    sh.page.select_option('#data-source', 's7')
+    sh.wait(500)
+    sh.js("()=>{const d=document.getElementById('s7-time-fields');d.open=true;d.scrollIntoView({block:'center'});}")
+    sh.wait(400)
+    sh.page.set_viewport_size({'width': 1920, 'height': 1500})
+    sh.wait(400)
+    sh.js("()=>{const d=document.getElementById('s7-time-fields');d.scrollIntoView({block:'center'});}")
+    sh.wait(300)
+    sh.shot('connection_s7_time', [(1, '#s7_time_tag'), (2, '#s7_time_unit')], selector='#connection-dialog')
+    sh.page.set_viewport_size({'width': 1920, 'height': 1080})
+    close_dialog(sh)
+
+
+@pre
 def fig_connection_mqtt(sh, stack):
     source_dialog(sh, 'connection_mqtt', 'mqtt')
 
