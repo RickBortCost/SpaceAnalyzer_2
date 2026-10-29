@@ -4,12 +4,13 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.12.1
+## Novità della versione 3.13.0
 
-- **Il nome di un segnale vale per tutti i grafici** (anche quelli creati dopo) e resta nel workspace salvato; unità, colore e asse restano del singolo grafico. Motivo: cambiando grafico il segnale perdeva la rinomina.
-- Dalla 3.12.0: PostgreSQL con vista tabellare, query SQL di sola lettura e query salvate.
-- Dalla 3.11.0: pagina PostgreSQL e menu Database (la password resta nel servizio).
-- Dalla 3.10.0: esportazione dei dati InfluxDB in CSV, Parquet, FDA o RBF; dalla 3.9.x: notifiche ADS raggruppate e priorità di Windows durante l'acquisizione; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
+- **Guida illustrata bilingue (italiano e inglese) inclusa nello ZIP e nella release** di ogni versione, aggiornata alla 3.13 con schermate riacquisite (`docs/guida/`). Motivo: la guida era ferma alla 3.7.0 e non accompagnava i pacchetti.
+- **Rigenerazione a ogni versione minore** con `tools/guide/capture.py` e `tools/guide/build_guide.py` (regola in `CLAUDE.md`, controllata da `test_guide.py` e dal pacchetto).
+- La finestra delle proprietà del segnale indica che nome e alias valgono per tutti i grafici.
+- Dalla 3.12.1: il nome di un segnale vale per tutti i grafici; dalla 3.12.0: PostgreSQL con vista tabellare, query SQL di sola lettura e query salvate.
+- Dalla 3.11.0: pagina PostgreSQL e menu Database; dalla 3.10.0: esportazione dei dati InfluxDB in CSV, Parquet, FDA o RBF.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

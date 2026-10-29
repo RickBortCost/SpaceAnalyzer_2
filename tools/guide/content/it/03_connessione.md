@@ -1,0 +1,43 @@
+# 3. Connessione alle sorgenti dati
+
+Il pulsante **Connessione** apre il popup «Fonte dati e connessione». La fonte (e gli altri parametri di trasporto) si cambia solo a connessione chiusa: il selettore è disabilitato mentre si è connessi.
+
+![connection_opcua](Popup Connessione per OPC UA.)
+
+| N. | Campo |
+|---|---|
+| 1 | **Fonte dati live**: OPC UA, ADS · Beckhoff TwinCAT, S7 · Siemens ISO-on-TCP, MQTT · Broker TCP/TLS. |
+| 2 | **Endpoint server** (ad esempio `opc.tcp://127.0.0.1:4840`). |
+| 3 | **Rileva endpoint e policy**: interroga il server e propone le policy disponibili. |
+| 4 | **Security Policy** e (5) **Message Security**: None, Sign, SignAndEncrypt. In produzione usare una policy firmata o cifrata; i certificati si gestiscono in «Certificati e Application URI». |
+| 6 | **Username / Password**. La password è «solo sessione»: non viene salvata. |
+| 7 | **Acquisizione simultanea**: abilita più protocolli insieme, ciascuno con il proprio periodo. |
+| 8 | **Intervallo lettura**: da 1 ms (ADS) a 2 s. È un obiettivo: il periodo effettivo dipende da server, rete e PC ed è mostrato nella diagnostica del Live. |
+| 9 | **Buffer recente / FFT**: 10 s, 30 s, 1 min, 2 min. |
+| 10 | **Riconnetti automaticamente** se la connessione cade. |
+| 11 | **Connetti e leggi** e (12) **Disconnetti**. |
+| 13 | **Salva impostazione e layout**. |
+
+Limite buffer live: «Tempo + limite campioni» oppure «Solo numero campioni» (massimo 360.000 per segnale; 2 milioni di campioni complessivi in memoria). Record salva anche i campioni usciti dal buffer.
+
+## ADS · Beckhoff TwinCAT
+
+![connection_ads](Popup Connessione per ADS.)
+
+Due modalità: ADS/TCP diretto (client indipendente) oppure TwinCAT locale con notifiche cicliche. Si indicano IP e AMS Net ID del PLC, porte, AMS Net ID del client e metodo di acquisizione (SumRead o altri). In modalità diretta serve una route sul PLC verso il PC e il PLC deve pubblicare i simboli. Con TwinCAT locale si usano le notifiche cicliche con il timestamp del PLC (1, 2 e 5 ms sono disponibili solo per ADS). Non è prevista scrittura di variabili né comandi RUN/STOP.
+
+## S7 · Siemens
+
+![connection_s7](Popup Connessione per S7.)
+
+S7 classico con indirizzi assoluti su TCP 102; si indicano IP, rack e slot della CPU. Per S7-1200/1500 in modalità classica occorre abilitare PUT/GET e usare DB non ottimizzati. Le variabili non vengono scoperte automaticamente: si definiscono nome, indirizzo (ad esempio `DB1.DBD8`, `MW10`, `I0.0`) e tipo, poi compaiono nel catalogo. Esiste anche la modalità simbolica (S7CommPlus), verificabile solo su una CPU reale.
+
+## MQTT
+
+![connection_mqtt](Popup Connessione per MQTT.)
+
+Si indicano broker, porta, versione, QoS, topic da sottoscrivere, base tempi e puntatori JSON. L'acquisizione è a eventi: ogni messaggio ricevuto viene elaborato. Space Fieldbus Analyzer si sottoscrive ai topic ma non pubblica né invia comandi. Il catalogo mostra solo topic e campi effettivamente ricevuti. Si possono indicare i puntatori JSON per timestamp e qualità e la base tempi (ricezione locale oppure timestamp del messaggio).
+
+## Acquisizione simultanea
+
+Dopo aver compilato i parametri di ogni protocollo, premere **Connetti** una sola volta. In LIVE, nel pannello Address Space, il menu Catalogo permette di passare da una sorgente all'altra senza perdere selezione, buffer e grafici. Una sorgente non raggiungibile segnala il proprio errore senza fermare le altre.

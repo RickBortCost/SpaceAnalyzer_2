@@ -22,6 +22,9 @@ def main():
     if smoke['result']!='PASS' or not smoke['packaged_exe_executed'] or digest(exe)!=smoke['sha256']:
         raise RuntimeError('Refusing to publish an unverified executable')
     root='Space_Fieldbus_Analyzer_V'+version+'_WINDOWS'
+    # Guida illustrata bilingue: un PDF per versione minore (tools/guide/build_guide.py), inclusa nel pacchetto di ogni versione.
+    guide=ROOT/'docs/guida'/('Space_Fieldbus_Analyzer_'+'.'.join(version.split('.')[:2])+'_Guida_Guide_IT_EN.pdf')
+    if not guide.is_file():raise RuntimeError('Guida PDF mancante: '+guide.name+' (python tools/guide/build_guide.py)')
     archive=dist/(root+'.zip')
     with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
         for path,name in [(exe,exe.name),(ROOT/'LEGGIMI_AVVIO_WINDOWS.md','LEGGIMI_AVVIO_WINDOWS.md'),
@@ -31,6 +34,7 @@ def main():
                           (ROOT/'source/GUIDA_CALCOLI_INTERVALLO.md','GUIDA_CALCOLI_INTERVALLO.md'),
                           (ROOT/'source/GUIDA_REGISTRAZIONI_RAPIDE.md','GUIDA_REGISTRAZIONI_RAPIDE.md'),
                           (ROOT/'VERSIONE_3.0.md','VERSIONE_3.0.md'),(ROOT/'FASE1_ACQUISIZIONE_REGISTRAZIONE.md','FASE1_ACQUISIZIONE_REGISTRAZIONE.md'),
+                          (guide,guide.name),
                           (dist/'BUILD_MANIFEST.json','BUILD_MANIFEST.json'),
                           (dist/'WINDOWS_EXE_VERIFICATION.json','WINDOWS_EXE_VERIFICATION.json')]:
             z.write(path,root+'/'+name)

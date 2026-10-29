@@ -1001,7 +1001,7 @@
   "Visibile nel grafico",
   "No (continua acquisizione)",
   "NodeId:",
-  "Le proprietà sono specifiche di questo grafico. Scala manuale: menu grafico → Configura assi. Record, FFT ed export conservano i valori originali.",
+  "Nome e alias valgono per tutti i grafici; le altre proprietà sono specifiche di questo grafico. Scala manuale: menu grafico → Configura assi. Record, FFT ed export conservano i valori originali.",
   "Offset (non applicato)",
   "Rimuovi dall’acquisizione",
   "Assi ·",
