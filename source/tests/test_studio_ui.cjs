@@ -49,6 +49,13 @@ function pointer(w,g,type,x,y){const target=type==='up'&&!w.PointerEvent?w:g.tre
   checks.push('corporate standard palette, Light/Dark/System, canvas colours and compact signal properties');
   t.openSignalProperties(live,g1,ids[0]);$('prop-alias').value='Pressione Top';$('prop-unit').value='bar';$('prop-axis').value='left';$('prop-color').value='#08aa99';$('prop-width').value='3';submit();
   assert.equal(g1.trend.nodes.get(ids[0]).display_name,'Pressione Top');assert.equal(g1.trend.color(ids[0]),'#08aa99');assert.equal(g1.trend.presentation[ids[0]].width,3);assert.ok($('selected').textContent.includes('Pressione Top'));
+  // Il nome di un segnale vale per tutti i grafici, anche quelli creati o selezionati dopo; le altre proprietà restano del grafico.
+  {const g2=live.add();assert.equal(g2.signalSettings[ids[0]].alias,'Pressione Top');live.update(g1.series,g1.nodes,g1.types);g2.ids.add(ids[0]);live.updateGraph(g2);assert.equal(g2.trend.nodes.get(ids[0]).display_name,'Pressione Top','alias nel grafico creato dopo');
+   assert.notEqual(g2.signalSettings[ids[0]].color,'#08aa99','il colore resta del singolo grafico');
+   live.activate(g2);t.openSignalProperties(live,g2,ids[0]);assert.equal($('prop-alias').value,'Pressione Top');$('prop-alias').value='Top 2';submit();
+   assert.equal(g1.trend.nodes.get(ids[0]).display_name,'Top 2','la rinomina da un altro grafico vale per tutti');assert.equal(g1.signalSettings[ids[0]].alias,'Top 2');assert.equal(g1.trend.color(ids[0]),'#08aa99');
+   t.openSignalProperties(live,g1,ids[0]);$('prop-alias').value='Pressione Top';submit();assert.equal(g2.trend.nodes.get(ids[0]).display_name,'Pressione Top');
+   live.remove(g2);live.activate(g1);}
   const k0=g1.trend.axisPlan.axisById.get(ids[0]);t.openAxisProperties(live,g1);$('axis-'+k0+'-mode').value='manual';$('axis-'+k0+'-min').value='0';$('axis-'+k0+'-max').value='200';$('axis-'+k0+'-unit').value='bar';submit();assert.equal(g1.trend.domain.axes[k0].ymin,0);assert.equal(g1.trend.domain.axes[k0].ymax,200);assert.match(g1.trend.axisLabel(k0),/bar.*Manuale/);
   t.openAxisProperties(live,g1);$('axis-'+k0+'-min').value='500';submit();assert.equal($('properties-error').hidden,false);assert.equal(g1.axisSettings[k0].min,0);$('properties-close').click();
   checks.push('alias, units, color, line width, Y assignment and validated manual axes');
