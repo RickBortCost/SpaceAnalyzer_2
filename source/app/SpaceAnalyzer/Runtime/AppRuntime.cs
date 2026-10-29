@@ -635,7 +635,7 @@ public sealed class AppRuntime : IDisposable
                 ["buffer_samples"] = samples.ToDictionary(k => k.Key, k => (object?)(long)k.Value.Count), ["acquisition_mode"] = AcquisitionMode,
                 ["notification_count"] = notificationCount, ["live_view"] = view,
                 ["display_range"] = extent.Count > 0 ? new Dictionary<string, object?> { ["xmin"] = extent.Min(), ["xmax"] = extent.Max() } : null,
-                ["display_summary"] = view == "all", ["analysis_history_error"] = Archive.Error,
+                ["display_summary"] = view == "all", ["analysis_history_error"] = Archive.Error, ["analysis_history_from"] = double.IsFinite(Archive.TrimmedUntil) ? Archive.TrimmedUntil : null,
                 ["session_samples"] = samples.ToDictionary(k => k.Key, k => (object?)k.Value.Overview.Count),
                 ["last_notification_at"] = lastSampleAt, ["read_fallback_count"] = 0L, ["subscription_bad"] = new Dictionary<string, object?>(),
                 ["individual_nodes"] = new List<object?>(),

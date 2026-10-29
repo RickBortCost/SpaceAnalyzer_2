@@ -11,8 +11,10 @@ public sealed record ArchiveReference(LiveArchive Archive, long Generation, long
 
 /// <summary>
 /// Temporary original-sample history of the Live session (live_archive.LiveArchive): one SQLite
-/// writer, independent WAL readers, bounded queue and disk usage. An incomplete cache is never
-/// used as complete analysis input.
+/// writer, independent WAL readers, bounded queue and disk usage. The disk usage is a rolling window:
+/// when the limit is reached the oldest originals are dropped (<see cref="TrimmedUntil"/>), so the
+/// history always covers the most recent data. A request that reaches into dropped data fails
+/// explicitly; an incomplete cache is never used as complete analysis input.
 /// </summary>
 public sealed class LiveArchive : IDisposable
 {
@@ -30,8 +32,12 @@ public sealed class LiveArchive : IDisposable
     long sequence, pendingBytes, written;
     readonly System.Diagnostics.Stopwatch sessionClock = new();
     public Dictionary<string, long> Counts { get; } = new();
+
+    /// <summary>Timestamp (ms) up to which the oldest originals were dropped by the rolling window; -infinity while nothing was dropped.</summary>
+    public double TrimmedUntil { get { lock (gate) return trimmedUntil; } }
     public string Error { get; private set; } = "";
     string fatal = "";
+    double trimmedUntil = double.NegativeInfinity;
     public bool Active { get; private set; }
     Thread? thread;
     string? path;
@@ -69,7 +75,7 @@ public sealed class LiveArchive : IDisposable
         lock (gate)
         {
             Generation++; generation = Generation;
-            sequence = 0; Counts.Clear(); Error = fatal; written = 0; sessionClock.Restart();
+            sequence = 0; Counts.Clear(); Error = fatal; written = 0; trimmedUntil = double.NegativeInfinity; sessionClock.Restart();
             if (closed || fatal.Length > 0) return generation;
             if (thread == null)
             {
@@ -136,11 +142,23 @@ public sealed class LiveArchive : IDisposable
             while (reader.Read()) points.Add(LivePoint.FromJson((JsonArray)Py.Parse(reader.GetString(1))!) with { Seq = reader.GetInt64(0) });
         truncated = points.Count > limit;
         if (truncated) points.RemoveAt(points.Count - 1);
+        else if (double.IsFinite(TrimmedUntil)) truncated = true;   // older originals were dropped by the rolling window
         points.Reverse();
         if (nid.StartsWith("calc:", StringComparison.Ordinal))
             points = points.Where((p, i) => i + 1 == points.Count || points[i + 1].T != p.T).ToList();
         lock (gate) Check(reference.Generation);
         return points;
+    }
+
+    /// <summary>A request that starts inside the dropped part of the window cannot be answered completely.</summary>
+    void RequireRetained(double start)
+    {
+        double until;
+        lock (gate) until = trimmedUntil;
+        if (!double.IsFinite(start) || start > until) return;
+        var from = DateTime.UnixEpoch.AddMilliseconds(until).ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+        throw new UserError(string.Create(CultureInfo.InvariantCulture,
+            $"Campioni originali di questo intervallo non più disponibili: lo storico Live è una finestra mobile di circa {maxBytes / (1024.0 * 1024 * 1024):0.#} GiB e conserva i dati dopo le {from}. Scegliere un intervallo più recente o registrare con Record"));
     }
 
     public ArchiveReference Reference(IEnumerable<string> ids, double start, double end)
@@ -183,6 +201,7 @@ public sealed class LiveArchive : IDisposable
         var wanted = ids.Where(reference.Ids.Contains).ToList();
         if (wanted.Count == 0) yield break;
         start = Math.Max(start, reference.Start); end = Math.Min(end, reference.End);
+        RequireRetained(start);
         using var c = Reader(reference);
         using var transaction = c.BeginTransaction();
         using var command = c.CreateCommand();
@@ -324,14 +343,55 @@ public sealed class LiveArchive : IDisposable
             }
             transaction.Commit();
             Interlocked.Add(ref written, rows);
-            if (rows > 0 && new DirectoryInfo(Path.GetDirectoryName(path!)!).GetFiles().Sum(f => f.Length) > maxBytes)
-                throw new InvalidDataException("Limite spazio storico Live raggiunto");
+            if (rows > 0) TrimIfNeeded(c);
         }
         catch (Exception exc)
         {
             try { transaction.Rollback(); } catch (Exception) { }
             Fail(exc.Message);
         }
+    }
+
+    static long Scalar(SqliteConnection c, string sql)
+    {
+        using var command = c.CreateCommand();
+        command.CommandText = sql;
+        return Convert.ToInt64(command.ExecuteScalar(), CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>Bytes of the database file that hold data (pages released by earlier deletions are reused and do not count).</summary>
+    static long UsedBytes(SqliteConnection c) => (Scalar(c, "PRAGMA page_count") - Scalar(c, "PRAGMA freelist_count")) * Scalar(c, "PRAGMA page_size");
+
+    /// <summary>
+    /// Rolling window: above the size limit the oldest originals (about 2 % of the retained time span per step, in separate short
+    /// transactions so that writing is not stalled) are deleted instead of stopping the archive.
+    /// </summary>
+    void TrimIfNeeded(SqliteConnection c)
+    {
+        for (var step = 0; step < 25 && UsedBytes(c) > maxBytes; step++)
+        {
+            double min, max;
+            using (var query = c.CreateCommand())
+            {
+                query.CommandText = "SELECT MIN(stamp),MAX(stamp) FROM points";
+                using var reader = query.ExecuteReader();
+                if (!reader.Read() || reader.IsDBNull(0)) return;
+                min = reader.GetDouble(0); max = reader.GetDouble(1);
+            }
+            if (max <= min) throw new InvalidDataException("Limite spazio storico Live raggiunto: troppi campioni con lo stesso istante, ridurre segnali o frequenza");
+            var cut = min + (max - min) * 0.02;
+            using var transaction = c.BeginTransaction();
+            using (var delete = c.CreateCommand())
+            {
+                delete.Transaction = transaction;
+                delete.CommandText = "DELETE FROM points WHERE stamp<=$c";
+                delete.Parameters.AddWithValue("$c", cut);
+                delete.ExecuteNonQuery();
+            }
+            transaction.Commit();
+            lock (gate) trimmedUntil = Math.Max(trimmedUntil, cut);
+        }
+        if (UsedBytes(c) > maxBytes) throw new InvalidDataException("Limite spazio storico Live raggiunto: impossibile liberare spazio");
     }
 
     static void Exec(SqliteConnection c, string sql)
