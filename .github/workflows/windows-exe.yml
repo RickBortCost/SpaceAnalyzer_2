@@ -6,6 +6,7 @@ on:
     paths:
       - source/**
       - tools/windows/**
+      - docs/guida/**
       - LEGGIMI_AVVIO_WINDOWS.md
       - VERSION
       - .github/workflows/windows-exe.yml
@@ -78,6 +79,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m unittest discover -s source/tests -p test_static_assets.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m unittest discover -s source/tests -p test_guide.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python source/tests/test_launcher.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # test_s7_modes_ui.cjs richiede una CPU S7-1200/1500 reale (S7CommPlus autenticato): escluso dalla CI.
@@ -124,7 +127,7 @@ jobs:
         run: |
           $v = $env:SA_VERSION
           $tag = "v$v"
-          $files = @("source/dist/Space_Fieldbus_Analyzer_V$($v).exe", "source/dist/Space_Fieldbus_Analyzer_V$($v)_WINDOWS.zip", 'source/dist/BUILD_MANIFEST.json', 'source/dist/WINDOWS_EXE_VERIFICATION.json', 'source/dist/SHA256SUMS.txt')
+          $files = @("source/dist/Space_Fieldbus_Analyzer_V$($v).exe", "source/dist/Space_Fieldbus_Analyzer_V$($v)_WINDOWS.zip", 'source/dist/BUILD_MANIFEST.json', 'source/dist/WINDOWS_EXE_VERIFICATION.json', 'source/dist/SHA256SUMS.txt', "docs/guida/Space_Fieldbus_Analyzer_$($v.Split('.')[0..1] -join '.')_Guida_Guide_IT_EN.pdf")
           # Testo della release: modifiche di questa versione (CHANGELOG o commit) e guida di avvio.
           python tools/release_notes.py notes $v release-notes.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -2,6 +2,16 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.13.0
+
+- **Guida illustrata bilingue inclusa in ogni versione**: il PDF «Guida illustrata · Illustrated guide» (edizione italiana e inglese, schermate con riquadri numerati e tabelle dei controlli) è nello ZIP di Windows e tra i file della release, con il nome `Space_Fieldbus_Analyzer_<MAJOR.MINOR>_Guida_Guide_IT_EN.pdf` (cartella `docs/guida/`). Motivo: la guida della 3.7.0 era ferma a quella versione e non accompagnava i pacchetti; ora viene aggiornata a ogni versione minore e distribuita con essa.
+- **Guida aggiornata alla 3.13**: nuovi capitoli e sezioni per Database (InfluxDB con esportazione, PostgreSQL con vista tabellare, query e query salvate), riduzione a barra e riordino dei grafici, analisi X1 ↔ X2 generale, nome globale dei segnali, menu Database e Strumenti; tutte le schermate sono riacquisite. Motivo: la guida non descriveva le funzioni introdotte dalla 3.8.0.
+- **Strumenti di generazione** (`tools/guide/`): `capture.py` avvia il servizio con un server OPC UA dimostrativo, i server di prova InfluxDB e PostgreSQL e guida Chromium per acquisire le figure; `build_guide.py` compone il PDF dai testi `content/it` e `content/en` (reportlab). Motivo: rigenerare la guida a ogni minore senza lavoro manuale e con schermate sempre coerenti con il codice.
+- **Regola di repository** (`CLAUDE.md`): a ogni versione minore la guida va rigenerata (capture + build) e il PDF committato. Motivo: evitare che la guida si disallinei di nuovo.
+- **Pipeline**: `package_windows.py` rifiuta di creare lo ZIP se manca il PDF della versione minore; il workflow carica il PDF come file della release, parte anche se cambia `docs/guida/` ed esegue `test_guide.py`. Motivo: una release senza guida non deve poter essere pubblicata.
+- **Proprietà del segnale**: la nota della finestra ora dice che nome e alias valgono per tutti i grafici (in cinque lingue). Motivo: il comportamento introdotto nella 3.12.1 non era scritto nell'interfaccia.
+- Test: `source/tests/test_guide.py` (PDF della versione minore presente e completo, figure citate esistenti, le due edizioni hanno gli stessi capitoli e le stesse figure, regola presente in CLAUDE.md).
+
 ## 3.12.1
 
 - **Il nome di un segnale vale per tutti i grafici**: rinominare un segnale ("Nome / alias" nelle proprietà del segnale) ora lo rinomina in tutti i grafici della pagina, anche in quelli creati o selezionati dopo, e il nome resta nel workspace salvato. Scrivere di nuovo il nome originale toglie la rinomina. Motivo: segnalazione dell'utente: cambiando grafico il segnale perdeva il nome scelto. Unità, colore, spessore, asse e visibilità restano proprietà del singolo grafico; i salvataggi precedenti con nomi diversi nei vari grafici vengono riuniti (vale il primo trovato).
