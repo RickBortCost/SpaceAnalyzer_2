@@ -143,6 +143,11 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         Post(app, "/api/postgres/forget", _ => { postgres.Forget(); return Task.FromResult<object?>(Ok()); });
         Post(app, "/api/postgres/catalog", async ctx => Http.Ok(("catalog", await postgres.Catalog(await Http.Object(ctx, silent: true), ctx.RequestAborted))));
         Post(app, "/api/postgres/samples", async ctx => await postgres.Samples(await Http.Object(ctx, silent: true), ctx.RequestAborted));
+        // Vista tabellare (tabella o query SQL di sola lettura, a pagine) e query salvate.
+        Post(app, "/api/postgres/query", async ctx => Http.Ok(("result", await postgres.RunQuery(await Http.Object(ctx, silent: true), ctx.RequestAborted))));
+        Get(app, "/api/postgres/queries", _ => Task.FromResult<object?>(Http.Ok(("saved", postgres.Queries()))));
+        Post(app, "/api/postgres/queries", async ctx => Http.Ok(("saved", postgres.SaveQuery(await Http.Object(ctx, silent: true)))));
+        Post(app, "/api/postgres/queries/delete", async ctx => Http.Ok(("saved", postgres.DeleteQuery(await Http.Object(ctx, silent: true)))));
         Post(app, "/api/postgres/export", async ctx => Ok(("job", PostgresExport.Start(await Http.Json(ctx, silent: true) ?? new JsonObject()))));
         Get(app, "/api/postgres/export/{ident}", ctx => Task.FromResult<object?>(Ok(("job", PostgresExport.Status((string)ctx.Request.RouteValues["ident"]!)))));
         Post(app, "/api/postgres/export/{ident}/cancel", ctx => Task.FromResult<object?>(Ok(("job", PostgresExport.Cancel((string)ctx.Request.RouteValues["ident"]!)))));

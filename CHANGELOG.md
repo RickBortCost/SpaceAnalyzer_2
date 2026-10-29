@@ -2,6 +2,15 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.12.0
+
+- **PostgreSQL: vista tabellare strutturata**: nella pagina PostgreSQL due schede, "Grafico" e "Tabella e query". La vista tabellare mostra tutte le colonne della tabella o vista scelta, con il tipo di ogni colonna sotto il nome, numeri allineati a destra, valori nulli evidenziati, numero di riga, ordinamento con un clic sull'intestazione, righe più recenti (o più vecchie) per prime e, a richiesta, solo il periodo scelto per il grafico. Si scorre a pagine di 100, 500, 1.000 o 5.000 righe. Motivo: poter leggere i dati veri della tabella, non solo il disegno delle serie.
+- **PostgreSQL: query SQL a scelta**: l'operatore scrive una query e la esegue (Ctrl+Invio); il risultato compare nella stessa tabella, con tipi, pagine e tempo di esecuzione. Gli errori indicano il carattere della query a cui si riferiscono. Motivo: la lettura per tabella non basta per join, aggregazioni o filtri.
+- **Sola lettura garantita**: sono ammesse solo istruzioni singole che iniziano con SELECT, WITH, VALUES o TABLE; la query gira in una transazione di sola lettura dietro un cursore sul server (si trasferisce solo la pagina richiesta) con un tempo massimo di 60 s, quindi una DELETE, un UPDATE o un `WITH … DELETE` vengono rifiutati dal server anche se aggirassero il controllo del testo. Motivo: l'applicazione non deve poter modificare il database, nemmeno per errore; resta consigliato un utente con soli permessi di lettura.
+- **Query salvate in memoria**: nome, testo e righe per pagina si salvano nella cartella dati del servizio (`postgres_queries.json`, fino a 200), compaiono in un elenco, si ricaricano nell'editor con un clic, si sostituiscono con una seconda pressione di Salva se il nome esiste già e si eliminano. L'ultimo testo scritto è ricordato anche senza salvarlo. Motivo: riusare le query frequenti senza riscriverle.
+- **Esporta pagina in CSV e Copia**: salvano o copiano le righe della pagina mostrata (valori come visualizzati). Per esportare tutti i dati delle serie restano i formati CSV, Parquet, FDA e RBF di "Esporta…". Motivo: portare subito fuori un risultato di query.
+- Test: `test_postgres_ui.cjs` esteso contro un vero PostgreSQL (tabella a pagine, tipi, ordinamento, periodo, query, errori, scritture rifiutate con i dati verificati intatti, query salvate e loro ricaricamento) e `PostgresQueryTests` (controllo del testo SQL: commenti, stringhe, `$$`, `E'…'`, più istruzioni); nuove stringhe in cinque lingue.
+
 ## 3.11.0
 
 - **PostgreSQL**: nuova pagina per leggere serie temporali da un database PostgreSQL (anche TimescaleDB), in sola lettura, con gli stessi grafici, periodi, riduzione automatica dei dati, zoom con più dettaglio, aggiornamento automatico, Analisi X1 ↔ X2 ed esportazione in CSV, Parquet, FDA o RBF della pagina InfluxDB. Motivo: leggere anche i dati salvati in PostgreSQL, come già per InfluxDB.

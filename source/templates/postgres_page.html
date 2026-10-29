@@ -35,9 +35,39 @@
 <div class="toolbar"><button class="primary" id="pg-load" type="button" data-i18n="Apri nel grafico">Apri nel grafico</button><button class="ghost" id="pg-clear-selection" type="button" data-i18n="Deseleziona">Deseleziona</button><button class="ghost" id="pg-export-open" type="button" title="Esporta i dati originali delle serie del grafico in CSV, Parquet, FDA o RBF" data-i18n="Esporta…" data-i18n-title="Esporta i dati originali delle serie del grafico in CSV, Parquet, FDA o RBF">Esporta…</button></div>
 </section>
 <div aria-label="Ridimensiona pannello segnali e area grafici" aria-orientation="vertical" class="page-splitter" id="pg-page-splitter" role="separator" tabindex="0" title="Trascina per ridimensionare. Doppio clic per ripristinare." data-i18n-title="Trascina per ridimensionare. Doppio clic per ripristinare." data-i18n-aria-label="Ridimensiona pannello segnali e area grafici"><span aria-hidden="true"></span></div>
-<section class="graph-main pg-graph-main"><div class="record-status" id="pg-status" role="status" data-i18n="Collega un server PostgreSQL, scegli le serie e il periodo.">Collega un server PostgreSQL, scegli le serie e il periodo.</div>
+<section class="graph-main pg-graph-main" id="pg-graph-main"><div class="record-status" id="pg-status" role="status" data-i18n="Collega un server PostgreSQL, scegli le serie e il periodo.">Collega un server PostgreSQL, scegli le serie e il periodo.</div>
+<div class="pg-views" role="tablist" aria-label="Vista" data-i18n-aria-label="Vista"><button aria-pressed="true" class="ghost active" id="pg-view-chart" role="tab" type="button" data-i18n="Grafico">Grafico</button><button aria-pressed="false" class="ghost" id="pg-view-table" role="tab" type="button" data-i18n="Tabella e query">Tabella e query</button></div>
 <div class="workspace-toolbar"><div><h2 data-i18n="Dati PostgreSQL">Dati PostgreSQL</h2></div><div class="toolbar"><label for="pg-active-chart" data-i18n="Grafico di destinazione">Grafico di destinazione</label><select id="pg-active-chart"></select><label for="pg-layout" data-i18n="Disposizione">Disposizione</label><select id="pg-layout"><option value="single" data-i18n="1 grafico">1 grafico</option><option value="vertical" data-i18n="2 verticali">2 verticali</option><option value="horizontal" data-i18n="2 orizzontali">2 orizzontali</option><option value="quad" data-i18n="4 grafici">4 grafici</option><option selected="" value="stack" data-i18n="Libero · colonna">Libero · colonna</option><option value="grid" data-i18n="Libero · griglia">Libero · griglia</option></select><button class="primary" id="pg-add-chart" type="button" title="Aggiungi un grafico vuoto" data-i18n="+ Grafico vuoto" data-i18n-title="Aggiungi un grafico vuoto">+ Grafico vuoto</button><details class="sync-menu"><summary data-i18n="Sincronizzazione">Sincronizzazione</summary><div class="detail-content"><label class="checkline"><input checked="" id="pg-sync-zoom" type="checkbox"><span data-i18n=" Sincronizza asse X"> Sincronizza asse X</span></label><label class="checkline"><input checked="" id="pg-sync-hover" type="checkbox"><span data-i18n=" Crosshair comune"> Crosshair comune</span></label></div></details></div></div>
-<div class="charts-workspace" id="pg-charts"></div><details class="analysis-dock" id="pg-analysis-dock"><summary><span data-i18n="Analisi X1 ↔ X2 ">Analisi X1 ↔ X2 </span><span class="analysis-dock-graph"></span><span class="marker-inline-delta">Δt —</span></summary><div class="analysis-dock-body"></div></details></section>
+<div class="charts-workspace" id="pg-charts"></div><details class="analysis-dock" id="pg-analysis-dock"><summary><span data-i18n="Analisi X1 ↔ X2 ">Analisi X1 ↔ X2 </span><span class="analysis-dock-graph"></span><span class="marker-inline-delta">Δt —</span></summary><div class="analysis-dock-body"></div></details>
+<div class="pg-data" id="pg-data" hidden="">
+<div class="pg-data-source" role="group" aria-label="Origine dei dati" data-i18n-aria-label="Origine dei dati">
+<label class="pg-choice"><input checked="" name="pg-data-source" type="radio" value="table"><span><span data-i18n="Tabella selezionata">Tabella selezionata</span> <strong id="pg-data-table-name"></strong></span></label>
+<label class="pg-choice"><input name="pg-data-source" type="radio" value="query"><span data-i18n="Query SQL">Query SQL</span></label>
+</div>
+<div class="pg-data-table-options" id="pg-data-table-options">
+<label class="pg-choice"><input id="pg-data-period" type="checkbox"><span data-i18n="Solo il periodo scelto">Solo il periodo scelto</span></label>
+<label for="pg-data-order" data-i18n="Ordine">Ordine</label><select id="pg-data-order"><option value="desc" data-i18n="Più recenti prima">Più recenti prima</option><option value="asc" data-i18n="Più vecchie prima">Più vecchie prima</option></select>
+</div>
+<div class="pg-query" id="pg-query" hidden="">
+<div class="pg-query-saved">
+<label for="pg-query-saved" data-i18n="Query salvate">Query salvate</label><select id="pg-query-saved"></select>
+<input aria-label="Nome della query" id="pg-query-name" maxlength="80" placeholder="Nome della query" type="text" data-i18n-aria-label="Nome della query" data-i18n-placeholder="Nome della query">
+<button class="ghost" id="pg-query-save" type="button" data-i18n="Salva">Salva</button><button class="ghost" id="pg-query-new" type="button" data-i18n="Nuova">Nuova</button><button class="ghost" id="pg-query-delete" type="button" data-i18n="Elimina">Elimina</button>
+</div>
+<textarea aria-label="Query SQL" id="pg-query-sql" rows="7" spellcheck="false" placeholder="SELECT * FROM schema.tabella WHERE ..." data-i18n-aria-label="Query SQL"></textarea>
+<p class="small" id="pg-query-hint" data-i18n="Sola lettura: una sola istruzione SELECT, WITH, VALUES o TABLE. Ctrl+Invio per eseguire.">Sola lettura: una sola istruzione SELECT, WITH, VALUES o TABLE. Ctrl+Invio per eseguire.</p>
+<p class="small" id="pg-query-status" role="status"></p>
+</div>
+<div class="toolbar pg-data-toolbar">
+<label for="pg-data-size" data-i18n="Righe per pagina">Righe per pagina</label><select id="pg-data-size"><option value="100">100</option><option value="500" selected="">500</option><option value="1000">1000</option><option value="5000">5000</option></select>
+<button class="primary" id="pg-data-run" type="button" data-i18n="Esegui">Esegui</button>
+<button class="ghost" id="pg-data-prev" type="button" aria-label="Pagina precedente" title="Pagina precedente" data-i18n-title="Pagina precedente" data-i18n-aria-label="Pagina precedente">‹</button><span class="small" id="pg-data-page" role="status"></span><button class="ghost" id="pg-data-next" type="button" aria-label="Pagina successiva" title="Pagina successiva" data-i18n-title="Pagina successiva" data-i18n-aria-label="Pagina successiva">›</button>
+<button class="ghost" id="pg-data-csv" type="button" title="Salva in un file CSV le righe della pagina mostrata" data-i18n="Esporta pagina in CSV" data-i18n-title="Salva in un file CSV le righe della pagina mostrata">Esporta pagina in CSV</button><button class="ghost" id="pg-data-copy" type="button" data-i18n="Copia">Copia</button>
+</div>
+<div class="record-status" id="pg-data-status" role="status" hidden=""></div>
+<div class="pg-grid-wrap" id="pg-grid-wrap"><table class="pg-grid" id="pg-grid"></table></div>
+</div>
+</section>
 <dialog aria-labelledby="pg-export-title" class="analysis-dialog pg-export-dialog" id="pg-export-dialog"><form id="pg-export-form" method="dialog">
 <div class="dialog-topbar"><strong id="pg-export-title" data-i18n="Esporta dati PostgreSQL">Esporta dati PostgreSQL</strong><button aria-label="Chiudi" class="ghost" id="pg-export-close" type="button" data-i18n-aria-label="Chiudi">×</button></div>
 <div class="analysis-body">

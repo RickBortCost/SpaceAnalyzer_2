@@ -4,12 +4,12 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.11.0
+## Novità della versione 3.12.0
 
-- **PostgreSQL**: nuova pagina per leggere serie temporali da PostgreSQL (anche TimescaleDB), con grafici, riduzione dei dati sul server, zoom ed esportazione come per InfluxDB. Tabelle e viste con colonna di tempo trovate in automatico; una colonna per segnale oppure una colonna con il nome del segnale. Motivo: leggere anche i dati salvati in PostgreSQL.
-- **Menu Database** al posto della scheda InfluxDB: si sceglie InfluxDB o PostgreSQL. Motivo: un unico punto di accesso ai database.
-- La password PostgreSQL resta nel servizio e non compare nella pagina né nei file esportati. Motivo: sicurezza delle credenziali.
-- Corretta la cartella di Record che, dopo una registrazione, tornava a quella dell'ultima registrazione (correzione annunciata nella 3.5.1 ma non inclusa). Motivo: mostrare la cartella della prossima registrazione.
+- **PostgreSQL: vista tabellare** (scheda "Tabella e query"): colonne e tipi, pagine, ordinamento, periodo scelto. Motivo: leggere i dati veri della tabella.
+- **Query SQL di sola lettura** (SELECT, WITH, VALUES, TABLE) con risultato a pagine ed errori con posizione; **query salvate** con nome nella memoria del servizio. Motivo: join, aggregazioni e filtri riutilizzabili.
+- Esporta la pagina in CSV o copia le righe; per tutti i dati restano i formati di "Esporta…".
+- Dalla 3.11.0: pagina PostgreSQL e menu Database (la password resta nel servizio).
 - Dalla 3.10.0: esportazione dei dati InfluxDB in CSV, Parquet, FDA o RBF; dalla 3.9.x: notifiche ADS raggruppate e priorità di Windows durante l'acquisizione; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.

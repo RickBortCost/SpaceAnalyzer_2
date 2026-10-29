@@ -14,7 +14,7 @@ namespace SpaceAnalyzer.App.Databases;
 /// Two layouts: one column per signal (series = numeric column), or one row per signal and instant with a label column (series = column × label value).
 /// Identifiers are always quoted and values passed as parameters.
 /// </summary>
-public sealed class PostgresService(string dataDir) : ISeriesDatabase, IDisposable
+public sealed partial class PostgresService(string dataDir) : ISeriesDatabase, IDisposable
 {
     const int MaxSeriesDefault = 5000;
     const int MaxTables = 2000;

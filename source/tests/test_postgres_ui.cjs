@@ -119,6 +119,77 @@ const change = (w, el, value) => {el.value = value; el.dispatchEvent(new w.Event
     $('pg-export-close').click(); fs.rmSync(outDir, {recursive: true, force: true});
     checks.push('Esportazione CSV con tutti i punti originali e metadati senza password');
 
+    // Vista tabellare: tutte le colonne della tabella a pagine, ordinabile, solo il periodo scelto a richiesta.
+    const grid = () => $('pg-grid'), gridRows = () => [...grid().querySelectorAll('tbody tr')], cells = tr => [...tr.querySelectorAll('td')].slice(1).map(td => td.textContent);
+    change(w, $('pg-table'), 'plant.line_data'); await wait(() => t.PGX.series[0]?.table === 'line_data', 'tabella line_data');
+    $('pg-view-table').click();
+    assert(!$('pg-data').hidden && $('pg-graph-main').classList.contains('pg-view-table'), 'vista tabella attiva');
+    await wait(() => gridRows().length === 500, 'prima pagina della tabella: ' + $('pg-data-status').textContent);
+    assert.deepEqual([...grid().querySelectorAll('thead th[data-col]')].map(th => th.childNodes[0].textContent), ['ts', 'temperature', 'pressure', 'speed', 'running', 'note']);
+    assert.deepEqual([...grid().querySelectorAll('thead th[data-col] small')].map(x => x.textContent), ['timestamp with time zone', 'double precision', 'real', 'integer', 'boolean', 'text']);
+    assert.equal(cells(gridRows()[0])[0], '2026-10-20 08:59:59Z', 'più recenti prima'); assert.equal(cells(gridRows()[0])[3], '3599'); assert.equal(cells(gridRows()[0])[5], 'ok');
+    assert.match($('pg-data-page').textContent, /Righe\s+1.500/); assert($('pg-data-prev').disabled && !$('pg-data-next').disabled);
+    $('pg-data-next').click(); await wait(() => t.PGD.result?.page === 2, 'seconda pagina'); assert.equal(t.PGD.result.first_row, 501); assert.equal(cells(gridRows()[0])[3], '3099');
+    $('pg-data-prev').click(); await wait(() => t.PGD.result?.page === 1, 'prima pagina di nuovo');
+    // Ordinamento sulla pagina: clic sull'intestazione (numerico, poi decrescente).
+    grid().querySelector('th[data-col="3"]').click(); assert.equal(cells(gridRows()[0])[3], '3100'); assert.equal(cells(gridRows().at(-1))[3], '3599');
+    grid().querySelector('th[data-col="3"]').click(); assert.equal(cells(gridRows()[0])[3], '3599');
+    change(w, $('pg-data-order'), 'asc'); await wait(() => t.PGD.result?.sql.includes('ASC') && gridRows().length === 500, 'ordine crescente'); assert.equal(cells(gridRows()[0])[0], '2026-10-20 08:00:00Z');
+    change(w, $('pg-data-size'), '100'); await wait(() => gridRows().length === 100, 'cento righe per pagina');
+    $('pg-data-period').checked = true; $('pg-data-period').dispatchEvent(new w.Event('change', {bubbles: true})); await wait(() => /WHERE/.test(t.PGD.result?.sql || ''), 'periodo scelto nella query');
+    $('pg-data-period').checked = false; $('pg-data-period').dispatchEvent(new w.Event('change', {bubbles: true})); await wait(() => !/WHERE/.test(t.PGD.result?.sql || ''), 'senza periodo');
+    change(w, $('pg-table'), 'public.samples'); await wait(() => t.PGD.result?.sql.includes('"samples"') && gridRows().length === 100, 'altra tabella');
+    assert.deepEqual([...grid().querySelectorAll('thead th[data-col]')].map(th => th.childNodes[0].textContent), ['time', 'sensor', 'value']);
+    checks.push('Vista tabellare: colonne e tipi, pagine, ordinamento, periodo, cambio tabella');
+
+    // Query SQL: esecuzione, errori chiari, sola lettura imposta anche dal server.
+    const radio = document => [...w.document.querySelectorAll('input[name="pg-data-source"]')].find(r => r.value === 'query');
+    radio().checked = true; radio().dispatchEvent(new w.Event('change', {bubbles: true})); assert(!$('pg-query').hidden && $('pg-data-table-options').hidden);
+    const runSql = async sql => {$('pg-query-sql').value = sql; $('pg-data-run').click(); await wait(() => !t.PGD.busy, 'query eseguita');};
+    await runSql("SELECT sensor, count(*) AS n, min(value) AS lo FROM public.samples GROUP BY sensor ORDER BY sensor;");
+    assert.deepEqual(gridRows().map(cells), [['A', '360', '0'], ['B', '360', '-359']]);
+    assert.deepEqual(t.PGD.result.columns.map(c => c.type), ['text', 'bigint', 'double precision']); assert(grid().querySelectorAll('tbody td.num').length >= 4, 'numeri allineati a destra');
+    for (const [sql, message] of [['DELETE FROM plant.line_data', /Sono ammesse solo query di lettura/], ['SELECT 1; SELECT 2', /una sola istruzione/], ['SELECT FROM WHERE', /PostgreSQL: .*\(carattere \d+ della query\)/],
+        ['WITH d AS (DELETE FROM plant.line_data RETURNING *) SELECT * FROM d', /sola lettura/], ["SELECT * FROM tabella_inesistente", /non trovata|does not exist/], ['', /Scrivi la query/]]) {
+      await runSql(sql); assert.match($('pg-data-status').textContent, message, sql + ' -> ' + $('pg-data-status').textContent); assert($('pg-data-status').classList.contains('error'));
+    }
+    const count = await w.request('/api/postgres/query', {mode: 'query', sql: 'SELECT count(*) AS n FROM plant.line_data'});
+    assert.equal(count.result.rows[0][0], 3600, 'nessun dato modificato dai tentativi di scrittura');
+    await runSql("SELECT i, 'riga ' || i AS testo, i % 2 = 0 AS pari, NULL::int AS vuoto FROM generate_series(1, 25) AS i ORDER BY i");
+    assert.deepEqual(gridRows().slice(0, 2).map(cells), [['1', 'riga 1', 'false', 'NULL'], ['2', 'riga 2', 'true', 'NULL']]); assert.equal(gridRows().length, 25);
+    $('pg-data-size').value = '100'; await runSql("SELECT i FROM generate_series(1, 250) AS i ORDER BY i");
+    assert.equal(gridRows().length, 100); assert(!$('pg-data-next').disabled); $('pg-data-next').click(); await wait(() => t.PGD.result?.page === 2, 'pagina 2 della query');
+    $('pg-data-next').click(); await wait(() => t.PGD.result?.page === 3, 'pagina 3 della query'); assert.equal(gridRows().length, 50); assert($('pg-data-next').disabled); assert.equal(t.PGD.result.first_row, 201);
+    await runSql("SELECT 'a,b' AS x, 'dice \"ciao\"' AS y, NULL::int AS z, true AS ok");
+    assert.equal(w.pgdRowsText(',', true), 'x,y,z,ok\r\n"a,b","dice ""ciao""",,true\r\n'); assert.equal(grid().querySelector('.pg-null').textContent, 'NULL');
+    checks.push('Query SQL: risultati a pagine, tipi, valori nulli, errori chiari, nessuna scrittura possibile');
+
+    // Query salvate: salvataggio con nome, sostituzione con conferma, caricamento, persistenza nel servizio, eliminazione.
+    w.confirm = () => true;
+    $('pg-query-name').value = 'Conteggio sensori'; $('pg-query-sql').value = 'SELECT sensor, count(*) AS n FROM public.samples GROUP BY sensor ORDER BY sensor';
+    $('pg-query-save').click(); await wait(() => t.PGD.saved.length === 1, 'query salvata ' + $('pg-query-status').textContent);
+    assert.match($('pg-query-status').textContent, /Query salvata:\s+Conteggio sensori/); const id = t.PGD.saved[0].id; assert.equal($('pg-query-saved').value, id);
+    $('pg-query-new').click(); assert.equal($('pg-query-sql').value, ''); assert.equal($('pg-query-saved').value, '');
+    $('pg-query-name').value = 'conteggio SENSORI'; $('pg-query-sql').value = 'SELECT 1 AS uno';
+    $('pg-query-save').click(); await wait(() => /Esiste già una query/.test($('pg-query-status').textContent), 'nome già presente'); assert.equal(t.PGD.saved.length, 1);
+    $('pg-query-save').click(); await wait(() => t.PGD.saved[0]?.sql === 'SELECT 1 AS uno', 'sostituita dopo la conferma'); assert.equal(t.PGD.saved.length, 1);
+    $('pg-query-name').value = 'Seconda'; $('pg-query-new').click(); $('pg-query-name').value = 'Seconda'; $('pg-query-sql').value = 'VALUES (1), (2)';
+    $('pg-query-save').click(); await wait(() => t.PGD.saved.length === 2, 'seconda query');
+    $('pg-query-status').textContent = ''; $('pg-query-save').click(); await wait(() => /Query salvata/.test($('pg-query-status').textContent) && t.PGD.saved.length === 2, 'riscrittura della stessa query');
+    $('pg-query-name').value = ''; $('pg-query-save').click(); await wait(() => /Dai un nome/.test($('pg-query-status').textContent), 'nome obbligatorio ' + $('pg-query-status').textContent);
+    $('pg-query-name').value = 'Pericolosa'; $('pg-query-sql').value = 'DROP TABLE plant.line_data'; $('pg-query-new').click(); $('pg-query-name').value = 'Pericolosa'; $('pg-query-sql').value = 'DROP TABLE plant.line_data';
+    $('pg-query-save').click(); await wait(() => /Sono ammesse solo/.test($('pg-query-status').textContent), 'query di scrittura non salvabile'); assert.equal(t.PGD.saved.length, 2);
+    const listed = (await w.request('/api/postgres/queries')).saved.queries; assert.deepEqual(listed.map(q => q.name), ['conteggio SENSORI', 'Seconda']);
+    const other = await page(); other.w.eval("showAppPage('pg')"); await wait(() => other.t.PGD.saved.length === 2, 'le query salvate tornano dopo il ricaricamento');
+    assert.deepEqual([...other.$('pg-query-saved').options].map(o => o.textContent), ['— query salvate —', 'conteggio SENSORI', 'Seconda']);
+    other.$('pg-query-saved').value = id; other.$('pg-query-saved').dispatchEvent(new other.w.Event('change', {bubbles: true}));
+    assert.equal(other.$('pg-query-sql').value, 'SELECT 1 AS uno'); assert.equal(other.$('pg-query-name').value, 'conteggio SENSORI');
+    $('pg-query-saved').value = id; $('pg-query-saved').dispatchEvent(new w.Event('change', {bubbles: true})); assert.equal($('pg-query-sql').value, 'SELECT 1 AS uno'); assert(!$('pg-query-delete').disabled);
+    $('pg-query-delete').click(); await wait(() => t.PGD.saved.length === 1, 'query eliminata'); assert.equal(t.PGD.saved[0].name, 'Seconda'); assert.equal($('pg-query-name').value, '');
+    $('pg-query-saved').value = t.PGD.saved[0].id; $('pg-query-saved').dispatchEvent(new w.Event('change', {bubbles: true})); $('pg-query-delete').click(); await wait(() => t.PGD.saved.length === 0, 'tutte eliminate');
+    checks.push('Query salvate: nome, sostituzione con conferma, elenco dopo il ricaricamento, eliminazione, scritture rifiutate');
+    $('pg-view-chart').click(); assert($('pg-data').hidden && !$('pg-graph-main').classList.contains('pg-view-table'));
+
     // Ora del PC per i timestamp senza fuso: stessa ora di parete, spostata dell'offset locale.
     $('pg-connection').open = true; change(w, $('pg-timezone'), 'local'); $('pg-connect').click();
     await wait(() => t.PGX.connected && t.PGX.info?.timezone === 'local', 'riconnessione con ora del PC');
