@@ -4,11 +4,10 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.12.0
+## Novità della versione 3.12.1
 
-- **PostgreSQL: vista tabellare** (scheda "Tabella e query"): colonne e tipi, pagine, ordinamento, periodo scelto. Motivo: leggere i dati veri della tabella.
-- **Query SQL di sola lettura** (SELECT, WITH, VALUES, TABLE) con risultato a pagine ed errori con posizione; **query salvate** con nome nella memoria del servizio. Motivo: join, aggregazioni e filtri riutilizzabili.
-- Esporta la pagina in CSV o copia le righe; per tutti i dati restano i formati di "Esporta…".
+- **Il nome di un segnale vale per tutti i grafici** (anche quelli creati dopo) e resta nel workspace salvato; unità, colore e asse restano del singolo grafico. Motivo: cambiando grafico il segnale perdeva la rinomina.
+- Dalla 3.12.0: PostgreSQL con vista tabellare, query SQL di sola lettura e query salvate.
 - Dalla 3.11.0: pagina PostgreSQL e menu Database (la password resta nel servizio).
 - Dalla 3.10.0: esportazione dei dati InfluxDB in CSV, Parquet, FDA o RBF; dalla 3.9.x: notifiche ADS raggruppate e priorità di Windows durante l'acquisizione; dalla 3.5.x: pagina Conversione e DAT ibaPDA.
 

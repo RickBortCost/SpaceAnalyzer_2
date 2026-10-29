@@ -33,7 +33,7 @@ class ChartWorkspace {
     this.selector=document.getElementById(options.selector);this.addButton=document.getElementById(options.add);
     this.layoutSelect=document.getElementById(options.layout);this.staticMode=!!options.staticMode;
     this.syncZoom=true;this.syncHover=true;this.liveZoom=false;this.timeRange=null;this.charts=[];this.counter=0;this.active=null;this.markers={x1:null,x2:null};this.colors=new Map();
-    this.series={};this.nodes=new Map();this.types={};this.knownIds=new Set();this.pendingLayout=null;
+    this.series={};this.nodes=new Map();this.types={};this.knownIds=new Set();this.pendingLayout=null;this.aliases={};
     const base=this.root.firstElementChild;this.template=base.cloneNode(true);
     this.dock=options.dock?document.getElementById(options.dock):null;this.dockBody=this.dock?.querySelector('.analysis-dock-body')||null;
     this.create(base,'Grafico 1',[],false);
@@ -205,7 +205,19 @@ class ChartWorkspace {
     }
     this.knownIds=current;
   }
+  /** Il nome (alias) di un segnale vale per tutti i grafici della pagina: gli alias trovati in un grafico (anche ripristinato da un salvataggio) diventano di tutti. */
+  syncAliases(){
+    for(const g of this.charts)for(const [id,p] of Object.entries(g.signalSettings||{}))if(p?.alias&&!Object.hasOwn(this.aliases,id))this.aliases[id]=p.alias;
+    for(const g of this.charts){g.signalSettings=g.signalSettings||{};for(const [id,alias] of Object.entries(this.aliases))if(g.signalSettings[id]?.alias!==alias)g.signalSettings[id]={...(g.signalSettings[id]||{}),alias};}
+  }
+  setAlias(id,alias){
+    alias=String(alias||'').trim().slice(0,100);
+    if(alias)this.aliases[id]=alias;else delete this.aliases[id];
+    for(const g of this.charts){g.signalSettings=g.signalSettings||{};if(alias)g.signalSettings[id]={...(g.signalSettings[id]||{}),alias};else if(g.signalSettings[id])g.signalSettings[id]={...g.signalSettings[id],alias:''};}
+    for(const g of this.charts)this.updateGraph(g);
+  }
   updateGraph(graph){
+    this.syncAliases();
     const nodes=new Map([...graph.nodes].filter(([id])=>graph.ids.has(id))),data={};
     for(const id of nodes.keys()){const points=graph.series[id]||[];data[id]=graph.cleared?[]:graph.cutoff===null?points:isSampleSeries(points)?points.after(graph.cutoff):points.filter(p=>p[0]>graph.cutoff);}
     graph.signalSettings=graph.signalSettings||{};graph.axisSettings=graph.axisSettings||{};graph.scaleState=graph.scaleState||{mode:'groups'};graph.trend.presentation=graph.signalSettings;graph.trend.axisSettings=graph.axisSettings;graph.trend.scaleState=graph.scaleState;

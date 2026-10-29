@@ -2,6 +2,11 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.12.1
+
+- **Il nome di un segnale vale per tutti i grafici**: rinominare un segnale ("Nome / alias" nelle proprietà del segnale) ora lo rinomina in tutti i grafici della pagina, anche in quelli creati o selezionati dopo, e il nome resta nel workspace salvato. Scrivere di nuovo il nome originale toglie la rinomina. Motivo: segnalazione dell'utente: cambiando grafico il segnale perdeva il nome scelto. Unità, colore, spessore, asse e visibilità restano proprietà del singolo grafico; i salvataggi precedenti con nomi diversi nei vari grafici vengono riuniti (vale il primo trovato).
+- Test: `test_studio_ui.cjs` (rinomina da un grafico visibile negli altri e in quelli creati dopo, colore che resta del singolo grafico, ripristino del nome).
+
 ## 3.12.0
 
 - **PostgreSQL: vista tabellare strutturata**: nella pagina PostgreSQL due schede, "Grafico" e "Tabella e query". La vista tabellare mostra tutte le colonne della tabella o vista scelta, con il tipo di ogni colonna sotto il nome, numeri allineati a destra, valori nulli evidenziati, numero di riga, ordinamento con un clic sull'intestazione, righe più recenti (o più vecchie) per prime e, a richiesta, solo il periodo scelto per il grafico. Si scorre a pagine di 100, 500, 1.000 o 5.000 righe. Motivo: poter leggere i dati veri della tabella, non solo il disegno delle serie.
