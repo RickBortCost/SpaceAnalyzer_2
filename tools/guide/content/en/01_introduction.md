@@ -31,6 +31,7 @@ The interface labels in the screenshots are in Italian; the language can be chan
 | **3.11.0** | **Database** menu with InfluxDB and **PostgreSQL**. |
 | **3.12.x** | PostgreSQL: **table view**, read-only **SQL queries** and **saved queries**. A signal's name applies to all charts on the page. |
 | **3.13.0** | This illustrated guide is included in the package of every version. |
+| **3.15.0** | **Export of primary captures (.sac)** to CSV, Parquet, FDA or RBF from the Conversion page and with `--tool export-sac`. |
 | **3.14.0** | S7: **PLC timestamp** and cycle coherence check (classic and symbolic); **Select branch** in the S7 symbol tree. |
 
 ## Starting on Windows

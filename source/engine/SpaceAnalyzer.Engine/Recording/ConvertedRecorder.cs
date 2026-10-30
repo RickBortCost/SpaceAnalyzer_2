@@ -22,6 +22,7 @@ public sealed class ConvertedRecorder(string directory, string version) : IForma
     long maxBytes;
 
     public bool Busy => original.Busy || worker is { IsAlive: true };
+    public bool HasRoom => original.HasRoom;
     public string Error { get { lock (gate) return error.Length > 0 ? error : original.Error; } }
 
     public void Start(string format, IReadOnlyList<NodeSpec> selected, string endpoint, int sampleMs, JsonElement options)

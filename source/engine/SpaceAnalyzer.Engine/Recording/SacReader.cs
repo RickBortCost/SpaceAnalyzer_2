@@ -86,6 +86,42 @@ public sealed class SacReader : IDisposable
         }
     }
 
+    /// <summary>True once the closing block of a complete capture was read by <see cref="TolerantSamples"/>.</summary>
+    public bool Finalized { get; private set; }
+
+    /// <summary>Closing block of the capture (integrity, accepted and lost samples, error) once <see cref="TolerantSamples"/> has read it.</summary>
+    public JsonElement? Footer { get; private set; }
+
+    /// <summary>
+    /// Like <see cref="Samples"/>, but a damaged or truncated tail (interrupted capture) ends the iteration instead of throwing:
+    /// every sample of the valid blocks is returned and <paramref name="onDamage"/> receives the reason.
+    /// </summary>
+    public IEnumerable<(double t, int period, Sample sample)> TolerantSamples(Action<string> onDamage)
+    {
+        using var blocks = Blocks().GetEnumerator();
+        while (true)
+        {
+            Block block;
+            try
+            {
+                if (!blocks.MoveNext()) yield break;
+                block = blocks.Current;
+            }
+            catch (Exception exc) when (exc is InvalidDataException or EndOfStreamException or JsonException or IOException)
+            {
+                onDamage(exc.Message);
+                yield break;
+            }
+            using (block.Value)
+            {
+                if (block.Kind == SacFormat.Finish) { Finalized = true; Footer = block.Value.RootElement.Clone(); }
+                if (block.Kind != SacFormat.Data) continue;
+                foreach (var row in block.Value.RootElement.EnumerateArray())
+                    yield return (row[0].GetDouble(), row[21].GetInt32(), ToSample(row));
+            }
+        }
+    }
+
     Sample ToSample(JsonElement row)
     {
         string? S(int i) => row[i].ValueKind == JsonValueKind.Null ? null : row[i].ValueKind == JsonValueKind.String ? row[i].GetString() : row[i].GetRawText();

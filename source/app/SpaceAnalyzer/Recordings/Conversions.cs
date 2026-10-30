@@ -36,6 +36,7 @@ public sealed class Conversions(Func<string> directory)
     public Dictionary<string, object?> Start(JsonNode? data, Func<string, RecordingLibrary> resolver)
     {
         var source = data.Get("source").Truthy() ? data.Get("source").Str()! : "repository";
+        if (source == "primary") return StartPrimary(data);
         var library = resolver(source);
         var name = data.Get("name").Str();
         var path = library.PathOf(name);
@@ -79,6 +80,84 @@ public sealed class Conversions(Func<string> directory)
             new Thread(() => Run(job, cancel.Token)) { IsBackground = true, Name = "recording-conversion" }.Start();
             return Status(ident);
         }
+    }
+
+    // ---- primary captures (.sac) --------------------------------------------------------------------------------------------
+
+    /// <summary>Folder of the primary captures: ".primary" next to the "Conversioni" folder of the recordings.</summary>
+    string PrimaryDirectory() => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory()))!, ".primary");
+
+    /// <summary>The primary captures that can be exported, newest first (header information only).</summary>
+    public List<object?> PrimaryFiles(int limit = 200)
+    {
+        var folder = PrimaryDirectory();
+        if (!Directory.Exists(folder)) return new();
+        return new DirectoryInfo(folder).EnumerateFiles("*.sac*").Where(f => PrimaryExport.IsPrimaryName(f.Name)).OrderByDescending(f => f.LastWriteTimeUtc)
+            .Take(limit).Select(f => (object?)PrimaryExport.Describe(f.FullName)).ToList();
+    }
+
+    sealed record PrimaryJob(string Ident, string Path, string Name, string Format, List<string>? Signals, double? Start, double? End);
+
+    Dictionary<string, object?> StartPrimary(JsonNode? data)
+    {
+        var name = data.Get("name").Str();
+        if (!PrimaryExport.IsPrimaryName(name)) throw new UserError("Selezionare un archivio primario (.sac)");
+        var path = Path.Combine(PrimaryDirectory(), name!);
+        if (!File.Exists(path)) throw new UserError("Archivio primario non trovato");
+        var format = data.Get("format").Str() ?? "";
+        if (!Targets.ContainsKey(format)) throw new UserError("Formato di destinazione non valido: scegliere CSV, Parquet, FDA DAS4 o RBF");
+        var described = PrimaryExport.Describe(path);
+        if (described.GetValueOrDefault("read_error") is string unreadable) throw new UserError(unreadable);
+        var available = ((List<object?>)described["signals"]!).OfType<Dictionary<string, object?>>().Select(s => (string)s["nodeid"]!).ToList();
+        List<string>? signals = null;
+        if (data.Get("signal_ids") is JsonArray list && list.Count > 0)
+        {
+            var wanted = list.Select(n => RowValues.Str(Py.Plain(n))).ToHashSet();
+            signals = available.Where(wanted.Contains).ToList();
+            if (signals.Count == 0) throw new UserError("Nessuno dei segnali selezionati è presente nell'archivio");
+        }
+        var count = signals?.Count ?? available.Count;
+        if (format is "das" or "rbf" && count > MaxLegacySignals) throw new UserError($"{Targets[format]}: selezionare al massimo {MaxLegacySignals} segnali (selezionati {count})");
+        var start = Bound(data.Get("start_ms"));
+        var end = Bound(data.Get("end_ms"));
+        if (start != null && end != null && end < start) throw new UserError("L'intervallo deve avere una fine non precedente all'inizio");
+        lock (gate)
+        {
+            if (closed) throw new UserError("Servizio di conversione arrestato");
+            if (jobs.Values.Any(j => (string?)j["state"] == "running")) throw new UserError("Una conversione è già in corso: attendere il completamento o annullarla");
+            var ident = Convert.ToHexString(RandomNumberGenerator.GetBytes(12)).ToLowerInvariant();
+            while (order.Count > 15) { jobs.Remove(order[0]); order.RemoveAt(0); }
+            jobs[ident] = new Dictionary<string, object?>
+            {
+                ["id"] = ident, ["state"] = "running", ["phase"] = "read", ["name"] = name, ["source"] = "primary", ["source_format"] = "sac",
+                ["format"] = format, ["format_label"] = Targets[format], ["signal_count"] = (long)count, ["rows_read"] = 0L, ["rows_total"] = null,
+                ["files"] = new List<object?>(), ["directory"] = directory(), ["started_at"] = Values.PythonIso(DateTime.UtcNow), ["warning"] = null,
+            };
+            order.Add(ident);
+            var cancel = running = new CancellationTokenSource();
+            var job = new PrimaryJob(ident, path, name!, format, signals, start, end);
+            new Thread(() => RunPrimary(job, cancel.Token)) { IsBackground = true, Name = "primary-export" }.Start();
+            return Status(ident);
+        }
+    }
+
+    void RunPrimary(PrimaryJob job, CancellationToken cancel)
+    {
+        try
+        {
+            var result = PrimaryExport.Export(job.Path, job.Format, directory(), Config.Defaults.Version, job.Signals, job.Start, job.End,
+                rows => Update(job.Ident, ("rows_read", rows)), cancel);
+            Update(job.Ident, ("state", "ready"), ("phase", "done"), ("rows_read", result.Samples), ("files", result.Files.Cast<object?>().ToList()),
+                ("warning", result.Warning), ("finished_at", Values.PythonIso(DateTime.UtcNow)));
+            Log.Info($"Esportazione archivio primario {job.Name} -> {job.Format}: {result.Samples} campioni, {result.Files.Count} file" + (result.Warning != null ? " (" + result.Warning + ")" : ""));
+        }
+        catch (Exception exc)
+        {
+            var cancelled = exc is OperationCanceledException;
+            Update(job.Ident, ("state", cancelled ? "cancelled" : "error"), ("error", cancelled ? "Conversione annullata" : Http.Map(exc).message));
+            if (!cancelled) Log.Warning($"Esportazione archivio primario {job.Name} -> {job.Format} non riuscita: {exc.Message}");
+        }
+        finally { lock (gate) running = null; }
     }
 
     static double? Bound(JsonNode? value)
