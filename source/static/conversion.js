@@ -68,7 +68,7 @@ function renderConversion(){
   convEl('conv-destination').textContent=I18N.t('Destinazione:')+' '+(CONV.directory?CONV.directory.replace(/[\\/]+$/,'')+separator+'Conversioni':'Conversioni');
   for(const id of ['conv-format','conv-signal-search','conv-from','conv-to','conv-full-range'])convEl(id).disabled=running||applicationClosed;
   convEl('conv-start').disabled=running||applicationClosed||!count||!!tooMany||!!f.read_error;convEl('conv-start').title=tooMany?I18N.t('Selezionare al massimo 64 segnali per FDA DAS4 e RBF'):'';
-  convEl('conv-cancel').hidden=!running;convEl('conv-open-local').disabled=running||applicationClosed;
+  convEl('conv-cancel').hidden=!running;convEl('conv-open-local').disabled=running||applicationClosed;convEl('conv-open-primary').disabled=running||applicationClosed;
   renderConversionJob();
 }
 function renderConversionJob(){
@@ -115,6 +115,7 @@ async function openConvertedFile(file){
 }
 async function importConversionFiles(list){
   const files=[...list||[]];if(!files.length)return;
+  if(files.some(f=>/\.sac(\.part)?$/i.test(String(f.name||''))))throw new Error(I18N.t("Gli archivi primari (.sac) non si caricano dal browser: usa Strumenti → Conversione e «Apri archivio primario…»."));
   if(files.some(f=>!['.csv','.parquet','.das','.rbf','.dat','.json'].some(ext=>String(f.name||'').toLowerCase().endsWith(ext))))throw new Error(I18N.t("Seleziona CSV, Parquet, FDA DAS4, RBF, DAT PDA3 e relativi JSON."));
   const form=new FormData();for(const f of files)form.append('files',f,f.name);
   form.append('pda3_timezone_offset_minutes',document.getElementById('history-dat-offset')?.value||'120');form.append('join_pda3',String(!!document.getElementById('history-dat-join')?.checked));
@@ -135,5 +136,12 @@ convEl('conv-full-range').onclick=()=>{convEl('conv-from').value=CONV.range.from
 convEl('conv-start').onclick=startConversion;
 convEl('conv-cancel').onclick=cancelConversion;
 convEl('conv-open-local').onclick=()=>convEl('conv-local-file').click();
+convEl('conv-open-primary').onclick=async()=>{
+  try{
+    convError('');const picked=await request('/api/convert/primary/browse',{});if(!picked.path)return;
+    const added=(await request('/api/convert/primary/add',{path:picked.path})).file;
+    await refreshConversionFiles();const item=CONV.files.find(f=>f.source==='primary'&&f.name===added.name);if(item)selectConversionFile(item);
+  }catch(e){convError(e.message);notice(e.message,true);}
+};
 convEl('conv-local-file').onchange=async()=>{const input=convEl('conv-local-file');try{await importConversionFiles(input.files);}catch(e){convError(e.message);notice(e.message,true);}finally{input.value='';}};
 document.addEventListener('space-analyzer-languagechange',()=>{if(CONV.loaded){renderConversionFiles();renderConversion();}});

@@ -2,6 +2,14 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.15.1
+
+- **«Apri archivio primario…» nella pagina Conversione**: nuovo pulsante che apre la finestra di Windows per scegliere un archivio `.sac` (o `.sac.part`) in qualsiasi cartella o disco; il file non viene caricato dal browser ma letto dal servizio dal suo percorso, registrato (fino a 50 percorsi, in `Recordings\.primary\origini_esterne.json`) e mostrato nell'elenco con il badge SAC, quindi si esporta come gli altri. Solo i percorsi registrati o la cartella `.primary` sono esportabili. Motivo: scegliendo un `.sac` con «Apri file dal PC…» compariva «Seleziona CSV, Parquet, FDA DAS4, RBF, DAT PDA3 e relativi JSON» e non c'era modo di esportare un archivio copiato fuori da `.primary` (altro disco o altro PC); caricarlo dal browser non è praticabile per file da decine di GB.
+- **Messaggio chiaro per i `.sac` scelti nel posto sbagliato**: «Apri file dal PC…» (Conversione e Registrazioni) rifiuta `.sac` e `.sac.part` dicendo di usare Strumenti → Conversione e «Apri archivio primario…», in cinque lingue. Motivo: l'errore elencava i formati ammessi senza spiegare dove aprire un archivio primario.
+- **Selettore di file**: lo stesso selettore nativo delle cartelle ora può scegliere anche un file. Motivo: riuso del codice già in uso per «Sfoglia…».
+- Test: `PrimaryExternalTests` (archivio copiato altrove: registrato, elencato, ancora presente dopo il riavvio del servizio, esportato con tutti i campioni; percorsi non registrati, file non primari, assenti o vuoti rifiutati); `test_conversion_ui.cjs` esteso (rifiuto di `.sac` e `.sac.part` da «Apri file dal PC…», pulsante presente e selettore rifiutato fuori da Windows).
+- **Non provato su Windows**: la finestra di scelta del file è la stessa dei file di cartella ma non è stata eseguita su Windows in questa sessione (i test girano su Linux, dove risponde «solo su Windows»).
+
 ## 3.15.0
 
 - **Esportazione degli archivi primari (.sac)**: nella pagina Conversione compaiono anche gli archivi primari della cartella `Recordings\.primary` (`.sac`, `.sac.part`, `.incomplete.sac`, `.recovered.sac`), con tipo, dimensione, segnali e inizio letti dall'intestazione (anche per file da decine di GB, senza scandirli). Si esportano in CSV, Parquet, FDA DAS4 o RBF con le stesse scelte di segnali e intervallo delle altre sorgenti. Motivo: l'archivio primario contiene ogni campione originale, ma finora non c'era modo di trasformarlo in un file leggibile se il formato scritto durante Record mancava o era incompleto (arresto anomalo, errore).

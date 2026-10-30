@@ -734,6 +734,8 @@ public sealed class Api(AppRuntime rt, SshService ssh, string token, Action shut
         Get(app, "/api/recordings/compare/{ident}", ctx => Task.FromResult<object?>(Ok(("job", rt.Comparisons.Status((string)ctx.Request.RouteValues["ident"]!)))));
         // Conversion of a recording into another format (Conversione page): background job, output in Recordings/Conversioni.
         Post(app, "/api/convert", async ctx => Ok(("job", rt.Conversions.Start(await Http.Json(ctx, silent: true) ?? new JsonObject(), s => Source(JsonValue.Create(s))))));
+        Post(app, "/api/convert/primary/browse", async _ => Ok(("path", await FolderPicker.Pick("Archivio primario (.sac)", Paths.RecordingsDir, folders: false))));
+        Post(app, "/api/convert/primary/add", async ctx => Ok(("file", rt.Conversions.AddPrimary((await Http.Object(ctx))["path"].Str()))));
         Get(app, "/api/convert/primary", _ => Task.FromResult<object?>(Ok(("files", rt.Conversions.PrimaryFiles()))));
         Get(app, "/api/convert/{ident}", ctx => Task.FromResult<object?>(Ok(("job", rt.Conversions.Status((string)ctx.Request.RouteValues["ident"]!)))));
         Post(app, "/api/convert/{ident}/cancel", ctx => Task.FromResult<object?>(Ok(("job", rt.Conversions.Cancel((string)ctx.Request.RouteValues["ident"]!)))));

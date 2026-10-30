@@ -4,12 +4,12 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.15.0
+## Novità della versione 3.15.1
 
-- **Esportazione degli archivi primari (.sac)**: la pagina Conversione elenca gli archivi di `Recordings\.primary` e li esporta in CSV, Parquet, FDA o RBF, anche se interrotti o chiusi con errore (si esportano i blocchi validi, con un avviso); da riga di comando: `--tool export-sac <file.sac> csv|parquet|das|rbf [cartella]`. Motivo: l'archivio primario contiene ogni campione originale ma non c'era modo di leggerlo se il formato scelto in Record mancava o era incompleto.
-- Guida illustrata (IT/EN) aggiornata con la nuova sezione.
-- Dalla 3.14.1: storico Live a finestra mobile (oltre 8 GiB scarta i campioni più vecchi invece di bloccarsi); dalla 3.14.0: timestamp PLC e «Seleziona ramo» per S7.
-- Dalla 3.13.0: guida illustrata bilingue nello ZIP e nella release; dalla 3.12.x: PostgreSQL con vista tabellare e query, il nome di un segnale vale per tutti i grafici.
+- **«Apri archivio primario…» nella pagina Conversione**: sceglie un archivio `.sac` in qualsiasi cartella o disco e lo esporta senza caricarlo dal browser. Motivo: «Apri file dal PC…» rifiutava i `.sac` con un messaggio che non diceva dove aprirli, e un archivio copiato fuori da `Recordings\.primary` non era esportabile.
+- «Apri file dal PC…» (Conversione e Registrazioni) indica ora dove aprire un archivio primario.
+- Dalla 3.15.0: esportazione degli archivi primari (.sac) in CSV, Parquet, FDA o RBF, anche con `--tool export-sac`; dalla 3.14.1: storico Live a finestra mobile; dalla 3.14.0: timestamp PLC e «Seleziona ramo» per S7.
+- Dalla 3.13.0: guida illustrata bilingue nello ZIP e nella release.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

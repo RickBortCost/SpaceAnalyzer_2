@@ -4,21 +4,21 @@ using SpaceAnalyzer.App.Infrastructure;
 namespace SpaceAnalyzer.App.Web;
 
 /// <summary>
-/// The Windows "Select folder" dialog (IFileOpenDialog with FOS_PICKFOLDERS), shown by the local service
+/// The Windows "Select folder" / "Open file" dialog (IFileOpenDialog, with or without FOS_PICKFOLDERS), shown by the local service
 /// over the application window. One dialog at a time; null when the operator cancels.
 /// </summary>
 public static class FolderPicker
 {
     static readonly SemaphoreSlim Open = new(1, 1);
 
-    public static Task<string?> Pick(string title, string? initial)
+    public static Task<string?> Pick(string title, string? initial, bool folders = true)
     {
-        if (!OperatingSystem.IsWindows()) throw new UserError("Selezione della cartella disponibile solo su Windows: scrivere il percorso");
-        if (!Open.Wait(0)) throw new UserError("La finestra di selezione della cartella è già aperta");
+        if (!OperatingSystem.IsWindows()) throw new UserError("Selezione disponibile solo su Windows");
+        if (!Open.Wait(0)) throw new UserError("La finestra di selezione è già aperta");
         var done = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
         {
-            try { done.SetResult(Show(title, initial)); }
+            try { done.SetResult(Show(title, initial, folders)); }
             catch (Exception exc) { done.SetException(exc); }
             finally { Open.Release(); }
         }) { IsBackground = true, Name = "folder-picker" };
@@ -27,17 +27,17 @@ public static class FolderPicker
         return done.Task;
     }
 
-    const uint PickFolders = 0x20, ForceFileSystem = 0x40, PathMustExist = 0x800;
+    const uint PickFolders = 0x20, ForceFileSystem = 0x40, PathMustExist = 0x800, FileMustExist = 0x1000;
     const uint FileSystemPath = 0x80058000;
     const int Cancelled = unchecked((int)0x800704C7);
 
-    static string? Show(string title, string? initial)
+    static string? Show(string title, string? initial, bool folders)
     {
         var dialog = (IFileOpenDialog)new FileOpenDialog();
         try
         {
             dialog.GetOptions(out var options);
-            dialog.SetOptions(options | PickFolders | ForceFileSystem | PathMustExist);
+            dialog.SetOptions(folders ? options | PickFolders | ForceFileSystem | PathMustExist : options | ForceFileSystem | FileMustExist);
             dialog.SetTitle(title);
             if (!string.IsNullOrEmpty(initial) && Directory.Exists(initial)
                 && SHCreateItemFromParsingName(initial, IntPtr.Zero, typeof(IShellItem).GUID, out var folder) == 0)
