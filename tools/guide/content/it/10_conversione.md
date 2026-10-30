@@ -13,7 +13,7 @@ La sezione Conversione (menu Strumenti → Conversione) trasforma un file regist
 | 5 | **Segnali**: Tutti oppure una selezione (massimo 64 per FDA e RBF). |
 | 6 | **Filtra segnali…**. |
 | 7 | **Intervallo** (facoltativo): Da/A, con pulsante per ripristinare l'intero file. Senza intervallo si converte tutto. |
-| 8 | **Converti**: avvia la conversione. Durante l'operazione compaiono i campioni letti (con percentuale quando il totale è noto), la fase di scrittura e il pulsante Annulla, che interrompe la lettura ed elimina i file parziali. |
+| 8 | **Converti**: avvia la conversione. Durante l'operazione una barra mostra la **percentuale complessiva** (lettura dei campioni, preparazione dei dati e scrittura del file, con il totale stimato — «~» — se si sono scelti pochi canali o un periodo) e il pulsante Annulla, che interrompe la lettura ed elimina i file parziali. Con «Apri file dal PC…» la barra a sinistra indica anche il caricamento (percentuale e MB) e poi la lettura del file. |
 
 ![conversion_done](Conversione completata: numero di campioni, file creato e pulsante «Apri in Registrazioni».)
 

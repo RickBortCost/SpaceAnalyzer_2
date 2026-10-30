@@ -59,8 +59,8 @@ public sealed class Conversions(Func<string> directory)
         var start = Bound(data.Get("start_ms"));
         var end = Bound(data.Get("end_ms"));
         if (start != null && end != null && end < start) throw new UserError("L'intervallo deve avere una fine non precedente all'inizio");
-        long? total = RowValues.Float(descriptor.GetValueOrDefault("rows_written")) is double rows && rows > 0 && start == null && end == null && signals.Count == available.Count
-            ? (long)rows : null;
+        long? total = EstimateTotal(descriptor, signals.Count, available.Count, start, end);
+        var estimated = start != null || end != null || signals.Count != available.Count;
         lock (gate)
         {
             if (closed) throw new UserError("Servizio di conversione arrestato");
@@ -71,7 +71,7 @@ public sealed class Conversions(Func<string> directory)
             {
                 ["id"] = ident, ["state"] = "running", ["phase"] = "read", ["name"] = name, ["source"] = source,
                 ["source_format"] = descriptor.GetValueOrDefault("format"), ["format"] = format, ["format_label"] = Targets[format],
-                ["signal_count"] = (long)signals.Count, ["rows_read"] = 0L, ["rows_total"] = total, ["files"] = new List<object?>(),
+                ["signal_count"] = (long)signals.Count, ["rows_read"] = 0L, ["rows_total"] = total, ["rows_total_estimated"] = estimated, ["percent"] = total != null ? 0.0 : null, ["files"] = new List<object?>(),
                 ["directory"] = directory(), ["started_at"] = Values.PythonIso(DateTime.UtcNow),
             };
             order.Add(ident);
@@ -246,6 +246,33 @@ public sealed class Conversions(Func<string> directory)
         lock (gate) { closed = true; running?.Cancel(); }
     }
 
+    /// <summary>
+    /// Rows the job is expected to read: exact for the whole file; for a subset of signals or an interval the file total is scaled by the share of signals and of the time span
+    /// (a close estimate for regular sampling, only used for the percentage, which is capped below 100 until the job ends).
+    /// </summary>
+    public static long? EstimateTotal(Dictionary<string, object?> descriptor, int selected, int available, double? start, double? end)
+    {
+        if (RowValues.Float(descriptor.GetValueOrDefault("rows_written")) is not double rows || rows <= 0 || available <= 0) return null;
+        var share = (double)selected / available;
+        if (start != null || end != null)
+        {
+            if (RowValues.Float(descriptor.GetValueOrDefault("start_ms")) is not double first || RowValues.Float(descriptor.GetValueOrDefault("end_ms")) is not double last || last <= first) return null;
+            var from = Math.Max(first, start ?? first);
+            var to = Math.Min(last, end ?? last);
+            share *= Math.Clamp((to - from) / (last - first), 0, 1);
+        }
+        return Math.Max(1, (long)Math.Round(rows * share));
+    }
+
+    /// <summary>Overall completion 0..100 of a running job: CSV and Parquet only read; FDA and RBF read (40%), stage the Parquet original (30%) and write the frames (30%).</summary>
+    public static double? Percent(string format, long? expected, string stage, long count)
+    {
+        if (expected is not long total || total <= 0) return null;
+        var done = Math.Min(1.0, (double)count / total);
+        var (offset, weight) = format is "csv" or "parquet" ? (0.0, 1.0) : stage switch { "read" => (0.0, 0.4), "stage" => (0.4, 0.3), _ => (0.7, 0.3) };
+        return Math.Min(99.0, Math.Round((offset + weight * done) * 100, 1));
+    }
+
     void Update(string ident, params (string key, object? value)[] values)
     {
         lock (gate) foreach (var (k, v) in values) jobs[ident][k] = v;
@@ -281,10 +308,17 @@ public sealed class Conversions(Func<string> directory)
                 Write(rows, original + ".part", "parquet", stats);
                 File.Move(original + ".part", original);
                 Py.AtomicPlain(RecordingLibrary.MetadataPath(original), Sidecar(job, stats, "parquet"));
-                Update(job.Ident, ("phase", "write"));
+                Update(job.Ident, ("phase", "stage"), ("rows_read", stats.Rows), ("percent", Percent(job.Format, job.Total, "stage", 0)));
                 cancel.ThrowIfCancellationRequested();
                 var nodes = job.Signals.Select(Node).ToList();
-                var parts = job.Format == "das" ? FdaExporter.Export(original, nodes, 0) : RbfExporter.Export(original, nodes, 0);
+                // The exporter reads the Parquet original (stage) and then writes the frames (write): both counted in rows of the original.
+                var total = stats.Rows;
+                void Progress(string stage, long count)
+                {
+                    cancel.ThrowIfCancellationRequested();
+                    Update(job.Ident, ("phase", stage), ("percent", Percent(job.Format, total, stage, count)));
+                }
+                var parts = job.Format == "das" ? FdaExporter.Export(original, nodes, 0, Progress) : RbfExporter.Export(original, nodes, 0, Progress);
                 files = new List<Dictionary<string, object?>>();
                 foreach (var part in parts)
                 {
@@ -297,7 +331,7 @@ public sealed class Conversions(Func<string> directory)
                     files.Add(Entry(final, part["rows"] is long r ? r : 0));
                 }
             }
-            Update(job.Ident, ("state", "ready"), ("phase", "done"), ("rows_read", stats.Rows), ("files", files.Cast<object?>().ToList()),
+            Update(job.Ident, ("state", "ready"), ("phase", "done"), ("percent", 100.0), ("rows_read", stats.Rows), ("files", files.Cast<object?>().ToList()),
                 ("finished_at", Values.PythonIso(DateTime.UtcNow)));
             Log.Info($"Conversione {job.Name} -> {job.Format}: {stats.Rows} campioni, {files.Count} file");
         }
@@ -344,7 +378,7 @@ public sealed class Conversions(Func<string> directory)
             stats.First = Math.Min(stats.First, t.Value);
             stats.Last = Math.Max(stats.Last, t.Value);
             stats.Rows++;
-            if (stats.Rows % 65536 == 0) Update(job.Ident, ("rows_read", stats.Rows));
+            if (stats.Rows % 65536 == 0) Update(job.Ident, ("rows_read", stats.Rows), ("percent", Percent(job.Format, job.Total, "read", stats.Rows)));
             yield return row;
         }
     }

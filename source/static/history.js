@@ -179,7 +179,10 @@ async function importHistoryLocalFile(file){
   try{
     const form=new FormData();for(const f of files)form.append('files',f,f.name);
     form.append('pda3_timezone_offset_minutes',H('history-dat-offset').value);form.append('join_pda3',String(H('history-dat-join').checked));
-    const response=await fetch('/api/recordings/import',{method:'POST',headers:{'X-OPCUA-Token':token},body:form});const data=await response.json();if(!response.ok)throw new Error(data.error||response.statusText);
+    const bytes=files.reduce((n,f)=>n+(f.size||0),0);
+    const data=await uploadForm('/api/recordings/import',form,(sent,all)=>{
+      ctx.status=sent>=all?I18N.t('Lettura del file caricato…'):I18N.t('Caricamento del file…')+' '+uploadPercentText(sent,all);if(graph===historyCharts.active)renderHistoryControls();
+    },bytes);
     if(!historyCharts.charts.includes(graph)||revision!==graph.loadRevision)return;
     selectHistoryFile({source:'local',...data.recording},graph);
     if((data.recordings||[]).length>1&&!data.sequence){graph.context.compareFiles=data.recordings.slice(0,32).map(f=>historyCompareEntry({source:'local',...f}));if(data.recordings.length>32)notice(I18N.t("Importati tutti i file; selezionati i primi 32 per il confronto."));renderHistoryFileList();await compareHistory(graph);}else await loadHistory(graph);

@@ -50,6 +50,25 @@ try{
   job=await convert('Scope svdx one channel, first 100 ms');assert.equal(job.rows_read,100);assert.equal(job.signal_count,1);
   listed=(await recordings()).find(f=>f.name===job.files[0].name);assert.deepEqual(listed.signals.map(s=>s.display_name),['Posizione']);assert(listed.size_bytes<bigger/10);
   $('conv-full-range').click();$('conv-all').checked=true;$('conv-all').dispatchEvent(new w.Event('change'));checks.push('Scope .svdx: channel and period selection');}
+ // Progress: overall percentage in every phase of a running job, with the estimate marked by "~".
+ {const saved=t.conv.job,bar=$('conv-progress'),text=()=>$('conv-status').textContent;
+  const show=job=>{t.conv.job={id:'x',source:'repository',name:'fixture_A.csv',format:'rbf',format_label:'RBF v3',...job};w.renderConversionJob();};
+  show({state:'running',phase:'read',percent:20,rows_read:5000,rows_total:20000});assert.equal(bar.value,.2);assert(text().startsWith('20% · '));assert(/5[.,]?000/.test(text()));
+  show({state:'running',phase:'read',percent:10,rows_read:100,rows_total:1000,rows_total_estimated:true});assert(text().includes('~'));
+  show({state:'running',phase:'stage',percent:55,rows_read:20000,rows_total:20000});assert.equal(bar.value,.55);assert(text().startsWith('55% · '));assert(text().includes('Preparazione'));
+  show({state:'running',phase:'write',percent:85,rows_read:20000,rows_total:20000});assert.equal(bar.value,.85);assert(text().startsWith('85% · '));assert(text().includes('RBF v3'));
+  show({state:'running',phase:'read',percent:null,rows_read:100,rows_total:null});assert(!bar.hasAttribute('value'));assert(!/%/.test(text()));
+  show({state:'ready',phase:'done',percent:100,rows_read:20000,rows_total:20000,files:[]});assert.equal(bar.value,1);
+  t.conv.job=saved;w.renderConversionJob();checks.push('conversion percentage in read, staging and writing phases');}
+ // Upload of a large file from the PC reports its percentage, then the reading on the server.
+ {const seen=[];w.XMLHttpRequest=class{constructor(){this.upload={};this.headers={};}open(m,u){this.url=u;}setRequestHeader(k,v){this.headers[k]=v;}
+   send(form){(async()=>{const total=8*1048576;this.upload.onprogress({lengthComputable:true,loaded:total/2,total});seen.push([$('conv-import-progress').hidden,$('conv-import-progress').value,$('conv-list-status').textContent]);
+     this.upload.onprogress({lengthComputable:true,loaded:total,total});seen.push([$('conv-import-progress').hidden,$('conv-import-progress').hasAttribute('value'),$('conv-list-status').textContent]);
+     const r=await fetch(new URL(this.url,base),{method:'POST',headers:this.headers,body:form});this.status=r.status;this.statusText=r.statusText;this.responseText=await r.text();this.onload();})().catch(e=>this.onerror(e));}};
+  const big=new File([new Uint8Array(8*1048576)],'grande.csv',{type:'text/csv'});
+  await assert.rejects(()=>t.importConversionFiles([big]));
+  assert.equal(seen[0][0],false);assert.equal(seen[0][1],.5);assert(seen[0][2].includes('50%'),seen[0][2]);assert.equal(seen[1][1],false);assert(seen[1][2].includes('Lettura'),seen[1][2]);
+  assert($('conv-import-progress').hidden);delete w.XMLHttpRequest;checks.push('upload percentage and server reading');}
  // A file from the PC: imported, selected, converted to CSV.
  const lines=['timestamp_utc,timestamp_ms,cycle,node_id,signal_name,value_numeric,value_text,data_type,status,good,sample_ms,quality'];
  for(let i=0;i<50;i++)for(const id of ['pc:A','pc:B','pc:C'])lines.push([new Date(start+i*20).toISOString(),start+i*20,i,id,id,i,i,'Double','Good','True',20,'Good'].join(','));

@@ -4,6 +4,7 @@
 <p class="small" data-i18n="Converte una registrazione in un altro formato. Il file originale non viene modificato.">Converte una registrazione in un altro formato. Il file originale non viene modificato.</p>
 <div class="conversion-file-tools"><input id="conv-search" type="search" placeholder="Filtra file…" aria-label="Filtra file" data-i18n-placeholder="Filtra file…" data-i18n-aria-label="Filtra file"><button class="ghost" id="conv-open-local" type="button" data-i18n="Apri file dal PC…">Apri file dal PC…</button><button class="ghost" id="conv-open-primary" type="button" data-i18n="Apri archivio primario…">Apri archivio primario…</button><input accept=".csv,.parquet,.das,.rbf,.svdx,.dat,.json" multiple="" hidden="" id="conv-local-file" type="file"></div>
 <div class="conversion-file-list" id="conv-file-list" role="listbox" aria-label="File disponibili" data-i18n-aria-label="File disponibili"></div>
+<progress id="conv-import-progress" max="1" hidden=""></progress>
 <p class="small" id="conv-list-status" role="status"></p>
 </section>
 <section class="card conversion-settings" aria-labelledby="conv-title">

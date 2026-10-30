@@ -88,8 +88,9 @@ public static class FdaExporter
         return data.ToArray();
     }
 
-    public static List<Dictionary<string, object?>> Export(string original, IReadOnlyList<NodeSpec> nodes, long maxBytes)
+    public static List<Dictionary<string, object?>> Export(string original, IReadOnlyList<NodeSpec> nodes, long maxBytes, Action<string, long>? progress = null)
     {
+        long stagedRows = 0, writtenRows = 0;
         var ids = new Dictionary<string, int>();
         foreach (var node in nodes) ids.TryAdd(node.NodeId, ids.Count);
         if (ids.Count is < 1 or > 64) throw new InvalidDataException("FDA: selezionare da 1 a 64 segnali");
@@ -139,6 +140,7 @@ public static class FdaExporter
             if (staged % 500000 == 0 && !Legacy.EnoughSpace(directory)) throw new IOException("Spazio disco insufficiente durante la conversione FDA: archivio originale conservato");
             first = first is double f ? Math.Min(f, t) : t;
             sort.Add(new Staged(t, row.Cycle ?? 0, n, v, (byte)q));
+            if (progress != null && ++stagedRows % 65536 == 0) progress("stage", stagedRows);
         }
         long epoch = first is double minT ? (long)Math.Floor(minT / 1000)
             : (long)DateTimeOffset.Parse(((System.Text.Json.JsonElement)sourceMeta["started_at"]!).GetString()!, CultureInfo.InvariantCulture).ToUnixTimeSeconds();
@@ -247,6 +249,7 @@ public static class FdaExporter
             var seen = new HashSet<int>();
             foreach (var s in sort.Sorted())
             {
+                if (progress != null && ++writtenRows % 65536 == 0) progress("write", writtenRows);
                 var key = (long)Math.Round(s.T, MidpointRounding.ToEven);
                 if (current != key)
                 {

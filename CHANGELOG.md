@@ -2,6 +2,15 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.16.1
+
+- **Barra di avanzamento percentuale in tutta la conversione**: la pagina Conversione mostra ora una percentuale complessiva in ogni fase: caricamento del file scelto con «Apri file dal PC…» (percentuale e MB inviati, poi «Lettura del file caricato…»), lettura dei campioni, preparazione dei dati e scrittura del file. Per FDA e RBF la barra pesa lettura 40%, preparazione 30% e scrittura 30%; per CSV e Parquet la sola lettura. Motivo: con file grandi la pagina restava ferma su «Importazione dei file…» e durante la conversione non si capiva a che punto fosse, soprattutto dopo la lettura.
+- **Totale atteso anche con canali o periodo ridotti**: con una selezione di segnali o un intervallo il totale è stimato in proporzione (mostrato con «~») e la percentuale non supera il 99% finché il lavoro non termina. Motivo: la percentuale compariva solo per il file intero.
+- **Avanzamento di FDA e RBF**: gli scrittori comunicano le righe preparate e scritte (parametro facoltativo, nessun cambiamento per gli altri usi). Motivo: la fase di scrittura era una barra senza avanzamento.
+- **Registrazioni**: anche l'apertura di un file dal PC mostra la percentuale di caricamento. Il caricamento con avanzamento (XMLHttpRequest) si usa da 4 MB in su; sotto resta la richiesta di prima. Motivo: stesso problema nella pagina Registrazioni.
+- Limite: gli archivi primari (.sac) non hanno un totale noto senza leggerli tutti, quindi la barra resta indeterminata con il numero di campioni.
+- Test: `ConversionTests` (pesi delle fasi, stima del totale, totale e 100% finale) e `test_conversion_ui.cjs` (percentuale in lettura, preparazione e scrittura; caricamento di un file da 8 MB con percentuale e lettura sul servizio). Nuove stringhe in cinque lingue. Guida IT/EN e PDF aggiornati.
+
 ## 3.16.0
 
 - **Progetti TwinCAT Scope (.svdx)**: i file `.svdx` con i dati inclusi («Include data in SVDX») si aprono in Registrazioni e si convertono da Strumenti → Conversione in CSV, Parquet, FDA DAS4 o RBF; «Apri file dal PC…» li accetta (filtro «TwinCAT Scope» tra i formati). Ogni canale del progetto è un segnale, con il nome dato in Scope, l'unità se presente e l'istante assoluto UTC del registratore (100 ns). Motivo: richiesta di convertire i registri di Scope nei formati già disponibili.

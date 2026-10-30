@@ -59,8 +59,9 @@ public static class RbfExporter
         return DateTime.UnixEpoch.AddSeconds(seconds).ToString("yyyy-MM-dd'T'HH:mm:ss", CultureInfo.InvariantCulture) + "." + ns.ToString("000000000", CultureInfo.InvariantCulture) + "+00:00";
     }
 
-    public static List<Dictionary<string, object?>> Export(string original, IReadOnlyList<NodeSpec> nodes, long maxBytes)
+    public static List<Dictionary<string, object?>> Export(string original, IReadOnlyList<NodeSpec> nodes, long maxBytes, Action<string, long>? progress = null)
     {
+        long stagedRows = 0, writtenRows = 0;
         var ids = new Dictionary<string, int>();
         foreach (var node in nodes) ids.TryAdd(node.NodeId, ids.Count);
         if (ids.Count is < 1 or > 64 || ids.Count != nodes.Count) throw new InvalidDataException("RBF: selezionare da 1 a 64 segnali con identificativi distinti");
@@ -122,6 +123,7 @@ public static class RbfExporter
                 if (number != Math.Truncate(number)) integral[i] = false;
             }
             sort.Add(new Staged(ticks, row.Cycle ?? 0, i, number, text ?? "", (byte)q));
+            if (progress != null && ++stagedRows % 65536 == 0) progress("stage", stagedRows);
         }
         var channels = new List<(string name, byte type)>();
         var valueKinds = new byte[nodes.Count];
@@ -248,6 +250,7 @@ public static class RbfExporter
             long? key = null;
             foreach (var s in sort.Sorted())
             {
+                if (progress != null && ++writtenRows % 65536 == 0) progress("write", writtenRows);
                 if (key != s.Ticks)
                 {
                     if (key is long previous) Emit(previous);

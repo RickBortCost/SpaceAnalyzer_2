@@ -10,6 +10,6 @@
 .conversion-signals{border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}.conversion-signal-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.conversion-signal-tools input[type=search]{flex:1;min-width:160px}
 .conversion-signal-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:2px 12px;max-height:260px;overflow:auto;margin-top:8px}.conversion-signal-list .checkline span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #conv-signal-count.warning{color:var(--danger);font-weight:600}
-.conversion-progress{display:flex;flex-direction:column;gap:4px}.conversion-progress progress{width:100%;height:10px}#conv-status.error{color:var(--danger)}
+#conv-import-progress{width:100%;height:10px}.conversion-progress{display:flex;flex-direction:column;gap:4px}.conversion-progress progress{width:100%;height:10px}#conv-status.error{color:var(--danger)}
 .conversion-result ul{list-style:none;padding:0;margin:6px 0 0;display:flex;flex-direction:column;gap:6px}.conversion-result li{display:flex;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
 @media(max-width:900px){.conversion-page{grid-template-columns:1fr;padding:10px}.conversion-file-list{max-height:300px}}

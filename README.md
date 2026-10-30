@@ -1,8 +1,13 @@
 # Space Fieldbus Analyzer 3
 
-**Versione 3.16.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.16.1.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
+
+## Novità della versione 3.16.1
+
+- **Barra di avanzamento percentuale in tutta la conversione**: caricamento del file dal PC, lettura, preparazione e scrittura, con totale stimato anche per canali o periodo ridotti. Motivo: con file grandi non si capiva a che punto fosse la conversione.
+- Dalla 3.16.0: conversione dei progetti TwinCAT Scope (.svdx) in CSV, Parquet, FDA o RBF, con scelta di canali e periodo.
 
 ## Novità della versione 3.16.0
 

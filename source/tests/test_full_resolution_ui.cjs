@@ -17,7 +17,7 @@ async function page(){
   const html=await (await fetch(base)).text();
   const vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));
   const dom=new JSDOM(html,{url:base,runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:vc});
-  pages.push(dom);const w=dom.window;w.FormData=globalThis.FormData;
+  pages.push(dom);const w=dom.window;w.FormData=globalThis.FormData;w.XMLHttpRequest=undefined;
   w.AbortController=globalThis.AbortController;
   w.fetch=async(url,options)=>{try{return await fetch(new URL(url,base),options);}catch(e){errors.push('fetch '+url+': '+e.message);throw e;}};
   w.ResizeObserver=class{observe(){} disconnect(){}};

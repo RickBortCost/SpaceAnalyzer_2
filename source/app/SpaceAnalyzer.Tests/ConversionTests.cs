@@ -245,4 +245,47 @@ public class ConversionTests
         Assert.Contains("Nessun campione", (string)empty["error"]!);
         Assert.Empty(Directory.GetFiles(Path.Combine(dir.Path, Conversions.Folder)));
     }
+
+    [Fact]
+    public void ProgressPercentCoversReadingStagingAndWriting()
+    {
+        // CSV and Parquet only read: the share of rows read is the whole progress, capped below 100 until the job ends.
+        Assert.Equal(0.0, Conversions.Percent("csv", 1000, "read", 0));
+        Assert.Equal(50.0, Conversions.Percent("parquet", 1000, "read", 500));
+        Assert.Equal(99.0, Conversions.Percent("csv", 1000, "read", 1000));
+        // FDA and RBF: read 0-40, stage 40-70, write 70-100.
+        Assert.Equal(20.0, Conversions.Percent("rbf", 1000, "read", 500));
+        Assert.Equal(40.0, Conversions.Percent("das", 1000, "stage", 0));
+        Assert.Equal(55.0, Conversions.Percent("das", 1000, "stage", 500));
+        Assert.Equal(85.0, Conversions.Percent("rbf", 1000, "write", 500));
+        Assert.Null(Conversions.Percent("csv", null, "read", 10));
+    }
+
+    [Fact]
+    public void ExpectedRowsAreScaledByTheSelectedSignalsAndInterval()
+    {
+        var d = new Dictionary<string, object?> { ["rows_written"] = 2000L, ["start_ms"] = 1000.0, ["end_ms"] = 2000.0 };
+        Assert.Equal(2000, Conversions.EstimateTotal(d, 2, 2, null, null));
+        Assert.Equal(1000, Conversions.EstimateTotal(d, 1, 2, null, null));
+        Assert.Equal(500, Conversions.EstimateTotal(d, 1, 2, 1000.0, 1500.0));
+        Assert.Equal(1000, Conversions.EstimateTotal(d, 2, 2, 1500.0, 9000.0));
+        Assert.Null(Conversions.EstimateTotal(new Dictionary<string, object?>(), 2, 2, null, null));
+    }
+
+    [Fact]
+    public void JobReportsTotalPercentAndFinishesAtOneHundred()
+    {
+        using var dir = new TempDir();
+        var library = Fixture(dir, 200);
+        foreach (var format in new[] { "csv", "rbf" })
+        {
+            var job = Convert(library, "prova.csv", format);
+            Assert.Equal(100.0, System.Convert.ToDouble(job["percent"]));
+            Assert.Equal(400L, System.Convert.ToInt64(job["rows_total"]));
+            Assert.Equal(false, job["rows_total_estimated"]);
+        }
+        var subset = Convert(library, "prova.csv", "csv", new JsonObject { ["signal_ids"] = new JsonArray("ns=2;s=A") });
+        Assert.Equal(true, subset["rows_total_estimated"]);
+        Assert.Equal(200L, System.Convert.ToInt64(subset["rows_total"]));
+    }
 }
