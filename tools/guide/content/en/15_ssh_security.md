@@ -24,10 +24,11 @@ The launcher/EXE accepts non-interactive commands for primary archive management
 ```
 --tool inspect <file.sac>
 --tool recover <file.sac.part> [output]
+--tool export-sac <file.sac> csv|parquet|das|rbf [folder]
 --tool export-fda|export-rbf <original.parquet> <nodes.json> [max_bytes]
 ```
 
-`inspect` verifies a primary archive; `recover` rebuilds a file after an abnormal stop; `export-fda` and `export-rbf` convert an original Parquet to FDA/DAS4 or RBF.
+`inspect` verifies a primary archive; `recover` rebuilds a file after an abnormal stop; `export-sac` exports a primary archive to CSV, Parquet, FDA/DAS4 or RBF (chapter 10); `export-fda` and `export-rbf` convert an original Parquet to FDA/DAS4 or RBF.
 
 ## Security and known limits
 

@@ -31,6 +31,23 @@ La sezione Conversione (menu Strumenti → Conversione) trasforma un file regist
 | Destinazione | Sottocartella «Conversioni» della cartella delle registrazioni. Un nome già esistente non viene sovrascritto. |
 | Esecuzione | In background, una conversione alla volta; l'interfaccia resta utilizzabile. |
 
+## Archivi primari (.sac)
+
+Durante ogni registrazione l'applicazione scrive anche un **archivio primario** con tutti i campioni originali, nella cartella `Recordings\.primary` (estensioni `.sac`, `.sac.part`, `.incomplete.sac`, `.recovered.sac`). Di norma serve solo come copia di sicurezza, perché il file Parquet, FDA o RBF è già in `Recordings`. Se quel file manca o è incompleto (arresto anomalo, errore del disco, formato che non ha retto), l'archivio primario si può **esportare** in un formato leggibile dalla stessa pagina Conversione: gli archivi compaiono nell'elenco con il formato «Archivio primario».
+
+![conversion_sac](Archivio primario selezionato nella pagina Conversione.)
+
+| N. | Elemento |
+|---|---|
+| 1 | **Archivio primario** nell'elenco: tipo (completo, incompleto, interrotto `.part`, recuperato), dimensione e inizio. L'elenco legge solo l'intestazione, quindi compare subito anche per file da decine di GB. |
+| 2 | **Informazioni**: formato, dimensione, numero di segnali e inizio. Durata e numero di campioni non sono mostrati perché richiederebbero di leggere tutto il file. |
+| 3 | **Nota del formato**: ricorda che l'archivio contiene tutti i campioni originali. |
+| 4 | **Converti**: segnali e intervallo si scelgono come per le altre sorgenti. |
+
+L'esportazione scrive tutti i campioni originali dei segnali e dell'intervallo scelti. Un archivio **interrotto o danneggiato in coda** non viene rifiutato: si esportano tutti i blocchi validi e il messaggio finale indica la causa (ad esempio «Archivio non chiuso correttamente» oppure «Archivio chiuso con errore» con il numero di campioni non arrivati all'archivio). Con FDA DAS4 e RBF le notifiche ADS non periodiche restano solo nell'archivio e il massimo è di 64 segnali; con CSV e Parquet si esporta tutto. Il file originale non viene modificato.
+
+Da riga di comando, senza avviare l'interfaccia: `--tool export-sac <file.sac> csv|parquet|das|rbf [cartella]`. Senza cartella i file vanno nella sottocartella `Conversioni` delle registrazioni; il risultato (campioni, file, avvisi) è stampato in JSON.
+
 ## Tipo di dato scelto automaticamente
 
 L'applicazione ricava da sola, per ogni segnale, il tipo più stretto che resta esatto in base al tipo acquisito e ai valori registrati: nessuna impostazione da fare. Nei file RBF i segnali booleani restano canali Boolean (1 byte) e gli interi a 16 bit o meno con valori entro Int16 diventano canali Int16 nativi (2 byte invece dei 4 del Float32). Un UINT con valori oltre 32767 resta Float32 (esatto fino a 16 milioni). Per i segnali Double o a 32/64 bit l'RBF ha solo il Float32: quel file resta approssimato e l'archivio Parquet originale resta esatto. Nei file FDA un intero con escursione entro 65.536 valori (ad esempio un UINT a 16 bit) è salvato a 16 bit esatti con guadagno 1 e offset 32768 (valore = grezzo × guadagno + offset). La pagina Registrazioni mostra lo storage reale dei file RBF e l'indicazione «senza perdita» ricavata dai metadati.

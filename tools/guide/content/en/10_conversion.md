@@ -31,6 +31,23 @@ The Conversion section (Tools menu → Conversion) transforms a recorded file in
 | Destination | «Conversioni» subfolder of the recordings folder. An existing name is not overwritten. |
 | Execution | In the background, one conversion at a time; the interface stays usable. |
 
+## Primary captures (.sac)
+
+During every recording the application also writes a **primary capture** with all original samples, in the `Recordings\.primary` folder (extensions `.sac`, `.sac.part`, `.incomplete.sac`, `.recovered.sac`). It is normally just a safety copy, because the Parquet, FDA or RBF file is already in `Recordings`. If that file is missing or incomplete (abnormal stop, disk error, a format that failed), the primary capture can be **exported** to a readable format from the same Conversion page: captures appear in the list with the «Primary capture» format.
+
+![conversion_sac](Primary capture selected in the Conversion page.)
+
+| N. | Element |
+|---|---|
+| 1 | **Primary capture** in the list: type (complete, incomplete, interrupted `.part`, recovered), size and start. The list reads only the header, so it appears immediately even for files of tens of GB. |
+| 2 | **Information**: format, size, number of signals and start. Duration and sample count are not shown because they would require reading the whole file. |
+| 3 | **Format note**: reminds that the capture holds every original sample. |
+| 4 | **Convert**: signals and interval are chosen as for the other sources. |
+
+The export writes every original sample of the chosen signals and interval. A capture that is **interrupted or damaged at the end** is not refused: all valid blocks are exported and the final message states the cause (for example «Capture not closed correctly» or «Capture closed with an error» with the number of samples that never reached the capture). With FDA DAS4 and RBF the non-periodic ADS notifications stay only in the capture and the maximum is 64 signals; CSV and Parquet export everything. The original file is not modified.
+
+From the command line, without starting the interface: `--tool export-sac <file.sac> csv|parquet|das|rbf [folder]`. Without a folder, files go to the `Conversioni` subfolder of the recordings; the result (samples, files, warnings) is printed as JSON.
+
 ## Automatically chosen data type
 
 For each signal the application works out by itself the narrowest type that remains exact, based on the acquired type and the recorded values: no setting is needed. In RBF files boolean signals remain Boolean channels (1 byte) and integers of 16 bits or less with values within Int16 become native Int16 channels (2 bytes instead of the 4 of Float32). A UINT with values above 32767 stays Float32 (exact up to 16 million). For Double or 32/64-bit signals RBF only has Float32: that file stays approximate and the original Parquet archive stays exact. In FDA files an integer with a range within 65,536 values (for example a 16-bit UINT) is stored with exact 16 bits with gain 1 and offset 32768 (value = raw × gain + offset). The Recordings page shows the real storage of RBF files and the «lossless» indication derived from the metadata.

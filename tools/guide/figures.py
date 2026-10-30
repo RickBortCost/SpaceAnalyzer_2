@@ -449,6 +449,19 @@ def fig_conversion(sh, stack):
 
 
 @figure
+def fig_conversion_sac(sh, stack):
+    sh.click('#nav-tools')
+    sh.click('#nav-conversion')
+    sh.wait(1500)
+    sac = '#conv-file-list .conversion-file[title$=".sac"]'
+    sh.page.locator(sac).first.click()
+    sh.wait(800)
+    sh.page.select_option('#conv-format', 'parquet')
+    sh.wait(500)
+    sh.shot('conversion_sac', [(1, sac), (2, '#conv-info'), (3, '#conv-format-note'), (4, '#conv-start')])
+
+
+@figure
 def fig_compare(sh, stack):
     sh.click('#nav-recordings')
     sh.click('#history-close-all')

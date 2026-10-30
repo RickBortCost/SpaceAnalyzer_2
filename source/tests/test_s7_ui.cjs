@@ -13,7 +13,7 @@ async function page(){
  w.HTMLCanvasElement.prototype.getBoundingClientRect=()=>({x:0,y:0,left:0,top:0,width:950,height:560,right:950,bottom:560});
  w.addEventListener('error',e=>errors.push(e.message));
  const scripts=[...w.document.querySelectorAll('script[src]')].map(s=>path.basename(new URL(s.src).pathname));
- w.eval(scripts.map(f=>fs.readFileSync(path.join(__dirname,'../static',f),'utf8')).join('\n')+'\nwindow.s7Test={setMax(v){maxSelected=v},switchSource,saveWorkspace,config,get selected(){return selected},get connected(){return connected},get charts(){return liveCharts},get record(){return recordState},stop(){polling=false;clearTimeout(pollTimer);clearTimeout(workspaceTimer);}};');
+ w.eval(scripts.map(f=>fs.readFileSync(path.join(__dirname,'../static',f),'utf8')).join('\n')+'\nwindow.s7Test={setMax(v){maxSelected=v},conv(){return CONV},switchSource,saveWorkspace,config,get selected(){return selected},get connected(){return connected},get charts(){return liveCharts},get record(){return recordState},stop(){polling=false;clearTimeout(pollTimer);clearTimeout(workspaceTimer);}};');
  await wait(()=>$('endpoint').value,'configuration loaded');await w.opcuaConfigReady;
  return {w,$,t:w.s7Test};
 }
@@ -48,8 +48,19 @@ async function page(){
   await wait(()=>t.record.active&&t.record.cycles_received>15,'S7 binary recording');
   $('record-stop').click();await wait(()=>t.record.state==='stopped','record finalized');assert.equal(t.record.error,'');
   $('disconnect').click();await wait(()=>!t.connected&&!$('data-source').disabled,'S7 disconnected');
+  // The primary capture written by the recording above is listed in Conversione and exported to CSV with every sample.
+  $('nav-conversion').click();
+  const sacItem=()=>[...$('conv-file-list').querySelectorAll('.conversion-file')].find(b=>/\.sac$/.test(b.title));
+  await wait(()=>!$('conversion-page').hidden&&sacItem(),'primary capture listed in Conversione');
+  sacItem().click();assert.equal(t.conv().file.source,'primary');assert.equal(t.conv().file.format,'sac');assert(t.conv().file.signals.length>=1);
+  assert($('conv-format-note').textContent.includes('Archivio primario'));
+  $('conv-format').value='csv';$('conv-format').dispatchEvent(new w.Event('change'));$('conv-start').click();
+  await wait(()=>t.conv().job&&t.conv().job.state!=='running','primary capture export finished');
+  assert.equal(t.conv().job.state,'ready',t.conv().job.error);assert(t.conv().job.rows_read>15);assert(t.conv().job.files[0].name.endsWith('.csv'));assert.equal(t.conv().job.warning,null);
+  const exported=await(await fetch(base+'/api/recordings')).json();assert(exported.files.some(f=>f.name===t.conv().job.files[0].name),'exported file listed in Registrazioni');
+  $('nav-live').click();
   // Symbolic tree: one click selects every variable of a structure/array branch (the CPU answer is simulated here).
-  w.eval("window.__request=request;request=async url=>String(url).startsWith('/api/s7/symbols/branch')?{nodes:[{nodeid:'s7:sym:DB_A.x',display_name:'x',node_class:'Variable'},{nodeid:'s7:sym:DB_A.s.y',display_name:'y',node_class:'Variable'}],total:2}:{};");
+  w.eval("window.__request=request;request=async(url,...rest)=>String(url).startsWith('/api/s7/symbols/branch')?{nodes:[{nodeid:'s7:sym:DB_A.x',display_name:'x',node_class:'Variable'},{nodeid:'s7:sym:DB_A.s.y',display_name:'y',node_class:'Variable'}],total:2}:String(url).startsWith('/api/select')?{}:window.__request(url,...rest);");
   const branchNode=id=>w.eval("treeNode({nodeid:'"+id+"',display_name:'DB_A',node_class:'Object',has_children:true},new Set())");
   assert(branchNode('s7:sym:/DB_A').querySelector('.branch-select'));
   assert(!branchNode('s7:sym:/').querySelector('.branch-select'),'no branch button on the symbol root');
@@ -66,6 +77,6 @@ async function page(){
   await t.saveWorkspace(true);t.stop();await new Promise(r=>setTimeout(r,600));
   const old=w;({w,$,t}=await page());old.close();assert.equal(t.config().source,'s7');assert.equal(t.config().s7_tcp_port,Number(port));assert.equal(w.s7Tags[0].display_name,'Carico A');assert.equal(t.charts.active.name,'Siemens trend');
   assert.deepEqual(errors,[]);
-  console.log(JSON.stringify({result:'PASS',checks:['S7 connection popup/presets','catalog add/edit/persistence','native S7 test connection','configured scan and live graph','PLC time tag as source timestamp and rejection of a non-integer tag','symbolic branch selection (one click, limits, S7-only)','Parquet Record/Stop','source profiles and workspace reload','no frontend exceptions']},null,2));
+  console.log(JSON.stringify({result:'PASS',checks:['S7 connection popup/presets','catalog add/edit/persistence','native S7 test connection','configured scan and live graph','PLC time tag as source timestamp and rejection of a non-integer tag','symbolic branch selection (one click, limits, S7-only)','primary capture (.sac) listed and exported to CSV','Parquet Record/Stop','source profiles and workspace reload','no frontend exceptions']},null,2));
  }finally{t.stop();await new Promise(r=>setTimeout(r,600));for(const d of pages)d.window.close();}
 })().then(()=>process.exit(0)).catch(e=>{console.error(e.stack);process.exit(1);});

@@ -24,10 +24,11 @@ Il launcher/EXE accetta comandi non interattivi per la gestione dell'archivio pr
 ```
 --tool inspect <file.sac>
 --tool recover <file.sac.part> [output]
+--tool export-sac <file.sac> csv|parquet|das|rbf [cartella]
 --tool export-fda|export-rbf <originale.parquet> <nodi.json> [max_bytes]
 ```
 
-`inspect` verifica un archivio primario; `recover` ricostruisce un file dopo un arresto anomalo; `export-fda` e `export-rbf` convertono un Parquet originale in FDA/DAS4 o RBF.
+`inspect` verifica un archivio primario; `recover` ricostruisce un file dopo un arresto anomalo; `export-sac` esporta un archivio primario in CSV, Parquet, FDA/DAS4 o RBF (capitolo 10); `export-fda` e `export-rbf` convertono un Parquet originale in FDA/DAS4 o RBF.
 
 ## Sicurezza e limiti noti
 

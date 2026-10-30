@@ -7,6 +7,8 @@ namespace SpaceAnalyzer.Engine.Recording;
 public interface IFormatRecorder
 {
     bool Busy { get; }
+    /// <summary>False while the write queue is full: a live recording drops and fails then, an offline export waits.</summary>
+    bool HasRoom { get; }
     string Error { get; }
     void Start(string format, IReadOnlyList<NodeSpec> nodes, string endpoint, int sampleMs, JsonElement options);
     bool Enqueue(double timestamp, IReadOnlyList<Sample> rows, int period);

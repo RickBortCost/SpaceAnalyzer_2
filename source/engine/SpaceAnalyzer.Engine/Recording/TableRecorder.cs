@@ -64,6 +64,7 @@ public sealed partial class TableRecorder : IFormatRecorder, IDisposable
     }
 
     public bool Busy { get { lock (gate) return state.GetValueOrDefault("state") is "recording" or "stopping"; } }
+    public bool HasRoom { get { lock (gate) return queue.Count < capacity; } }
     public string Error { get { lock (gate) return state.GetValueOrDefault("error") as string ?? ""; } }
     public string FinalPath => finalPath;
     public IReadOnlyList<Dictionary<string, object?>> PartFiles { get { lock (gate) return partFiles.ToList(); } }
