@@ -19,8 +19,8 @@ try{
  // A primary capture is never uploaded from the browser: both pages say where to open it, and the picker is server side (Windows only).
  await assert.rejects(()=>t.importConversionFiles([new File(['x'],'copia.sac')]),/archivi primari/);
  await assert.rejects(()=>t.importConversionFiles([new File(['x'],'copia.sac.part')]),/archivi primari/);
- assert($('conv-open-primary')&&!$('conv-open-primary').disabled);$('conv-open-primary').click();
- await wait(()=>!$('conv-error').hidden&&$('conv-error').textContent.includes('Windows'),'primary picker refused outside Windows');$('conv-error').hidden=true;checks.push('primary capture opened by path, never uploaded');
+ assert($('conv-open-primary')&&!$('conv-open-primary').disabled);if(process.platform!=='win32'){$('conv-open-primary').click();
+ await wait(()=>!$('conv-error').hidden&&$('conv-error').textContent.includes('Windows'),'primary picker refused outside Windows');$('conv-error').hidden=true;}checks.push('primary capture opened by path, never uploaded');
  // CSV -> Parquet: every sample, default target, destination folder.
  item('fixture_A.csv').click();assert(!$('conv-form').hidden);assert.equal($('conv-format').value,'parquet');assert.equal($('conv-signal-count').textContent,'2 / 2');
  assert($('conv-destination').textContent.includes('Conversioni'));

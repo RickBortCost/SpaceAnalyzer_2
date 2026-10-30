@@ -2,6 +2,10 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.15.2
+
+- **Test della pagina Conversione corretto per Windows**: il controllo del pulsante «Apri archivio primario…» che si aspettava il rifiuto «solo su Windows» viene eseguito solo fuori da Windows. Motivo: sul runner Windows della pipeline il pulsante apriva il vero selettore nativo e il test restava in attesa, fermando la pipeline della 3.15.1, che quindi non è stata pubblicata. Nessuna modifica al programma: questa versione contiene tutto quanto elencato per la 3.15.1.
+
 ## 3.15.1
 
 - **«Apri archivio primario…» nella pagina Conversione**: nuovo pulsante che apre la finestra di Windows per scegliere un archivio `.sac` (o `.sac.part`) in qualsiasi cartella o disco; il file non viene caricato dal browser ma letto dal servizio dal suo percorso, registrato (fino a 50 percorsi, in `Recordings\.primary\origini_esterne.json`) e mostrato nell'elenco con il badge SAC, quindi si esporta come gli altri. Solo i percorsi registrati o la cartella `.primary` sono esportabili. Motivo: scegliendo un `.sac` con «Apri file dal PC…» compariva «Seleziona CSV, Parquet, FDA DAS4, RBF, DAT PDA3 e relativi JSON» e non c'era modo di esportare un archivio copiato fuori da `.primary` (altro disco o altro PC); caricarlo dal browser non è praticabile per file da decine di GB.

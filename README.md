@@ -4,8 +4,9 @@
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.15.1
+## Novità della versione 3.15.2
 
+- Correzione del test della pagina Conversione che aveva fermato la pipeline della 3.15.1 (non pubblicata) sul runner Windows. Motivo: il pulsante apre il selettore nativo di Windows, che il test non deve attendere. Questa versione include le novità della 3.15.1 qui sotto.
 - **«Apri archivio primario…» nella pagina Conversione**: sceglie un archivio `.sac` in qualsiasi cartella o disco e lo esporta senza caricarlo dal browser. Motivo: «Apri file dal PC…» rifiutava i `.sac` con un messaggio che non diceva dove aprirli, e un archivio copiato fuori da `Recordings\.primary` non era esportabile.
 - «Apri file dal PC…» (Conversione e Registrazioni) indica ora dove aprire un archivio primario.
 - Dalla 3.15.0: esportazione degli archivi primari (.sac) in CSV, Parquet, FDA o RBF, anche con `--tool export-sac`; dalla 3.14.1: storico Live a finestra mobile; dalla 3.14.0: timestamp PLC e «Seleziona ramo» per S7.
