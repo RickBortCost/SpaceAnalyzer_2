@@ -73,11 +73,13 @@ function renderConversion(){
 }
 function renderConversionJob(){
   const job=CONV.job,box=convEl('conv-progress-box'),bar=convEl('conv-progress');box.hidden=!job;if(!job)return;
-  const rows=Number(job.rows_read||0),total=Number(job.rows_total||0);
-  if(job.state==='running'&&job.phase==='read'&&total>0)bar.value=Math.min(1,rows/total);else if(job.state==='running')bar.removeAttribute('value');else bar.value=job.state==='ready'?1:0;
-  const n=rows.toLocaleString(I18N.locale());
-  const text=job.state==='ready'?I18N.t('Conversione completata')+': '+n+' '+I18N.t('campioni'):job.state==='error'||job.state==='cancelled'?I18N.t(job.error||'Conversione non riuscita')
-    :job.phase==='write'?I18N.t('Scrittura del file')+' '+job.format_label+'… '+n+' '+I18N.t('campioni letti'):I18N.t('Lettura dei campioni…')+' '+n+(total?' / '+total.toLocaleString(I18N.locale())+' ('+Math.floor(rows/total*100)+'%)':'');
+  const rows=Number(job.rows_read||0),total=Number(job.rows_total||0),loc=I18N.locale();
+  const percent=job.state==='ready'?100:Number.isFinite(Number(job.percent))&&job.percent!==null?Math.min(100,Math.max(0,Number(job.percent))):null;
+  if(job.state==='running'&&percent!==null)bar.value=percent/100;else if(job.state==='running')bar.removeAttribute('value');else bar.value=job.state==='ready'?1:0;
+  const n=rows.toLocaleString(loc),pct=percent!==null&&job.state==='running'?Math.floor(percent)+'% · ':'';
+  const count=total?' '+n+' / '+(job.rows_total_estimated?'~':'')+total.toLocaleString(loc):' '+n;
+  const phase=job.phase==='write'?I18N.t('Scrittura del file')+' '+job.format_label+'…':job.phase==='stage'?I18N.t('Preparazione dei dati…'):I18N.t('Lettura dei campioni…')+count+' '+I18N.t('campioni letti');
+  const text=job.state==='ready'?I18N.t('Conversione completata')+': '+n+' '+I18N.t('campioni'):job.state==='error'||job.state==='cancelled'?I18N.t(job.error||'Conversione non riuscita'):pct+phase;
   convEl('conv-status').textContent=text+(job.state==='ready'&&job.warning?' — '+job.warning:'');convEl('conv-status').classList.toggle('error',job.state==='error');
   const result=convEl('conv-result'),list=convEl('conv-result-list');list.replaceChildren();result.hidden=job.state!=='ready';
   for(const file of job.files||[]){
@@ -119,8 +121,15 @@ async function importConversionFiles(list){
   if(files.some(f=>!['.csv','.parquet','.das','.rbf','.svdx','.dat','.json'].some(ext=>String(f.name||'').toLowerCase().endsWith(ext))))throw new Error(I18N.t("Seleziona CSV, Parquet, FDA DAS4, RBF, Scope .svdx, DAT PDA3 e relativi JSON."));
   const form=new FormData();for(const f of files)form.append('files',f,f.name);
   form.append('pda3_timezone_offset_minutes',document.getElementById('history-dat-offset')?.value||'120');form.append('join_pda3',String(!!document.getElementById('history-dat-join')?.checked));
-  convEl('conv-list-status').textContent=I18N.t('Importazione dei file…');
-  const data=await request('/api/recordings/import',form);
+  const bar=convEl('conv-import-progress'),status=convEl('conv-list-status');
+  const total=files.reduce((n,f)=>n+(f.size||0),0);bar.hidden=false;bar.removeAttribute('value');status.textContent=I18N.t('Caricamento del file…');
+  let data;
+  try{
+    data=await uploadForm('/api/recordings/import',form,(sent,all)=>{
+      if(sent>=all){bar.removeAttribute('value');status.textContent=I18N.t('Lettura del file caricato…');return;}
+      bar.value=sent/all;status.textContent=I18N.t('Caricamento del file…')+' '+uploadPercentText(sent,all);
+    },total);
+  }finally{bar.hidden=true;status.textContent='';}
   await refreshConversionFiles();
   const first=CONV.files.find(f=>f.source==='local'&&f.name===data.recording?.name);if(first)selectConversionFile(first);
   const messages=[...(data.warnings||[]),...(data.errors||[])];if(messages.length)notice(messages.join(' · '),true);

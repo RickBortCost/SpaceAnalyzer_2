@@ -77,6 +77,20 @@ async function request(url,body,method){
     throw e;
   }finally{if(timer!==null)clearTimeout(timer);}
 }
+/** POST of a form with upload progress (fetch cannot report it) for uploads of at least 4 MB: onProgress(sent, total) while uploading, then the JSON answer like request(). */
+function uploadForm(url,form,onProgress,bytes=0){
+  if(typeof XMLHttpRequest==='undefined'||bytes<4*1048576)return request(url,form);
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();xhr.open('POST',url);xhr.setRequestHeader('X-OPCUA-Token',token);xhr.responseType='text';
+    xhr.upload.onprogress=e=>{if(onProgress&&e.lengthComputable)onProgress(e.loaded,e.total);};
+    xhr.onerror=()=>reject(new Error(I18N.t("Risposta del servizio locale non valida")));
+    xhr.onabort=()=>reject(new Error(I18N.t("Risposta del servizio locale non valida")));
+    xhr.onload=()=>{let data;try{data=JSON.parse(xhr.responseText);}catch{reject(new Error(I18N.t("Risposta del servizio locale non valida")));return;}
+      if(xhr.status<200||xhr.status>=300)reject(new Error(I18N.message(data.error||xhr.statusText)));else resolve(data);};
+    xhr.send(form);
+  });
+}
+function uploadPercentText(sent,total){const mb=v=>(v/1048576).toLocaleString(I18N.locale(),{maximumFractionDigits:v>=104857600?0:1});return Math.floor(sent/total*100)+'% · '+mb(sent)+' / '+mb(total)+' MB';}
 function notice(text,error=false){clearTimeout(noticeTimer);I18N.bind($('msg'),"textContent",()=>(text),true);$('msg').className='message'+(error?' error':'');$('msg').hidden=false;const feedback=$('connection-feedback');if($('connection-dialog').open&&feedback){feedback.hidden=false;I18N.bind(feedback,"textContent",()=>(text),true);feedback.className='connection-feedback'+(error?' error':'');}noticeTimer=setTimeout(()=>$('msg').hidden=true,error?20000:7500);}
 function config(){return{ui_language:I18N.language,endpoint:$('endpoint').value.trim(),security:$('security').value,security_mode:$('security_mode').value,username:$('username').value,password:$('password').value,application_uri:$('application_uri').value.trim(),sample_ms:Number($('sample_ms').value),window_seconds:Number($('window_seconds').value),max_samples:Number($('max_samples').value),buffer_mode:$('buffer_mode').value,root_nodeid:$('root_nodeid').value.trim()||'i=85',scan_limit:Number($('scan_limit').value),auto_reconnect:$('auto_reconnect').checked,...(window.sourceConfig?.()||{})};}
 function securityChanged(){if($('security').value==='None')$('security_mode').value='None';else if($('security_mode').value==='None')$('security_mode').value='SignAndEncrypt';}

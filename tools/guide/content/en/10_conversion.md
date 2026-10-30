@@ -13,7 +13,7 @@ The Conversion section (Tools menu → Conversion) transforms a recorded file in
 | 5 | **Signals**: All or a selection (maximum 64 for FDA and RBF). |
 | 6 | **Filter signals…**. |
 | 7 | **Interval** (optional): From/To, with a button to restore the whole file. Without an interval everything is converted. |
-| 8 | **Convert**: starts the conversion. During the operation the samples read appear (with percentage when the total is known), the writing phase and the Cancel button, which stops reading and deletes partial files. |
+| 8 | **Convert**: starts the conversion. During the operation a bar shows the **overall percentage** (reading samples, preparing data and writing the file, with the expected total estimated — «~» — when few channels or a period were chosen) and the Cancel button, which stops reading and deletes partial files. With «Open file from PC…» the bar on the left also shows the upload (percentage and MB) and then the reading of the file. |
 
 ![conversion_done](Conversion completed: number of samples, file created and «Open in Recordings» button.)
 
