@@ -87,13 +87,62 @@ public sealed class Conversions(Func<string> directory)
     /// <summary>Folder of the primary captures: ".primary" next to the "Conversioni" folder of the recordings.</summary>
     string PrimaryDirectory() => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(directory()))!, ".primary");
 
+    /// <summary>Captures outside ".primary" chosen by the operator (copied from another PC or disk); only these paths can be exported besides the folder.</summary>
+    string ExternalListPath() => Path.Combine(PrimaryDirectory(), "origini_esterne.json");
+
+    List<string> ExternalPrimary()
+    {
+        try
+        {
+            if (!File.Exists(ExternalListPath())) return new();
+            return (JsonNode.Parse(File.ReadAllText(ExternalListPath())) as JsonArray)?.Select(n => n?.GetValue<string>() ?? "").Where(PathIsPrimary).ToList() ?? new();
+        }
+        catch (Exception exc) when (exc is IOException or JsonException or InvalidOperationException) { return new(); }
+    }
+
+    static bool PathIsPrimary(string path) => path.Length > 0 && Path.IsPathRooted(path) && PrimaryExport.IsPrimaryName(Path.GetFileName(path)) && File.Exists(path);
+
+    /// <summary>Registers a capture chosen by path (not uploaded: captures can be tens of GB) and returns its list entry.</summary>
+    public Dictionary<string, object?> AddPrimary(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) throw new UserError("Percorso dell'archivio primario mancante");
+        var full = Path.GetFullPath(path.Trim().Trim('"'));
+        if (!PrimaryExport.IsPrimaryName(Path.GetFileName(full))) throw new UserError("Selezionare un archivio primario (.sac o .sac.part)");
+        if (!File.Exists(full)) throw new UserError("Archivio primario non trovato: " + full);
+        var inside = string.Equals(Path.GetDirectoryName(full), PrimaryDirectory(), StringComparison.OrdinalIgnoreCase);
+        lock (gate)
+        {
+            if (!inside)
+            {
+                var list = ExternalPrimary();
+                if (!list.Contains(full, StringComparer.OrdinalIgnoreCase))
+                {
+                    list.Add(full);
+                    Directory.CreateDirectory(PrimaryDirectory());
+                    Py.AtomicPlain(ExternalListPath(), list.TakeLast(50).Cast<object?>().ToList());
+                }
+            }
+        }
+        var entry = PrimaryExport.Describe(full);
+        if (!inside) { entry["name"] = full; entry["external"] = true; }
+        return entry;
+    }
+
     /// <summary>The primary captures that can be exported, newest first (header information only).</summary>
     public List<object?> PrimaryFiles(int limit = 200)
     {
         var folder = PrimaryDirectory();
-        if (!Directory.Exists(folder)) return new();
-        return new DirectoryInfo(folder).EnumerateFiles("*.sac*").Where(f => PrimaryExport.IsPrimaryName(f.Name)).OrderByDescending(f => f.LastWriteTimeUtc)
-            .Take(limit).Select(f => (object?)PrimaryExport.Describe(f.FullName)).ToList();
+        var result = new List<object?>();
+        if (Directory.Exists(folder))
+            result.AddRange(new DirectoryInfo(folder).EnumerateFiles("*.sac*").Where(f => PrimaryExport.IsPrimaryName(f.Name)).OrderByDescending(f => f.LastWriteTimeUtc)
+                .Take(limit).Select(f => (object?)PrimaryExport.Describe(f.FullName)));
+        foreach (var external in ExternalPrimary())
+        {
+            var entry = PrimaryExport.Describe(external);
+            entry["name"] = external; entry["external"] = true;
+            result.Add(entry);
+        }
+        return result;
     }
 
     sealed record PrimaryJob(string Ident, string Path, string Name, string Format, List<string>? Signals, double? Start, double? End);
@@ -101,9 +150,12 @@ public sealed class Conversions(Func<string> directory)
     Dictionary<string, object?> StartPrimary(JsonNode? data)
     {
         var name = data.Get("name").Str();
-        if (!PrimaryExport.IsPrimaryName(name)) throw new UserError("Selezionare un archivio primario (.sac)");
-        var path = Path.Combine(PrimaryDirectory(), name!);
+        string path;
+        if (PrimaryExport.IsPrimaryName(name)) path = Path.Combine(PrimaryDirectory(), name!);
+        else if (name != null && ExternalPrimary().Contains(name, StringComparer.OrdinalIgnoreCase)) path = name;
+        else throw new UserError("Selezionare un archivio primario (.sac)");
         if (!File.Exists(path)) throw new UserError("Archivio primario non trovato");
+        name = Path.GetFileName(path);
         var format = data.Get("format").Str() ?? "";
         if (!Targets.ContainsKey(format)) throw new UserError("Formato di destinazione non valido: scegliere CSV, Parquet, FDA DAS4 o RBF");
         var described = PrimaryExport.Describe(path);

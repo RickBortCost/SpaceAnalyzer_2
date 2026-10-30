@@ -17,7 +17,7 @@ public class PrimaryExportTests
     static NodeSpec Node(string id, string unit) => NodeSpec.FromJson(JsonDocument.Parse($"{{\"nodeid\":\"{id}\",\"display_name\":\"{id[4..]}\",\"unit\":\"{unit}\"}}").RootElement.Clone());
 
     /// <summary>A real primary capture written by the application's PrimaryRecorder.</summary>
-    static string Capture(string root, int cycles = Cycles, string? fail = null)
+    internal static string Capture(string root, int cycles = Cycles, string? fail = null)
     {
         var recorder = new PrimaryRecorder(Path.Combine(root, ".primary"));
         var nodes = new[] { Node(Ids[0], "bar"), Node(Ids[1], "kN"), Node(Ids[2], "") };
@@ -180,4 +180,61 @@ public class PrimaryExportTests
     [InlineData("a.parquet", false)]
     [InlineData("", false)]
     public void Only_capture_file_names_are_accepted(string name, bool expected) => Assert.Equal(expected, PrimaryExport.IsPrimaryName(name));
+}
+
+public class PrimaryExternalTests
+{
+    static string CopyOutside(TempDir dir, string name = "copiato.sac")
+    {
+        var capture = PrimaryExportTests.Capture(Path.Combine(dir.Path, "Recordings"), 50);
+        var elsewhere = Path.Combine(dir.Path, "altro_pc");
+        Directory.CreateDirectory(elsewhere);
+        var target = Path.Combine(elsewhere, name);
+        File.Copy(capture, target);
+        return target;
+    }
+
+    static Conversions Service(TempDir dir) => new(() => Path.Combine(dir.Path, "Recordings", Conversions.Folder));
+
+    static Dictionary<string, object?> Wait(Conversions service, string id)
+    {
+        for (var i = 0; i < 300; i++)
+        {
+            var job = service.Status(id);
+            if ((string?)job["state"] != "running") return job;
+            Thread.Sleep(50);
+        }
+        throw new TimeoutException();
+    }
+
+    [Fact]
+    public void A_capture_copied_from_another_disk_is_registered_listed_and_exported()
+    {
+        using var dir = new TempDir();
+        var outside = CopyOutside(dir);
+        var service = Service(dir);
+        var entry = service.AddPrimary(outside);
+        Assert.Equal(outside, entry["name"]);
+        Assert.Equal(true, entry["external"]);
+        Assert.Contains(service.PrimaryFiles().OfType<Dictionary<string, object?>>(), f => (string)f["name"]! == outside);
+        // The registration survives a restart of the service.
+        Assert.Contains(Service(dir).PrimaryFiles().OfType<Dictionary<string, object?>>(), f => (string)f["name"]! == outside);
+        var job = service.Start(System.Text.Json.Nodes.JsonNode.Parse($"{{\"source\":\"primary\",\"name\":{System.Text.Json.JsonSerializer.Serialize(outside)},\"format\":\"csv\"}}"), _ => throw new InvalidOperationException());
+        var done = Wait(service, (string)job["id"]!);
+        Assert.Equal("ready", done["state"]);
+        Assert.Equal(150L, done["rows_read"]);
+    }
+
+    [Fact]
+    public void Only_registered_captures_can_be_exported_by_path()
+    {
+        using var dir = new TempDir();
+        var outside = CopyOutside(dir);
+        var service = Service(dir);
+        var error = Assert.Throws<UserError>(() => service.Start(System.Text.Json.Nodes.JsonNode.Parse($"{{\"source\":\"primary\",\"name\":{System.Text.Json.JsonSerializer.Serialize(outside)},\"format\":\"csv\"}}"), _ => throw new InvalidOperationException()));
+        Assert.Contains("archivio primario", error.Message);
+        Assert.Throws<UserError>(() => service.AddPrimary(Path.Combine(dir.Path, "dati.csv")));
+        Assert.Throws<UserError>(() => service.AddPrimary(Path.Combine(dir.Path, "assente.sac")));
+        Assert.Throws<UserError>(() => service.AddPrimary(""));
+    }
 }
