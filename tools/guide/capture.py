@@ -84,6 +84,8 @@ class Stack:
         from datetime import datetime, timedelta, timezone
         for name in ('Confronto_1ms.csv', 'Confronto_1ms.metadata.json', 'Confronto_10ms.parquet', 'Confronto_10ms.metadata.json'):
             shutil.copy(ROOT / 'examples/Esempi_Confronto' / name, self.recordings / name)
+        from scope_demo import write_scope_project
+        write_scope_project(self.recordings / 'Scope_Accelerometri.svdx')
         start = datetime(2026, 10, 21, 9, 30, 0, tzinfo=timezone.utc)
         rows, rnd = 10000, random.Random(7)
         header = ['timestamp_utc', 'timestamp_ms', 'elapsed_ms', 'cycle', 'node_id', 'signal_name', 'value_numeric', 'value_text', 'data_type', 'status', 'good',

@@ -462,6 +462,19 @@ def fig_conversion_sac(sh, stack):
 
 
 @figure
+def fig_conversion_svdx(sh, stack):
+    sh.click('#nav-tools')
+    sh.click('#nav-conversion')
+    sh.wait(1500)
+    sh.page.locator('#conv-file-list button', has_text='Scope_Accelerometri').first.click()
+    sh.wait(800)
+    sh.page.select_option('#conv-format', 'parquet')
+    sh.page.locator('#conv-signal-list input[type=checkbox]').nth(2).uncheck()
+    sh.wait(500)
+    sh.shot('conversion_svdx', [(1, '#conv-file-list'), (2, '#conv-signal-list'), (3, '#conv-interval'), (4, '#conv-start')])
+
+
+@figure
 def fig_compare(sh, stack):
     sh.click('#nav-recordings')
     sh.click('#history-close-all')

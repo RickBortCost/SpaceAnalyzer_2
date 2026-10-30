@@ -174,7 +174,7 @@ async function refreshHistoryFiles(){const result=await request('/api/recordings
 async function importHistoryLocalFile(file){
   const files=Array.isArray(file)?file:file?[file]:[];if(!files.length)return;
   if(files.some(f=>/\.sac(\.part)?$/i.test(String(f.name||''))))throw new Error(I18N.t("Gli archivi primari (.sac) non si caricano dal browser: usa Strumenti → Conversione e «Apri archivio primario…»."));
-  if(files.some(f=>!['.csv','.parquet','.das','.rbf','.dat','.json'].some(ext=>String(f.name||'').toLowerCase().endsWith(ext))))throw new Error(I18N.t("Seleziona CSV, Parquet, FDA DAS4, RBF, DAT PDA3 e relativi JSON."));
+  if(files.some(f=>!['.csv','.parquet','.das','.rbf','.svdx','.dat','.json'].some(ext=>String(f.name||'').toLowerCase().endsWith(ext))))throw new Error(I18N.t("Seleziona CSV, Parquet, FDA DAS4, RBF, Scope .svdx, DAT PDA3 e relativi JSON."));
   const graph=historyCharts.active,ctx=historyContext(graph),revision=++graph.loadRevision;ctx.status=I18N.join([{text:I18N.t("Importazione di ")},{value:(files.length)},{text:" file…"}]);ctx.loading=true;ctx.error=false;renderHistoryControls();H('history-open-local').disabled=true;
   try{
     const form=new FormData();for(const f of files)form.append('files',f,f.name);

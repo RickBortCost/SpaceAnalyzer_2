@@ -7,7 +7,7 @@ Since version 3.0 the product no longer contains Python. The Windows EXE consist
 | Section | Purpose |
 |---|---|
 | **LIVE** | Real-time trends, signal selection, X1/X2 markers, formulas on the interval, FFT, Record. |
-| **Registrazioni** (Recordings) | Opening and analysis of recorded files (CSV, Parquet, FDA/DAS4, RBF, DAT), comparison of several files. |
+| **Registrazioni** (Recordings) | Opening and analysis of recorded files (CSV, Parquet, FDA/DAS4, RBF, Scope .svdx, DAT), comparison of several files. |
 | **Database ▾** | Menu with **InfluxDB** (InfluxDB 2.x server) and **PostgreSQL**: charts, table view, saved SQL queries and data export. |
 | **Strumenti ▾** (Tools) | Menu with **Conversione** (conversion from one file format to another), **Dati calcolati** (formulas shared between Live and recordings) and **Debug SSH** (console to a remote target, independent of acquisition). |
 | **Connessione** (Connection) | Live data source, connection parameters, read interval and buffer. |
@@ -31,8 +31,9 @@ The interface labels in the screenshots are in Italian; the language can be chan
 | **3.11.0** | **Database** menu with InfluxDB and **PostgreSQL**. |
 | **3.12.x** | PostgreSQL: **table view**, read-only **SQL queries** and **saved queries**. A signal's name applies to all charts on the page. |
 | **3.13.0** | This illustrated guide is included in the package of every version. |
-| **3.15.0** | **Export of primary captures (.sac)** to CSV, Parquet, FDA or RBF from the Conversion page and with `--tool export-sac`. |
 | **3.14.0** | S7: **PLC timestamp** and cycle coherence check (classic and symbolic); **Select branch** in the S7 symbol tree. |
+| **3.15.0** | **Export of primary captures (.sac)** to CSV, Parquet, FDA or RBF from the Conversion page and with `--tool export-sac`. |
+| **3.16.0** | Conversion and opening of **TwinCAT Scope (.svdx)** projects with embedded data: choice of channels and period to reduce the file; writing to CSV, Parquet, FDA or RBF. |
 
 ## Starting on Windows
 

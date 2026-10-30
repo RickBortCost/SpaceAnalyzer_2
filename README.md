@@ -1,16 +1,17 @@
 # Space Fieldbus Analyzer 3
 
-**Versione 3.11.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
+**Versione 3.16.0.** Applicazione interamente in C# (.NET 8): acquisizione OPC UA, ADS, MQTT e S7, registrazione CSV, Parquet, FDA (.das) e RBF, visualizzazione e conversione delle registrazioni (inclusi i `.dat`), calcoli, FFT e interfaccia web locale nello stesso servizio. Nessun runtime Python nel prodotto. Dettagli in [VERSIONE_3.0.md](VERSIONE_3.0.md) e [CHANGELOG.md](CHANGELOG.md); avvio su Windows in [LEGGIMI_AVVIO_WINDOWS.md](LEGGIMI_AVVIO_WINDOWS.md). Ogni push su `main` che tocca il software viene compilato e verificato su Windows dalla pipeline GitHub Actions, che assegna in automatico il numero di versione e pubblica la release: vedi [VERSIONI.md](VERSIONI.md).
 
 **Download:** [ultima release](https://github.com/RickBortCost/SpaceAnalyzer_Free/releases/latest).
 
-## Novità della versione 3.15.2
+## Novità della versione 3.16.0
 
-- Correzione del test della pagina Conversione che aveva fermato la pipeline della 3.15.1 (non pubblicata) sul runner Windows. Motivo: il pulsante apre il selettore nativo di Windows, che il test non deve attendere. Questa versione include le novità della 3.15.1 qui sotto.
+- **Conversione dei progetti TwinCAT Scope (.svdx)** con i dati inclusi, in CSV, Parquet, FDA DAS4 o RBF, con scelta dei canali e del periodo per ridurre la dimensione del file. Motivo: richiesta di usare i registri di Scope con gli altri formati; il formato non è documentato da Beckhoff, quindi il lettore controlla la struttura e rifiuta i file diversi.
+- Verificato su canali REAL32; gli altri tipi numerici e l'applicazione di scala e offset del progetto non sono provati con file reali.
+- Dalla 3.15.2/3.15.1: correzione del test della pagina Conversione sul runner Windows e «Apri archivio primario…» per esportare `.sac` da qualsiasi percorso (la 3.15.1 non era stata pubblicata); dalla 3.15.0: esportazione degli archivi primari (.sac).
+- Dalla 3.14.1: storico Live a finestra mobile; dalla 3.14.0: timestamp PLC e «Seleziona ramo» per S7; dalla 3.13.0: guida illustrata bilingue nello ZIP e nella release.
 - **«Apri archivio primario…» nella pagina Conversione**: sceglie un archivio `.sac` in qualsiasi cartella o disco e lo esporta senza caricarlo dal browser. Motivo: «Apri file dal PC…» rifiutava i `.sac` con un messaggio che non diceva dove aprirli, e un archivio copiato fuori da `Recordings\.primary` non era esportabile.
 - «Apri file dal PC…» (Conversione e Registrazioni) indica ora dove aprire un archivio primario.
-- Dalla 3.15.0: esportazione degli archivi primari (.sac) in CSV, Parquet, FDA o RBF, anche con `--tool export-sac`; dalla 3.14.1: storico Live a finestra mobile; dalla 3.14.0: timestamp PLC e «Seleziona ramo» per S7.
-- Dalla 3.13.0: guida illustrata bilingue nello ZIP e nella release.
 
 **Regola di pubblicazione:** ogni versione ha la sua sezione `## X.Y.Z` in `CHANGELOG.md` con tutte le modifiche e il motivo di ciascuna, e questa sezione "Novità" viene aggiornata a ogni rilascio con le ultime modifiche e il perché; il test `test_release_notes.py` blocca la pipeline se la sezione della versione corrente manca.
 

@@ -7,7 +7,7 @@
 | 1 | **Change…**: sets the recordings folder; «Refresh» rereads the list. |
 | 2 | **Open file from PC…**: imports files from any location (multiple selection, also of different formats). |
 | 3 | **Search** by name, machine or session. |
-| 4 | **Format**: CSV, Parquet, FDA DAS4, DAT/PDA3, comparisons; minimum and maximum duration filters in seconds are also available. |
+| 4 | **Format**: CSV, Parquet, FDA DAS4, RBF, Scope (.svdx), DAT/PDA3, comparisons; minimum and maximum duration filters in seconds are also available. |
 | 5 | **File list**: selecting a file shows its signals. |
 | 6 | **Open in chart** (or «Whole file»): the signals appear in the chosen chart. |
 | 7 | **Target chart**. |

@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import shutil
 import socket
+import struct
 import subprocess
 import sys
 import tempfile
@@ -91,6 +92,40 @@ def multichart_fixtures(recordings):
         write_rows(path, rows)
         path.with_suffix('.metadata.json').write_text(json.dumps({'signals': definitions, 'started_at': iso(start), 'ended_at': iso(start + 59990),
                                                                   'rows_written': len(rows), 'duration_seconds': 59.99}))
+
+
+def scope_fixture(recordings, samples=1000, per_chunk=16):
+    """TwinCAT Scope project (.svdx) with two REAL32 channels at 1 ms: 'Posizione' (ramp) and 'Velocita' (negative ramp)."""
+    start = 134238281553100000
+    period = 10000
+    chunks = (samples + per_chunk - 1) // per_chunk
+    levels = 2
+    data_offset = 83 + 56 * levels + 128
+
+    def block(value):
+        head = b'01.00.00.40' + struct.pack('<QQQQ', start, 1234, start, start + samples * period) + struct.pack('<QQQ', levels, per_chunk, period)
+        for k in range(levels):
+            level = levels - 1 - k
+            head += struct.pack('<QQII', chunks if level == 0 else 1, chunks if level == 0 else 1, level, data_offset if level == 0 else 83 + 56 * levels) + bytes(32)
+        head += bytes(data_offset - len(head))
+        for c in range(chunks):
+            n = min(per_chunk, samples - c * per_chunk)
+            head += struct.pack('<QI', start + c * per_chunk * period, n)
+            for i in range(n):
+                head += struct.pack('<If', i * period, value(c * per_chunk + i))
+        return head + bytes(64)
+
+    blocks = [block(lambda i: i * 0.5), block(lambda i: -float(i))]
+    acquisitions = ''.join(
+        f'<AdsAcquisition><DataType>REAL32</DataType><FileHandle>{h}</FileHandle><Guid>g{h}</Guid><Name>{n}</Name><BaseSampleTime>{period}</BaseSampleTime>'
+        f'<SymbolName>Main.{n}</SymbolName></AdsAcquisition>' for h, n in ((1, 'Posizione'), (2, 'Velocita')))
+    xml = ('\ufeff<?xml version="1.0" encoding="utf-8"?><ScopeProject><Title>Prova</Title><SubMember>' + acquisitions + '</SubMember></ScopeProject>').encode('utf-8')
+    offset = 20 + 20 * len(blocks)
+    table, body = b'', b''
+    for handle, content in enumerate(blocks, 1):
+        table += struct.pack('<QQI', offset + len(body), len(content), handle)
+        body += content
+    (recordings / 'fixture_C.svdx').write_bytes(struct.pack('<QQI', offset + len(body), len(xml), len(blocks)) + table + body + xml)
 
 
 def fft_fixture(recordings, nodeid, fmt):
@@ -261,6 +296,7 @@ def main():
     power = loop.run(add_signal())
     if os.environ.get('MULTICHART_TEST') or 'fixture_A' in (HERE / SCRIPT).read_text(encoding='utf-8'):
         multichart_fixtures(recordings)
+        scope_fixture(recordings)
     if SCRIPT == 'test_rbf_ui.cjs':
         references = Path(os.environ.get('SPACE_ANALYZER_REFERENCE_DIR', Path(__file__).resolve().parents[4] / 'upload'))
         for original, target in [('TEST_RBF.rbf', 'TEST_RBF.rbf'), ('TEST DAS 2.DAS', 'TEST_DAS_2.das')]:

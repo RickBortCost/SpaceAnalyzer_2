@@ -7,7 +7,7 @@ Dalla versione 3.0 il prodotto non contiene più Python. L'EXE Windows è compos
 | Sezione | A cosa serve |
 |---|---|
 | **LIVE** | Trend in tempo reale, selezione dei segnali, marker X1/X2, formule sull'intervallo, FFT, Record. |
-| **Registrazioni** | Apertura e analisi dei file registrati (CSV, Parquet, FDA/DAS4, RBF, DAT), confronto di più file. |
+| **Registrazioni** | Apertura e analisi dei file registrati (CSV, Parquet, FDA/DAS4, RBF, Scope .svdx, DAT), confronto di più file. |
 | **Database ▾** | Menu con **InfluxDB** (server InfluxDB 2.x) e **PostgreSQL**: grafici, vista tabellare, query SQL salvate ed esportazione dei dati. |
 | **Strumenti ▾** | Menu con **Conversione** (da un formato di file all'altro), **Dati calcolati** (formule condivise tra Live e registrazioni) e **Debug SSH** (console verso un target remoto, indipendente dall'acquisizione). |
 | **Connessione** | Fonte dati live, parametri di connessione, intervallo di lettura e buffer. |
@@ -29,8 +29,9 @@ Dalla versione 3.0 il prodotto non contiene più Python. L'EXE Windows è compos
 | **3.11.0** | Menu **Database** con InfluxDB e **PostgreSQL**. |
 | **3.12.x** | PostgreSQL: **vista tabellare**, **query SQL** di sola lettura e **query salvate**. Il nome di un segnale vale per tutti i grafici della pagina. |
 | **3.13.0** | Questa guida illustrata è inclusa nel pacchetto di ogni versione. |
-| **3.15.0** | **Esportazione degli archivi primari (.sac)** in CSV, Parquet, FDA o RBF dalla pagina Conversione e con `--tool export-sac`. |
 | **3.14.0** | S7: **timestamp PLC** e controllo della coerenza di ciclo (classico e simbolico); **Seleziona ramo** nell'albero dei simboli S7. |
+| **3.15.0** | **Esportazione degli archivi primari (.sac)** in CSV, Parquet, FDA o RBF dalla pagina Conversione e con `--tool export-sac`. |
+| **3.16.0** | Conversione e apertura dei progetti **TwinCAT Scope (.svdx)** con i dati inclusi: scelta dei canali e del periodo per ridurre il file; scrittura in CSV, Parquet, FDA o RBF. |
 
 ## Avvio su Windows
 
