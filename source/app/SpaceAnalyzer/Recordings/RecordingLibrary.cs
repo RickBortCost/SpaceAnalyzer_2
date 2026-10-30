@@ -13,7 +13,7 @@ public sealed partial class RecordingLibrary
 {
     public static readonly Dictionary<string, string> Supported = new(StringComparer.OrdinalIgnoreCase)
     {
-        [".csv"] = "csv", [".parquet"] = "parquet", [".das"] = "das", [".rbf"] = "rbf", [".dat"] = "dat", [".pda3seq"] = "dat",
+        [".csv"] = "csv", [".parquet"] = "parquet", [".das"] = "das", [".rbf"] = "rbf", [".svdx"] = "svdx", [".dat"] = "dat", [".pda3seq"] = "dat",
     };
     public const int MaxSignals = 64;
     public const int MaxPointsPerSignal = 100_000;
@@ -40,7 +40,7 @@ public sealed partial class RecordingLibrary
         var path = Path.GetFullPath(Path.Combine(Directory, name));
         var root = Directory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (!path.StartsWith(root, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal) || !Supported.ContainsKey(Ext(path)))
-            throw new UserError("Sono ammessi file CSV, Parquet, FDA DAS4, RBF v3 o iba DAT nella cartella Recordings");
+            throw new UserError("Sono ammessi file CSV, Parquet, FDA DAS4, RBF v3, TwinCAT Scope .svdx o iba DAT nella cartella Recordings");
         if (!File.Exists(path)) throw new UserError("Registrazione non trovata");
         return path;
     }
@@ -146,6 +146,19 @@ public sealed partial class RecordingLibrary
                 meta["ended_at"] = Values.IsoFromMs(h.EndMs!.Value);
                 meta["duration_seconds"] = (h.EndMs - h.StartMs) / 1000;
             }
+        }
+        if (ext == ".svdx")
+        {
+            var h = SvdxReader.Inspect(path);
+            meta = (JsonObject)meta.DeepClone();
+            meta["signals"] = new JsonArray(SvdxReader.Signals(h).Select(c => (JsonNode)new JsonObject { ["nodeid"] = c.NodeId, ["display_name"] = c.Name, ["unit"] = c.Unit, ["data_type"] = c.DataType }).ToArray());
+            meta["rows_written"] = h.Samples;
+            meta["initial_sample_ms"] = h.SampleMs;
+            meta["storage"] ??= new JsonObject { ["format"] = "svdx", ["label"] = "TwinCAT Scope (.svdx)", ["lossless"] = true };
+            meta["start_ms"] = h.StartMs; meta["end_ms"] = h.EndMs;
+            meta["started_at"] = Values.IsoFromMs(h.StartMs!.Value);
+            meta["ended_at"] = Values.IsoFromMs(h.EndMs!.Value);
+            meta["duration_seconds"] = (h.EndMs - h.StartMs) / 1000;
         }
         var storage = meta["storage"] as JsonObject ?? new JsonObject();
         if (ext is ".csv" or ".parquet" && (!meta["signals"].Truthy() || !meta["started_at"].Truthy() || meta["duration_seconds"].IsNull()))
@@ -314,6 +327,7 @@ public sealed partial class RecordingLibrary
             case ".dat": return Pda3.IsPda3(path) ? Pda3.IterRows(path, Metadata(path), signalIds, startMs, endMs) : IterDatOriginal(path);
             case ".das": return FdaReader.IterRows(path, Metadata(path), signalIds, startMs, endMs);
             case ".rbf": return RbfReader.IterRows(path, Metadata(path), signalIds, startMs, endMs);
+            case ".svdx": return SvdxReader.IterRows(path, Metadata(path), signalIds, startMs, endMs);
             case ".csv": return CsvRows.Read(path);
             default: return ParquetRows.Read(path, null, signalIds, startMs, endMs);
         }

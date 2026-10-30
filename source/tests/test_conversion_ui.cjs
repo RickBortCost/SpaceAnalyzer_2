@@ -38,6 +38,18 @@ try{
  // Parquet -> RBF, all signals, full range restored.
  $('conv-full-range').click();$('conv-all').checked=true;$('conv-all').dispatchEvent(new w.Event('change'));$('conv-format').value='rbf';$('conv-format').dispatchEvent(new w.Event('change'));
  job=await convert('Parquet to RBF');assert.equal(job.rows_read,12000);assert(job.files.every(f=>f.name.endsWith('.rbf')));checks.push('Parquet to RBF');
+ // TwinCAT Scope project (.svdx): listed with its channels, converted to CSV with every sample of both channels.
+ await wait(()=>item('fixture_C.svdx'),'scope project listed');item('fixture_C.svdx').click();assert.equal($('conv-signal-count').textContent,'2 / 2');
+ $('conv-format').value='csv';$('conv-format').dispatchEvent(new w.Event('change'));
+ job=await convert('Scope svdx to CSV');assert.equal(job.rows_read,2000);assert(job.files[0].name.endsWith('.csv'));
+ listed=(await recordings()).find(f=>f.name===job.files[0].name);assert.deepEqual(listed.signals.map(s=>s.display_name),['Posizione','Velocita']);checks.push('Scope .svdx to CSV');
+ // Same project, one channel and the first 100 ms only: the file shrinks accordingly.
+ {const scopeStart=(134238281553100000-116444736000000000)/10000;const bigger=listed.size_bytes;assert(bigger>0);
+  const checks2=[...$('conv-signal-list').querySelectorAll('input[type=checkbox]')];assert.equal(checks2.length,2);checks2[1].checked=false;checks2[1].dispatchEvent(new w.Event('change'));
+  $('conv-from').value=w.localInputFromMs(scopeStart);$('conv-to').value=w.localInputFromMs(scopeStart+99);
+  job=await convert('Scope svdx one channel, first 100 ms');assert.equal(job.rows_read,100);assert.equal(job.signal_count,1);
+  listed=(await recordings()).find(f=>f.name===job.files[0].name);assert.deepEqual(listed.signals.map(s=>s.display_name),['Posizione']);assert(listed.size_bytes<bigger/10);
+  $('conv-full-range').click();$('conv-all').checked=true;$('conv-all').dispatchEvent(new w.Event('change'));checks.push('Scope .svdx: channel and period selection');}
  // A file from the PC: imported, selected, converted to CSV.
  const lines=['timestamp_utc,timestamp_ms,cycle,node_id,signal_name,value_numeric,value_text,data_type,status,good,sample_ms,quality'];
  for(let i=0;i<50;i++)for(const id of ['pc:A','pc:B','pc:C'])lines.push([new Date(start+i*20).toISOString(),start+i*20,i,id,id,i,i,'Double','Good','True',20,'Good'].join(','));

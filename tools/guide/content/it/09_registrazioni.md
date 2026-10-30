@@ -7,7 +7,7 @@
 | 1 | **Cambia…**: imposta la cartella delle registrazioni; «Aggiorna» rilegge l'elenco. |
 | 2 | **Apri file dal PC…**: importa file da qualsiasi posizione (selezione multipla anche di formati diversi). |
 | 3 | **Cerca** per nome, macchina o sessione. |
-| 4 | **Formato**: CSV, Parquet, FDA DAS4, DAT/PDA3, confronti; sono disponibili anche i filtri di durata minima e massima in secondi. |
+| 4 | **Formato**: CSV, Parquet, FDA DAS4, RBF, Scope (.svdx), DAT/PDA3, confronti; sono disponibili anche i filtri di durata minima e massima in secondi. |
 | 5 | **Elenco dei file**: selezionando un file compaiono i suoi segnali. |
 | 6 | **Apri nel grafico** (oppure «Intero file»): i segnali compaiono nel grafico scelto. |
 | 7 | **Grafico di destinazione**. |

@@ -24,7 +24,7 @@ La sezione Conversione (menu Strumenti → Conversione) trasforma un file regist
 
 | Voce | Dettagli |
 |---|---|
-| Sorgenti | CSV, Parquet, FDA DAS4 (.das), RBF v3 e DAT (iba PDA3). |
+| Sorgenti | CSV, Parquet, FDA DAS4 (.das), RBF v3, progetti TwinCAT Scope (.svdx), DAT (iba PDA3) e archivi primari (.sac). |
 | Destinazioni | CSV, Apache Parquet, FDA DAS4 e RBF v3. |
 | Campioni | Ogni campione della selezione viene scritto con valore, qualità e timestamp, senza riduzione. Gli istanti in cui un canale FDA/RBF non ha valore («mancante») non sono campioni e non vengono riportati. Nomi, unità, periodo e dati della sessione passano nei metadati del nuovo file. |
 | Limiti dei formati | CSV e Parquet sono senza perdita. FDA DAS4 salva valori Int16 scalati (l'errore di arrotondamento è nei metadati) e tempi al millisecondo. FDA e RBF accettano al massimo 64 segnali. Un file RBF contiene al massimo 57.600 istanti: le registrazioni più lunghe sono divise in più parti. Ogni file FDA viene chiuso prima di superare circa 255 MB di RAM nel programma FDA e la conversione prosegue in `_FDA0002`, `_FDA0003`…, senza perdere campioni. |
@@ -47,6 +47,21 @@ Durante ogni registrazione l'applicazione scrive anche un **archivio primario** 
 L'esportazione scrive tutti i campioni originali dei segnali e dell'intervallo scelti. Un archivio **interrotto o danneggiato in coda** non viene rifiutato: si esportano tutti i blocchi validi e il messaggio finale indica la causa (ad esempio «Archivio non chiuso correttamente» oppure «Archivio chiuso con errore» con il numero di campioni non arrivati all'archivio). Con FDA DAS4 e RBF le notifiche ADS non periodiche restano solo nell'archivio e il massimo è di 64 segnali; con CSV e Parquet si esporta tutto. Il file originale non viene modificato.
 
 Da riga di comando, senza avviare l'interfaccia: `--tool export-sac <file.sac> csv|parquet|das|rbf [cartella]`. Senza cartella i file vanno nella sottocartella `Conversioni` delle registrazioni; il risultato (campioni, file, avvisi) è stampato in JSON.
+
+## Progetti TwinCAT Scope (.svdx)
+
+I progetti di **Beckhoff TwinCAT Scope** salvati con i dati inclusi («Include data in SVDX») si aprono come le altre registrazioni e si convertono in CSV, Parquet, FDA DAS4 o RBF. Beckhoff non pubblica la specifica del formato: il lettore è stato ricavato da un file di riferimento (94 canali REAL32 a 1 ms) e controlla la struttura a ogni lettura; un file che non la rispetta viene rifiutato con un messaggio invece di produrre dati errati.
+
+![conversion_svdx](Progetto Scope (.svdx) con due canali su tre selezionati.)
+
+| N. | Elemento |
+|---|---|
+| 1 | **Progetto Scope** nell'elenco (formato «TwinCAT Scope (.svdx)»). Un file di un altro PC si aggiunge con «Apri file dal PC…». |
+| 2 | **Canali**: ogni canale del progetto è un segnale, con il nome dato in Scope e l'unità se presente. Si convertono solo quelli selezionati. |
+| 3 | **Intervallo**: da/a della registrazione. Con canali e periodo ridotti il file prodotto è proporzionalmente più piccolo. |
+| 4 | **Converti**. |
+
+I campioni hanno l'istante assoluto (UTC) del registratore di Scope con risoluzione di 100 ns; i canali con periodi diversi restano distinti, senza interpolazione. FDA e RBF accettano al massimo 64 segnali: con più canali si scelgono quelli da esportare. I valori sono quelli grezzi del file (nessuna scala o offset del progetto viene applicata). Verificato su tipi REAL32; gli altri tipi numerici (interi, REAL64, BOOL) seguono la stessa struttura ma non sono stati provati con file reali.
 
 ## Tipo di dato scelto automaticamente
 

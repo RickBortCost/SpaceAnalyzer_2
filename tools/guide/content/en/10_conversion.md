@@ -24,7 +24,7 @@ The Conversion section (Tools menu → Conversion) transforms a recorded file in
 
 | Item | Details |
 |---|---|
-| Sources | CSV, Parquet, FDA DAS4 (.das), RBF v3 and DAT (iba PDA3). |
+| Sources | CSV, Parquet, FDA DAS4 (.das), RBF v3, TwinCAT Scope projects (.svdx), DAT (iba PDA3) and primary captures (.sac). |
 | Targets | CSV, Apache Parquet, FDA DAS4 and RBF v3. |
 | Samples | Every sample of the selection is written with value, quality and timestamp, without reduction. Instants in which an FDA/RBF channel has no value («missing») are not samples and are not reported. Names, units, period and session data go into the metadata of the new file. |
 | Format limits | CSV and Parquet are lossless. FDA DAS4 stores scaled Int16 values (the rounding error is in the metadata) and times at millisecond resolution. FDA and RBF accept at most 64 signals. An RBF file holds at most 57,600 instants: longer recordings are split into several parts. Each FDA file is closed before exceeding about 255 MB of RAM in the FDA program and the conversion continues in `_FDA0002`, `_FDA0003`…, without losing samples. |
@@ -47,6 +47,21 @@ During every recording the application also writes a **primary capture** with al
 The export writes every original sample of the chosen signals and interval. A capture that is **interrupted or damaged at the end** is not refused: all valid blocks are exported and the final message states the cause (for example «Capture not closed correctly» or «Capture closed with an error» with the number of samples that never reached the capture). With FDA DAS4 and RBF the non-periodic ADS notifications stay only in the capture and the maximum is 64 signals; CSV and Parquet export everything. The original file is not modified.
 
 From the command line, without starting the interface: `--tool export-sac <file.sac> csv|parquet|das|rbf [folder]`. Without a folder, files go to the `Conversioni` subfolder of the recordings; the result (samples, files, warnings) is printed as JSON.
+
+## TwinCAT Scope projects (.svdx)
+
+**Beckhoff TwinCAT Scope** projects saved with their data included («Include data in SVDX») open like any other recording and can be converted to CSV, Parquet, FDA DAS4 or RBF. Beckhoff does not publish the format specification: the reader was derived from a reference file (94 REAL32 channels at 1 ms) and checks the structure on every read; a file that does not match is refused with a message instead of producing wrong data.
+
+![conversion_svdx](Scope project (.svdx) with two of three channels selected.)
+
+| N. | Element |
+|---|---|
+| 1 | **Scope project** in the list (format «TwinCAT Scope (.svdx)»). A file from another PC is added with «Open file from PC…». |
+| 2 | **Channels**: every channel of the project is a signal, with the name given in Scope and the unit if present. Only the selected ones are converted. |
+| 3 | **Interval**: from/to within the recording. With fewer channels and a shorter period the output file is proportionally smaller. |
+| 4 | **Convert**. |
+
+Samples carry the absolute (UTC) time of the Scope recorder with 100 ns resolution; channels with different periods stay separate, without interpolation. FDA and RBF accept at most 64 signals: with more channels, choose the ones to export. Values are the raw values of the file (no scale or offset of the project is applied). Verified on REAL32 types; the other numeric types (integers, REAL64, BOOL) follow the same structure but have not been tried with real files.
 
 ## Automatically chosen data type
 

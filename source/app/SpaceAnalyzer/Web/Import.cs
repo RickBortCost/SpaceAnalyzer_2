@@ -53,7 +53,7 @@ public static class Import
             if (original.Length == 0) original = "registrazione";
             var suffix = Path.GetExtension(original).ToLowerInvariant();
             if (suffix == ".json") continue;
-            if (suffix is not (".csv" or ".parquet" or ".das" or ".rbf" or ".dat")) { errors.Add(original + ": formato non supportato"); continue; }
+            if (suffix is not (".csv" or ".parquet" or ".das" or ".rbf" or ".svdx" or ".dat")) { errors.Add(original + ": formato non supportato"); continue; }
             var target = Path.Combine(directory, Token() + suffix);
             try
             {

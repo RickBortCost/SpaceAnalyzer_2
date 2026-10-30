@@ -116,7 +116,7 @@ async function openConvertedFile(file){
 async function importConversionFiles(list){
   const files=[...list||[]];if(!files.length)return;
   if(files.some(f=>/\.sac(\.part)?$/i.test(String(f.name||''))))throw new Error(I18N.t("Gli archivi primari (.sac) non si caricano dal browser: usa Strumenti → Conversione e «Apri archivio primario…»."));
-  if(files.some(f=>!['.csv','.parquet','.das','.rbf','.dat','.json'].some(ext=>String(f.name||'').toLowerCase().endsWith(ext))))throw new Error(I18N.t("Seleziona CSV, Parquet, FDA DAS4, RBF, DAT PDA3 e relativi JSON."));
+  if(files.some(f=>!['.csv','.parquet','.das','.rbf','.svdx','.dat','.json'].some(ext=>String(f.name||'').toLowerCase().endsWith(ext))))throw new Error(I18N.t("Seleziona CSV, Parquet, FDA DAS4, RBF, Scope .svdx, DAT PDA3 e relativi JSON."));
   const form=new FormData();for(const f of files)form.append('files',f,f.name);
   form.append('pda3_timezone_offset_minutes',document.getElementById('history-dat-offset')?.value||'120');form.append('join_pda3',String(!!document.getElementById('history-dat-join')?.checked));
   convEl('conv-list-status').textContent=I18N.t('Importazione dei file…');
