@@ -52,6 +52,7 @@ function renderConversion(){
     ...convInfo('Inizio',historyFormatStamp(f.started_at)),...(f.source==='primary'?[]:[...convInfo('Durata',historyDuration(f.duration_seconds)),...convInfo('Campioni',f.rows_written==null?'—':Number(f.rows_written).toLocaleString(I18N.locale()))]));
   if(!f)return;
   const format=convEl('conv-format').value,limit=CONV_LIMIT[format],count=CONV.chosen.size,total=convSignals().length;
+  convEl('conv-split-box').hidden=f.source!=='primary';convEl('conv-split').disabled=running||applicationClosed;
   convEl('conv-format-note').textContent=I18N.t(CONV_NOTES[format])+(format===f.format?' '+I18N.t('Stesso formato del file di origine: viene creata una copia con la selezione indicata.'):'')+(f.source==='primary'?' '+I18N.t('Archivio primario: contiene tutti i campioni originali della registrazione; se è interrotto o danneggiato si esporta fino all’ultimo blocco valido.'):'');
   const query=convEl('conv-signal-search').value.trim().toLowerCase(),list=convEl('conv-signal-list');list.replaceChildren();
   for(const s of convSignals()){
@@ -92,6 +93,7 @@ function renderConversionJob(){
 async function startConversion(){
   const f=CONV.file;if(!f||convRunning())return;convError('');
   const body={source:f.source||'repository',name:f.name,format:convEl('conv-format').value};
+  if(f.source==='primary')body.split_minutes=Number(convEl('conv-split').value);
   if(CONV.chosen.size!==convSignals().length)body.signal_ids=[...CONV.chosen];
   const from=convEl('conv-from').value,to=convEl('conv-to').value;
   if(from&&from!==CONV.range.from)body.start_ms=msFromLocalInput(from);

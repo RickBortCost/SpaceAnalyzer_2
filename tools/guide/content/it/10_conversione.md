@@ -42,11 +42,12 @@ Durante ogni registrazione l'applicazione scrive anche un **archivio primario** 
 | 1 | **Archivio primario** nell'elenco: tipo (completo, incompleto, interrotto `.part`, recuperato), dimensione e inizio. L'elenco legge solo l'intestazione, quindi compare subito anche per file da decine di GB. |
 | 2 | **Informazioni**: formato, dimensione, numero di segnali e inizio. Durata e numero di campioni non sono mostrati perché richiederebbero di leggere tutto il file. |
 | 3 | **Nota del formato**: ricorda che l'archivio contiene tutti i campioni originali. |
-| 4 | **Converti**: segnali e intervallo si scelgono come per le altre sorgenti. |
+| 4 | **Dividi in file da**: ogni file prodotto copre 15 minuti di tempo registrato (5, 30, 60 minuti o «Un solo file» a scelta); l'ultimo può essere più breve. |
+| 5 | **Converti**: segnali e intervallo si scelgono come per le altre sorgenti. |
 
-L'esportazione scrive tutti i campioni originali dei segnali e dell'intervallo scelti. Un archivio **interrotto o danneggiato in coda** non viene rifiutato: si esportano tutti i blocchi validi e il messaggio finale indica la causa (ad esempio «Archivio non chiuso correttamente» oppure «Archivio chiuso con errore» con il numero di campioni non arrivati all'archivio). Con FDA DAS4 e RBF le notifiche ADS non periodiche restano solo nell'archivio e il massimo è di 64 segnali; con CSV e Parquet si esporta tutto. Il file originale non viene modificato.
+L'esportazione scrive tutti i campioni originali dei segnali e dell'intervallo scelti, **divisi in file da 15 minuti** di tempo registrato (contati dal primo campione esportato; il taglio cade tra due istanti, senza spezzare un ciclo): un archivio di ore diventa una serie di file piccoli, facili da aprire. Con «Un solo file» si ottiene un unico file; l'ultimo file può essere più breve. Un archivio **interrotto o danneggiato in coda** non viene rifiutato: si esportano tutti i blocchi validi e il messaggio finale indica la causa (ad esempio «Archivio non chiuso correttamente» oppure «Archivio chiuso con errore» con il numero di campioni non arrivati all'archivio). Con FDA DAS4 e RBF le notifiche ADS non periodiche restano solo nell'archivio e il massimo è di 64 segnali; con CSV e Parquet si esporta tutto. Il file originale non viene modificato.
 
-Da riga di comando, senza avviare l'interfaccia: `--tool export-sac <file.sac> csv|parquet|das|rbf [cartella]`. Senza cartella i file vanno nella sottocartella `Conversioni` delle registrazioni; il risultato (campioni, file, avvisi) è stampato in JSON.
+Da riga di comando, senza avviare l'interfaccia: `--tool export-sac <file.sac> csv|parquet|das|rbf [cartella] [minuti]`; i minuti per file sono 15 se omessi (0 = un solo file). Senza cartella i file vanno nella sottocartella `Conversioni` delle registrazioni; il risultato (campioni, file, avvisi) è stampato in JSON.
 
 ## Progetti TwinCAT Scope (.svdx)
 

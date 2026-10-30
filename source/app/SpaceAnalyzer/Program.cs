@@ -60,8 +60,8 @@ public static class Program
                 "recover" when args.Length >= 2 => Recordings.PrimaryRecovery.Recover(args[1], args.Length > 2 ? args[2] : null),
                 "inspect" when args.Length >= 2 => Recordings.PrimaryRecovery.InspectReport(args[1]),
                 "export-fda" or "export-rbf" when args.Length >= 3 => Export(args[0], args[1], args[2]),
-                "export-sac" when args.Length >= 3 => ExportSac(args[1], args[2], args.Length > 3 ? args[3] : null),
-                _ => throw new UserError("Uso: --tool inspect <file.sac> | recover <file.sac.part> [output] | export-sac <file.sac> csv|parquet|das|rbf [cartella] | export-fda|export-rbf <originale.parquet> <nodi.json> [max_bytes]"),
+                "export-sac" when args.Length >= 3 => ExportSac(args[1], args[2], args.Length > 3 ? args[3] : null, args.Length > 4 ? args[4] : null),
+                _ => throw new UserError("Uso: --tool inspect <file.sac> | recover <file.sac.part> [output] | export-sac <file.sac> csv|parquet|das|rbf [cartella] [minuti per file, 15; 0 = un solo file] | export-fda|export-rbf <originale.parquet> <nodi.json> [max_bytes]"),
             };
             Console.WriteLine(Py.DumpsPlain(result, indent: true));
             return 0;
@@ -72,9 +72,10 @@ public static class Program
             return 1;
         }
 
-        static object? ExportSac(string capture, string format, string? output)
+        static object? ExportSac(string capture, string format, string? output, string? minutes)
         {
-            var result = Recordings.PrimaryExport.Export(capture, format.ToLowerInvariant(), output ?? Recordings.PrimaryExport.DefaultOutput(capture), Defaults.Version);
+            var split = minutes == null ? Recordings.PrimaryExport.DefaultSplitMinutes : Py.TryFloat(minutes, out var m) ? m : throw new UserError("Minuti per file non validi");
+            var result = Recordings.PrimaryExport.Export(capture, format.ToLowerInvariant(), output ?? Recordings.PrimaryExport.DefaultOutput(capture), Defaults.Version, splitMinutes: split);
             return new Dictionary<string, object?>
             {
                 ["format"] = result.Format, ["samples"] = result.Samples, ["channels"] = (long)result.Channels, ["finalized"] = result.Finalized, ["warning"] = result.Warning,

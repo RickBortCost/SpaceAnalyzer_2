@@ -17,6 +17,10 @@ public static class PrimaryExport
 {
     public static readonly string[] Formats = ["csv", "parquet", "das", "rbf"];
 
+    /// <summary>Default length of each exported file, in minutes of recorded time (0 = a single file).</summary>
+    public const double DefaultSplitMinutes = 15;
+    public const double MaxSplitMinutes = 24 * 60;
+
     public sealed record Result(string Format, long Samples, int Channels, List<Dictionary<string, object?>> Files, bool Finalized, string? Warning, double? First, double? Last);
 
     /// <summary>A file name (no folders) of a primary capture.</summary>
@@ -71,8 +75,10 @@ public static class PrimaryExport
     }
 
     public static Result Export(string path, string format, string output, string version, IReadOnlyCollection<string>? signalIds = null, double? start = null, double? end = null,
-        Action<long>? progress = null, CancellationToken cancel = default)
+        Action<long>? progress = null, CancellationToken cancel = default, double splitMinutes = DefaultSplitMinutes)
     {
+        if (!double.IsFinite(splitMinutes) || splitMinutes < 0 || splitMinutes > MaxSplitMinutes) throw new UserError("Durata dei file non valida: da 0 (un solo file) a 1440 minuti");
+        var windowMs = splitMinutes * 60_000;
         if (!Formats.Contains(format)) throw new UserError("Formato di destinazione non valido: scegliere csv, parquet, das o rbf");
         if (!File.Exists(path)) throw new UserError("Archivio primario non trovato: " + path);
         using var reader = new SacReader(path);
@@ -93,10 +99,12 @@ public static class PrimaryExport
         {
             IFormatRecorder? writer = null;
             long rows = 0;
-            double? first = null, last = null, current = null;
+            double? first = null, last = null, current = null, windowStart = null;
             string? damage = null;
             var group = new List<Sample>();
             var period = 1;
+            var files = new List<Dictionary<string, object?>>();
+            var parts = 0;
 
             void Flush()
             {
@@ -114,6 +122,33 @@ public static class PrimaryExport
                 progress?.Invoke(rows);
             }
 
+            // Closes the file being written (one part of the export) and moves what it produced next to the other parts.
+            void ClosePart()
+            {
+                if (writer == null) return;
+                writer.Stop("primary_export", Timeout.InfiniteTimeSpan);
+                if (writer.Error.Length > 0) throw new InvalidOperationException(writer.Error);
+                var partWork = Path.Combine(work, "p" + parts.ToString(CultureInfo.InvariantCulture));
+                var status = writer.StatusJson();
+                var produced = status.GetProperty("files").EnumerateArray().Select(f => (name: f.GetProperty("name").GetString()!, rows: f.TryGetProperty("rows", out var r) && r.TryGetInt64(out var n) ? n : 0L)).ToList();
+                if (produced.Count == 0) throw new InvalidDataException("L'esportazione non ha prodotto file");
+                foreach (var (name, fileRows) in produced)
+                {
+                    var source = Path.Combine(partWork, name);
+                    var target = Conversions.Unique(Path.Combine(output, name));
+                    var sidecar = RecordingLibrary.MetadataPath(source);
+                    if (File.Exists(sidecar)) File.WriteAllText(RecordingLibrary.MetadataPath(target), Retarget(File.ReadAllText(sidecar), sourceName));
+                    File.Move(source, target);
+                    moved.Add(target);
+                    files.Add(new()
+                    {
+                        ["name"] = Conversions.Folder + "/" + Path.GetFileName(target), ["file"] = Path.GetFileName(target), ["path"] = target,
+                        ["bytes"] = new FileInfo(target).Length, ["rows"] = fileRows, ["format"] = Path.GetExtension(target).TrimStart('.').ToLowerInvariant(),
+                    });
+                }
+                writer = null;
+            }
+
             foreach (var (t, samplePeriod, sample) in reader.TolerantSamples(message => damage = message))
             {
                 cancel.ThrowIfCancellationRequested();
@@ -121,40 +156,30 @@ public static class PrimaryExport
                 if (start != null && t < start || end != null && t > end) continue;
                 // Notifications are kept only in the primary capture; FDA and RBF are fixed-rate formats.
                 if (format is "das" or "rbf" && sample.AcquisitionOrigin == "notification") continue;
+                if (current != t)
+                {
+                    Flush();
+                    current = t; period = samplePeriod;
+                    // A new file every windowMs of recorded time, counted from the first exported sample; the cut falls between two instants.
+                    if (writer != null && windowMs > 0 && t >= windowStart!.Value + windowMs) { ClosePart(); }
+                }
                 if (writer == null)
                 {
-                    writer = FormatRecorders.Create(format, work, version);
+                    var partWork = Path.Combine(work, "p" + (++parts).ToString(CultureInfo.InvariantCulture));
+                    Directory.CreateDirectory(partWork);
+                    writer = FormatRecorders.Create(format, partWork, version);
                     writer.Start(format, channels, endpoint, Math.Max(1, samplePeriod), options);
+                    windowStart = windowMs > 0 && windowStart != null ? windowStart + Math.Floor((t - windowStart.Value) / windowMs) * windowMs : t;
                 }
-                if (current != t) { Flush(); current = t; period = samplePeriod; }
                 group.Add(sample);
                 first ??= t;
                 last = t;
             }
-            if (writer == null) throw new UserError(damage != null
+            if (writer == null && parts == 0) throw new UserError(damage != null
                 ? "Nessun campione leggibile nell'archivio primario: " + damage
                 : "Nessun campione da esportare nella selezione (segnali e intervallo)");
             Flush();
-            writer.Stop("primary_export", Timeout.InfiniteTimeSpan);
-            if (writer.Error.Length > 0) throw new InvalidOperationException(writer.Error);
-            var status = writer.StatusJson();
-            var produced = status.GetProperty("files").EnumerateArray().Select(f => (name: f.GetProperty("name").GetString()!, rows: f.TryGetProperty("rows", out var r) && r.TryGetInt64(out var n) ? n : 0L)).ToList();
-            if (produced.Count == 0) throw new InvalidDataException("L'esportazione non ha prodotto file");
-            var files = new List<Dictionary<string, object?>>();
-            foreach (var (name, fileRows) in produced)
-            {
-                var source = Path.Combine(work, name);
-                var target = Conversions.Unique(Path.Combine(output, name));
-                var sidecar = RecordingLibrary.MetadataPath(source);
-                if (File.Exists(sidecar)) File.WriteAllText(RecordingLibrary.MetadataPath(target), Retarget(File.ReadAllText(sidecar), sourceName));
-                File.Move(source, target);
-                moved.Add(target);
-                files.Add(new()
-                {
-                    ["name"] = Conversions.Folder + "/" + Path.GetFileName(target), ["file"] = Path.GetFileName(target), ["path"] = target,
-                    ["bytes"] = new FileInfo(target).Length, ["rows"] = fileRows, ["format"] = Path.GetExtension(target).TrimStart('.').ToLowerInvariant(),
-                });
-            }
+            ClosePart();
             string? warning = null;
             if (damage != null) warning = $"Archivio troncato o danneggiato dopo il campione {rows:N0}: esportati i campioni validi ({damage})";
             else if (!reader.Finalized) warning = "Archivio non chiuso correttamente (manca il blocco finale): esportati tutti i campioni leggibili";

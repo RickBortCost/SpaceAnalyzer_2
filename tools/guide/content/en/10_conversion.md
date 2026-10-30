@@ -42,11 +42,12 @@ During every recording the application also writes a **primary capture** with al
 | 1 | **Primary capture** in the list: type (complete, incomplete, interrupted `.part`, recovered), size and start. The list reads only the header, so it appears immediately even for files of tens of GB. |
 | 2 | **Information**: format, size, number of signals and start. Duration and sample count are not shown because they would require reading the whole file. |
 | 3 | **Format note**: reminds that the capture holds every original sample. |
-| 4 | **Convert**: signals and interval are chosen as for the other sources. |
+| 4 | **Split into files of**: every file produced covers 15 minutes of recorded time (5, 30, 60 minutes or «A single file» can be chosen); the last one may be shorter. |
+| 5 | **Convert**: signals and interval are chosen as for the other sources. |
 
-The export writes every original sample of the chosen signals and interval. A capture that is **interrupted or damaged at the end** is not refused: all valid blocks are exported and the final message states the cause (for example «Capture not closed correctly» or «Capture closed with an error» with the number of samples that never reached the capture). With FDA DAS4 and RBF the non-periodic ADS notifications stay only in the capture and the maximum is 64 signals; CSV and Parquet export everything. The original file is not modified.
+The export writes every original sample of the chosen signals and interval, **split into files of 15 minutes** of recorded time (counted from the first exported sample; the cut falls between two instants, never inside a cycle): an archive of hours becomes a series of small files that are easy to open. With «A single file» one file is produced; the last file may be shorter. A capture that is **interrupted or damaged at the end** is not refused: all valid blocks are exported and the final message states the cause (for example «Capture not closed correctly» or «Capture closed with an error» with the number of samples that never reached the capture). With FDA DAS4 and RBF the non-periodic ADS notifications stay only in the capture and the maximum is 64 signals; CSV and Parquet export everything. The original file is not modified.
 
-From the command line, without starting the interface: `--tool export-sac <file.sac> csv|parquet|das|rbf [folder]`. Without a folder, files go to the `Conversioni` subfolder of the recordings; the result (samples, files, warnings) is printed as JSON.
+From the command line, without starting the interface: `--tool export-sac <file.sac> csv|parquet|das|rbf [folder] [minutes]`; minutes per file default to 15 (0 = a single file). Without a folder, files go to the `Conversioni` subfolder of the recordings; the result (samples, files, warnings) is printed as JSON.
 
 ## TwinCAT Scope projects (.svdx)
 

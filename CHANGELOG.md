@@ -2,6 +2,15 @@
 
 Il numero di versione e la data di ogni release sono assegnati dalla pipeline (vedi `VERSIONI.md`); per le versioni 1.x vedi `source/CHANGELOG.txt`.
 
+## 3.17.0
+
+- **Archivi primari esportati in file da 15 minuti**: la conversione di un archivio primario (.sac) scrive una serie di file, ciascuno con 15 minuti di tempo registrato (CSV, Parquet, FDA o RBF), invece di un unico file. Nella pagina Conversione la scelta «Dividi in file da» offre 15 (predefinito), 5, 30, 60 minuti o «Un solo file»; da riga di comando `--tool export-sac <file.sac> formato [cartella] [minuti]` (15 se omesso, 0 = un solo file). Motivo: un archivio di ore produceva un file enorme e scomodo da aprire; file piccoli si aprono subito e si possono scegliere per periodo.
+- **Dove cade il taglio**: i minuti sono contati dal primo campione esportato (non dall'ora del giorno) e il taglio cade tra due istanti, mai dentro un ciclo; un'interruzione più lunga della durata salta le finestre vuote, senza creare file vuoti. Ogni file ha il proprio file di metadati e i campioni di tutti i file insieme sono esattamente quelli dell'archivio. Motivo: nessun campione perso o duplicato, nessun file vuoto.
+- **FDA e RBF**: ogni parte è chiusa e convertita prima di iniziare la successiva; il limite di 64 segnali e l'esclusione delle notifiche ADS non cambiano. Motivo: i due formati si scrivono a fine parte, quindi un file completo è subito utilizzabile mentre l'esportazione prosegue.
+- **Annullamento o errore**: i file già completati vengono eliminati insieme a quelli parziali (come prima per un file solo). Motivo: nessun risultato a metà.
+- Test: `PrimaryExportTests` (CSV, Parquet, FDA e RBF divisi in 3 file da 15 s con le righe attese e tutti i cicli coperti una sola volta; predefinito 15 minuti; 0 = un file; durate non valide rifiutate); `test_s7_ui.cjs` e `test_conversion_ui.cjs` (scelta visibile solo per gli archivi primari, un file con il predefinito). Nuove stringhe in cinque lingue.
+- **Guida illustrata**: figura e tabella dell'archivio primario con la nuova scelta, riga di comando aggiornata, tabella delle novità; PDF 3.17 al posto del 3.16. Motivo: regola di CLAUDE.md per le versioni minori.
+
 ## 3.16.1
 
 - **Barra di avanzamento percentuale in tutta la conversione**: la pagina Conversione mostra ora una percentuale complessiva in ogni fase: caricamento del file scelto con «Apri file dal PC…» (percentuale e MB inviati, poi «Lettura del file caricato…»), lettura dei campioni, preparazione dei dati e scrittura del file. Per FDA e RBF la barra pesa lettura 40%, preparazione 30% e scrittura 30%; per CSV e Parquet la sola lettura. Motivo: con file grandi la pagina restava ferma su «Importazione dei file…» e durante la conversione non si capiva a che punto fosse, soprattutto dopo la lettura.

@@ -54,9 +54,11 @@ async function page(){
   await wait(()=>!$('conversion-page').hidden&&sacItem(),'primary capture listed in Conversione');
   sacItem().click();assert.equal(t.conv().file.source,'primary');assert.equal(t.conv().file.format,'sac');assert(t.conv().file.signals.length>=1);
   assert($('conv-format-note').textContent.includes('Archivio primario'));
+  assert(!$('conv-split-box').hidden);assert.equal($('conv-split').value,'15');
   $('conv-format').value='csv';$('conv-format').dispatchEvent(new w.Event('change'));$('conv-start').click();
   await wait(()=>t.conv().job&&t.conv().job.state!=='running','primary capture export finished');
   assert.equal(t.conv().job.state,'ready',t.conv().job.error);assert(t.conv().job.rows_read>15);assert(t.conv().job.files[0].name.endsWith('.csv'));assert.equal(t.conv().job.warning,null);
+  assert.equal(t.conv().job.split_minutes,15);assert.equal(t.conv().job.files.length,1);
   const exported=await(await fetch(base+'/api/recordings')).json();assert(exported.files.some(f=>f.name===t.conv().job.files[0].name),'exported file listed in Registrazioni');
   $('nav-live').click();
   // Symbolic tree: one click selects every variable of a structure/array branch (the CPU answer is simulated here).

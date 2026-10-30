@@ -458,7 +458,7 @@ def fig_conversion_sac(sh, stack):
     sh.wait(800)
     sh.page.select_option('#conv-format', 'parquet')
     sh.wait(500)
-    sh.shot('conversion_sac', [(1, sac), (2, '#conv-info'), (3, '#conv-format-note'), (4, '#conv-start')])
+    sh.shot('conversion_sac', [(1, sac), (2, '#conv-info'), (3, '#conv-format-note'), (4, '#conv-split-box'), (5, '#conv-start')])
 
 
 @figure
