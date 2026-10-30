@@ -6,7 +6,7 @@
 .conversion-file:hover:not(:disabled){background:var(--hover)}.conversion-file.active{border-color:var(--blue);box-shadow:inset 3px 0 0 var(--blue)}
 .conversion-badge{grid-row:span 2;align-self:center;font:600 10px/1 system-ui,sans-serif;padding:4px 6px;border-radius:4px;border:1px solid var(--blue);color:var(--blue);background:transparent;min-width:64px;box-sizing:border-box;text-align:center}
 .conversion-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 16px;margin:4px 0 14px}.conversion-info>div{min-width:0}.conversion-info dt{font-size:11px;color:var(--muted)}.conversion-info dd{margin:0;font-weight:600}
-.conversion-form{display:flex;flex-direction:column;gap:12px}.conversion-format select{max-width:320px}
+.conversion-form{display:flex;flex-direction:column;gap:12px}.conversion-format select,.conversion-split select{max-width:320px}.conversion-split{display:flex;flex-direction:column;gap:4px}
 .conversion-signals{border:1px solid var(--line);border-radius:6px;padding:8px 10px;min-width:0}.conversion-signal-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.conversion-signal-tools input[type=search]{flex:1;min-width:160px}
 .conversion-signal-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:2px 12px;max-height:260px;overflow:auto;margin-top:8px}.conversion-signal-list .checkline span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #conv-signal-count.warning{color:var(--danger);font-weight:600}

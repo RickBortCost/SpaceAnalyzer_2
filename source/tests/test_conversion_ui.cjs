@@ -28,7 +28,7 @@ try{
  let listed=(await recordings()).find(f=>f.name===job.files[0].name);assert(listed,'converted file listed');assert.equal(listed.format,'parquet');assert.equal(listed.signals.length,2);assert.equal(Number(listed.rows_written),12000);
  assert.deepEqual(listed.signals.map(s=>s.display_name),['Temperatura','Potenza']);checks.push('CSV to Parquet, all samples');
  // Parquet -> FDA with one signal and the interval of the first 10 s.
- item('fixture_B.parquet').click();assert.equal($('conv-format').value,'csv');$('conv-format').value='das';$('conv-format').dispatchEvent(new w.Event('change'));
+ item('fixture_B.parquet').click();assert($('conv-split-box').hidden,'split choice only for primary captures');assert.equal($('conv-format').value,'csv');$('conv-format').value='das';$('conv-format').dispatchEvent(new w.Event('change'));
  assert($('conv-format-note').textContent.includes('Int16'));
  const boxes=[...$('conv-signal-list').querySelectorAll('input[type=checkbox]')];assert.equal(boxes.length,2);boxes[1].checked=false;boxes[1].dispatchEvent(new w.Event('change'));
  assert.equal($('conv-signal-count').textContent,'1 / 2 · max 64');assert($('conv-all').indeterminate);

@@ -145,7 +145,7 @@ public sealed class Conversions(Func<string> directory)
         return result;
     }
 
-    sealed record PrimaryJob(string Ident, string Path, string Name, string Format, List<string>? Signals, double? Start, double? End);
+    sealed record PrimaryJob(string Ident, string Path, string Name, string Format, List<string>? Signals, double? Start, double? End, double SplitMinutes);
 
     Dictionary<string, object?> StartPrimary(JsonNode? data)
     {
@@ -173,6 +173,8 @@ public sealed class Conversions(Func<string> directory)
         var start = Bound(data.Get("start_ms"));
         var end = Bound(data.Get("end_ms"));
         if (start != null && end != null && end < start) throw new UserError("L'intervallo deve avere una fine non precedente all'inizio");
+        var split = data.Get("split_minutes").IsNull() ? PrimaryExport.DefaultSplitMinutes : data.Get("split_minutes").Float() ?? double.NaN;
+        if (!double.IsFinite(split) || split < 0 || split > PrimaryExport.MaxSplitMinutes) throw new UserError("Durata dei file non valida: da 0 (un solo file) a 1440 minuti");
         lock (gate)
         {
             if (closed) throw new UserError("Servizio di conversione arrestato");
@@ -181,13 +183,13 @@ public sealed class Conversions(Func<string> directory)
             while (order.Count > 15) { jobs.Remove(order[0]); order.RemoveAt(0); }
             jobs[ident] = new Dictionary<string, object?>
             {
-                ["id"] = ident, ["state"] = "running", ["phase"] = "read", ["name"] = name, ["source"] = "primary", ["source_format"] = "sac",
+                ["split_minutes"] = split, ["id"] = ident, ["state"] = "running", ["phase"] = "read", ["name"] = name, ["source"] = "primary", ["source_format"] = "sac",
                 ["format"] = format, ["format_label"] = Targets[format], ["signal_count"] = (long)count, ["rows_read"] = 0L, ["rows_total"] = null,
                 ["files"] = new List<object?>(), ["directory"] = directory(), ["started_at"] = Values.PythonIso(DateTime.UtcNow), ["warning"] = null,
             };
             order.Add(ident);
             var cancel = running = new CancellationTokenSource();
-            var job = new PrimaryJob(ident, path, name!, format, signals, start, end);
+            var job = new PrimaryJob(ident, path, name!, format, signals, start, end, split);
             new Thread(() => RunPrimary(job, cancel.Token)) { IsBackground = true, Name = "primary-export" }.Start();
             return Status(ident);
         }
@@ -198,7 +200,7 @@ public sealed class Conversions(Func<string> directory)
         try
         {
             var result = PrimaryExport.Export(job.Path, job.Format, directory(), Config.Defaults.Version, job.Signals, job.Start, job.End,
-                rows => Update(job.Ident, ("rows_read", rows)), cancel);
+                rows => Update(job.Ident, ("rows_read", rows)), cancel, job.SplitMinutes);
             Update(job.Ident, ("state", "ready"), ("phase", "done"), ("rows_read", result.Samples), ("files", result.Files.Cast<object?>().ToList()),
                 ("warning", result.Warning), ("finished_at", Values.PythonIso(DateTime.UtcNow)));
             Log.Info($"Esportazione archivio primario {job.Name} -> {job.Format}: {result.Samples} campioni, {result.Files.Count} file" + (result.Warning != null ? " (" + result.Warning + ")" : ""));

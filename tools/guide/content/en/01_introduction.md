@@ -34,6 +34,7 @@ The interface labels in the screenshots are in Italian; the language can be chan
 | **3.14.0** | S7: **PLC timestamp** and cycle coherence check (classic and symbolic); **Select branch** in the S7 symbol tree. |
 | **3.15.0** | **Export of primary captures (.sac)** to CSV, Parquet, FDA or RBF from the Conversion page and with `--tool export-sac`. |
 | **3.16.0** | Conversion and opening of **TwinCAT Scope (.svdx)** projects with embedded data: choice of channels and period to reduce the file; writing to CSV, Parquet, FDA or RBF. |
+| **3.17.0** | Primary capture (.sac) export **split into files of 15 minutes** (5, 30, 60 minutes or a single file can be chosen); overall percentage progress bar throughout the conversion (3.16.1). |
 
 ## Starting on Windows
 

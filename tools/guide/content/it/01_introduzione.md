@@ -32,6 +32,7 @@ Dalla versione 3.0 il prodotto non contiene più Python. L'EXE Windows è compos
 | **3.14.0** | S7: **timestamp PLC** e controllo della coerenza di ciclo (classico e simbolico); **Seleziona ramo** nell'albero dei simboli S7. |
 | **3.15.0** | **Esportazione degli archivi primari (.sac)** in CSV, Parquet, FDA o RBF dalla pagina Conversione e con `--tool export-sac`. |
 | **3.16.0** | Conversione e apertura dei progetti **TwinCAT Scope (.svdx)** con i dati inclusi: scelta dei canali e del periodo per ridurre il file; scrittura in CSV, Parquet, FDA o RBF. |
+| **3.17.0** | Esportazione degli archivi primari (.sac) **divisa in file da 15 minuti** (5, 30, 60 minuti o un solo file a scelta); barra di avanzamento percentuale in tutta la conversione (3.16.1). |
 
 ## Avvio su Windows
 

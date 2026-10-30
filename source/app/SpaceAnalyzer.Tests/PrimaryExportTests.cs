@@ -8,6 +8,7 @@ using Xunit;
 namespace SpaceAnalyzer.Tests;
 
 /// <summary>Esportazione degli archivi primari (.sac): ogni campione originale torna in un file leggibile.</summary>
+[Collection("FdaLimit")]
 public class PrimaryExportTests
 {
     const double T0 = 1_700_000_000_000d;
@@ -94,6 +95,43 @@ public class PrimaryExportTests
         Assert.All(result.Files, f => Assert.EndsWith(format == "das" ? ".das" : ".rbf", (string)f["file"]!));
         Assert.DoesNotContain(Directory.GetFiles(output), f => f.EndsWith(".parquet"));
         Assert.Empty(Directory.GetDirectories(output));
+    }
+
+    [Theory]
+    [InlineData("csv")]
+    [InlineData("parquet")]
+    [InlineData("das")]
+    [InlineData("rbf")]
+    public void Long_captures_are_split_into_files_of_the_requested_recorded_time(string format)
+    {
+        using var dir = new TempDir();
+        var capture = Capture(dir.Path);   // 400 cycles of 100 ms = 40 s
+        var output = Path.Combine(dir.Path, "Conversioni");
+        var result = PrimaryExport.Export(capture, format, output, "test", splitMinutes: 0.25);   // 15 s: 150 cycles per file
+        Assert.Equal(Cycles * Ids.Length, result.Samples);
+        Assert.Equal(3, result.Files.Count);
+        Assert.Equal(new long[] { 150 * 3, 150 * 3, 100 * 3 }, result.Files.Select(f => (long)f["rows"]!).ToArray());
+        Assert.Equal(3, result.Files.Select(f => (string)f["path"]!).Distinct().Count());
+        Assert.All(result.Files, f => Assert.True(File.Exists((string)f["path"]!)));
+        Assert.Empty(Directory.GetDirectories(output));   // no work folder left behind
+        // Every sample appears in exactly one file, in order: the parts together cover the whole capture.
+        var library = new RecordingLibrary(dir.Path);
+        var times = result.Files.SelectMany(f => library.IterRows((string)f["path"]!).Select(r => RowValues.Finite(r.Value("timestamp_ms"))!.Value).Distinct().OrderBy(x => x)).ToList();
+        Assert.Equal(Cycles, times.Count);
+        Assert.Equal(times.OrderBy(x => x), times);
+    }
+
+    [Fact]
+    public void Default_splits_every_fifteen_minutes_and_zero_keeps_a_single_file()
+    {
+        Assert.Equal(15, PrimaryExport.DefaultSplitMinutes);
+        using var dir = new TempDir();
+        var capture = Capture(dir.Path, cycles: 40);
+        var output = Path.Combine(dir.Path, "Conversioni");
+        Assert.Single(PrimaryExport.Export(capture, "csv", output, "test").Files);
+        Assert.Single(PrimaryExport.Export(capture, "csv", output, "test", splitMinutes: 0).Files);
+        Assert.Throws<UserError>(() => PrimaryExport.Export(capture, "csv", output, "test", splitMinutes: -1));
+        Assert.Throws<UserError>(() => PrimaryExport.Export(capture, "csv", output, "test", splitMinutes: 5000));
     }
 
     [Fact]

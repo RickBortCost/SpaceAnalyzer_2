@@ -7,6 +7,8 @@ using Xunit;
 
 namespace SpaceAnalyzer.Tests;
 
+// One collection: a test lowers the static FDA size limit, which must not leak into the exports of the other classes running in parallel.
+[Collection("FdaLimit")]
 public class ConversionTests
 {
     const double Base = 1700000000000;
